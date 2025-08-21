@@ -1,0 +1,14 @@
+{
+  "extends": "@repo/typescript-config/vite.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "noEmit": false,        // browser package but we want JS for tests
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": ["dist"]
+}

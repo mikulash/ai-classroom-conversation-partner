@@ -1,0 +1,37 @@
+{
+  "name": "figurant-complete",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:web-backend": "turbo run dev --parallel --filter=figurant-backend... --filter=figurant-web...",
+    "dev:tauri-backend": "turbo run dev --parallel --filter=figurant-backend... --filter=figurant-tauri...",
+    "build": "turbo run build",
+    "build:web-backend": "turbo run build --parallel --filter=figurant-backend... --filter=figurant-web...",
+    "build:tauri-backend": "turbo run build --parallel --filter=figurant-backend... --filter=figurant-web...",
+    "start": "turbo run start --parallel",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.1",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "devDependencies": {
+    "eslint": "^9.25.0",
+    "i18next-scanner": "^4.6.0",
+    "prettier": "latest",
+    "turbo": "latest"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "18.3.1",
+      "@types/react-dom": "18.3.1"
+    }
+  }
+}

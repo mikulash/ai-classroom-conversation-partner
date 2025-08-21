@@ -1,0 +1,42 @@
+{
+  "name": "@repo/shared",
+  "version": "1.0.0",
+  "description": "Common TypeScript types and enums for the project",
+  "exports": {
+    "./enums/*": {
+      "import": "./dist/enums/*.js",
+      "types": "./dist/enums/*.d.ts"
+    },
+    "./types/*": {
+      "import": "./dist/types/*.js",
+      "types": "./dist/types/*.d.ts"
+    },
+    "./utils/*": {
+      "import": "./dist/utils/*.js",
+      "types": "./dist/utils/*.d.ts"
+    },
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "dev": "tsc -b --watch",
+    "build": "tsc -b",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "eslint": "^9.25.0",
+    "@types/node": "^22.15.6",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*"
+  }
+}

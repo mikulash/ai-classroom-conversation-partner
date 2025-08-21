@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@repo/typescript-config/vite.json",
+  "include": ["**/*.ts", "**/*.tsx", "**/*.json"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist",
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
+    "noEmit": false,
+    "types": ["react", "react-dom", "dom-speech-recognition"]
+  },
+}

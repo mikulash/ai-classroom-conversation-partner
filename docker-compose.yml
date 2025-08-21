@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: figurant-be
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile   # uses the multi‑stage file you showed
+    env_file:
+      - ./apps/backend/.env                 # runtime secrets / config
+    ports:
+      - "4000:4000"                         # host:container
+    restart: unless-stopped                 # nice for local dev
+
+  web:
+    container_name: figurant-web
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    env_file:
+      - ./apps/web/.env
+    ports:
+      - "4173:4173"
+    depends_on:
+      - backend                             # waits for backend container startup
+    restart: unless-stopped

@@ -1,0 +1,17 @@
+{
+  "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "lib": ["DOM", "ES2023"],
+    "noEmit": false,
+    "outDir": "dist",
+    "sourceMap": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
+  },
+  "include": [
+    "enums/**/*.ts",
+    "types/**/*.ts",
+    "utils/**/*.ts"
+  ],  "exclude": ["node_modules", "dist"]
+}

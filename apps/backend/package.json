@@ -1,0 +1,41 @@
+{
+  "name": "figurant-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.1",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@repo/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.49.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "elevenlabs": "^1.54.0",
+    "express": "^5.1.0",
+    "openai": "^4.91.1"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/express-serve-static-core": "^5.0.6",
+    "@types/node": "^22.14.1",
+    "esbuild": "^0.20.2",
+    "esbuild-register": "^3.5.0",
+    "eslint": "^9.25.0",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  }
+}

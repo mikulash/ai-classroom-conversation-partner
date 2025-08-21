@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["DOM", "DOM.Iterable", "ES2023"]
+  },
+  "types": ["dom-speech-recognition", "react", "react-dom"],
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": [
+        "PORT",
+        "OPENAI_API_KEY",
+        "ELEVENLABS_API_KEY",
+        "GROK_API_KEY",
+        "CLAUDE_API_KEY",
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "TAURI_DEV_HOST",
+        "SUPABASE_URL",
+        "VITE_SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "FRONTEND_URL",
+        "VITE_BACKEND_URL",
+        "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
+        "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
+        "VITE_SUPABASE_ANON_KEY",
+        "MODE"
+
+      ]
+    },
+    "start": {
+      "dependsOn": [
+        "^start"
+      ],
+      "persistent": true,
+      "cache": false,
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ]
+    },
+    "lint": {
+      "dependsOn": [
+        "^lint"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": ["^build", "^typecheck"],
+      "outputs": []
+    },
+    "dev": {
+      "dependsOn": ["^dev", "^build"],
+      "persistent": true,
+      "cache": false,
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "env": [
+        "PORT",
+        "OPENAI_API_KEY",
+        "ELEVENLABS_API_KEY",
+        "GROK_API_KEY",
+        "CLAUDE_API_KEY",
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "TAURI_DEV_HOST",
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "VITE_SUPABASE_URL",
+        "VITE_BACKEND_URL",
+        "VITE_SUPABASE_ANON_KEY",
+        "FRONTEND_URL",
+        "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
+        "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
+        "MODE"
+      ]
+    }
+  }
+}

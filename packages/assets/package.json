@@ -1,0 +1,23 @@
+{
+  "name": "@repo/assets",
+  "version": "1.0.0",
+  "description": "",
+  "exports": {
+    ".": "./index.ts",
+    "./avatars/*": "./avatars/*"
+  },
+  "files": [
+    "index.ts",
+    "avatars/*.glb",
+    "TalkingHead-1.4.0/**/*"
+  ],
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "three": "^0.174.0",
+    "@repo/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*"
+  }
+}
