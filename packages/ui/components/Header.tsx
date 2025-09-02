@@ -10,6 +10,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../hooks/useAppStore';
 import { isProfileAdmin } from '@repo/shared/utils/access';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { createInitials } from '@repo/shared/utils/usernameUtils';
 
 const Header: React.FC = () => {
   const { t, i18n } = useTypedTranslation();
@@ -31,13 +32,7 @@ const Header: React.FC = () => {
 
   const isAdmin = profile && isProfileAdmin(profile);
 
-  const initials =
-      profile?.full_name
-        ?.split(' ')
-        .map((w) => w[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase() ?? '👤';
+  const initials = createInitials(profile?.full_name);
 
   return (
     <header className="py-4 px-4 sm:px-6 shadow-md mb-4">
