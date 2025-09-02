@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useLocation } from 'react-router'; // if you use react-router-dom, import from 'react-router-dom'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
 import { LANGUAGE } from '@repo/shared/enums/Language';
@@ -22,8 +22,13 @@ const Header: React.FC = () => {
   const profile = useProfile();
   const isSignedIn = ready && !!session?.user;
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  // Disable language change on /chat/* but allow on /chat or /chat/
+  const langDisabled = /^\/chat\/.+/.test(pathname);
 
   const handleLanguageChange = (newIso: string) => {
+    if (langDisabled) return; // safety guard
     void i18n.changeLanguage(newIso);
   };
 
@@ -31,7 +36,6 @@ const Header: React.FC = () => {
   const currentLang = availableLangs.find((l) => l.ISO639 === i18n.language) || LANGUAGE.EN;
 
   const isAdmin = profile && isProfileAdmin(profile);
-
   const initials = createInitials(profile?.full_name);
 
   return (
@@ -53,12 +57,17 @@ const Header: React.FC = () => {
 
         <div className={`items-center flex-wrap gap-2 hidden sm:flex`}>
           <Select value={currentLang.ISO639} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-24 bg-white">
+            <SelectTrigger
+              className={`w-24 bg-white ${langDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+              disabled={langDisabled}
+              title={langDisabled ? t?.('languageChangeDisabledInChat') ?? 'Language change is disabled inside a chat thread.' : undefined}
+              aria-disabled={langDisabled}
+            >
               <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()} />
             </SelectTrigger>
             <SelectContent className="bg-white">
               {availableLangs.map((lang) => (
-                <SelectItem key={lang.ISO639} value={lang.ISO639}>
+                <SelectItem key={lang.ISO639} value={lang.ISO639} disabled={langDisabled}>
                   {lang.NATIVE_NAME} {lang.ISO639 === 'sk' ? t('slovakLanguageNote') : ''}
                 </SelectItem>
               ))}
@@ -92,10 +101,13 @@ const Header: React.FC = () => {
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
               </Link>
-              <Button variant="destructive" onClick={() => {
-                void signOut();
-                navigate('/');
-              }}>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  void signOut();
+                  navigate('/');
+                }}
+              >
                 {t('signOut')}
               </Button>
             </>
@@ -115,21 +127,28 @@ const Header: React.FC = () => {
                   aria-label="Close menu"
                   onClick={() => setMenuOpen(false)}
                 >
-                  &times;
+                                    &times;
                 </button>
               </div>
+
               <Select value={currentLang.ISO639} onValueChange={handleLanguageChange}>
-                <SelectTrigger className="w-full bg-white">
+                <SelectTrigger
+                  className={`w-full bg-white ${langDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  disabled={langDisabled}
+                  title={langDisabled ? t?.('languageChangeDisabledInChat') ?? 'Language change is disabled inside a chat thread.' : undefined}
+                  aria-disabled={langDisabled}
+                >
                   <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()} />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {availableLangs.map((lang) => (
-                    <SelectItem key={lang.ISO639} value={lang.ISO639}>
+                    <SelectItem key={lang.ISO639} value={lang.ISO639} disabled={langDisabled}>
                       {lang.NATIVE_NAME} {lang.ISO639 === 'sk' ? t('slovakLanguageNote') : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+
               {ready && !isSignedIn && (
                 <>
                   <Button asChild className="w-full" onClick={() => setMenuOpen(false)}>
@@ -144,6 +163,7 @@ const Header: React.FC = () => {
                   </Button>
                 </>
               )}
+
               {isSignedIn && (
                 <>
                   {isAdmin && (
