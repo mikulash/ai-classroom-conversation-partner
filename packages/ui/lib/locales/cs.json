@@ -330,7 +330,7 @@
   "startConversation": "Zahájit konverzaci",
   "startListening": "Zahájit poslech",
   "startSpeaking": "Začněte mluvit pro zahájení konverzace",
-  "status": "Stav:",
+  "status": "Stav",
   "stopListening": "Ukončit poslech",
   "thanksForRegistering": "Děkujeme za registraci",
   "ttsModel": "Model pro převod textu na řeč",

@@ -330,7 +330,7 @@
   "startConversation": "Start Conversation",
   "startListening": "Start listening",
   "startSpeaking": "Start speaking to begin the conversation",
-  "status": "Status:",
+  "status": "Status",
   "stopListening": "Stop listening",
   "thanksForRegistering": "Thanks for registering",
   "ttsModel": "TTS Model",
