@@ -44,9 +44,11 @@ export const AvatarTalkingHead = forwardRef<
 
     const loadingPrefix = isRetry ? 'Loading default avatar' : 'Loading avatar';
 
+    const completeUrl = avatarUrl.endsWith('.glb') ? avatarUrl : `${avatarUrl}.glb`;
+
     await headRef.current.showAvatar(
       {
-        url: avatarUrl,
+        url: completeUrl,
         body: props.personality.sex,
         avatarMood: 'neutral',
         lipsyncLang: language.ISO639,
