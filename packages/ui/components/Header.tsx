@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router'; // if you use react-router-dom, import from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
 import { LANGUAGE } from '@repo/shared/enums/Language';
@@ -11,9 +11,10 @@ import { useAppStore } from '../hooks/useAppStore';
 import { isProfileAdmin } from '@repo/shared/utils/access';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { createInitials } from '@repo/shared/utils/usernameUtils';
+import { Language } from '@repo/shared/types/language';
 
-const Header: React.FC = () => {
-  const { t, i18n } = useTypedTranslation();
+export default function Header() {
+  const { i18n } = useTypedTranslation();
   const { session, ready } = useSession();
   const { signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,16 +28,16 @@ const Header: React.FC = () => {
   // Disable language change on /chat/* but allow on /chat or /chat/
   const langDisabled = /^\/chat\/.+/.test(pathname);
 
-  const handleLanguageChange = (newIso: string) => {
-    if (langDisabled) return; // safety guard
-    void i18n.changeLanguage(newIso);
-  };
-
   const availableLangs = Object.values(LANGUAGE);
   const currentLang = availableLangs.find((l) => l.ISO639 === i18n.language) || LANGUAGE.EN;
 
-  const isAdmin = profile && isProfileAdmin(profile);
+  const isAdmin = !!profile && isProfileAdmin(profile);
   const initials = createInitials(profile?.full_name);
+
+  const handleLanguageChange = (newIso: string) => {
+    if (langDisabled) return;
+    void i18n.changeLanguage(newIso);
+  };
 
   return (
     <header className="py-4 px-4 sm:px-6 shadow-md mb-4">
@@ -45,156 +46,189 @@ const Header: React.FC = () => {
           <Link to="/">{app_name}</Link>
         </h1>
 
-        <button
-          className="sm:hidden flex flex-col justify-center items-center w-10 h-10 rounded focus:outline-none"
-          aria-label="Open menu"
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-          <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${menuOpen ? 'opacity-0' : ''}`}></span>
-          <span className={`block w-6 h-0.5 bg-black transition-all ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
-        </button>
+        <BurgerButton open={menuOpen} onToggle={() => setMenuOpen((o) => !o)} />
 
-        <div className={`items-center flex-wrap gap-2 hidden sm:flex`}>
-          <Select value={currentLang.ISO639} onValueChange={handleLanguageChange}>
-            <SelectTrigger
-              className={`w-24 bg-white ${langDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
-              disabled={langDisabled}
-              title={langDisabled ? t?.('languageChangeDisabledInChat') ?? 'Language change is disabled inside a chat thread.' : undefined}
-              aria-disabled={langDisabled}
-            >
-              <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()} />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              {availableLangs.map((lang) => (
-                <SelectItem key={lang.ISO639} value={lang.ISO639} disabled={langDisabled}>
-                  {lang.NATIVE_NAME} {lang.ISO639 === 'sk' ? t('slovakLanguageNote') : ''}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Desktop */}
+        <div className="items-center flex-wrap gap-2 hidden sm:flex">
+          <LanguageSelector
+            availableLangs={availableLangs}
+            currentLang={currentLang}
+            disabled={langDisabled}
+            onChange={handleLanguageChange}
+            compact
+          />
 
-          {ready && !isSignedIn && (
-            <>
-              <Button asChild>
-                <Link to="/auth" state={{ isSignIn: false }}>
-                  {t('register')}
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/auth" state={{ isSignIn: true }}>
-                  {t('signIn')}
-                </Link>
-              </Button>
-            </>
+          {!isSignedIn && ready && (
+            <AuthButtons />
           )}
 
           {isSignedIn && (
             <>
-              {isAdmin && (
-                <Button variant="secondary" asChild>
-                  <Link to="/admin">{t('adminSection')}</Link>
-                </Button>
-              )}
-              <Link to="/profile">
-                <Avatar>
-                  <AvatarFallback>{initials}</AvatarFallback>
-                </Avatar>
-              </Link>
-              <Button
-                variant="destructive"
-                onClick={() => {
+              {isAdmin && <AdminSectionButton />}
+              <ProfileAvatarLink initials={initials} />
+              <SignOutBtn
+                onSignOut={() => {
                   void signOut();
                   navigate('/');
                 }}
-              >
-                {t('signOut')}
-              </Button>
+              />
             </>
           )}
         </div>
 
-        {/* Mobile menu drawer */}
-        {menuOpen && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-40 sm:hidden" onClick={() => setMenuOpen(false)}>
-            <div
-              className="absolute top-0 right-0 w-64 h-full bg-white shadow-lg p-4 flex flex-col gap-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-end">
-                <button
-                  className="text-2xl font-bold"
-                  aria-label="Close menu"
-                  onClick={() => setMenuOpen(false)}
-                >
-                                    &times;
-                </button>
-              </div>
+        {/* Mobile menu */}
+        <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)}>
+          <LanguageSelector
+            availableLangs={availableLangs}
+            currentLang={currentLang}
+            disabled={langDisabled}
+            onChange={(iso) => {
+              handleLanguageChange(iso);
+            }}
+          />
 
-              <Select value={currentLang.ISO639} onValueChange={handleLanguageChange}>
-                <SelectTrigger
-                  className={`w-full bg-white ${langDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
-                  disabled={langDisabled}
-                  title={langDisabled ? t?.('languageChangeDisabledInChat') ?? 'Language change is disabled inside a chat thread.' : undefined}
-                  aria-disabled={langDisabled}
-                >
-                  <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()} />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {availableLangs.map((lang) => (
-                    <SelectItem key={lang.ISO639} value={lang.ISO639} disabled={langDisabled}>
-                      {lang.NATIVE_NAME} {lang.ISO639 === 'sk' ? t('slovakLanguageNote') : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {!isSignedIn && ready && (
+            <AuthButtons fullWidth onAnyClick={() => setMenuOpen(false)} />
+          )}
 
-              {ready && !isSignedIn && (
-                <>
-                  <Button asChild className="w-full" onClick={() => setMenuOpen(false)}>
-                    <Link to="/auth" state={{ isSignIn: false }}>
-                      {t('register')}
-                    </Link>
-                  </Button>
-                  <Button variant="outline" asChild className="w-full" onClick={() => setMenuOpen(false)}>
-                    <Link to="/auth" state={{ isSignIn: true }}>
-                      {t('signIn')}
-                    </Link>
-                  </Button>
-                </>
-              )}
-
-              {isSignedIn && (
-                <>
-                  {isAdmin && (
-                    <Button variant="secondary" asChild className="w-full" onClick={() => setMenuOpen(false)}>
-                      <Link to="/admin">{t('adminSection')}</Link>
-                    </Button>
-                  )}
-                  <Link to="/profile" onClick={() => setMenuOpen(false)}>
-                    <Avatar>
-                      <AvatarFallback>{initials}</AvatarFallback>
-                    </Avatar>
-                  </Link>
-                  <Button
-                    variant="destructive"
-                    className="w-full"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      void signOut();
-                      navigate('/');
-                    }}
-                  >
-                    {t('signOut')}
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+          {isSignedIn && (
+            <>
+              {isAdmin && <AdminSectionButton fullWidth onClick={() => setMenuOpen(false)} />}
+              <ProfileAvatarLink initials={initials} onClick={() => setMenuOpen(false)} />
+              <SignOutBtn
+                fullWidth
+                onSignOut={() => {
+                  setMenuOpen(false);
+                  void signOut();
+                  navigate('/');
+                }}
+              />
+            </>
+          )}
+        </MobileMenuDrawer>
       </div>
     </header>
   );
 };
 
-export default Header;
+
+const BurgerButton: React.FC<{ open: boolean; onToggle: () => void }> = ({ open, onToggle }) => (
+  <button
+    className="sm:hidden flex flex-col justify-center items-center w-10 h-10 rounded focus:outline-none"
+    aria-label={open ? 'Close menu' : 'Open menu'}
+    onClick={onToggle}
+  >
+    <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${open ? 'rotate-45 translate-y-1.5' : ''}`} />
+    <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${open ? 'opacity-0' : ''}`} />
+    <span className={`block w-6 h-0.5 bg-black transition-all ${open ? '-rotate-45 -translate-y-1.5' : ''}`} />
+  </button>
+);
+
+
+const LanguageSelector: React.FC<{
+    availableLangs: Language[];
+    currentLang: Language;
+    disabled?: boolean;
+    onChange: (iso: string) => void;
+    compact?: boolean; // desktop small width
+}> = ({ availableLangs, currentLang, disabled, onChange, compact }) => {
+  const { t } = useTypedTranslation();
+  return (
+    <Select value={currentLang.ISO639} onValueChange={onChange}>
+      <SelectTrigger
+        className={`${compact ? 'w-24' : 'w-full'} bg-white ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        disabled={disabled}
+        title={disabled ? (t?.('languageChangeDisabledInChat') ?? 'Language change is disabled inside a chat thread.') : undefined}
+        aria-disabled={disabled}
+      >
+        <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()} />
+      </SelectTrigger>
+      <SelectContent className="bg-white">
+        {availableLangs.map((lang) => (
+          <SelectItem key={lang.ISO639} value={lang.ISO639} disabled={disabled}>
+            {lang.NATIVE_NAME} {lang.ISO639 === 'sk' ? t('slovakLanguageNote') : ''}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
+
+const AuthButtons: React.FC<{
+    fullWidth?: boolean;
+    onAnyClick?: () => void;
+}> = ({ fullWidth, onAnyClick }) => {
+  const { t } = useTypedTranslation();
+  return (
+    <>
+      <Button asChild className={fullWidth ? 'w-full' : undefined} onClick={onAnyClick}>
+        <Link to="/auth" state={{ isSignIn: false }}>
+          {t('register')}
+        </Link>
+      </Button>
+      <Button variant="outline" asChild className={fullWidth ? 'w-full' : undefined} onClick={onAnyClick}>
+        <Link to="/auth" state={{ isSignIn: true }}>
+          {t('signIn')}
+        </Link>
+      </Button>
+    </>
+  );
+};
+
+const AdminSectionButton: React.FC<{
+    fullWidth?: boolean;
+    onClick?: () => void;
+}> = ({ fullWidth, onClick }) => {
+  const { t } = useTypedTranslation();
+  return (
+    <Button variant="secondary" asChild className={fullWidth ? 'w-full' : undefined} onClick={onClick}>
+      <Link to="/admin">{t('adminSection')}</Link>
+    </Button>
+  );
+};
+
+const ProfileAvatarLink: React.FC<{
+    initials?: string;
+    onClick?: () => void;
+}> = ({ initials, onClick }) => (
+  <Link to="/profile" onClick={onClick}>
+    <Avatar>
+      <AvatarFallback>{initials}</AvatarFallback>
+    </Avatar>
+  </Link>
+);
+
+const SignOutBtn: React.FC<{
+    onSignOut: () => void;
+    fullWidth?: boolean;
+}> = ({ onSignOut, fullWidth }) => {
+  const { t } = useTypedTranslation();
+  return (
+    <Button variant="destructive" className={fullWidth ? 'w-full' : undefined} onClick={onSignOut}>
+      {t('signOut')}
+    </Button>
+  );
+};
+
+const MobileMenuDrawer: React.FC<{
+    open: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+}> = ({ open, onClose, children }) => {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-40 sm:hidden" onClick={onClose}>
+      <div
+        className="absolute top-0 right-0 w-64 h-full bg-white shadow-lg p-4 flex flex-col gap-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-end">
+          <button className="text-2xl font-bold" aria-label="Close menu" onClick={onClose}>
+                        &times;
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+};
