@@ -30,7 +30,7 @@ import {
 } from '@repo/shared/utils/customConversationOptions';
 
 
-const PersonalitySelectorPage: React.FC = () => {
+export const PersonalitySelectorPage: React.FC = () => {
   const { t, language } = useTypedTranslation();
   const predefinedPersonalities = useAppStore((s) => s.personalities).toSorted(
     (a, b) => a.id - b.id,
@@ -445,5 +445,4 @@ const PersonalitySelectorPage: React.FC = () => {
   );
 };
 
-export default PersonalitySelectorPage;
 

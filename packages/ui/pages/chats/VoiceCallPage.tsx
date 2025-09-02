@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MdCallEnd } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router';
-import PersonalityInfo from '../../components/PersonalityInfo';
-import ChatMessages from '../../components/ChatMessages';
+import { PersonalityInfo } from '../../components/PersonalityInfo';
+import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { apiClient } from '@repo/api-client/src/figurantClient';
@@ -17,7 +17,7 @@ import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
 
-const VoiceCallPage: React.FC = () => {
+export const VoiceCallPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -350,4 +350,3 @@ const VoiceCallPage: React.FC = () => {
   );
 };
 
-export default VoiceCallPage;

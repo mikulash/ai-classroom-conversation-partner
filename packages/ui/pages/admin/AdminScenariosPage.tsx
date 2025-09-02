@@ -11,7 +11,7 @@ import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
 
 
-export default function AdminScenariosPage() {
+export function AdminScenariosPage() {
   const { t } = useTypedTranslation();
   const scenarios = useAppStore((state) => state.scenarios);
   const setScenarios = useAppStore((state) => state.setScenarios);

@@ -34,7 +34,7 @@ interface ConversationTranscriptDialogProps {
     allowDelete?: boolean;
 }
 
-const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialogProps> = ({
+export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialogProps> = ({
   isOpen,
   onOpenChange,
   messages,
@@ -272,4 +272,3 @@ const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialogProps> 
   );
 };
 
-export default ConversationTranscriptDialog;

@@ -4,7 +4,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
-const EmailValidatedPage: React.FC = () => {
+export const EmailValidatedPage: React.FC = () => {
   const { t } = useTypedTranslation();
 
   return (
@@ -25,4 +25,3 @@ const EmailValidatedPage: React.FC = () => {
   );
 };
 
-export default EmailValidatedPage;

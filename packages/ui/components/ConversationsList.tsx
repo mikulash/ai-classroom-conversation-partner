@@ -23,7 +23,7 @@ interface ConversationsListProps {
     formatDateTime: (dateString: string) => string;
 }
 
-const ConversationsList: React.FC<ConversationsListProps> = ({
+export const ConversationsList: React.FC<ConversationsListProps> = ({
   conversations,
   isLoading,
   onConversationClick,
@@ -95,4 +95,3 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
   );
 };
 
-export default ConversationsList;

@@ -1,11 +1,11 @@
 import { Outlet } from 'react-router';
-import Header from '../components/Header';
+import { Header } from '../components/Header';
 import { useEffect } from 'react';
 import { supabase } from '@repo/api-client/src/supabase';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
 
-const Layout = () => {
+export const Layout = () => {
   const setConversationOptions = useAppStore(
     (state) => state.setConversationOptions,
   );
@@ -50,4 +50,3 @@ const Layout = () => {
   );
 };
 
-export default Layout;

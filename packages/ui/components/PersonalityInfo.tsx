@@ -10,7 +10,7 @@ interface PersonalityInfoProps {
     className?: string;
 }
 
-const PersonalityInfo: React.FC<PersonalityInfoProps> = ({
+export const PersonalityInfo: React.FC<PersonalityInfoProps> = ({
   personality,
   conversationRole,
   connectionStatus,
@@ -38,4 +38,3 @@ const PersonalityInfo: React.FC<PersonalityInfoProps> = ({
   );
 };
 
-export default PersonalityInfo;

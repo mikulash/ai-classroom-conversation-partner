@@ -14,7 +14,7 @@ import { Constants, Enums } from '@repo/shared/types/supabase/database.types';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 
-export default function AdminPersonalitiesPage() {
+export function AdminPersonalitiesPage() {
   const { t } = useTypedTranslation();
   const personalities = useAppStore((state) => state.personalities);
   const setPersonalities = useAppStore((state) => state.setPersonalities);

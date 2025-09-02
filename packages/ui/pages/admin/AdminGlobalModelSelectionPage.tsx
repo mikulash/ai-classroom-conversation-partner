@@ -10,7 +10,7 @@ import { AlertCircle } from 'lucide-react';
 import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 
-export default function AdminGlobalModelSelectionPage() {
+export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
   const setAppConfig = useAppStore((state) => state.setAppConfig);
   const [models, setModels] = useState<ModelOptions>({

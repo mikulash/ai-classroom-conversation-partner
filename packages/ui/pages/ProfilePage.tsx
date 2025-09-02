@@ -9,12 +9,12 @@ import { ProfileInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useUserStore } from '../hooks/useUserStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import ConversationTranscriptDialog from '../components/ConversationTranscriptDialog';
-import ConversationsList from '../components/ConversationsList';
+import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
+import { ConversationsList } from '../components/ConversationsList';
 import { toast } from 'sonner';
 import { MyConversation } from '@repo/shared/types/myConversation';
 
-export default function UserProfilePage() {
+export function UserProfilePage() {
   const { t } = useTypedTranslation();
 
   const [fullName, setFullName] = useState<string>('');

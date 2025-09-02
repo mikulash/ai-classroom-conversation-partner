@@ -13,7 +13,7 @@ import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { createInitials } from '@repo/shared/utils/usernameUtils';
 import { Language } from '@repo/shared/types/language';
 
-export default function Header() {
+export function Header() {
   const { i18n } = useTypedTranslation();
   const { session, ready } = useSession();
   const { signOut } = useAuth();

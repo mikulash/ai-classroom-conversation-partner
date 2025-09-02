@@ -5,7 +5,7 @@ import { isProfileOwner } from '@repo/shared/utils/access';
 import { useProfile } from '../hooks/useProfile';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
-export default function AdminNavigation() {
+export function AdminNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
   const profile = useProfile();

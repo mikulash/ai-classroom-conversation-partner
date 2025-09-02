@@ -1,4 +1,4 @@
-import AdminNavigation from '../components/AdminNavigation';
+import { AdminNavigation } from '../components/AdminNavigation';
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router';
 import { useProfile } from '../hooks/useProfile';

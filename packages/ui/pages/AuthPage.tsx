@@ -6,7 +6,7 @@ import { useSession } from '../hooks/useSession';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
-const AuthPage: React.FC = () => {
+export const AuthPage: React.FC = () => {
   const { t } = useTypedTranslation();
   const { signIn, signUp, loading, error } = useAuth();
   const { session, ready } = useSession();
@@ -68,4 +68,3 @@ const AuthPage: React.FC = () => {
   );
 };
 
-export default AuthPage;

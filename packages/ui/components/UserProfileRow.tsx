@@ -6,7 +6,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Profile, UserRole } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import ConversationsList from './ConversationsList';
+import { ConversationsList } from './ConversationsList';
 
 interface Conversation {
     id: number;
@@ -35,7 +35,7 @@ interface UserProfileRowProps {
     formatDateTime: (dateString: string) => string;
 }
 
-const UserProfileRow: React.FC<UserProfileRowProps> = ({
+export const UserProfileRow: React.FC<UserProfileRowProps> = ({
   profile,
   currentUserId,
   isExpanded,
@@ -135,4 +135,3 @@ const UserProfileRow: React.FC<UserProfileRowProps> = ({
   );
 };
 
-export default UserProfileRow;

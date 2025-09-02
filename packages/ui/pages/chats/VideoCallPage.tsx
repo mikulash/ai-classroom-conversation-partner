@@ -4,8 +4,8 @@ import { FaPlay } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { AvatarTalkingHead, AvatarTalkingHeadHandle } from '../../components/AvatarTalkingHead';
-import PersonalityInfo from '../../components/PersonalityInfo';
-import ChatMessages from '../../components/ChatMessages';
+import { PersonalityInfo } from '../../components/PersonalityInfo';
+import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { apiClient } from '@repo/api-client/src/figurantClient';
 import { useProfile } from '../../hooks/useProfile';
@@ -23,7 +23,7 @@ import { useConversationSaver } from '../../hooks/useConversationSaver';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
-const VideoCallPage: React.FC = () => {
+export const VideoCallPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -523,4 +523,3 @@ const VideoCallPage: React.FC = () => {
   );
 };
 
-export default VideoCallPage;

@@ -3,7 +3,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
-export default function NotFoundPage() {
+export function NotFoundPage() {
   const { t } = useTypedTranslation();
 
   return (

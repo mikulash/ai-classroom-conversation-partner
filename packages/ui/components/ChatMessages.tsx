@@ -18,7 +18,7 @@ interface ChatMessagesProps {
   className?: string;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({
+export const ChatMessages: React.FC<ChatMessagesProps> = ({
   messages,
   currentTranscript = '',
   assistantTranscript = '',
@@ -201,4 +201,3 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   );
 };
 
-export default ChatMessages;

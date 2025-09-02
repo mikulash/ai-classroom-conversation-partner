@@ -10,7 +10,7 @@ import { useSession } from '../../hooks/useSession';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 
-export default function AdminCustomModelSelectionPage() {
+export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
   const { session, ready } = useSession();
 

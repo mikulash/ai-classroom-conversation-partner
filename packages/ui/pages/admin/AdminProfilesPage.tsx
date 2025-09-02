@@ -9,9 +9,9 @@ import { Profile, UserRole } from '@repo/shared/types/supabase/supabaseTypeHelpe
 import { useProfile } from '../../hooks/useProfile';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import ConversationTranscriptDialog from '../../components/ConversationTranscriptDialog';
+import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/shared/types/myConversation';
-import UserProfileRow from '../../components/UserProfileRow';
+import { UserProfileRow } from '../../components/UserProfileRow';
 
 
 export function AdminProfilesPage() {

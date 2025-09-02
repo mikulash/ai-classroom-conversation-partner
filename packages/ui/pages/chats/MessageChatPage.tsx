@@ -2,8 +2,8 @@ import { ChatMessage } from '@repo/shared/types/chatMessage';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { Input } from '../../components/ui/input';
-import ChatMessages from '../../components/ChatMessages';
-import PersonalityInfo from '../../components/PersonalityInfo';
+import { ChatMessages } from '../../components/ChatMessages';
+import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { Switch } from '../../components/ui/switch';
 import { Label } from '../../components/ui/label';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
@@ -32,7 +32,7 @@ const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 const SpeechRecognitionClass: typeof SpeechRecognition | undefined =
     window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const MessageChatPage: React.FC = () => {
+export const MessageChatPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTypedTranslation();
@@ -701,4 +701,3 @@ const MessageChatPage: React.FC = () => {
   );
 };
 
-export default MessageChatPage;

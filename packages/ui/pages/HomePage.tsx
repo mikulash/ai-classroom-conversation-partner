@@ -5,7 +5,7 @@ import { useSession } from '../hooks/useSession';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
-const HomePage: React.FC = () => {
+export const HomePage: React.FC = () => {
   const { t } = useTypedTranslation();
   const { session, ready } = useSession();
   const user = session?.user;
@@ -66,4 +66,3 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage;
