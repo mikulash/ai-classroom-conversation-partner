@@ -56,9 +56,7 @@ RUN pnpm install --prod --frozen-lockfile
 COPY --from=builder /app/apps/web/dist          ./apps/web/dist
 COPY --from=builder /app/packages/shared/dist   ./packages/shared/dist
 
-# Optionally copy environment variables for the web app
-# (Remove this line if you keep envs at runtime only.)
-COPY --from=builder /app/apps/web/.env ./apps/web/.env
+# Environment variables should be supplied at runtime (e.g., via docker run --env-file).
 
 # Serve with Vite preview (default port 4173)
 WORKDIR /app/apps/web

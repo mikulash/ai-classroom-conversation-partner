@@ -42,8 +42,7 @@ COPY --from=builder /app/packages/shared/package.json ./packages/shared/
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 
-# Copy .env file from the apps/backend directory
-COPY --from=builder /app/apps/backend/.env ./apps/backend/.env
+# Environment variables are expected to be provided at runtime (e.g., via docker run --env-file).
 
 # Install production dependencies only
 RUN pnpm install --prod --frozen-lockfile
