@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { conversationApi } from '@repo/api-client/src/supabaseClient';
+import { conversationApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 

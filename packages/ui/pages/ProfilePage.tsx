@@ -9,7 +9,7 @@ import {
   conversationApi,
   profileApi,
   ConversationWithPersonality,
-} from '@repo/api-client/src/supabaseClient';
+} from '@repo/api-client/src/supabaseService';
 import { ProfileInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useUserStore } from '../hooks/useUserStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';

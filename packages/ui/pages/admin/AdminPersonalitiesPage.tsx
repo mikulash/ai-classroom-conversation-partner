@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
-import { personalityApi } from '@repo/api-client/src/supabaseClient';
+import { personalityApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { Personality, PersonalityInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { Constants, Enums } from '@repo/shared/types/supabase/database.types';

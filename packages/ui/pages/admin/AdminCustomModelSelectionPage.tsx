@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Button } from '../../components/ui/button';
-import { modelApi } from '@repo/api-client/src/supabaseClient';
+import { modelApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';

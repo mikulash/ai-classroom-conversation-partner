@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Button } from '../../components/ui/button';
-import { scenarioApi } from '@repo/api-client/src/supabaseClient';
+import { scenarioApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { ScenarioInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useAppStore } from '../../hooks/useAppStore';
