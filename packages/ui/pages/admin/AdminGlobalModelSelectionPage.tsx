@@ -82,18 +82,18 @@ export function AdminGlobalModelSelectionPage() {
 
       // Find selected models based on app_config
       const selectedResponseModel =
-        responseModels?.find((m: any) => m.id === app_config?.response_model_id) || null;
+        responseModels?.find((m) => m.id === app_config?.response_model_id) || null;
       const selectedTtsModel =
-        ttsModels?.find((m: any) => m.id === app_config?.tts_model_id) || null;
+        ttsModels?.find((m) => m.id === app_config?.tts_model_id) || null;
       const selectedRealtimeModel =
-        realtimeModels?.find((m: any) => m.id === app_config?.realtime_model_id) || null;
+        realtimeModels?.find((m) => m.id === app_config?.realtime_model_id) || null;
       const selectedTimestampedTranscriptionModel =
         timestampedTranscriptionModels?.find(
-          (m: any) => m.id === app_config?.timestamped_transcription_model_id,
+          (m) => m.id === app_config?.timestamped_transcription_model_id,
         ) || null;
       const selectedRealtimeTranscriptionModel =
         realtimeTranscriptionModels?.find(
-          (m: any) => m.id === app_config?.realtime_transcription_model_id,
+          (m) => m.id === app_config?.realtime_transcription_model_id,
         ) || null;
 
       setState({

@@ -53,7 +53,7 @@ export function AdminPersonalitiesPage() {
         description: error.message,
       });
     } else {
-      const sortedPersonalities = data.toSorted((a: any, b: any) => a.id - b.id);
+      const sortedPersonalities = data.toSorted((a, b) => a.id - b.id);
       setPersonalities(sortedPersonalities);
     }
     setLoading(false);

@@ -52,7 +52,7 @@ export function AdminScenariosPage() {
         description: scenariosRes.error.message,
       });
     } else {
-      const sortedScenarios = scenariosRes.data.toSorted((a: any, b: any) => a.id - b.id);
+      const sortedScenarios = scenariosRes.data.toSorted((a, b) => a.id - b.id);
       setScenarios(sortedScenarios);
     }
 
