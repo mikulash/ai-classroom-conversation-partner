@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
-import { supabase } from '@repo/api-client/src/supabase';
+import { personalityApi } from '@repo/api-client/src/supabaseClient';
 import { toast } from 'sonner';
 import { Personality, PersonalityInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { Constants, Enums } from '@repo/shared/types/supabase/database.types';
@@ -45,10 +45,7 @@ export function AdminPersonalitiesPage() {
 
   async function fetchPersonalities() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('personalities')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data, error } = await personalityApi.all();
 
     if (error) {
       console.error(error.message);
@@ -56,7 +53,7 @@ export function AdminPersonalitiesPage() {
         description: error.message,
       });
     } else {
-      const sortedPersonalities = data.toSorted((a, b) => a.id - b.id);
+      const sortedPersonalities = data.toSorted((a: any, b: any) => a.id - b.id);
       setPersonalities(sortedPersonalities);
     }
     setLoading(false);
@@ -70,7 +67,7 @@ export function AdminPersonalitiesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm(t('personalities.confirmDelete'))) {
       setIsProcessing(true);
-      const { error } = await supabase.from('personalities').delete().eq('id', id);
+      const { error } = await personalityApi.delete(id);
 
       if (error) {
         console.error(error.message);
@@ -104,9 +101,9 @@ export function AdminPersonalitiesPage() {
     if (!currentPersonality?.id) return;
     setIsProcessing(true);
 
-    const { error } = await supabase
-      .from('personalities')
-      .update({
+    const { error } = await personalityApi.update(
+      currentPersonality.id,
+      {
         name: currentPersonality.name,
         problem_summary_en: currentPersonality.problem_summary_en,
         problem_summary_cs: currentPersonality.problem_summary_cs,
@@ -118,8 +115,8 @@ export function AdminPersonalitiesPage() {
         openai_voice_name: currentPersonality.openai_voice_name,
         elevenlabs_voice_id: currentPersonality.elevenlabs_voice_id,
         voice_instructions: currentPersonality.voice_instructions,
-      })
-      .eq('id', currentPersonality.id);
+      },
+    );
 
     if (error) {
       console.error(error.message);
@@ -141,9 +138,7 @@ export function AdminPersonalitiesPage() {
       return;
     }
 
-    const { error } = await supabase
-      .from('personalities')
-      .insert([currentPersonality]);
+    const { error } = await personalityApi.insert(currentPersonality);
 
     if (error) {
       console.error(error.message);

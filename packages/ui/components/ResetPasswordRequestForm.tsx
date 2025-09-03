@@ -1,5 +1,5 @@
 import { Label } from '@radix-ui/react-label';
-import { supabase } from '@repo/api-client/src/supabase';
+import { authApi } from '@repo/api-client/src/supabaseClient';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import React, { useState } from 'react';
@@ -20,9 +20,10 @@ export const ResetPasswordRequestForm: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    const { error } = await authApi.resetPasswordForEmail(
+      email,
+      `${window.location.origin}/reset-password`,
+    );
 
     if (error) {
       setError(error.message);

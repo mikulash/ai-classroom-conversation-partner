@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { useTypedTranslation } from './useTypedTranslation';
-import { supabase } from '@repo/api-client/src/supabase';
+import { conversationApi } from '@repo/api-client/src/supabaseClient';
 import { toast } from 'sonner';
 import { ConversationInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { Log } from '@repo/shared/types/log';
@@ -60,9 +60,7 @@ export const useConversationSaver = ({
         used_config: appConfig,
       };
 
-      const { error } = await supabase
-        .from('conversations')
-        .insert(conversationData);
+      const { error } = await conversationApi.insert(conversationData);
 
       if (error) {
         throw new Error(`Failed to save conversation: ${error.message}`);

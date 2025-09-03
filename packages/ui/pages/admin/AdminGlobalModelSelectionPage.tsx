@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Button } from '../../components/ui/button';
-import { supabase } from '@repo/api-client/src/supabase';
+import { modelApi } from '@repo/api-client/src/supabaseClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
@@ -44,11 +44,11 @@ export function AdminGlobalModelSelectionPage() {
         { data: timestampedTranscriptionModels, error: timestampedTranscriptionError },
         { data: realtimeTranscriptionModels, error: realtimeTranscriptionError },
       ] = await Promise.all([
-        supabase.from('response_models').select('*'),
-        supabase.from('tts_models').select('*'),
-        supabase.from('realtime_models').select('*'),
-        supabase.from('timestamped_transcription_models').select('*'),
-        supabase.from('realtime_transcription_models').select('*'),
+        modelApi.responseModels(),
+        modelApi.ttsModels(),
+        modelApi.realtimeModels(),
+        modelApi.timestampedTranscriptionModels(),
+        modelApi.realtimeTranscriptionModels(),
       ]);
 
 
@@ -81,11 +81,20 @@ export function AdminGlobalModelSelectionPage() {
       });
 
       // Find selected models based on app_config
-      const selectedResponseModel = responseModels?.find((m) => m.id === app_config?.response_model_id) || null;
-      const selectedTtsModel = ttsModels?.find((m) => m.id === app_config?.tts_model_id) || null;
-      const selectedRealtimeModel = realtimeModels?.find((m) => m.id === app_config?.realtime_model_id) || null;
-      const selectedTimestampedTranscriptionModel = timestampedTranscriptionModels?.find( (m) => m.id === app_config?.timestamped_transcription_model_id ) || null;
-      const selectedRealtimeTranscriptionModel = realtimeTranscriptionModels?.find( (m) => m.id === app_config?.realtime_transcription_model_id ) || null;
+      const selectedResponseModel =
+        responseModels?.find((m: any) => m.id === app_config?.response_model_id) || null;
+      const selectedTtsModel =
+        ttsModels?.find((m: any) => m.id === app_config?.tts_model_id) || null;
+      const selectedRealtimeModel =
+        realtimeModels?.find((m: any) => m.id === app_config?.realtime_model_id) || null;
+      const selectedTimestampedTranscriptionModel =
+        timestampedTranscriptionModels?.find(
+          (m: any) => m.id === app_config?.timestamped_transcription_model_id,
+        ) || null;
+      const selectedRealtimeTranscriptionModel =
+        realtimeTranscriptionModels?.find(
+          (m: any) => m.id === app_config?.realtime_transcription_model_id,
+        ) || null;
 
       setState({
         responseModel: selectedResponseModel || (responseModels?.[0] || null),
@@ -118,18 +127,14 @@ export function AdminGlobalModelSelectionPage() {
     }
 
     setIsSaving(true);
-    const { data, error } = await supabase
-      .from('app_config')
-      .update({
-        response_model_id: state.responseModel?.id,
-        tts_model_id: state.ttsModel?.id,
-        realtime_model_id: state.realtimeModel?.id,
-        timestamped_transcription_model_id: state.timestampedTranscriptionModel?.id,
-        realtime_transcription_model_id: state.realtimeTranscriptionModel?.id,
-        edited_at: new Date().toISOString(),
-      })
-      .eq('id', 1)
-      .select().single();
+    const { data, error } = await modelApi.updateAppConfigModels({
+      response_model_id: state.responseModel?.id,
+      tts_model_id: state.ttsModel?.id,
+      realtime_model_id: state.realtimeModel?.id,
+      timestamped_transcription_model_id: state.timestampedTranscriptionModel?.id,
+      realtime_transcription_model_id: state.realtimeTranscriptionModel?.id,
+      edited_at: new Date().toISOString(),
+    });
 
 
     if (error) {
