@@ -8,7 +8,6 @@ import type {
   AppConfig,
   Conversation,
   ConversationInsert,
-  ConversationRole,
   CustomModelSelection,
   Personality,
   PersonalityInsert,
@@ -151,12 +150,6 @@ export const scenarioApi = {
     supabase.from('scenarios').delete().eq('id', id).select(),
 };
 
-// -------------------- Conversation Roles API --------------------
-export const conversationRoleApi = {
-  all: async (): Promise<PostgrestResponse<ConversationRole>> =>
-    supabase.from('conversation_roles').select('*'),
-};
-
 // -------------------- Model API --------------------
 export const modelApi = {
   responseModels: async (): Promise<PostgrestResponse<ResponseModel>> =>
@@ -191,9 +184,4 @@ export const modelApi = {
     supabase.from('app_config').update(payload).eq('id', 1).select().single(),
 };
 
-// -------------------- App Config API --------------------
-export const appConfigApi = {
-  get: async (): Promise<PostgrestSingleResponse<AppConfig>> =>
-    supabase.from('app_config').select('*').single(),
-};
 
