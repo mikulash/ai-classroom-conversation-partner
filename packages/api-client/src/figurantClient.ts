@@ -16,7 +16,7 @@ import { LipSyncAudio, LipSyncAudioWebTransfer } from '@repo/shared/types/talkin
 import { TranscriptionSessionCreateResponse, WebRtcAnswerResponse } from '@repo/shared/types/api/webRTC';
 import { RegisterUserBody } from '@repo/shared/types/api/RegisterUserBody';
 import { AuthResponse } from '@supabase/supabase-js';
-import { supabase } from './supabase';
+import { supabase } from './supabaseClient';
 import { Language } from '@repo/shared/types/language';
 import { ApiKeysStatus } from '@repo/shared/types/apiKeyStatus';
 
