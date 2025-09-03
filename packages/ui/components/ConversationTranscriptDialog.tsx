@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { supabase } from '@repo/api-client/src/supabase';
+import { conversationApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 
@@ -78,10 +78,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
 
     try {
       setIsDeleting(true);
-      const { error } = await supabase
-        .from('conversations')
-        .delete()
-        .eq('id', conversationId);
+      const { error } = await conversationApi.delete(conversationId);
 
       if (error) throw error;
 
@@ -97,13 +94,18 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
       if (onConversationDeleted) {
         onConversationDeleted();
       }
-    } catch (error: any) {
-      console.error('Error deleting conversation:', error.message);
-      toast.error(t('admin.conversations.deleteError', {
-        defaultValue: 'Failed to delete conversation',
-      }), {
-        description: error.message,
-      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error deleting conversation:', error.message);
+        toast.error(
+          t('admin.conversations.deleteError', {
+            defaultValue: 'Failed to delete conversation',
+          }),
+          {
+            description: error.message,
+          },
+        );
+      }
     } finally {
       setIsDeleting(false);
     }

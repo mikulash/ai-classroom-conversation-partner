@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Button } from '../../components/ui/button';
-import { supabase } from '@repo/api-client/src/supabase';
+import { modelApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
@@ -49,12 +49,12 @@ export function AdminCustomModelSelectionPage() {
         { data: realtimeTranscriptionModels, error: realtimeTransError },
         { data: userCustomSettings },
       ] = await Promise.all([
-        supabase.from('response_models').select('*'),
-        supabase.from('tts_models').select('*'),
-        supabase.from('realtime_models').select('*'),
-        supabase.from('timestamped_transcription_models').select('*'),
-        supabase.from('realtime_transcription_models').select('*'),
-        supabase.from('admin_users_custom_model_selection').select('*').eq('user_id', session?.user.id),
+        modelApi.responseModels(),
+        modelApi.ttsModels(),
+        modelApi.realtimeModels(),
+        modelApi.timestampedTranscriptionModels(),
+        modelApi.realtimeTranscriptionModels(),
+        modelApi.adminUserSelection(session?.user.id),
       ]);
 
       const errors = [responseError, ttsError, realtimeError, timestampedError, realtimeTransError].filter(Boolean);
@@ -68,7 +68,7 @@ export function AdminCustomModelSelectionPage() {
         return;
       }
 
-      const userSelection = userCustomSettings?.[0];
+      const userSelection = userCustomSettings ?? null;
 
       setModels({
         responseModels: responseModels ?? [],
@@ -142,18 +142,16 @@ export function AdminCustomModelSelectionPage() {
 
     setIsSaving(true);
 
-    const { error, data } = await supabase
-      .from('admin_users_custom_model_selection')
-      .upsert({
-        user_id: session?.user.id,
-        response_model_id: selection.responseModel?.id ?? null,
-        tts_model_id: selection.ttsModel?.id ?? null,
-        realtime_model_id: selection.realtimeModel?.id ?? null,
-        timestamped_transcription_model_id: selection.timestampedTranscriptionModel?.id ?? null,
-        realtime_transcription_model_id: selection.realtimeTranscriptionModel?.id ?? null,
-      })
-      .select()
-      .single();
+    const { error, data } = await modelApi.upsertAdminUserSelection({
+      user_id: session?.user.id,
+      response_model_id: selection.responseModel?.id ?? null,
+      tts_model_id: selection.ttsModel?.id ?? null,
+      realtime_model_id: selection.realtimeModel?.id ?? null,
+      timestamped_transcription_model_id:
+        selection.timestampedTranscriptionModel?.id ?? null,
+      realtime_transcription_model_id:
+        selection.realtimeTranscriptionModel?.id ?? null,
+    });
 
     if (error) {
       console.error(error.message);

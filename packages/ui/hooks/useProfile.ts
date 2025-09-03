@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSession } from './useSession';
-import { supabase } from '@repo/api-client/src/supabase';
+import { profileApi } from '@repo/api-client/src/supabaseService';
 import { useUserStore } from './useUserStore';
 
 
@@ -15,11 +15,8 @@ export const useProfile = () => {
     }
 
     // First page load (nothing cached)
-    supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+    profileApi
+      .getById(session.user.id)
       .then(({ data, error }) => {
         if (!error && data) setProfile(data);
       });

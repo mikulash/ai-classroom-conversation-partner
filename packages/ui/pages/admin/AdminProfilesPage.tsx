@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { supabase } from '@repo/api-client/src/supabase';
+import { profileApi, conversationApi, ConversationWithPersonality } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { Profile, UserRole } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useProfile } from '../../hooks/useProfile';
@@ -39,10 +39,7 @@ export function AdminProfilesPage() {
       setLoading(true);
 
       // Load profile rows
-      const { data, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error: profileError } = await profileApi.getAll();
 
       if (profileError) {
         throw profileError;
@@ -50,11 +47,13 @@ export function AdminProfilesPage() {
 
       // Show all profiles including the current admin's profile
       setProfiles(data || []);
-    } catch (error: any) {
-      console.error(error.message);
-      toast.error(t('admin.profiles.notifications.loadFailed'), {
-        description: error.message,
-      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(t('admin.profiles.notifications.loadFailed'), {
+          description: error.message,
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -69,26 +68,11 @@ export function AdminProfilesPage() {
     try {
       setLoadingConversations((prev) => new Set(prev).add(userId));
 
-      const { data, error } = await supabase
-        .from('conversations')
-        .select(`
-          id,
-          start_time,
-          end_time,
-          ended_reason,
-          conversation_type,
-          messages,
-          personality_id,
-          personalities!conversations_personality_id_fkey (
-            name
-          )
-        `)
-        .eq('user_id', userId)
-        .order('start_time', { ascending: false });
+      const { data, error } = await conversationApi.byUser(userId);
 
       if (error) throw error;
 
-      const conversations: MyConversation[] = data.map((conv) => ({
+      const conversations: MyConversation[] = data.map((conv: ConversationWithPersonality) => ({
         id: conv.id,
         start_time: conv.start_time,
         end_time: conv.end_time,
@@ -103,11 +87,13 @@ export function AdminProfilesPage() {
         ...prev,
         [userId]: conversations,
       }));
-    } catch (error: any) {
-      console.error('Error loading conversations:', error.message);
-      toast.error('Failed to load conversations', {
-        description: error.message,
-      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error loading conversations:', error.message);
+        toast.error('Failed to load conversations', {
+          description: error.message,
+        });
+      }
       // Set empty array to prevent retrying
       setUserConversations((prev) => ({
         ...prev,
@@ -161,10 +147,7 @@ export function AdminProfilesPage() {
   const handleRoleChange = async (profileId: string, newRole: UserRole) => {
     try {
       setIsProcessing(true);
-      const { error } = await supabase
-        .from('profiles')
-        .update({ user_role: newRole })
-        .eq('id', profileId);
+      const { error } = await profileApi.updateRole(profileId, newRole);
 
       if (error) throw error;
 
@@ -172,11 +155,13 @@ export function AdminProfilesPage() {
       setProfiles((prev) =>
         prev.map((p) => (p.id === profileId ? { ...p, user_role: newRole } : p)),
       );
-    } catch (error: any) {
-      console.error(error.message);
-      toast.error(t('admin.profiles.notifications.updateFailed'), {
-        description: error.message,
-      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(t('admin.profiles.notifications.updateFailed'), {
+          description: error.message,
+        });
+      }
     } finally {
       setIsProcessing(false);
     }

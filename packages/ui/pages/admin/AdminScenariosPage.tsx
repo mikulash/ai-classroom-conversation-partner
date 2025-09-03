@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Button } from '../../components/ui/button';
-import { supabase } from '@repo/api-client/src/supabase';
+import { scenarioApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { ScenarioInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -40,10 +40,7 @@ export function AdminScenariosPage() {
     setLoading(true);
 
     const [scenariosRes] = await Promise.all([
-      supabase
-        .from('scenarios')
-        .select('*')
-        .order('created_at', { ascending: false }),
+      scenarioApi.all(),
     ]);
 
     console.log('scenariosRes', scenariosRes);
@@ -72,7 +69,7 @@ export function AdminScenariosPage() {
     if (!window.confirm(t('admin.scenarios.deleteConfirm'))) return;
 
     setIsProcessing(true);
-    const { error } = await supabase.from('scenarios').delete().eq('id', id);
+    const { error } = await scenarioApi.delete(id);
 
     if (error) {
       console.error(error.message);
@@ -106,10 +103,10 @@ export function AdminScenariosPage() {
 
     console.log('current scenario to update', currentScenario);
 
-    const { error } = await supabase
-      .from('scenarios')
-      .update(currentScenario)
-      .eq('id', currentScenario.id);
+    const { error } = await scenarioApi.update(
+      currentScenario.id,
+      currentScenario,
+    );
 
     if (error) {
       console.error(error.message);
@@ -125,7 +122,7 @@ export function AdminScenariosPage() {
   const handleAddSubmit = async () => {
     setIsProcessing(true);
 
-    const { error } = await supabase.from('scenarios').insert([currentScenario]);
+    const { error } = await scenarioApi.insert(currentScenario);
 
     if (error) {
       console.error(error.message);

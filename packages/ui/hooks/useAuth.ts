@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { supabase } from '@repo/api-client/src/supabase';
+import { authApi, profileApi } from '@repo/api-client/src/supabaseService';
 import { RegisterUserBody } from '@repo/shared/types/api/RegisterUserBody';
 import { apiClient } from '@repo/api-client/src/figurantClient';
 import { useUserStore } from './useUserStore';
@@ -15,7 +15,7 @@ export const useAuth = () => {
       setError(null);
 
       const { data, error } =
-                await supabase.auth.signInWithPassword({ email, password });
+                await authApi.signInWithPassword(email, password);
 
       if (error) {
         setError(error.message);
@@ -23,11 +23,9 @@ export const useAuth = () => {
         return false;
       }
 
-      const { data: profile, error: pError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
+      const { data: profile, error: pError } = await profileApi.getById(
+        data.user.id,
+      );
 
       if (pError) {
         setError(pError.message);
@@ -67,7 +65,7 @@ export const useAuth = () => {
 
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    await authApi.signOut();
     clearProfile();
   }, []);
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@repo/api-client/src/supabase';
+import { authApi } from '@repo/api-client/src/supabaseService';
 import type { Session } from '@supabase/supabase-js';
 
 /**
@@ -11,13 +11,13 @@ export const useSession = () => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    authApi.getSession().then(({ data: { session } }) => {
       setSession(session);
       setReady(true); // we have an answer
     });
 
     const { data: { subscription } } =
-            supabase.auth.onAuthStateChange((_event, session) => {
+            authApi.onAuthStateChange((_event, session) => {
               setSession(session);
               setReady(true); // already true after init
             });

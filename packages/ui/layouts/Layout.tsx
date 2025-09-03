@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
 import { Header } from '../components/Header';
 import { useEffect } from 'react';
-import { supabase } from '@repo/api-client/src/supabase';
+import { fetchInitialData } from '@repo/api-client/src/supabaseService';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
 
@@ -13,12 +13,7 @@ export const Layout = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [pRes, sRes, rRes, aRes] = await Promise.all([
-        supabase.from('personalities').select('*'),
-        supabase.from('scenarios').select('*'),
-        supabase.from('conversation_roles').select('*'),
-        supabase.from('app_config').select('*').single(),
-      ]);
+      const [pRes, sRes, rRes, aRes] = await fetchInitialData();
 
       if (pRes.error || sRes.error || rRes.error || aRes.error) {
         console.error('Supabase fetch error', pRes.error, sRes.error, rRes.error, aRes.error);

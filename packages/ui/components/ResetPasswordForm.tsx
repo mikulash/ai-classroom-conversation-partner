@@ -1,5 +1,5 @@
 import { Label } from '@radix-ui/react-label';
-import { supabase } from '@repo/api-client/src/supabase';
+import { authApi } from '@repo/api-client/src/supabaseService';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import React, { useEffect, useState } from 'react';
@@ -19,7 +19,7 @@ export const ResetPasswordForm: React.FC = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data } = await authApi.getSession();
       if (!data.session) {
         navigate('/', { replace: true });
       }
@@ -38,7 +38,7 @@ export const ResetPasswordForm: React.FC = () => {
 
     setLoading(true);
 
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    const { error } = await authApi.updatePassword(newPassword);
     if (error) {
       setError(error.message);
     } else {
