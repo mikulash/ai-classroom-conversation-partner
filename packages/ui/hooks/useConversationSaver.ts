@@ -2,17 +2,23 @@ import { useCallback, useRef, useState } from 'react';
 import { useTypedTranslation } from './useTypedTranslation';
 import { conversationApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
-import { ConversationInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import {
+  AppConfig,
+  ConversationInsert,
+  Personality,
+  Profile,
+  Scenario,
+} from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { Log } from '@repo/shared/types/log';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { Enums, Json } from '@repo/shared/types/supabase/database.types';
 
 interface ConversationSaverParams {
-    userProfile: any;
-    personality: any;
-    scenario?: any;
+    userProfile?: Profile | null;
+    personality: Personality;
+    scenario?: Scenario | null;
     chatStartTime: number;
-    appConfig: any;
+    appConfig: AppConfig;
     logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: any) => void;
 }
 
