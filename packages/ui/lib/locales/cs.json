@@ -253,7 +253,21 @@
     "updateFailed": "Aktualizace selhala",
     "updateSuccess": "Osobnost aktualizována",
     "voice": "Hlas",
-    "voiceInstructions": "Pokyny pro hlas"
+    "voiceInstructions": "Pokyny pro hlas",
+    "validationError": "Chyba validace",
+    "requiredFieldsNotice": "Povinné informace",
+    "requiredFieldsDescription": "Všechna data osobnosti včetně jména, shrnutí problémů a popisů osobnosti v angličtině i češtině jsou povinná. Tato pole zajišťují, že AI dokáže správně porozumět uživatelům a odpovídat jim v jejich preferovaném jazyce se správným kontextem osobnosti.",
+    "namePlaceholder": "Zadejte jméno osobnosti (např. Dr. Sarah Nováková)",
+    "genderPlaceholder": "např. Žena, Muž, Nebinární",
+    "agePlaceholder": "např. 35",
+    "avatarUrlPlaceholder": "https://example.com/avatar.jpg",
+    "problemSummaryEnPlaceholder": "Popište hlavní problém nebo situaci, kterou tato osobnost řeší (v angličtině). Je použito pro AI pro nastavení chování v konverzaci. AI používá tento anglický popis i v případech kdy mluví česky či slovensky.",
+    "problemSummaryCsPlaceholder": "Popište hlavní problém nebo situaci, kterou tato osobnost řeší (v češtině). To pomáhá uživatelům pochopit, kdy si tuto osobnost vybrat.",
+    "personalityDescriptionEnPlaceholder": "Detailed description of the personality's character, speaking style, expertise, and approach (in English). This defines how the AI will behave and communicate.",
+    "personalityDescriptionCsPlaceholder": "Podrobný popis charakteru osobnosti, stylu mluvení, odbornosti a přístupu (v češtině). To definuje, jak se bude AI chovat a komunikovat.",
+    "elevenlabsVoiceIdPlaceholder": "ID hlasu ElevenLabs pro vlastní hlas",
+    "voiceInstructionsPlaceholder": "Speciální instrukce pro generování hlasu (tón, tempo, důraz, atd.)",
+    "fieldRequired": "je povinné a nemůže být prázdné."
   },
   "personalityForm": {
     "age": "Věk:",
