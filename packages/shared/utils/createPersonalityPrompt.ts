@@ -29,6 +29,6 @@ export function createPersonalityPrompt({
   if (userProfile?.full_name) prompt += `The user's name is ${userProfile.full_name}. `;
   if (userProfile?.gender) prompt += `The user's gender is ${userProfile.gender} so use appropriate pronouns. `;
 
-  prompt += `You will speak only in ${language.ENGLISH_NAME}} language.`;
+  prompt += `You will speak only in ${language.ENGLISH_NAME} language.`;
   return prompt;
 }
