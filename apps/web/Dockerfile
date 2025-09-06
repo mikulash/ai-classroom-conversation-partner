@@ -53,7 +53,7 @@ RUN pnpm turbo run build --filter=figurant-web...
 FROM base AS runner
 ENV NODE_ENV=production
 
-# Copy package manifests needed for a **prod-only** install
+# Copy package manifests needed for a **production** install
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/web/package.json        ./apps/web/
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/
