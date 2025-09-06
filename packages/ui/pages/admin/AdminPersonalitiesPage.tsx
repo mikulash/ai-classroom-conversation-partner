@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
-import { supabase } from '@repo/api-client/src/supabase';
+import { personalityApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
 import { Personality, PersonalityInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { Constants, Enums } from '@repo/shared/types/supabase/database.types';
@@ -36,19 +36,34 @@ export function AdminPersonalitiesPage() {
   };
 
   const [currentPersonality, setCurrentPersonality] =
-      useState<PersonalityInsert>(emptyPersonality);
+        useState<PersonalityInsert>(emptyPersonality);
 
   useEffect(() => {
     fetchPersonalities();
   }, []);
 
+  // Validation function for required fields
+  const validateRequiredFields = (personality: PersonalityInsert): string | null => {
+    const requiredFields = [
+      { field: 'name', label: t('personalities.name') },
+      { field: 'problem_summary_en', label: t('personalities.problemSummaryEn') },
+      { field: 'problem_summary_cs', label: t('personalities.problemSummaryCs') },
+      { field: 'personality_description_en', label: t('personalities.personalityDescriptionEn') },
+      { field: 'personality_description_cs', label: t('personalities.personalityDescriptionCs') },
+    ];
+
+    for (const { field, label } of requiredFields) {
+      const value = personality[field as keyof PersonalityInsert];
+      if (!value || (typeof value === 'string' && value.trim() === '')) {
+        return `${label} is required and cannot be empty.`;
+      }
+    }
+    return null;
+  };
 
   async function fetchPersonalities() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('personalities')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data, error } = await personalityApi.all();
 
     if (error) {
       console.error(error.message);
@@ -70,7 +85,7 @@ export function AdminPersonalitiesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm(t('personalities.confirmDelete'))) {
       setIsProcessing(true);
-      const { error } = await supabase.from('personalities').delete().eq('id', id);
+      const { error } = await personalityApi.delete(id);
 
       if (error) {
         console.error(error.message);
@@ -82,7 +97,6 @@ export function AdminPersonalitiesPage() {
       setIsProcessing(false);
     }
   };
-
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -102,11 +116,19 @@ export function AdminPersonalitiesPage() {
 
   const handleEditSubmit = async () => {
     if (!currentPersonality?.id) return;
+
+    // Validate required fields
+    const validationError = validateRequiredFields(currentPersonality);
+    if (validationError) {
+      toast.error('Validation Error', { description: validationError });
+      return;
+    }
+
     setIsProcessing(true);
 
-    const { error } = await supabase
-      .from('personalities')
-      .update({
+    const { error } = await personalityApi.update(
+      currentPersonality.id,
+      {
         name: currentPersonality.name,
         problem_summary_en: currentPersonality.problem_summary_en,
         problem_summary_cs: currentPersonality.problem_summary_cs,
@@ -118,8 +140,8 @@ export function AdminPersonalitiesPage() {
         openai_voice_name: currentPersonality.openai_voice_name,
         elevenlabs_voice_id: currentPersonality.elevenlabs_voice_id,
         voice_instructions: currentPersonality.voice_instructions,
-      })
-      .eq('id', currentPersonality.id);
+      },
+    );
 
     if (error) {
       console.error(error.message);
@@ -133,17 +155,16 @@ export function AdminPersonalitiesPage() {
   };
 
   const handleAddSubmit = async () => {
-    setIsProcessing(true);
-
-    if (!currentPersonality.problem_summary_en.trim()) {
-      toast.error(t('personalities.problemSummaryRequired'));
-      setIsProcessing(false);
+    // Validate required fields
+    const validationError = validateRequiredFields(currentPersonality);
+    if (validationError) {
+      toast.error('Validation Error', { description: validationError });
       return;
     }
 
-    const { error } = await supabase
-      .from('personalities')
-      .insert([currentPersonality]);
+    setIsProcessing(true);
+
+    const { error } = await personalityApi.insert(currentPersonality);
 
     if (error) {
       console.error(error.message);
@@ -164,14 +185,25 @@ export function AdminPersonalitiesPage() {
 
   const renderPersonalityForm = () => (
     <div className="grid gap-4">
+      {/* Required fields notice */}
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <p className="text-sm text-blue-800 font-medium mb-2">{t('personalities.requiredFieldsNotice')}</p>
+        <p className="text-xs text-blue-700">
+          {t( 'personalities.requiredFieldsDescription' )}
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="name">{t('personalities.name')}</Label>
+          <Label htmlFor="name" className="flex items-center gap-1">
+            {t('personalities.name')} <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="name"
             name="name"
             value={currentPersonality.name}
             onChange={handleInputChange}
+            placeholder={t('personalities.namePlaceholder')}
             required
           />
         </div>
@@ -182,6 +214,7 @@ export function AdminPersonalitiesPage() {
             name="gender"
             value={currentPersonality.gender ?? ''}
             onChange={handleInputChange}
+            placeholder={t('personalities.genderPlaceholder')}
           />
         </div>
       </div>
@@ -195,6 +228,7 @@ export function AdminPersonalitiesPage() {
             type="number"
             value={currentPersonality.age ?? ''}
             onChange={handleAgeChange}
+            placeholder={t('personalities.agePlaceholder')}
           />
         </div>
         <div className="grid gap-2">
@@ -204,50 +238,66 @@ export function AdminPersonalitiesPage() {
             name="avatar_url"
             value={currentPersonality.avatar_url ?? ''}
             onChange={handleInputChange}
+            placeholder="https://models.readyplayer.me/6820bbc0e036577fe085562c.glb"
           />
         </div>
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="problem_summary_en">{t('personalities.problemSummaryEn')}</Label>
+        <Label htmlFor="problem_summary_en" className="flex items-center gap-1">
+          {t('personalities.problemSummaryEn')} <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="problem_summary_en"
           name="problem_summary_en"
           value={currentPersonality.problem_summary_en}
           onChange={handleInputChange}
           rows={3}
+          placeholder={t('personalities.problemSummaryEnPlaceholder')}
           required
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="problem_summary_cs">{t('personalities.problemSummaryCs')}</Label>
+        <Label htmlFor="problem_summary_cs" className="flex items-center gap-1">
+          {t('personalities.problemSummaryCs')} <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="problem_summary_cs"
           name="problem_summary_cs"
           value={currentPersonality.problem_summary_cs}
           onChange={handleInputChange}
           rows={3}
+          placeholder={t('personalities.problemSummaryCsPlaceholder')}
+          required
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="personality_description_en">{t('personalities.personalityDescriptionEn')}</Label>
+        <Label htmlFor="personality_description_en" className="flex items-center gap-1">
+          {t('personalities.personalityDescriptionEn')} <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="personality_description_en"
           name="personality_description_en"
           value={currentPersonality.personality_description_en}
           onChange={handleInputChange}
           rows={3}
+          placeholder={t('personalities.personalityDescriptionEnPlaceholder')}
+          required
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="personality_description_cs">{t('personalities.personalityDescriptionCs')}</Label>
+        <Label htmlFor="personality_description_cs" className="flex items-center gap-1">
+          {t('personalities.personalityDescriptionCs')} <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="personality_description_cs"
           name="personality_description_cs"
           value={currentPersonality.personality_description_cs}
           onChange={handleInputChange}
           rows={3}
+          placeholder={t('personalities.personalityDescriptionCsPlaceholder')}
+          required
         />
       </div>
 
@@ -278,6 +328,7 @@ export function AdminPersonalitiesPage() {
           name="elevenlabs_voice_id"
           value={currentPersonality.elevenlabs_voice_id ?? ''}
           onChange={handleInputChange}
+          placeholder={t('personalities.elevenlabsVoiceIdPlaceholder')}
         />
       </div>
       <div className="grid gap-2">
@@ -288,6 +339,7 @@ export function AdminPersonalitiesPage() {
           value={currentPersonality.voice_instructions ?? ''}
           onChange={handleInputChange}
           rows={3}
+          placeholder={t('personalities.voiceInstructionsPlaceholder')}
         />
       </div>
     </div>

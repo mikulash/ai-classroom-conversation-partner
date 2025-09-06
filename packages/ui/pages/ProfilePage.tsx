@@ -4,7 +4,12 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { supabase } from '@repo/api-client/src/supabase';
+import {
+  authApi,
+  conversationApi,
+  profileApi,
+  ConversationWithPersonality,
+} from '@repo/api-client/src/supabaseService';
 import { ProfileInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useUserStore } from '../hooks/useUserStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
@@ -43,7 +48,7 @@ export function UserProfilePage() {
     const {
       data: { session },
       error: sessionError,
-    } = await supabase.auth.getSession();
+    } = await authApi.getSession();
 
     if (sessionError || !session) {
       console.error('Unable to retrieve session:', sessionError);
@@ -53,26 +58,11 @@ export function UserProfilePage() {
     try {
       setLoadingConversations(true);
 
-      const { data, error } = await supabase
-        .from('conversations')
-        .select(`
-          id,
-          start_time,
-          end_time,
-          ended_reason,
-          conversation_type,
-          messages,
-          personality_id,
-          personalities!conversations_personality_id_fkey (
-            name
-          )
-        `)
-        .eq('user_id', session.user.id)
-        .order('start_time', { ascending: false });
+      const { data, error } = await conversationApi.byUser(session.user.id);
 
       if (error) throw error;
 
-      const conversationsData: MyConversation[] = data.map((conv) => ({
+      const conversationsData: MyConversation[] = data.map((conv: ConversationWithPersonality) => ({
         id: conv.id,
         start_time: conv.start_time,
         end_time: conv.end_time,
@@ -84,11 +74,13 @@ export function UserProfilePage() {
       }));
 
       setConversations(conversationsData);
-    } catch (error: any) {
-      console.error('Error loading conversations:', error.message);
-      toast.error('Failed to load conversations', {
-        description: error.message,
-      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error loading conversations:', error.message);
+        toast.error('Failed to load conversations', {
+          description: error.message,
+        });
+      }
     } finally {
       setLoadingConversations(false);
     }
@@ -110,7 +102,7 @@ export function UserProfilePage() {
       const {
         data: { session },
         error: sessionError,
-      } = await supabase.auth.getSession();
+      } = await authApi.getSession();
       if (sessionError || !session) {
         console.error('Unable to retrieve session:', sessionError);
         return;
@@ -124,12 +116,9 @@ export function UserProfilePage() {
         bio,
       };
 
-      const { error: updateError, data: freshData } = await supabase
-        .from('profiles')
-        .upsert(
-          payload,
-          { onConflict: 'id' },
-        ).select();
+      const { error: updateError, data: freshData } = await profileApi.upsert(
+        payload,
+      );
       if (updateError || freshData[0] === null) {
         console.error('Error saving profile:', updateError);
       } else {
@@ -138,8 +127,12 @@ export function UserProfilePage() {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       }
-    } catch (error) {
-      console.error('Unexpected error saving profile:', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Unexpected error saving profile:', error.message);
+      } else {
+        console.error('Unexpected error saving profile:', error);
+      }
     } finally {
       setSaving(false);
     }
@@ -150,18 +143,17 @@ export function UserProfilePage() {
       const {
         data: { session },
         error: fetchError,
-      } = await supabase.auth.getSession();
+      } = await authApi.getSession();
       if (fetchError) {
         console.error('Error fetching session:', fetchError);
         return;
       }
       if (session) {
         const userId = session.user.id;
-        const { data, error: profileError } = await supabase
-          .from('profiles')
-          .select('full_name, conversation_role, gender, bio')
-          .eq('id', userId)
-          .single();
+        const { data, error: profileError } = await profileApi.getById(
+          userId,
+          'full_name, conversation_role, gender, bio',
+        );
         if (profileError) {
           console.error('Error fetching user profile:', profileError);
           return;
@@ -177,8 +169,12 @@ export function UserProfilePage() {
       }
     };
 
-    fetchProfile().catch((error) => {
-      console.error('Error fetching profile:', error);
+    fetchProfile().catch((error: unknown) => {
+      if (error instanceof Error) {
+        console.error('Error fetching profile:', error.message);
+      } else {
+        console.error('Error fetching profile:', error);
+      }
     });
   }, []);
 

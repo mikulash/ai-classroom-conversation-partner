@@ -14,7 +14,7 @@ export const getTimestampedSpeechAudio = async (
   }
   const { provider, api_name, sample_rate } = ttsModel;
 
-  console.log('getting speech audio from ', provider, api_name);
+  console.log('getting timestamped speech audio from ', provider, api_name);
   switch (provider) {
     case 'OpenAi':
       return await getOpenAiTimestampedAudio({
