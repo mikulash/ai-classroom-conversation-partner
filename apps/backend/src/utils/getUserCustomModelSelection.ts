@@ -12,7 +12,7 @@ export async function getUserCustomModelConfig(userId: string): Promise<CustomMo
 
 
     if (error || !data || data.length === 0) {
-      console.warn('Cannot fetch user model config:', error);
+      console.warn('Could not fetch user model config:', error);
       return null;
     }
 

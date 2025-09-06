@@ -4,4 +4,4 @@
 **/.turbo
 .git
 .vscode
-*.env
+**/.env*
