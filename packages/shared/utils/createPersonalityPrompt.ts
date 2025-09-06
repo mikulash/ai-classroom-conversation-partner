@@ -1,7 +1,7 @@
 import { Language } from '../types/language.js';
 import { Personality, Profile, Scenario } from '../types/supabase/supabaseTypeHelpers.js';
 
-export interface GetPersonalityPromptParams {
+interface GetPersonalityPromptParams {
     personality: Personality;
     conversationRole: string;
     language: Language;
