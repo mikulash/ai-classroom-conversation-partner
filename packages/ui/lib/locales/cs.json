@@ -4,6 +4,11 @@
     "startVideoCall": "Zahájit videohovor",
     "startVoiceCall": "Zahájit hovor"
   },
+  "loading": {
+    "general": "Načítání...",
+    "checkingAuth": "Kontrola autentizace...",
+    "profiles": "Načítám profily"
+  },
   "admin": {
     "conversations": {
       "delete": "Smazat",
@@ -18,7 +23,6 @@
       "type": "Typ"
     },
     "profiles": {
-      "loading": "Načítám profily…",
       "noMessages": "V této konverzaci nebyly nalezeny žádné zprávy",
       "noProfiles": "Žádné profily",
       "notifications": {
@@ -184,7 +188,6 @@
   "listeningActive": "Poslouchám...",
   "listeningInactive": "Klikněte pro zahájení poslechu",
   "listeningToYou": "Poslouchám vás...",
-  "loading": "Načítání…",
   "loadingConversations": "Načítání konverzací...",
   "loadingMessage": "Načítání...",
   "loginRequiredToSave": "Pro uložení vlastních předvoleb modelů musíte být přihlášeni",

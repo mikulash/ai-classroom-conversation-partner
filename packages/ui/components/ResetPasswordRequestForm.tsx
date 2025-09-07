@@ -63,7 +63,7 @@ export const ResetPasswordRequestForm: React.FC = () => {
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t('loading') : t('sendResetLink', 'Send reset link')}
+              {loading ? t('loading.general') : t('sendResetLink', 'Send reset link')}
             </Button>
           </form>
         )}

@@ -385,7 +385,7 @@ export const VideoCallPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        {t('loading')}
+        {t('loading.general')}
       </div>
     );
   }

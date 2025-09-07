@@ -231,7 +231,7 @@ export function AdminCustomModelSelectionPage() {
   if (loading) {
     return (
       <div className='flex justify-center items-center h-96'>
-        <span className='text-muted-foreground'>{t('loading')}</span>
+        <span className='text-muted-foreground'>{t('loading.general')}</span>
       </div>
     );
   }
