@@ -2,11 +2,11 @@ import { useCallback, useState } from 'react';
 import { Log, logLevel } from '@repo/shared/types/log';
 
 export const useConversationLogger = () => {
-  const [conversationLogs, setConversationLogs] = useState<Array<Log>>([]);
+  const [conversationLogs, setConversationLogs] = useState<Log[]>([]);
 
   const isDevelopment = import.meta.env.MODE === 'development';
 
-  const logMessage = useCallback((level:logLevel, message: string, data?: any, includeInRecord: boolean = true) => {
+  const logMessage = useCallback((level:logLevel, message: string, data?: any, includeInRecord = true) => {
     if (isDevelopment) {
       if (!data) {
         console[level](message);

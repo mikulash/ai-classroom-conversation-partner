@@ -6,7 +6,7 @@ import {
   TtsModel,
 } from './supabase/supabaseTypeHelpers.js';
 
-export type ModelOptions = {
+export interface ModelOptions {
     responseModels: ResponseModel[];
     ttsModels: TtsModel[];
     realtimeModels: RealtimeModel[];

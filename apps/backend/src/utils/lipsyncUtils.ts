@@ -17,7 +17,7 @@ export function getLipSyncAudioApproximately(
   arrayBuffer: ArrayBuffer,
   response: string,
   sampleRate: number,
-  bytesPerSample: number = 2,
+  bytesPerSample = 2,
 ): LipSyncAudio {
   const words = response.split(/\s+/);
   const totalDuration =
@@ -59,8 +59,8 @@ export function getLipSyncAudioApproximately(
 export async function getPreciseLipSyncAudio(
   arrayBuffer: ArrayBuffer,
   sampleRate: number,
-  bytesPerSample: number = 2,
-  channels: number = 1,
+  bytesPerSample = 2,
+  channels = 1,
   userId: string,
   language: Language,
 ): Promise<LipSyncAudio> {

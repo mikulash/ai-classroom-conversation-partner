@@ -145,7 +145,7 @@ export class FigurantApiClient {
     return buf;
   }
 
-  private pcmArrayBufferToBlob(buf: ArrayBuffer, format: string = 'pcm'): Blob {
+  private pcmArrayBufferToBlob(buf: ArrayBuffer, format = 'pcm'): Blob {
     return new Blob([buf], { type: `audio/${format}` });
   }
 }

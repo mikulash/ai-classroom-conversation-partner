@@ -10,8 +10,8 @@
 export function encodeWAV(
   samples: ArrayBuffer,
   sampleRate: number,
-  channels: number = 1,
-  bytesPerSample: number = 2,
+  channels = 1,
+  bytesPerSample = 2,
 ): ArrayBuffer {
   const headerSize = 44;
   const dataLength = samples.byteLength;
