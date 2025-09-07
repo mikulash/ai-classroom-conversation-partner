@@ -10,10 +10,6 @@ export const getGrokClient = async () => {
 
     const apiKey = apiKeysProvider.getApiKey(API_KEY.GROK);
 
-    if (!apiKey) {
-      throw new Error('Grok API key is missing. Please add it in Settings.');
-    }
-
     grokInstance = new OpenAI({
       apiKey,
       baseURL: 'https://api.x.ai/v1',

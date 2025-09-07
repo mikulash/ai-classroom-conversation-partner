@@ -9,10 +9,6 @@ export const getClaudeClient = async () => {
     const apiKeysProvider = await ConfigProvider.getInstance();
     const apiKey = apiKeysProvider.getApiKey(API_KEY.CLAUDE);
 
-    if (!apiKey) {
-      throw new Error('Claude API key is missing. Please add it in Settings.');
-    }
-
     claudeInstance = new Anthropic({
       apiKey,
       dangerouslyAllowBrowser: true,
