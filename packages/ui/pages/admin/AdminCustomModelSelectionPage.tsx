@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Button } from '../../components/ui/button';
 import { modelApi } from '@repo/api-client/src/supabaseService';
 import { toast } from 'sonner';
@@ -9,6 +8,7 @@ import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection'
 import { useSession } from '../../hooks/useSession';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
+import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -126,14 +126,6 @@ export function AdminCustomModelSelectionPage() {
     })();
   }, [session?.user, t]);
 
-  const getProviders = <T extends { provider: string }>(models: T[]): string[] =>
-      Array.from(new Set(models.map((m) => m.provider).filter(Boolean))) as string[];
-
-  const getModelsForProvider = <T extends { provider: string }>(
-    providerName: string,
-    models: T[],
-  ): T[] => models.filter((m) => m.provider === providerName);
-
   const handleSave = async () => {
     if (!session?.user) {
       toast.error(t('loginRequiredToSave'));
@@ -192,76 +184,33 @@ export function AdminCustomModelSelectionPage() {
   };
 
   if (!ready || !session) return <Loading/>;
-
-  const renderSection = <T extends { id: number; provider: string; friendly_name?: string; api_name: string }>(
-    label: string,
-    modelKey: keyof ModelSelection,
-    modelArray: T[],
-  ) => {
-    const currentModel = selection[modelKey] as T | undefined;
-    const currentProvider = currentModel?.provider || '';
-
-    return (
-      <div className='grid gap-4'>
-        <h3 className='text-xl font-semibold'>{label}</h3>
-
-        <Select
-          value={currentProvider}
-          onValueChange={(value) => {
-            const modelsForProvider = getModelsForProvider(value, modelArray);
-            if (modelsForProvider.length > 0) {
-              setSelection((prev) => ({
-                ...prev,
-                [modelKey]: modelsForProvider[0],
-              }));
-            }
-          }}
-        >
-          <SelectTrigger className='w-full'>
-            <SelectValue placeholder={t('selectProvider')}/>
-          </SelectTrigger>
-          <SelectContent>
-            {getProviders(modelArray).map((provider) => (
-              <SelectItem key={provider} value={provider}>
-                {provider}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={currentModel?.id ? String(currentModel.id) : ''}
-          onValueChange={(value) => {
-            const selectedModel = modelArray.find((m) => m.id === Number(value));
-            if (selectedModel) {
-              setSelection((prev) => ({
-                ...prev,
-                [modelKey]: selectedModel,
-              }));
-            }
-          }}
-        >
-          <SelectTrigger className='w-full'>
-            <SelectValue placeholder={t('selectModel')}/>
-          </SelectTrigger>
-          <SelectContent className='max-h-60 overflow-y-auto'>
-            {getModelsForProvider(currentProvider, modelArray).map((model) => (
-              <SelectItem key={model.id} value={String(model.id)}>
-                <div className='flex flex-col'>
-                  <span>{model.friendly_name ?? model.api_name}</span>
-                  {model.api_name && model.friendly_name && (
-                    <span className='text-xs text-muted-foreground'>
-                      {model.api_name}
-                    </span>
-                  )}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    );
-  };
+  const sections: ModelSectionConfig[] = [
+    {
+      label: t('responseModel'),
+      modelKey: 'responseModel',
+      models: models.responseModels,
+    },
+    {
+      label: t('ttsModel'),
+      modelKey: 'ttsModel',
+      models: models.ttsModels,
+    },
+    {
+      label: t('realtimeModel'),
+      modelKey: 'realtimeModel',
+      models: models.realtimeModels,
+    },
+    {
+      label: t('models.timestampedTranscriptionModel'),
+      modelKey: 'timestampedTranscriptionModel',
+      models: models.timestampedTranscriptionModels,
+    },
+    {
+      label: t('models.realtimeTranscriptionModel'),
+      modelKey: 'realtimeTranscriptionModel',
+      models: models.realtimeTranscriptionModels,
+    },
+  ];
 
   if (loading) {
     return (
@@ -277,31 +226,13 @@ export function AdminCustomModelSelectionPage() {
         <CardTitle>{t('customModelPreferences')}</CardTitle>
       </CardHeader>
       <CardContent className='grid gap-8'>
-        {renderSection(
-          t('responseModel'),
-          'responseModel',
-          models.responseModels,
-        )}
-        {renderSection(
-          t('ttsModel'),
-          'ttsModel',
-          models.ttsModels,
-        )}
-        {renderSection(
-          t('realtimeModel'),
-          'realtimeModel',
-          models.realtimeModels,
-        )}
-        {renderSection(
-          t('models.timestampedTranscriptionModel'),
-          'timestampedTranscriptionModel',
-          models.timestampedTranscriptionModels,
-        )}
-        {renderSection(
-          t('models.realtimeTranscriptionModel'),
-          'realtimeTranscriptionModel',
-          models.realtimeTranscriptionModels,
-        )}
+        <ModelSelectionForm
+          sections={sections}
+          modelSelection={selection}
+          setModelSelection={setSelection}
+          selectProviderLabel={t('selectProvider')}
+          selectModelLabel={t('selectModel')}
+        />
       </CardContent>
 
       <CardFooter className="flex gap-4">
