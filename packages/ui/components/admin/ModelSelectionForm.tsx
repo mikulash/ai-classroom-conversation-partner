@@ -17,16 +17,16 @@ export interface ModelSectionConfig {
 
 interface ModelSelectionFormProps {
   sections: ModelSectionConfig[];
-  state: Partial<ModelSelection>;
-  setState: React.Dispatch<React.SetStateAction<Partial<ModelSelection>>>;
+  modelSelection: Partial<ModelSelection>;
+  setModelSelection: React.Dispatch<React.SetStateAction<Partial<ModelSelection>>>;
   selectProviderLabel: string;
   selectModelLabel: string;
 }
 
 export function ModelSelectionForm({
   sections,
-  state,
-  setState,
+  modelSelection,
+  setModelSelection,
   selectProviderLabel,
   selectModelLabel,
 }: ModelSelectionFormProps) {
@@ -43,7 +43,7 @@ export function ModelSelectionForm({
     modelKey: keyof ModelSelection,
     modelArray: BaseModel[],
   ) => {
-    const currentModel = state[modelKey] as BaseModel | undefined;
+    const currentModel = modelSelection[modelKey] as BaseModel | undefined;
     const currentProvider = currentModel?.provider || '';
 
     return (
@@ -55,7 +55,7 @@ export function ModelSelectionForm({
           onValueChange={(value) => {
             const modelsForProvider = getModelsForProvider(value, modelArray);
             if (modelsForProvider.length > 0) {
-              setState((prev) => ({
+              setModelSelection((prev) => ({
                 ...prev,
                 [modelKey]: modelsForProvider[0],
               }));
@@ -79,7 +79,7 @@ export function ModelSelectionForm({
           onValueChange={(value) => {
             const selectedModel = modelArray.find((m) => m.id === Number(value));
             if (selectedModel) {
-              setState((prev) => ({
+              setModelSelection((prev) => ({
                 ...prev,
                 [modelKey]: selectedModel,
               }));

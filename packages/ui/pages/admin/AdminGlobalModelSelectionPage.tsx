@@ -13,7 +13,7 @@ import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/M
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
   const setAppConfig = useAppStore((state) => state.setAppConfig);
-  const [models, setModels] = useState<ModelOptions>({
+  const [modelOptions, setModelOptions] = useState<ModelOptions>({
     responseModels: [],
     ttsModels: [],
     realtimeModels: [],
@@ -23,7 +23,7 @@ export function AdminGlobalModelSelectionPage() {
 
   const app_config = useAppStore((state) => state.appConfig);
 
-  const [state, setState] = useState<Partial<ModelSelection>>({
+  const [modelSelectionState, setModelSelectionState] = useState<Partial<ModelSelection>>({
     responseModel: undefined,
     ttsModel: undefined,
     realtimeModel: undefined,
@@ -72,7 +72,7 @@ export function AdminGlobalModelSelectionPage() {
         return;
       }
 
-      setModels({
+      setModelOptions({
         responseModels: responseModels ?? [],
         ttsModels: ttsModels ?? [],
         realtimeModels: realtimeModels ?? [],
@@ -96,7 +96,7 @@ export function AdminGlobalModelSelectionPage() {
           (m) => m.id === app_config?.realtime_transcription_model_id,
         ) || null;
 
-      setState({
+      setModelSelectionState({
         responseModel: selectedResponseModel || (responseModels?.[0] || null),
         ttsModel: selectedTtsModel || (ttsModels?.[0] || null),
         realtimeModel: selectedRealtimeModel || (realtimeModels?.[0] || null),
@@ -120,11 +120,11 @@ export function AdminGlobalModelSelectionPage() {
 
     setIsSaving(true);
     const { data, error } = await modelApi.updateAppConfigModels({
-      response_model_id: state.responseModel?.id,
-      tts_model_id: state.ttsModel?.id,
-      realtime_model_id: state.realtimeModel?.id,
-      timestamped_transcription_model_id: state.timestampedTranscriptionModel?.id,
-      realtime_transcription_model_id: state.realtimeTranscriptionModel?.id,
+      response_model_id: modelSelectionState.responseModel?.id,
+      tts_model_id: modelSelectionState.ttsModel?.id,
+      realtime_model_id: modelSelectionState.realtimeModel?.id,
+      timestamped_transcription_model_id: modelSelectionState.timestampedTranscriptionModel?.id,
+      realtime_transcription_model_id: modelSelectionState.realtimeTranscriptionModel?.id,
       edited_at: new Date().toISOString(),
     });
 
@@ -147,27 +147,27 @@ export function AdminGlobalModelSelectionPage() {
     {
       label: t('models.responseModel'),
       modelKey: 'responseModel',
-      models: models.responseModels,
+      models: modelOptions.responseModels,
     },
     {
       label: t('models.ttsModel'),
       modelKey: 'ttsModel',
-      models: models.ttsModels,
+      models: modelOptions.ttsModels,
     },
     {
       label: t('models.realtimeModel'),
       modelKey: 'realtimeModel',
-      models: models.realtimeModels,
+      models: modelOptions.realtimeModels,
     },
     {
       label: t('models.timestampedTranscriptionModel'),
       modelKey: 'timestampedTranscriptionModel',
-      models: models.timestampedTranscriptionModels,
+      models: modelOptions.timestampedTranscriptionModels,
     },
     {
       label: t('models.realtimeTranscriptionModel'),
       modelKey: 'realtimeTranscriptionModel',
-      models: models.realtimeTranscriptionModels,
+      models: modelOptions.realtimeTranscriptionModels,
     },
   ];
 
@@ -187,8 +187,8 @@ export function AdminGlobalModelSelectionPage() {
       <CardContent className='grid gap-8'>
         <ModelSelectionForm
           sections={sections}
-          state={state}
-          setState={setState}
+          modelSelection={modelSelectionState}
+          setModelSelection={setModelSelectionState}
           selectProviderLabel={t('models.selectProvider')}
           selectModelLabel={t('models.selectModel')}
         />

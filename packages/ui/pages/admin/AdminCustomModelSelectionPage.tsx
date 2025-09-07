@@ -228,8 +228,8 @@ export function AdminCustomModelSelectionPage() {
       <CardContent className='grid gap-8'>
         <ModelSelectionForm
           sections={sections}
-          state={selection}
-          setState={setSelection}
+          modelSelection={selection}
+          setModelSelection={setSelection}
           selectProviderLabel={t('selectProvider')}
           selectModelLabel={t('selectModel')}
         />
