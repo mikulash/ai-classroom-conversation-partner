@@ -12,7 +12,7 @@ export function AdminNavigation() {
   const { t } = useTypedTranslation();
 
   if (!profile) {
-    navigate('/auth');
+    void navigate('/auth');
     return null;
   }
 
@@ -32,15 +32,15 @@ export function AdminNavigation() {
 
   const handleTabChange = (value: string) => {
     if (value === 'global_models') {
-      navigate( '/admin' );
+      void navigate( '/admin' );
     } else if (value === 'personalities') {
-      navigate( '/admin/personalities');
+      void navigate( '/admin/personalities');
     } else if (value === 'scenarios') {
-      navigate( '/admin/scenarios');
+      void navigate( '/admin/scenarios');
     } else if (value === 'custom_models') {
-      navigate( '/admin/custom-models');
+      void navigate( '/admin/custom-models');
     } else if (value === 'user_profiles') {
-      navigate( '/admin/user-profiles');
+      void navigate( '/admin/user-profiles');
     }
   };
 

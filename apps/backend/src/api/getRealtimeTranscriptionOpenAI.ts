@@ -44,7 +44,7 @@ export async function getEphemeralTranscriptionTokenOpenAi(
       `OpenAI transcription session creation failed (${res.status}): ${text}`,
     );
     // attach status so caller can pick it up
-    ;(err as any).status = res.status;
+    ;(err as Error & { status?: number }).status = res.status;
     throw err;
   }
 
