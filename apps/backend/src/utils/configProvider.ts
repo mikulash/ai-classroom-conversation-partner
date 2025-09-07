@@ -17,9 +17,12 @@ import { ModelOptions } from '@repo/shared/types/modelSelection';
  * Fetches all secrets once and caches them for the lifetime of the process.
  * App config is cached for 5 minutes and then refreshed.
  */
+
+type Secrets = Record<ApiKey, string | undefined>
+
 export class ConfigProvider {
   private static instance: ConfigProvider;
-  private readonly secrets: Record<ApiKey, string | undefined>;
+  private readonly secrets: Secrets;
   private app_config: AppConfig;
   private readonly model_options: ModelOptions;
   private app_config_last_fetched: number;
@@ -29,7 +32,7 @@ export class ConfigProvider {
   /**
    * Private constructor; use getInstance() instead.
    */
-  private constructor(secrets: Record<ApiKey, string | undefined>, app_config: AppConfig, model_options: ModelOptions) {
+  private constructor(secrets: Secrets, app_config: AppConfig, model_options: ModelOptions) {
     this.secrets = secrets;
     this.app_config = app_config;
     this.model_options = model_options;
@@ -44,11 +47,11 @@ export class ConfigProvider {
    */
   public static async getInstance(): Promise<ConfigProvider> {
     if (!ConfigProvider.instance) {
-      const secrets: Record<ApiKey, string> = {
-        [API_KEY.OPENAI]: process.env.OPENAI_API_KEY!,
-        [API_KEY.ELEVENLABS]: process.env.ELEVENLABS_API_KEY!,
-        [API_KEY.CLAUDE]: process.env.CLAUDE_API_KEY!,
-        [API_KEY.GROK]: process.env.GROK_API_KEY!,
+      const secrets: Secrets = {
+        [API_KEY.OPENAI]: process.env.OPENAI_API_KEY,
+        [API_KEY.ELEVENLABS]: process.env.ELEVENLABS_API_KEY,
+        [API_KEY.CLAUDE]: process.env.CLAUDE_API_KEY,
+        [API_KEY.GROK]: process.env.GROK_API_KEY,
       };
 
       const complete_configuration = await ConfigProvider.loadCompleteConfig();
@@ -63,7 +66,7 @@ export class ConfigProvider {
   }
 
   /**
-   * Checks if app_config cache has expired and refreshes it if needed.
+   * Checks if the app_config cache has expired and refreshes it if needed.
    */
   private async refreshAppConfigIfExpired(): Promise<void> {
     const now = Date.now();
