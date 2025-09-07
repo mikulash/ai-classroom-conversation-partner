@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import ModelSelectionForm, { ModelSectionConfig } from '../../components/admin/ModelSelectionForm';
+import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();

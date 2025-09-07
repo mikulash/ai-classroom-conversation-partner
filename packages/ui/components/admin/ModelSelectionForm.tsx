@@ -110,6 +110,3 @@ export function ModelSelectionForm({
 
   return <>{sections.map((section) => renderSection(section.label, section.modelKey, section.models))}</>;
 }
-
-export default ModelSelectionForm;
-

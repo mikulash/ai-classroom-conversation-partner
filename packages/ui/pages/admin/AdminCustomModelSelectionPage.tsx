@@ -8,7 +8,7 @@ import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection'
 import { useSession } from '../../hooks/useSession';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import ModelSelectionForm, { ModelSectionConfig } from '../../components/admin/ModelSelectionForm';
+import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
