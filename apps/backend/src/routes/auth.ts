@@ -15,7 +15,7 @@ router.all('/', (req, res) => {
 router.post(
   '/register',
   async (
-    req: Request<RegisterUserBody>,
+    req: Request<unknown, unknown, RegisterUserBody>,
     res: Response<AuthResponse | string>,
   ) => {
     const { email, password, full_name, gender } = req.body;
