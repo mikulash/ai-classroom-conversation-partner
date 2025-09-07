@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { modelApi } from '@repo/api-client/src/supabaseService';
+import { apiClient } from '@repo/api-client/src/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
@@ -9,6 +10,7 @@ import { useSession } from '../../hooks/useSession';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
+import { filterModelsByApiKeyStatus } from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -48,6 +50,7 @@ export function AdminCustomModelSelectionPage() {
         { data: timestampedTranscriptionModels, error: timestampedError },
         { data: realtimeTranscriptionModels, error: realtimeTransError },
         { data: userCustomSettings },
+        apiKeysStatus,
       ] = await Promise.all([
         modelApi.responseModels(),
         modelApi.ttsModels(),
@@ -55,6 +58,7 @@ export function AdminCustomModelSelectionPage() {
         modelApi.timestampedTranscriptionModels(),
         modelApi.realtimeTranscriptionModels(),
         modelApi.adminUserSelection(session?.user.id),
+        apiClient.getApiKeysStatus(),
       ]);
 
       const errors = [responseError, ttsError, realtimeError, timestampedError, realtimeTransError].filter(Boolean);
@@ -70,12 +74,24 @@ export function AdminCustomModelSelectionPage() {
 
       const userSelection = userCustomSettings ?? null;
 
+      const filteredResponseModels = filterModelsByApiKeyStatus(responseModels ?? [], apiKeysStatus);
+      const filteredTtsModels = filterModelsByApiKeyStatus(ttsModels ?? [], apiKeysStatus);
+      const filteredRealtimeModels = filterModelsByApiKeyStatus(realtimeModels ?? [], apiKeysStatus);
+      const filteredTimestampedTranscriptionModels = filterModelsByApiKeyStatus(
+        timestampedTranscriptionModels ?? [],
+        apiKeysStatus,
+      );
+      const filteredRealtimeTranscriptionModels = filterModelsByApiKeyStatus(
+        realtimeTranscriptionModels ?? [],
+        apiKeysStatus,
+      );
+
       setModels({
-        responseModels: responseModels ?? [],
-        ttsModels: ttsModels ?? [],
-        realtimeModels: realtimeModels ?? [],
-        timestampedTranscriptionModels: timestampedTranscriptionModels ?? [],
-        realtimeTranscriptionModels: realtimeTranscriptionModels ?? [],
+        responseModels: filteredResponseModels,
+        ttsModels: filteredTtsModels,
+        realtimeModels: filteredRealtimeModels,
+        timestampedTranscriptionModels: filteredTimestampedTranscriptionModels,
+        realtimeTranscriptionModels: filteredRealtimeTranscriptionModels,
       });
 
       // Find models based on user's custom config or global config as fallback
@@ -96,27 +112,27 @@ export function AdminCustomModelSelectionPage() {
       // Set selection using the complete model objects
       setSelection({
         responseModel: findSelectedModel(
-          responseModels ?? [],
+          filteredResponseModels,
           userSelection?.response_model_id,
           app_config?.response_model_id,
         ),
         ttsModel: findSelectedModel(
-          ttsModels ?? [],
+          filteredTtsModels,
           userSelection?.tts_model_id,
           app_config?.tts_model_id,
         ),
         realtimeModel: findSelectedModel(
-          realtimeModels ?? [],
+          filteredRealtimeModels,
           userSelection?.realtime_model_id,
           app_config?.realtime_model_id,
         ),
         timestampedTranscriptionModel: findSelectedModel(
-          timestampedTranscriptionModels ?? [],
+          filteredTimestampedTranscriptionModels,
           userSelection?.timestamped_transcription_model_id,
           app_config?.timestamped_transcription_model_id,
         ),
         realtimeTranscriptionModel: findSelectedModel(
-          realtimeTranscriptionModels ?? [],
+          filteredRealtimeTranscriptionModels,
           userSelection?.realtime_transcription_model_id,
           app_config?.realtime_transcription_model_id,
         ),

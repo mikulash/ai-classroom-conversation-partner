@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { modelApi } from '@repo/api-client/src/supabaseService';
+import { apiClient } from '@repo/api-client/src/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
@@ -9,6 +10,7 @@ import { AlertCircle } from 'lucide-react';
 import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
+import { filterModelsByApiKeyStatus } from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -43,12 +45,14 @@ export function AdminGlobalModelSelectionPage() {
         { data: realtimeModels, error: realtimeError },
         { data: timestampedTranscriptionModels, error: timestampedTranscriptionError },
         { data: realtimeTranscriptionModels, error: realtimeTranscriptionError },
+        apiKeysStatus,
       ] = await Promise.all([
         modelApi.responseModels(),
         modelApi.ttsModels(),
         modelApi.realtimeModels(),
         modelApi.timestampedTranscriptionModels(),
         modelApi.realtimeTranscriptionModels(),
+        apiClient.getApiKeysStatus(),
       ]);
 
 
@@ -72,36 +76,50 @@ export function AdminGlobalModelSelectionPage() {
         return;
       }
 
+      const filteredResponseModels = filterModelsByApiKeyStatus(responseModels ?? [], apiKeysStatus);
+      const filteredTtsModels = filterModelsByApiKeyStatus(ttsModels ?? [], apiKeysStatus);
+      const filteredRealtimeModels = filterModelsByApiKeyStatus(realtimeModels ?? [], apiKeysStatus);
+      const filteredTimestampedTranscriptionModels = filterModelsByApiKeyStatus(
+        timestampedTranscriptionModels ?? [],
+        apiKeysStatus,
+      );
+      const filteredRealtimeTranscriptionModels = filterModelsByApiKeyStatus(
+        realtimeTranscriptionModels ?? [],
+        apiKeysStatus,
+      );
+
       setModelOptions({
-        responseModels: responseModels ?? [],
-        ttsModels: ttsModels ?? [],
-        realtimeModels: realtimeModels ?? [],
-        timestampedTranscriptionModels: timestampedTranscriptionModels ?? [],
-        realtimeTranscriptionModels: realtimeTranscriptionModels ?? [],
+        responseModels: filteredResponseModels,
+        ttsModels: filteredTtsModels,
+        realtimeModels: filteredRealtimeModels,
+        timestampedTranscriptionModels: filteredTimestampedTranscriptionModels,
+        realtimeTranscriptionModels: filteredRealtimeTranscriptionModels,
       });
 
       // Find selected models based on app_config
       const selectedResponseModel =
-        responseModels.find((m) => m.id === app_config.response_model_id) || null;
+        filteredResponseModels.find((m) => m.id === app_config.response_model_id) || null;
       const selectedTtsModel =
-        ttsModels.find((m) => m.id === app_config.tts_model_id) || null;
+        filteredTtsModels.find((m) => m.id === app_config.tts_model_id) || null;
       const selectedRealtimeModel =
-        realtimeModels.find((m) => m.id === app_config.realtime_model_id) || null;
+        filteredRealtimeModels.find((m) => m.id === app_config.realtime_model_id) || null;
       const selectedTimestampedTranscriptionModel =
-        timestampedTranscriptionModels.find(
+        filteredTimestampedTranscriptionModels.find(
           (m) => m.id === app_config.timestamped_transcription_model_id,
         ) || null;
       const selectedRealtimeTranscriptionModel =
-        realtimeTranscriptionModels.find(
+        filteredRealtimeTranscriptionModels.find(
           (m) => m.id === app_config.realtime_transcription_model_id,
         ) || null;
 
       setModelSelectionState({
-        responseModel: selectedResponseModel || (responseModels?.[0] || null),
-        ttsModel: selectedTtsModel || (ttsModels?.[0] || null),
-        realtimeModel: selectedRealtimeModel || (realtimeModels?.[0] || null),
-        timestampedTranscriptionModel: selectedTimestampedTranscriptionModel || (timestampedTranscriptionModels?.[0] || null),
-        realtimeTranscriptionModel: selectedRealtimeTranscriptionModel || (realtimeTranscriptionModels?.[0] || null),
+        responseModel: selectedResponseModel || filteredResponseModels[0] || null,
+        ttsModel: selectedTtsModel || filteredTtsModels[0] || null,
+        realtimeModel: selectedRealtimeModel || filteredRealtimeModels[0] || null,
+        timestampedTranscriptionModel:
+          selectedTimestampedTranscriptionModel || filteredTimestampedTranscriptionModels[0] || null,
+        realtimeTranscriptionModel:
+          selectedRealtimeTranscriptionModel || filteredRealtimeTranscriptionModels[0] || null,
       });
 
       setLoading(false);
