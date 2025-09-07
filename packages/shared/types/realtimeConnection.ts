@@ -1,11 +1,11 @@
-export type RealtimeConnection = {
+export interface RealtimeConnection {
     pc: RTCPeerConnection;
     dc: RTCDataChannel;
     audioStream: MediaStream;
     close: () => void;
-};
+}
 
-export type RealtimeEvent = {
+export interface RealtimeEvent {
     type: string;
     [key: string]: any;
-};
+}

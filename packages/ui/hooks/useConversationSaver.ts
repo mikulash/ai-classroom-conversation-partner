@@ -38,7 +38,7 @@ export const useConversationSaver = ({
     endReason: 'timeLimit' | 'silence' | 'manual',
     conversationType: Enums<'conversation_type'>,
     messagesToSave?: ChatMessage[],
-    logsToSave?: Array<Log>,
+    logsToSave?: Log[],
   ) => {
     if (conversationSavedRef.current || !userProfile || !personality) {
       return;

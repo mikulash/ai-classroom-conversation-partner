@@ -340,7 +340,7 @@ export const VideoCallPage: React.FC = () => {
   };
 
   // Handler for ending chat with a specific reason
-  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: Array<Log>) => {
+  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: Log[]) => {
     logMessage('log', 'Ending chat with reason:', reason);
 
     connection?.close();

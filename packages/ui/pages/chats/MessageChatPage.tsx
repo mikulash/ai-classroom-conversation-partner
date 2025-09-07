@@ -302,7 +302,7 @@ export const MessageChatPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [isAiTyping, pendingAiMessage, messages, consecutiveSilencePrompts]);
 
-  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: Array<Log>) => {
+  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: Log[]) => {
     stopAudio();
     stopRecognition();
 

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { Profile } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 
-type UserSlice = {
+interface UserSlice {
     profile: Profile | null
     setProfile: (u: Profile) => void
     clearProfile: () => void

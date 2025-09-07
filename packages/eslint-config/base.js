@@ -15,7 +15,8 @@ export const config = [
   /* core recommendations */
   js.configs.recommended,
   google,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.strict,
+  ...tseslint.configs.stylistic,
   i18next.configs['flat/recommended'],
   {
     rules: {
@@ -29,6 +30,7 @@ export const config = [
       'no-unused-vars': 'off',
       'no-explicit-any': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
       'linebreak-style': 'off',
       'camelcase': 'off',
       'new-cap': 'off',

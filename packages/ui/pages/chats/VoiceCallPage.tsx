@@ -189,7 +189,7 @@ export const VoiceCallPage: React.FC = () => {
   const handleEndCallWithReason = useCallback(async (
     reason?: 'timeLimit' | 'manual',
     messagesToSave?: ChatMessage[],
-    logsToSave?: Array<Log>,
+    logsToSave?: Log[],
   ) => {
     logMessage('log', 'Ending call with reason:', reason);
 

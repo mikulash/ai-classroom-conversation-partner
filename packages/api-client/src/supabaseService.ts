@@ -63,7 +63,7 @@ export const authApi = {
 export const profileApi = {
   getById: async (
     id: string,
-    columns: string = '*',
+    columns = '*',
   ): Promise<PostgrestSingleResponse<Profile>> =>
     supabase.from('profiles').select(columns).eq('id', id).single(),
   getAll: async (): Promise<PostgrestResponse<Profile>> =>
