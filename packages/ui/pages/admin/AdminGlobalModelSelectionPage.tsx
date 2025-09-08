@@ -10,7 +10,11 @@ import { AlertCircle } from 'lucide-react';
 import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
-import { getAvailableTtsModels } from '@repo/shared/utils/filterModelsByApiKeyStatus';
+import {
+  getAvailableRealtimeModels, getAvailableRealtimeTranscriptionModels,
+  getAvailableResponseModels, getAvailableTimestampedTranscriptionModels,
+  getAvailableTtsModels,
+} from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -76,11 +80,11 @@ export function AdminGlobalModelSelectionPage() {
         return;
       }
 
-      const filteredResponseModels = responseModels;
+      const filteredResponseModels = getAvailableResponseModels(aiProvidersAvailability, responseModels);
       const filteredTtsModels = getAvailableTtsModels(aiProvidersAvailability, ttsModels);
-      const filteredRealtimeModels = realtimeModels;
-      const filteredTimestampedTranscriptionModels = timestampedTranscriptionModels;
-      const filteredRealtimeTranscriptionModels = realtimeTranscriptionModels;
+      const filteredRealtimeModels = getAvailableRealtimeModels(aiProvidersAvailability, realtimeModels);
+      const filteredTimestampedTranscriptionModels = getAvailableTimestampedTranscriptionModels(aiProvidersAvailability, timestampedTranscriptionModels);
+      const filteredRealtimeTranscriptionModels = getAvailableRealtimeTranscriptionModels(aiProvidersAvailability, realtimeTranscriptionModels);
 
       setModelOptions({
         responseModels: filteredResponseModels,

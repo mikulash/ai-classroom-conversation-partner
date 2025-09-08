@@ -5,13 +5,14 @@ import {
   TimestampedTranscriptionModel,
   TtsModel,
 } from './supabase/supabaseTypeHelpers.js';
+import { WithAvailability } from '../utils/filterModelsByApiKeyStatus.js';
 
 export interface ModelOptions {
-    responseModels: ResponseModel[];
-    ttsModels: TtsModel[];
-    realtimeModels: RealtimeModel[];
-    timestampedTranscriptionModels: TimestampedTranscriptionModel[];
-    realtimeTranscriptionModels: RealtimeTranscriptionModel[];
+    responseModels: WithAvailability<ResponseModel>[];
+    ttsModels: WithAvailability<TtsModel>[];
+    realtimeModels: WithAvailability<RealtimeModel>[];
+    timestampedTranscriptionModels: WithAvailability<TimestampedTranscriptionModel>[];
+    realtimeTranscriptionModels: WithAvailability<RealtimeTranscriptionModel>[];
 }
 
 export interface ModelSelection {

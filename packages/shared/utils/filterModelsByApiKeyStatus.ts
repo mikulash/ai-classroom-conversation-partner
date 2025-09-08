@@ -31,53 +31,54 @@ export const ttsProvidersApiKeys = {
   'ElevenLabs': API_KEY.ELEVENLABS,
 } as const satisfies Record<Enums<'providers_tts_model'>, ApiKey>;
 
-export const getAvailableRealtimeModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeModel[]): RealtimeModel[] => {
-  return modelOptions.filter((model) => {
-    const requiredApiKey = realtimeProvidersApiKeys[model.provider];
+
+export type WithAvailability<T> = T & { available: boolean };
+
+/**
+ * Generic function to get models with availability status
+ * @param availabilities - Array of provider availability statuses
+ * @param modelOptions - Array of model options to check
+ * @param providerEnvKeyMap - Map of provider names to API keys
+ * @returns Array of models with an availability flag
+ */
+const getAvailableModels = <
+    P extends string,
+    T extends { provider: P }
+>(
+    availabilities: AiProviderStatus[],
+    modelOptions: T[],
+    providerEnvKeyMap: Record<P, ApiKey>,
+  ): WithAvailability<T>[] => {
+  return modelOptions.map((model) => {
+    const requiredApiKey = providerEnvKeyMap[model.provider];
     const providerStatus = availabilities.find(
       (status) => status.apiKey === requiredApiKey,
     );
-    return providerStatus?.available === true;
+    return {
+      ...model,
+      available: providerStatus?.available === true,
+    };
   });
 };
 
-
-export const getAvailableRealtimeTranscriptionModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeTranscriptionModel[]): RealtimeTranscriptionModel[] => {
-  return modelOptions.filter((model) => {
-    const requiredApiKey = realtimeTranscriptionProvidersApiKeys[model.provider];
-    const providerStatus = availabilities.find(
-      (status) => status.apiKey === requiredApiKey,
-    );
-    return providerStatus?.available === true;
-  });
+export const getAvailableRealtimeTranscriptionModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeTranscriptionModel[]): WithAvailability<RealtimeTranscriptionModel>[] => {
+  return getAvailableModels(availabilities, modelOptions, realtimeTranscriptionProvidersApiKeys);
 };
 
-export const getAvailableResponseModels = (availabilities: AiProviderStatus[], modelOptions: ResponseModel[]): ResponseModel[] => {
-  return modelOptions.filter((model) => {
-    const requiredApiKey = responseProvidersApiKeys[model.provider];
-    const providerStatus = availabilities.find(
-      (status) => status.apiKey === requiredApiKey,
-    );
-    return providerStatus?.available === true;
-  });
+export const getAvailableResponseModels = (availabilities: AiProviderStatus[], modelOptions: ResponseModel[]): WithAvailability<ResponseModel>[] => {
+  return getAvailableModels(availabilities, modelOptions, responseProvidersApiKeys);
 };
 
-export const getAvailableTimestampedTranscriptionModels = (availabilities: AiProviderStatus[], modelOptions: TimestampedTranscriptionModel[]): TimestampedTranscriptionModel[] => {
-  return modelOptions.filter((model) => {
-    const requiredApiKey = timestampedTranscriptionProvidersApiKeys[model.provider];
-    const providerStatus = availabilities.find(
-      (status) => status.apiKey === requiredApiKey,
-    );
-    return providerStatus?.available === true;
-  });
+export const getAvailableRealtimeModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeModel[]): WithAvailability<RealtimeModel>[] => {
+  return getAvailableModels(availabilities, modelOptions, realtimeProvidersApiKeys);
 };
 
-export const getAvailableTtsModels = (availabilities: AiProviderStatus[], modelOptions: TtsModel[]): TtsModel[] => {
-  return modelOptions.filter((model) => {
-    const requiredApiKey = ttsProvidersApiKeys[model.provider];
-    const providerStatus = availabilities.find(
-      (status) => status.apiKey === requiredApiKey,
-    );
-    return providerStatus?.available === true;
-  });
+export const getAvailableTimestampedTranscriptionModels = (availabilities: AiProviderStatus[], modelOptions: TimestampedTranscriptionModel[]): WithAvailability<TimestampedTranscriptionModel>[] => {
+  return getAvailableModels(availabilities, modelOptions, timestampedTranscriptionProvidersApiKeys);
 };
+
+export const getAvailableTtsModels = ( availabilities: AiProviderStatus[], modelOptions: TtsModel[]): WithAvailability<TtsModel>[] => {
+  return getAvailableModels(availabilities, modelOptions, ttsProvidersApiKeys);
+};
+
+

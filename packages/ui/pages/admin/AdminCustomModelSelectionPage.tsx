@@ -10,6 +10,11 @@ import { useSession } from '../../hooks/useSession';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
+import {
+  getAvailableRealtimeModels, getAvailableRealtimeTranscriptionModels,
+  getAvailableResponseModels, getAvailableTimestampedTranscriptionModels,
+  getAvailableTtsModels,
+} from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -82,14 +87,13 @@ export function AdminCustomModelSelectionPage() {
         return;
       }
 
-
       const userSelection = userCustomSettings ?? null;
 
-      const filteredResponseModels = responseModels;
-      const filteredTtsModels = ttsModels;
-      const filteredRealtimeModels = realtimeModels;
-      const filteredTimestampedTranscriptionModels = timestampedTranscriptionModels;
-      const filteredRealtimeTranscriptionModels = realtimeTranscriptionModels;
+      const filteredResponseModels = getAvailableResponseModels(aiProvidersAvailability, responseModels);
+      const filteredTtsModels = getAvailableTtsModels(aiProvidersAvailability, ttsModels);
+      const filteredRealtimeModels = getAvailableRealtimeModels(aiProvidersAvailability, realtimeModels);
+      const filteredTimestampedTranscriptionModels = getAvailableTimestampedTranscriptionModels(aiProvidersAvailability, timestampedTranscriptionModels);
+      const filteredRealtimeTranscriptionModels = getAvailableRealtimeTranscriptionModels(aiProvidersAvailability, realtimeTranscriptionModels);
 
       setModels({
         responseModels: filteredResponseModels,
