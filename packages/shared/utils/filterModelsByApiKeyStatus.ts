@@ -8,28 +8,28 @@ import type {
 } from '../types/supabase/supabaseTypeHelpers.js';
 import { ApiKey } from '../types/apiKey.js';
 
-export const realtimeProvidersApiKeys: Record<Enums<'providers_realtime_model'>, ApiKey>= {
+export const realtimeProvidersApiKeys= {
   'OpenAi': API_KEY.OPENAI,
-};
+} as const satisfies Record<Enums<'providers_realtime_model'>, ApiKey>;
 
-export const realtimeTranscriptionProvidersApiKeys: Record<Enums<'providers_realtime_transcription_model'>, ApiKey>= {
+export const realtimeTranscriptionProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
-};
+} as const satisfies Record<Enums<'providers_realtime_transcription_model'>, ApiKey>;
 
-export const responseProvidersApiKeys: Record<Enums<'providers_response_model'>, ApiKey>= {
+export const responseProvidersApiKeys = {
   'Anthropic': API_KEY.CLAUDE,
   'xAi': API_KEY.GROK,
   'OpenAi': API_KEY.OPENAI,
-};
+} as const satisfies Record<Enums<'providers_response_model'>, ApiKey>;
 
-export const timestampedTranscriptionProvidersApiKeys: Record<Enums<'providers_timestamped_transcription_model'>, ApiKey>= {
+export const timestampedTranscriptionProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
-};
+} as const satisfies Record<Enums<'providers_timestamped_transcription_model'>, ApiKey>;
 
-export const ttsProvidersApiKeys: Record<Enums<'providers_tts_model'>, ApiKey>= {
+export const ttsProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
   'ElevenLabs': API_KEY.ELEVENLABS,
-};
+} as const satisfies Record<Enums<'providers_tts_model'>, ApiKey>;
 
 export const getAvailableRealtimeModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeModel[]): RealtimeModel[] => {
   return modelOptions.filter((model) => {
