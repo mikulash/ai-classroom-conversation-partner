@@ -10,7 +10,7 @@ import { AlertCircle } from 'lucide-react';
 import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
-import { filterModelsByApiKeyStatus } from '@repo/shared/utils/filterModelsByApiKeyStatus';
+import { getAvailableTtsModels } from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -45,14 +45,14 @@ export function AdminGlobalModelSelectionPage() {
         { data: realtimeModels, error: realtimeError },
         { data: timestampedTranscriptionModels, error: timestampedTranscriptionError },
         { data: realtimeTranscriptionModels, error: realtimeTranscriptionError },
-        apiKeysStatus,
+        aiProvidersAvailability,
       ] = await Promise.all([
         modelApi.responseModels(),
         modelApi.ttsModels(),
         modelApi.realtimeModels(),
         modelApi.timestampedTranscriptionModels(),
         modelApi.realtimeTranscriptionModels(),
-        apiClient.getApiKeysStatus(),
+        apiClient.getAiProvidersAvailability(),
       ]);
 
 
@@ -76,17 +76,11 @@ export function AdminGlobalModelSelectionPage() {
         return;
       }
 
-      const filteredResponseModels = filterModelsByApiKeyStatus(responseModels ?? [], apiKeysStatus);
-      const filteredTtsModels = filterModelsByApiKeyStatus(ttsModels ?? [], apiKeysStatus);
-      const filteredRealtimeModels = filterModelsByApiKeyStatus(realtimeModels ?? [], apiKeysStatus);
-      const filteredTimestampedTranscriptionModels = filterModelsByApiKeyStatus(
-        timestampedTranscriptionModels ?? [],
-        apiKeysStatus,
-      );
-      const filteredRealtimeTranscriptionModels = filterModelsByApiKeyStatus(
-        realtimeTranscriptionModels ?? [],
-        apiKeysStatus,
-      );
+      const filteredResponseModels = responseModels;
+      const filteredTtsModels = getAvailableTtsModels(aiProvidersAvailability, ttsModels);
+      const filteredRealtimeModels = realtimeModels;
+      const filteredTimestampedTranscriptionModels = timestampedTranscriptionModels;
+      const filteredRealtimeTranscriptionModels = realtimeTranscriptionModels;
 
       setModelOptions({
         responseModels: filteredResponseModels,

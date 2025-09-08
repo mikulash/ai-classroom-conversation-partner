@@ -10,7 +10,6 @@ import { useSession } from '../../hooks/useSession';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
-import { filterModelsByApiKeyStatus } from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -50,7 +49,7 @@ export function AdminCustomModelSelectionPage() {
         { data: timestampedTranscriptionModels, error: timestampedError },
         { data: realtimeTranscriptionModels, error: realtimeTransError },
         { data: userCustomSettings },
-        apiKeysStatus,
+        aiProvidersAvailability,
       ] = await Promise.all([
         modelApi.responseModels(),
         modelApi.ttsModels(),
@@ -58,33 +57,39 @@ export function AdminCustomModelSelectionPage() {
         modelApi.timestampedTranscriptionModels(),
         modelApi.realtimeTranscriptionModels(),
         modelApi.adminUserSelection(session?.user.id),
-        apiClient.getApiKeysStatus(),
+        apiClient.getAiProvidersAvailability(),
       ]);
 
       const errors = [responseError, ttsError, realtimeError, timestampedError, realtimeTransError].filter(Boolean);
 
-      if (errors.length > 0) {
-        console.error('error loading models:', errors[0]?.message);
-        toast.error(t('failedToLoadData'), {
-          description: errors[0]?.message,
+      if (responseError || ttsError || realtimeError || timestampedError || realtimeTransError) {
+        console.error(
+          responseError?.message ??
+                ttsError?.message ??
+                realtimeError?.message ??
+                timestampedError?.message ??
+                realtimeTransError?.message,
+        );
+        toast.error(t('models.loadFailed'), {
+          description:
+                    responseError?.message ??
+                    ttsError?.message ??
+                    realtimeError?.message ??
+                    timestampedError?.message ??
+                    realtimeTransError?.message,
         });
         setLoading(false);
         return;
       }
 
+
       const userSelection = userCustomSettings ?? null;
 
-      const filteredResponseModels = filterModelsByApiKeyStatus(responseModels ?? [], apiKeysStatus);
-      const filteredTtsModels = filterModelsByApiKeyStatus(ttsModels ?? [], apiKeysStatus);
-      const filteredRealtimeModels = filterModelsByApiKeyStatus(realtimeModels ?? [], apiKeysStatus);
-      const filteredTimestampedTranscriptionModels = filterModelsByApiKeyStatus(
-        timestampedTranscriptionModels ?? [],
-        apiKeysStatus,
-      );
-      const filteredRealtimeTranscriptionModels = filterModelsByApiKeyStatus(
-        realtimeTranscriptionModels ?? [],
-        apiKeysStatus,
-      );
+      const filteredResponseModels = responseModels;
+      const filteredTtsModels = ttsModels;
+      const filteredRealtimeModels = realtimeModels;
+      const filteredTimestampedTranscriptionModels = timestampedTranscriptionModels;
+      const filteredRealtimeTranscriptionModels = realtimeTranscriptionModels;
 
       setModels({
         responseModels: filteredResponseModels,

@@ -23,7 +23,7 @@ import { getUserId } from '../utils/getUserId';
 import { getRealtimeTranscription } from '../api_universal/getRealtimeTranscription';
 import { getRealtimeVoice } from '../api_universal/getRealtimeVoice';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
-import { ApiKeysStatus } from '@repo/shared/types/apiKeyStatus';
+import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 
 const router = Router({ mergeParams: true });
 
@@ -248,24 +248,14 @@ router.post(
 
 // Check the availability status of required API keys (OpenAI, ElevenLabs, Claude, Grok)
 router.get(
-  '/api-keys/status',
-  async (
-    req: Request,
-    res: Response<ApiKeysStatus | ErrorResponse>,
-  ) => {
-    try {
-      const apiKeysStatus: ApiKeysStatus = {
-        [API_KEY.OPENAI]: !!process.env.OPENAI_API_KEY,
-        [API_KEY.ELEVENLABS]: !!process.env.ELEVENLABS_API_KEY,
-        [API_KEY.CLAUDE]: !!process.env.CLAUDE_API_KEY,
-        [API_KEY.GROK]: !!process.env.GROK_API_KEY,
-      };
+  '/providers',
+  (req: Request, res: Response<AiProviderStatus[]>) => {
+    const providers: AiProviderStatus[] = Object.entries(API_KEY).map(([, envKey]) => ({
+      apiKey: envKey, // KEY as in KEY:VALUE, not the exact secret key
+      available: Boolean(process.env[envKey]),
+    }));
 
-      res.json(apiKeysStatus);
-    } catch (error) {
-      console.error('Error checking API keys status:', error);
-      res.status(500).json({ message: 'Failed to check API keys status' });
-    }
+    res.status(200).json(providers);
   },
 );
 
