@@ -65,8 +65,6 @@ export function AdminCustomModelSelectionPage() {
         apiClient.getAiProvidersAvailability(),
       ]);
 
-      const errors = [responseError, ttsError, realtimeError, timestampedError, realtimeTransError].filter(Boolean);
-
       if (responseError || ttsError || realtimeError || timestampedError || realtimeTransError) {
         console.error(
           responseError?.message ??
