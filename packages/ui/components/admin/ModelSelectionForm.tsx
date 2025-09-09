@@ -65,11 +65,16 @@ export function ModelSelectionForm({
                 <SelectValue placeholder={selectProviderLabel} />
               </SelectTrigger>
               <SelectContent>
-                {getProviders(section.models).map((provider) => (
-                  <SelectItem key={provider} value={provider}>
-                    {provider}
-                  </SelectItem>
-                ))}
+                {getProviders(section.models).map((provider) => {
+                  const hasAvailableModels = getModelsForProvider(provider, section.models).some(
+                    (m) => m.available,
+                  );
+                  return (
+                    <SelectItem key={provider} value={provider} disabled={!hasAvailableModels}>
+                      {provider}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
 
