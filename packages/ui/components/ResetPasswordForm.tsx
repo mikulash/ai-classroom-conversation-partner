@@ -94,7 +94,7 @@ export const ResetPasswordForm: React.FC = () => {
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t('loading') : t('updatePassword', 'Update password')}
+              {loading ? t('loading.general') : t('updatePassword', 'Update password')}
             </Button>
           </form>
         </>

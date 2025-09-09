@@ -18,7 +18,7 @@ import { RegisterUserBody } from '@repo/shared/types/api/RegisterUserBody';
 import { AuthResponse } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
 import { Language } from '@repo/shared/types/language';
-import { ApiKeysStatus } from '@repo/shared/types/apiKeyStatus';
+import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 
 
 /**
@@ -120,8 +120,8 @@ export class FigurantApiClient {
     return data;
   }
 
-  async getApiKeysStatus(): Promise<ApiKeysStatus> {
-    const { data } = await this.axios.get<ApiKeysStatus>(`/replies/api-keys/status`);
+  async getAiProvidersAvailability(): Promise<AiProviderStatus[]> {
+    const { data } = await this.axios.get<AiProviderStatus[]>(`/replies/providers`);
     return data;
   }
 

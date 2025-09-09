@@ -2,19 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { modelApi } from '@repo/api-client/src/supabaseService';
+import { apiClient } from '@repo/api-client/src/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
-import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
+import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useSession } from '../../hooks/useSession';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
+import {
+  getAvailableRealtimeModels, getAvailableRealtimeTranscriptionModels,
+  getAvailableResponseModels, getAvailableTimestampedTranscriptionModels,
+  getAvailableTtsModels,
+} from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
   const { session, ready } = useSession();
 
-  const [models, setModels] = useState<ModelOptions>({
+  const [models, setModels] = useState<ModelOptionsWithAvailability>({
     responseModels: [],
     ttsModels: [],
     realtimeModels: [],
@@ -48,6 +54,7 @@ export function AdminCustomModelSelectionPage() {
         { data: timestampedTranscriptionModels, error: timestampedError },
         { data: realtimeTranscriptionModels, error: realtimeTransError },
         { data: userCustomSettings },
+        aiProvidersAvailability,
       ] = await Promise.all([
         modelApi.responseModels(),
         modelApi.ttsModels(),
@@ -55,14 +62,24 @@ export function AdminCustomModelSelectionPage() {
         modelApi.timestampedTranscriptionModels(),
         modelApi.realtimeTranscriptionModels(),
         modelApi.adminUserSelection(session?.user.id),
+        apiClient.getAiProvidersAvailability(),
       ]);
 
-      const errors = [responseError, ttsError, realtimeError, timestampedError, realtimeTransError].filter(Boolean);
-
-      if (errors.length > 0) {
-        console.error('error loading models:', errors[0]?.message);
-        toast.error(t('failedToLoadData'), {
-          description: errors[0]?.message,
+      if (responseError || ttsError || realtimeError || timestampedError || realtimeTransError) {
+        console.error(
+          responseError?.message ??
+                ttsError?.message ??
+                realtimeError?.message ??
+                timestampedError?.message ??
+                realtimeTransError?.message,
+        );
+        toast.error(t('models.loadFailed'), {
+          description:
+            responseError?.message ??
+            ttsError?.message ??
+            realtimeError?.message ??
+            timestampedError?.message ??
+            realtimeTransError?.message,
         });
         setLoading(false);
         return;
@@ -70,12 +87,18 @@ export function AdminCustomModelSelectionPage() {
 
       const userSelection = userCustomSettings ?? null;
 
+      const filteredResponseModels = getAvailableResponseModels(aiProvidersAvailability, responseModels);
+      const filteredTtsModels = getAvailableTtsModels(aiProvidersAvailability, ttsModels);
+      const filteredRealtimeModels = getAvailableRealtimeModels(aiProvidersAvailability, realtimeModels);
+      const filteredTimestampedTranscriptionModels = getAvailableTimestampedTranscriptionModels(aiProvidersAvailability, timestampedTranscriptionModels);
+      const filteredRealtimeTranscriptionModels = getAvailableRealtimeTranscriptionModels(aiProvidersAvailability, realtimeTranscriptionModels);
+
       setModels({
-        responseModels: responseModels ?? [],
-        ttsModels: ttsModels ?? [],
-        realtimeModels: realtimeModels ?? [],
-        timestampedTranscriptionModels: timestampedTranscriptionModels ?? [],
-        realtimeTranscriptionModels: realtimeTranscriptionModels ?? [],
+        responseModels: filteredResponseModels,
+        ttsModels: filteredTtsModels,
+        realtimeModels: filteredRealtimeModels,
+        timestampedTranscriptionModels: filteredTimestampedTranscriptionModels,
+        realtimeTranscriptionModels: filteredRealtimeTranscriptionModels,
       });
 
       // Find models based on user's custom config or global config as fallback
@@ -96,27 +119,27 @@ export function AdminCustomModelSelectionPage() {
       // Set selection using the complete model objects
       setSelection({
         responseModel: findSelectedModel(
-          responseModels ?? [],
+          filteredResponseModels,
           userSelection?.response_model_id,
           app_config?.response_model_id,
         ),
         ttsModel: findSelectedModel(
-          ttsModels ?? [],
+          filteredTtsModels,
           userSelection?.tts_model_id,
           app_config?.tts_model_id,
         ),
         realtimeModel: findSelectedModel(
-          realtimeModels ?? [],
+          filteredRealtimeModels,
           userSelection?.realtime_model_id,
           app_config?.realtime_model_id,
         ),
         timestampedTranscriptionModel: findSelectedModel(
-          timestampedTranscriptionModels ?? [],
+          filteredTimestampedTranscriptionModels,
           userSelection?.timestamped_transcription_model_id,
           app_config?.timestamped_transcription_model_id,
         ),
         realtimeTranscriptionModel: findSelectedModel(
-          realtimeTranscriptionModels ?? [],
+          filteredRealtimeTranscriptionModels,
           userSelection?.realtime_transcription_model_id,
           app_config?.realtime_transcription_model_id,
         ),
@@ -215,7 +238,7 @@ export function AdminCustomModelSelectionPage() {
   if (loading) {
     return (
       <div className='flex justify-center items-center h-96'>
-        <span className='text-muted-foreground'>{t('loading')}</span>
+        <span className='text-muted-foreground'>{t('loading.general')}</span>
       </div>
     );
   }

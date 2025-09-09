@@ -5,6 +5,7 @@ import {
   TimestampedTranscriptionModel,
   TtsModel,
 } from './supabase/supabaseTypeHelpers.js';
+import { WithAvailability } from '../utils/filterModelsByApiKeyStatus.js';
 
 export interface ModelOptions {
     responseModels: ResponseModel[];
@@ -13,6 +14,13 @@ export interface ModelOptions {
     timestampedTranscriptionModels: TimestampedTranscriptionModel[];
     realtimeTranscriptionModels: RealtimeTranscriptionModel[];
 }
+
+export type ModelOptionsWithAvailability = {
+    [K in keyof ModelOptions]: ModelOptions[K] extends (infer T)[]
+        ? WithAvailability<T>[]
+        : ModelOptions[K]
+};
+
 
 export interface ModelSelection {
     responseModel: ResponseModel;

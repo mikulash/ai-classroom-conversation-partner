@@ -175,7 +175,7 @@ export function AdminProfilesPage() {
     return (
       <div className="flex h-96 items-center justify-center">
         <span className="text-muted-foreground">
-          {t('admin.profiles.loading')}
+          {t('loading.profiles')}
         </span>
       </div>
     );

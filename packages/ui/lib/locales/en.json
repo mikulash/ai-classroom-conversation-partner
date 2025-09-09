@@ -4,6 +4,11 @@
     "startVideoCall": "Start video call",
     "startVoiceCall": "Start voice call"
   },
+  "loading": {
+    "general": "Loading...",
+    "checkingAuth": "Checking authentication...",
+    "profiles": "Loading profiles..."
+  },
   "admin": {
     "conversations": {
       "delete": "Delete",
@@ -18,7 +23,7 @@
       "type": "Type"
     },
     "profiles": {
-      "loading": "Loading profiles…",
+
       "noMessages": "No messages found in this conversation",
       "noProfiles": "No profiles found",
       "notifications": {
@@ -64,7 +69,6 @@
         "settingEn": "Setting (EN)",
         "unknown": "Unknown"
       },
-      "loading": "Loading…",
       "noScenarios": "No scenarios found",
       "notifications": {
         "createFailed": "Failed to create scenario",
@@ -184,7 +188,6 @@
   "listeningActive": "Listening...",
   "listeningInactive": "Click to start listening",
   "listeningToYou": "Listening to you...",
-  "loading": "Loading...",
   "loadingConversations": "Loading conversations...",
   "loadingMessage": "Loading...",
   "loginRequiredToSave": "You must be logged in to save custom model preferences",

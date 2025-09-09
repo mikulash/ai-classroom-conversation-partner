@@ -13,9 +13,6 @@ export const getElevenLabsTimestampedAudio = async (
 
   const apiKeysProvider = await ConfigProvider.getInstance();
   const ELEVENLABS_API_KEY = apiKeysProvider.getApiKey(API_KEY.ELEVENLABS);
-  if (!ELEVENLABS_API_KEY) {
-    throw new Error('ElevenLabs API key is missing');
-  }
 
   try {
     let voice_id = personality.elevenlabs_voice_id;

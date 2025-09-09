@@ -107,7 +107,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         disabled={isLoading || !!clientErr}
         className="w-full"
       >
-        {isLoading ? t('loading') : submitButtonText}
+        {isLoading ? t('loading.general') : submitButtonText}
       </Button>
 
     </form>
@@ -378,7 +378,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           disabled={isLoading || !isFormValid}
           className="w-full"
         >
-          {isLoading ? t('loading') : t('register')}
+          {isLoading ? t('loading.general') : t('register')}
         </Button>
       </form>
 

@@ -10,10 +10,6 @@ export const getOpenAIClient = async () => {
 
     const apiKey = apiKeysProvider.getApiKey(API_KEY.OPENAI);
 
-    if (!apiKey) {
-      throw new Error('OpenAI API key is missing. Please add it in Settings.');
-    }
-
     openaiInstance = new OpenAI({
       apiKey,
       dangerouslyAllowBrowser: true,

@@ -7,6 +7,7 @@ interface BaseModel {
   provider: string;
   friendly_name?: string;
   api_name: string;
+  available: boolean;
 }
 
 export interface ModelSectionConfig {
@@ -64,11 +65,16 @@ export function ModelSelectionForm({
                 <SelectValue placeholder={selectProviderLabel} />
               </SelectTrigger>
               <SelectContent>
-                {getProviders(section.models).map((provider) => (
-                  <SelectItem key={provider} value={provider}>
-                    {provider}
-                  </SelectItem>
-                ))}
+                {getProviders(section.models).map((provider) => {
+                  const hasAvailableModels = getModelsForProvider(provider, section.models).some(
+                    (m) => m.available,
+                  );
+                  return (
+                    <SelectItem key={provider} value={provider} disabled={!hasAvailableModels}>
+                      {provider}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
 
@@ -89,7 +95,7 @@ export function ModelSelectionForm({
               </SelectTrigger>
               <SelectContent className="max-h-60 overflow-y-auto">
                 {getModelsForProvider(currentProvider, section.models).map((model) => (
-                  <SelectItem key={model.id} value={String(model.id)}>
+                  <SelectItem key={model.id} value={String(model.id)} disabled={!model.available}>
                     <div className="flex flex-col">
                       <span>{model.friendly_name ?? model.api_name}</span>
                       {model.api_name && model.friendly_name && (
