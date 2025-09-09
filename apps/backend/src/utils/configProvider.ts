@@ -18,7 +18,7 @@ import { ModelOptions } from '@repo/shared/types/modelSelection';
  * App config is cached for 5 minutes and then refreshed.
  */
 
-type Secrets = Record<ApiKey, string | undefined>
+type Secrets = Record<ApiKey, string | undefined>;
 
 export class ConfigProvider {
   private static instance: ConfigProvider;
