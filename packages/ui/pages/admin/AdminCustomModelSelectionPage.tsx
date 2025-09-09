@@ -75,11 +75,11 @@ export function AdminCustomModelSelectionPage() {
         );
         toast.error(t('models.loadFailed'), {
           description:
-                    responseError?.message ??
-                    ttsError?.message ??
-                    realtimeError?.message ??
-                    timestampedError?.message ??
-                    realtimeTransError?.message,
+            responseError?.message ??
+            ttsError?.message ??
+            realtimeError?.message ??
+            timestampedError?.message ??
+            realtimeTransError?.message,
         });
         setLoading(false);
         return;
