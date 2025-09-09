@@ -8,7 +8,7 @@ import type {
 } from '../types/supabase/supabaseTypeHelpers.js';
 import { ApiKey } from '../types/apiKey.js';
 
-export const realtimeProvidersApiKeys= {
+export const realtimeProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
 } as const satisfies Record<Enums<'providers_realtime_model'>, ApiKey>;
 
