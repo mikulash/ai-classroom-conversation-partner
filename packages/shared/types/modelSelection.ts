@@ -8,12 +8,19 @@ import {
 import { WithAvailability } from '../utils/filterModelsByApiKeyStatus.js';
 
 export interface ModelOptions {
-    responseModels: WithAvailability<ResponseModel>[];
-    ttsModels: WithAvailability<TtsModel>[];
-    realtimeModels: WithAvailability<RealtimeModel>[];
-    timestampedTranscriptionModels: WithAvailability<TimestampedTranscriptionModel>[];
-    realtimeTranscriptionModels: WithAvailability<RealtimeTranscriptionModel>[];
+    responseModels: ResponseModel[];
+    ttsModels: TtsModel[];
+    realtimeModels: RealtimeModel[];
+    timestampedTranscriptionModels: TimestampedTranscriptionModel[];
+    realtimeTranscriptionModels: RealtimeTranscriptionModel[];
 }
+
+export type ModelOptionsWithAvailability = {
+    [K in keyof ModelOptions]: ModelOptions[K] extends (infer T)[]
+        ? WithAvailability<T>[]
+        : ModelOptions[K]
+};
+
 
 export interface ModelSelection {
     responseModel: ResponseModel;

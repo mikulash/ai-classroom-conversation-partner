@@ -5,7 +5,7 @@ import { modelApi } from '@repo/api-client/src/supabaseService';
 import { apiClient } from '@repo/api-client/src/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
-import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
+import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useSession } from '../../hooks/useSession';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
@@ -20,7 +20,7 @@ export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
   const { session, ready } = useSession();
 
-  const [models, setModels] = useState<ModelOptions>({
+  const [models, setModels] = useState<ModelOptionsWithAvailability>({
     responseModels: [],
     ttsModels: [],
     realtimeModels: [],

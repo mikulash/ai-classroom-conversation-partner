@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { ModelOptions, ModelSelection } from '@repo/shared/types/modelSelection';
+import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
 import {
@@ -19,7 +19,7 @@ import {
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
   const setAppConfig = useAppStore((state) => state.setAppConfig);
-  const [modelOptions, setModelOptions] = useState<ModelOptions>({
+  const [modelOptions, setModelOptions] = useState<ModelOptionsWithAvailability>({
     responseModels: [],
     ttsModels: [],
     realtimeModels: [],
