@@ -77,7 +77,7 @@ export const getAvailableTimestampedTranscriptionModels = (availabilities: AiPro
   return getAvailableModels(availabilities, modelOptions, timestampedTranscriptionProvidersApiKeys);
 };
 
-export const getAvailableTtsModels = ( availabilities: AiProviderStatus[], modelOptions: TtsModel[]): WithAvailability<TtsModel>[] => {
+export const getAvailableTtsModels = (availabilities: AiProviderStatus[], modelOptions: TtsModel[]): WithAvailability<TtsModel>[] => {
   return getAvailableModels(availabilities, modelOptions, ttsProvidersApiKeys);
 };
 
