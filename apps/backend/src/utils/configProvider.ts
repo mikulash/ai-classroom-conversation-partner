@@ -96,7 +96,7 @@ export class ConfigProvider {
 
   /**
    * Every 5 days, call refreshAppConfig() to keep Supabase “active.”
-   * This prevents a full 7-day idle window.
+   * This prevents a full 7-day idle window. Avoids stopping the supabase project on the free tier due to inactivity (like between semesters)
    */
   private startKeepAliveTimer(): void {
     setInterval(async () => {

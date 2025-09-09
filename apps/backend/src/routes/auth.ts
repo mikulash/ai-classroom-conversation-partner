@@ -7,11 +7,20 @@ import { ConfigProvider } from '../utils/configProvider';
 
 const router = Router({ mergeParams: true });
 
+/**
+ * Health check endpoint for the auth service.
+ * Useful for debugging or development to verify the route is reachable.
+ */
 router.all('/', (req, res) => {
   res.status(200).json({ message: 'Hello from auth!' });
 });
 
-// Register a new user with email validation against allowed university domains
+/**
+ * Registers a new user.
+ * - Only allows registration for emails matching allowed university domains (e\.g\. MUNI students).
+ * - Authentication is managed and stored via Supabase.
+ * - Validates email domain before creating the user.
+ */
 router.post(
   '/register',
   async (

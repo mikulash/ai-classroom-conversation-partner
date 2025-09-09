@@ -30,12 +30,23 @@ const router = Router({ mergeParams: true });
 // Apply authentication middleware to all routes
 router.use(verifySupabaseAuth);
 
-// Health check endpoint
+/**
+ * Health check endpoint.
+ *
+ * @route GET/POST /
+ * @returns {object} 200 - A simple hello message
+ */
 router.all('/', (req, res) => {
   res.status(200).json({ message: 'Hello from replies!' });
 });
 
-// Generate AI text response from user input and conversation context
+/**
+ * Generate AI text response from user input and conversation context.
+ *
+ * @route POST /text
+ * @param {AvatarReplyRequest} req.body - Request containing input text and conversation context
+ * @returns {string|ErrorResponse} 200 - AI-generated text response
+ */
 router.post(
   '/text',
   async (
@@ -44,7 +55,7 @@ router.post(
   ) => {
     try {
       const { input_text, previousMessages, personality, conversationRole, language, scenario, userProfile } =
-            req.body;
+                req.body;
 
       const userId = await getUserId(req);
 
@@ -66,7 +77,13 @@ router.post(
   },
 );
 
-// Convert text to speech audio (TTS) with specified format and voice settings
+/**
+ * Generates audio from the text input (TTS) with specified format and voice settings.
+ *
+ * @route POST /speech
+ * @param {GetTTSAudioParams} req.body - TTS request parameters
+ * @returns {GetTTSAudioResponseForWebTransfer|ErrorResponse} 200 - Speech audio in Base64
+ */
 router.post(
   '/speech',
   async (
@@ -101,7 +118,13 @@ router.post(
   },
 );
 
-// Generate timestamped speech audio with word-level timing for lip-sync animation
+/**
+ * Generate timestamped speech audio with word-level timing necessary for lip-sync animation.
+ *
+ * @route POST /speech/timestamped
+ * @param {GetTimestampedAudioParams} req.body - Request parameters
+ * @returns {LipSyncAudioWebTransfer|ErrorResponse} 200 - Timestamped audio with Base64 encoding
+ */
 router.post(
   '/speech/timestamped',
   async (
@@ -133,7 +156,14 @@ router.post(
   },
 );
 
-// Get complete response with both AI-generated text and standard audio
+/**
+ * Get a complete response with both AI-generated text and standard audio.
+ * Basically a combination of endpoints '/text' and '/speech'
+ *
+ * @route POST /full/plain
+ * @param {AvatarReplyRequest} req.body - Request containing input text and context
+ * @returns {FullReplyPlainResponse|ErrorResponse} 200 - Text and TTS audio
+ */
 router.post(
   '/full/plain',
   async (
@@ -167,7 +197,13 @@ router.post(
   },
 );
 
-// Get complete response with both AI-generated text and timestamped audio for lip-sync
+/**
+ * Get a complete response with both AI-generated text and timestamped audio for lip-sync.
+ * Basically a combination of endpoints '/text' and '/speech/timestamped'
+ * @route POST /full/timestamped
+ * @param {AvatarReplyRequest} req.body - Request containing input text and context
+ * @returns {FullReplyTimestampedResponse|ErrorResponse} 200 - Text and timestamped speech
+ */
 router.post(
   '/full/timestamped',
   async (
@@ -200,7 +236,13 @@ router.post(
   },
 );
 
-// Establish real-time WebRTC voice connection for live speech interaction
+/**
+ * Establish real-time WebRTC voice connection for live speech interaction.
+ *
+ * @route POST /speech/realtime
+ * @param {GetRealtimeVoiceParams} req.body - WebRTC session parameters
+ * @returns {WebRtcAnswerResponse|ErrorResponse} 200 - WebRTC answer
+ */
 router.post(
   '/speech/realtime',
   async (
@@ -218,7 +260,13 @@ router.post(
   },
 );
 
-// Create real-time transcription session for live speech-to-text conversion
+/**
+ * Create a real-time transcription session for live speech-to-text conversion.
+ *
+ * @route POST /transcription/realtime
+ * @param {GetRealtimeTranscriptionParams} req.body - Transcription session parameters
+ * @returns {TranscriptionSessionCreateResponse|ErrorResponse} 200 - Transcription session details
+ */
 router.post(
   '/transcription/realtime',
   async (
@@ -238,20 +286,26 @@ router.post(
       console.error(err);
       const status = typeof err.status === 'number' ? err.status : 500;
       const msg =
-            status === 500 ?
-              'Internal server error' :
-              'OpenAI transcription session creation failed';
+                status === 500 ?
+                  'Internal server error' :
+                  'OpenAI transcription session creation failed';
       res.status(status).json({ message: msg, statusCode: status });
     }
   },
 );
 
-// Check the availability status of required API keys (OpenAI, ElevenLabs, Claude, Grok)
+/**
+ * Check the availability status of required API keys.
+ * (OpenAI, ElevenLabs, Claude, Grok)
+ *
+ * @route GET /providers
+ * @returns {AiProviderStatus[]} 200 - List of providers with availability status
+ */
 router.get(
   '/providers',
   (req: Request, res: Response<AiProviderStatus[]>) => {
     const providers: AiProviderStatus[] = Object.entries(API_KEY).map(([, envKey]) => ({
-      apiKey: envKey, // KEY as in KEY:VALUE, not the exact secret key
+      apiKey: envKey, // KEY name, not the actual secret
       available: Boolean(process.env[envKey]),
     }));
 
