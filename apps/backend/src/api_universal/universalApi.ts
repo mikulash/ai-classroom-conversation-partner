@@ -1,13 +1,13 @@
 import { ConfigProvider } from '../utils/configProvider';
 import {
-  GetRealtimeTranscriptionParams,
-  GetRealtimeVoiceParams,
+  RealtimeTranscriptionRequest,
+  RealtimeVoiceRequest,
   GetResponseParams,
-  GetTTSAudioParams,
+  TextToSpeechRequest,
   GetTTSAudioResponse,
   GetTimestampedTranscriptionParams,
 } from '@repo/shared/types/apiClient';
-import { GetTimestampedAudioParams } from '@repo/shared/types/timestampedSpeech';
+import { TextToSpeechTimestampedRequest } from '@repo/shared/types/timestampedSpeech';
 import {
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,
@@ -19,7 +19,7 @@ import { xAiApi } from '../api/xAiApi';
 import { elevenLabsApi } from '../api/elevenLabsApi';
 
 const getRealtimeTranscription = async (
-  params: GetRealtimeTranscriptionParams,
+  params: RealtimeTranscriptionRequest,
   userId: string,
 ): Promise<TranscriptionSessionCreateResponse> => {
   const configProvider = await ConfigProvider.getInstance();
@@ -37,7 +37,7 @@ const getRealtimeTranscription = async (
 };
 
 const getRealtimeVoice = async (
-  params: GetRealtimeVoiceParams,
+  params: RealtimeVoiceRequest,
   userId: string,
 ): Promise<WebRtcAnswerResponse> => {
   const configProvider = await ConfigProvider.getInstance();
@@ -77,7 +77,7 @@ const getResponse = async (
 };
 
 const getTextToSpeech = async (
-  params: GetTTSAudioParams,
+  params: TextToSpeechRequest,
   userId: string,
 ): Promise<GetTTSAudioResponse> => {
   const configProvider = await ConfigProvider.getInstance();
@@ -105,7 +105,7 @@ const getTextToSpeech = async (
 };
 
 const getTextToSpeechTimestamped = async (
-  params: GetTimestampedAudioParams,
+  params: TextToSpeechTimestampedRequest,
   userId: string,
 ): Promise<LipSyncAudio> => {
   const configProvider = await ConfigProvider.getInstance();

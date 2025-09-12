@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { supabaseAdmin } from '../clients/supabase';
 import { AuthResponse } from '@supabase/supabase-js';
-import { RegisterUserBody } from '@repo/shared/types/api/RegisterUserBody';
+import { RegisterUserRequest } from '@repo/shared/types/api/RegisterUserRequest';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
 import { ConfigProvider } from '../utils/configProvider';
 
@@ -24,7 +24,7 @@ router.all('/', (req, res) => {
 router.post(
   '/register',
   async (
-    req: Request<unknown, unknown, RegisterUserBody>,
+    req: Request<unknown, unknown, RegisterUserRequest>,
     res: Response<AuthResponse | string>,
   ) => {
     const { email, password, full_name, gender } = req.body;

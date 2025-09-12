@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { authApi, profileApi } from '@repo/api-client/src/supabaseService';
-import { RegisterUserBody } from '@repo/shared/types/api/RegisterUserBody';
+import { RegisterUserRequest } from '@repo/shared/types/api/RegisterUserRequest';
 import { apiClient } from '@repo/api-client/src/figurantClient';
 import { useUserStore } from './useUserStore';
 
@@ -44,7 +44,7 @@ export const useAuth = () => {
   );
 
   const signUp = useCallback(
-    async (params: RegisterUserBody ) => {
+    async (params: RegisterUserRequest ) => {
       setLoading(true);
       setError(null);
 

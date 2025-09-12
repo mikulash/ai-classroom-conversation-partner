@@ -1,20 +1,20 @@
 import axios, { AxiosInstance } from 'axios';
 import {
-  AvatarReplyRequest,
+  GenerateReplyRequest,
   FullReplyPlainResponse,
   FullReplyTimestampedResponse,
 } from '@repo/shared/types/api/avatarReply';
 import {
-  GetRealtimeTranscriptionParams,
-  GetRealtimeVoiceParams,
-  GetTTSAudioParams,
+  RealtimeTranscriptionRequest,
+  RealtimeVoiceRequest,
+  TextToSpeechRequest,
   GetTTSAudioResponse,
-  GetTTSAudioResponseForWebTransfer,
+  TextToSpeechResponse,
 } from '@repo/shared/types/apiClient';
-import { GetTimestampedAudioParams } from '@repo/shared/types/timestampedSpeech';
-import { LipSyncAudio, LipSyncAudioWebTransfer } from '@repo/shared/types/talkingHead';
+import { TextToSpeechTimestampedRequest } from '@repo/shared/types/timestampedSpeech';
+import { LipSyncAudio, TextToSpeechTimestampedResponse } from '@repo/shared/types/talkingHead';
 import { TranscriptionSessionCreateResponse, WebRtcAnswerResponse } from '@repo/shared/types/api/webRTC';
-import { RegisterUserBody } from '@repo/shared/types/api/RegisterUserBody';
+import { RegisterUserRequest } from '@repo/shared/types/api/RegisterUserRequest';
 import { AuthResponse } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
 import { Language } from '@repo/shared/types/language';
@@ -41,13 +41,13 @@ export class FigurantApiClient {
     });
   }
 
-  async getResponse(request: AvatarReplyRequest): Promise<string> {
+  async getResponse(request: GenerateReplyRequest): Promise<string> {
     const { data } = await this.axios.post<string>(`/replies/text`, request);
     return data;
   }
 
-  async getSpeechAudio(params: GetTTSAudioParams): Promise<GetTTSAudioResponse> {
-    const { data } = await this.axios.post<GetTTSAudioResponseForWebTransfer>(`/replies/speech`, params);
+  async getSpeechAudio(params: TextToSpeechRequest): Promise<GetTTSAudioResponse> {
+    const { data } = await this.axios.post<TextToSpeechResponse>(`/replies/speech`, params);
 
     const buffer = this.b64ToArrayBuffer(data.audioBase64);
     const blob = this.pcmArrayBufferToBlob(buffer, params.response_format ?? 'pcm');
@@ -60,8 +60,8 @@ export class FigurantApiClient {
     };
   }
 
-  async getTimestampedSpeechAudio(params: GetTimestampedAudioParams): Promise<LipSyncAudio> {
-    const { data } = await this.axios.post<LipSyncAudioWebTransfer>(`/replies/speech/timestamped`, params);
+  async getTimestampedSpeechAudio(params: TextToSpeechTimestampedRequest): Promise<LipSyncAudio> {
+    const { data } = await this.axios.post<TextToSpeechTimestampedResponse>(`/replies/speech/timestamped`, params);
 
     return {
       ...data,
@@ -69,7 +69,7 @@ export class FigurantApiClient {
     };
   }
 
-  async getFullReplyPlain(request: AvatarReplyRequest): Promise<{ text: string; speech: GetTTSAudioResponse }> {
+  async getFullReplyPlain(request: GenerateReplyRequest): Promise<{ text: string; speech: GetTTSAudioResponse }> {
     const { data } = await this.axios.post<FullReplyPlainResponse>(`/replies/full/plain`, request);
 
     const buffer = this.b64ToArrayBuffer(data.speech.audioBase64);
@@ -86,7 +86,7 @@ export class FigurantApiClient {
     };
   }
 
-  async getFullReplyTimestamped(request: AvatarReplyRequest): Promise<{ text: string; speech: LipSyncAudio }> {
+  async getFullReplyTimestamped(request: GenerateReplyRequest): Promise<{ text: string; speech: LipSyncAudio }> {
     const { data } = await this.axios.post<FullReplyTimestampedResponse>(`/replies/full/timestamped`, request);
 
     return {
@@ -98,7 +98,7 @@ export class FigurantApiClient {
     };
   }
 
-  async getWebRtcAnswer(request: GetRealtimeVoiceParams): Promise<WebRtcAnswerResponse> {
+  async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerResponse> {
     const { data } = await this.axios.post<WebRtcAnswerResponse>(`/replies/speech/realtime`, request);
     return data;
   }
@@ -107,7 +107,7 @@ export class FigurantApiClient {
     inputAudioFormat: string,
     language: Language,
   ): Promise<TranscriptionSessionCreateResponse> {
-    const body: GetRealtimeTranscriptionParams = {
+    const body: RealtimeTranscriptionRequest = {
       input_audio_format: inputAudioFormat,
       language: language,
     };
@@ -125,7 +125,7 @@ export class FigurantApiClient {
     return data;
   }
 
-  async registerUser(request: RegisterUserBody): Promise<AuthResponse | string> {
+  async registerUser(request: RegisterUserRequest): Promise<AuthResponse | string> {
     try {
       const { data } = await this.axios.post<AuthResponse>(`/auth/register`, request);
       return data;

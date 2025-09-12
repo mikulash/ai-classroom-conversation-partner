@@ -1,10 +1,10 @@
 import { ChatMessage } from '../chatMessage.js';
 import { Language } from '../language.js';
 import { Personality, Profile, Scenario } from '../supabase/supabaseTypeHelpers.js';
-import { GetTTSAudioResponseForWebTransfer } from '../apiClient.js';
-import { LipSyncAudioWebTransfer } from '../talkingHead.js';
+import { TextToSpeechResponse } from '../apiClient.js';
+import { TextToSpeechTimestampedResponse } from '../talkingHead.js';
 
-export interface AvatarReplyRequest {
+export interface GenerateReplyRequest {
   input_text: string;
   previousMessages: ChatMessage[];
   personality: Personality;
@@ -17,10 +17,10 @@ export interface AvatarReplyRequest {
 
 export interface FullReplyTimestampedResponse {
   text: string;
-  speech: LipSyncAudioWebTransfer;
+  speech: TextToSpeechTimestampedResponse;
 }
 
 export interface FullReplyPlainResponse {
   text: string;
-  speech: GetTTSAudioResponseForWebTransfer;
+  speech: TextToSpeechResponse;
 }

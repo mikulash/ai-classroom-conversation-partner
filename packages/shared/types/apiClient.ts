@@ -2,14 +2,14 @@ import { ChatMessage } from './chatMessage.js';
 import { Language } from './language.js';
 import { Personality, Profile, Scenario } from './supabase/supabaseTypeHelpers.js';
 
-export interface GetTTSAudioParams {
+export interface TextToSpeechRequest {
     inputMessage: string;
     personality: Personality;
     language: Language;
     response_format: 'pcm' | 'mp3';
 }
 
-export interface GetTTSAudioParamsWithModelName extends GetTTSAudioParams {
+export interface GetTTSAudioParamsWithModelName extends TextToSpeechRequest {
     model_api_name: string;
     sample_rate: number;
 }
@@ -21,7 +21,7 @@ export interface GetTTSAudioResponse {
     sampleRate: number;
 }
 
-export interface GetTTSAudioResponseForWebTransfer {
+export interface TextToSpeechResponse {
     audioBase64: string;
     sampleRate: number;
 }
@@ -49,17 +49,17 @@ export interface GetTimestampedTranscriptionParamsWithModelName extends GetTimes
     model_api_name: string;
 }
 
-export interface GetRealtimeTranscriptionParams {
+export interface RealtimeTranscriptionRequest {
     input_audio_format: string;
     language: Language;
 
 }
 
-export interface GetRealtimeTranscriptionParamsWithModelName extends GetRealtimeTranscriptionParams {
+export interface GetRealtimeTranscriptionParamsWithModelName extends RealtimeTranscriptionRequest {
     model_api_name: string;
 }
 
-export interface GetRealtimeVoiceParams {
+export interface RealtimeVoiceRequest {
     openai_voice_name: string;
     personality: Personality;
     conversationRole: string;
@@ -69,7 +69,7 @@ export interface GetRealtimeVoiceParams {
     sdp_offer: string,
 }
 
-export interface GetRealtimeVoiceParamsWithModelName extends GetRealtimeVoiceParams {
+export interface GetRealtimeVoiceParamsWithModelName extends RealtimeVoiceRequest {
     model_api_name: string;
 }
 

@@ -1,18 +1,18 @@
 import { Request, Response, Router } from 'express';
 import { ErrorResponse } from '@repo/shared/types/api/errorResponse';
-import { GetTimestampedAudioParams } from '@repo/shared/types/timestampedSpeech';
-import { LipSyncAudioWebTransfer } from '@repo/shared/types/talkingHead';
+import { TextToSpeechTimestampedRequest } from '@repo/shared/types/timestampedSpeech';
+import { TextToSpeechTimestampedResponse } from '@repo/shared/types/talkingHead';
 import {
-  AvatarReplyRequest,
+  GenerateReplyRequest,
   FullReplyPlainResponse,
   FullReplyTimestampedResponse,
 } from '@repo/shared/types/api/avatarReply';
 import { universalApi } from '../api_universal/universalApi';
 import {
-  GetRealtimeTranscriptionParams,
-  GetRealtimeVoiceParams,
-  GetTTSAudioParams,
-  GetTTSAudioResponseForWebTransfer,
+  RealtimeTranscriptionRequest,
+  RealtimeVoiceRequest,
+  TextToSpeechRequest,
+  TextToSpeechResponse,
 } from '@repo/shared/types/apiClient';
 import { TranscriptionSessionCreateResponse, WebRtcAnswerResponse } from '@repo/shared/types/api/webRTC';
 import { ParamsDictionary } from 'express-serve-static-core';
@@ -40,13 +40,13 @@ router.all('/', (req, res) => {
  * Generate AI text response from user input and conversation context.
  *
  * @route POST /text
- * @param {AvatarReplyRequest} req.body - Request containing input text and conversation context
+ * @param {GenerateReplyRequest} req.body - Request containing input text and conversation context
  * @returns {string|ErrorResponse} 200 - AI-generated text response
  */
 router.post(
   '/text',
   async (
-    req: Request<ParamsDictionary, string | ErrorResponse, AvatarReplyRequest>,
+    req: Request<ParamsDictionary, string | ErrorResponse, GenerateReplyRequest>,
     res: Response<string | ErrorResponse>,
   ) => {
     try {
@@ -77,14 +77,14 @@ router.post(
  * Generates audio from the text input (TTS) with specified format and voice settings.
  *
  * @route POST /speech
- * @param {GetTTSAudioParams} req.body - TTS request parameters
- * @returns {GetTTSAudioResponseForWebTransfer|ErrorResponse} 200 - Speech audio in Base64
+ * @param {TextToSpeechRequest} req.body - TTS request parameters
+ * @returns {TextToSpeechResponse|ErrorResponse} 200 - Speech audio in Base64
  */
 router.post(
   '/speech',
   async (
-    req: Request<ParamsDictionary, GetTTSAudioResponseForWebTransfer | ErrorResponse, GetTTSAudioParams>,
-    res: Response<GetTTSAudioResponseForWebTransfer | ErrorResponse>,
+    req: Request<ParamsDictionary, TextToSpeechResponse | ErrorResponse, TextToSpeechRequest>,
+    res: Response<TextToSpeechResponse | ErrorResponse>,
   ) => {
     try {
       const { inputMessage, personality, language, response_format } = req.body;
@@ -101,7 +101,7 @@ router.post(
         .from(new Uint8Array(result.buffer))
         .toString('base64');
 
-      const payload: GetTTSAudioResponseForWebTransfer = {
+      const payload: TextToSpeechResponse = {
         audioBase64,
         sampleRate: result.sampleRate,
       };
@@ -118,14 +118,14 @@ router.post(
  * Generate timestamped speech audio with word-level timing necessary for lip-sync animation.
  *
  * @route POST /speech/timestamped
- * @param {GetTimestampedAudioParams} req.body - Request parameters
- * @returns {LipSyncAudioWebTransfer|ErrorResponse} 200 - Timestamped audio with Base64 encoding
+ * @param {TextToSpeechTimestampedRequest} req.body - Request parameters
+ * @returns {TextToSpeechTimestampedResponse|ErrorResponse} 200 - Timestamped audio with Base64 encoding
  */
 router.post(
   '/speech/timestamped',
   async (
-    req: Request<ParamsDictionary, LipSyncAudioWebTransfer | ErrorResponse, GetTimestampedAudioParams>,
-    res: Response<LipSyncAudioWebTransfer | ErrorResponse>,
+    req: Request<ParamsDictionary, TextToSpeechTimestampedResponse | ErrorResponse, TextToSpeechTimestampedRequest>,
+    res: Response<TextToSpeechTimestampedResponse | ErrorResponse>,
   ) => {
     try {
       const { inputMessage, personality, language } = req.body;
@@ -157,13 +157,13 @@ router.post(
  * Basically a combination of endpoints '/text' and '/speech'
  *
  * @route POST /full/plain
- * @param {AvatarReplyRequest} req.body - Request containing input text and context
+ * @param {GenerateReplyRequest} req.body - Request containing input text and context
  * @returns {FullReplyPlainResponse|ErrorResponse} 200 - Text and TTS audio
  */
 router.post(
   '/full/plain',
   async (
-    req: Request<ParamsDictionary, FullReplyPlainResponse | ErrorResponse, AvatarReplyRequest>,
+    req: Request<ParamsDictionary, FullReplyPlainResponse | ErrorResponse, GenerateReplyRequest>,
     res: Response<FullReplyPlainResponse | ErrorResponse>,
   ) => {
     try {
@@ -178,10 +178,10 @@ router.post(
         response_format: 'pcm',
       }, userId);
 
-      const speech: GetTTSAudioResponseForWebTransfer = {
+      const speech: TextToSpeechResponse = {
         audioBase64: Buffer.from(new Uint8Array(result.buffer)).toString('base64'),
         sampleRate: result.sampleRate,
-      } satisfies GetTTSAudioResponseForWebTransfer;
+      } satisfies TextToSpeechResponse;
 
       const payload: FullReplyPlainResponse = { text, speech };
 
@@ -197,13 +197,13 @@ router.post(
  * Get a complete response with both AI-generated text and timestamped audio for lip-sync.
  * Basically a combination of endpoints '/text' and '/speech/timestamped'
  * @route POST /full/timestamped
- * @param {AvatarReplyRequest} req.body - Request containing input text and context
+ * @param {GenerateReplyRequest} req.body - Request containing input text and context
  * @returns {FullReplyTimestampedResponse|ErrorResponse} 200 - Text and timestamped speech
  */
 router.post(
   '/full/timestamped',
   async (
-    req: Request<ParamsDictionary, FullReplyTimestampedResponse | ErrorResponse, AvatarReplyRequest>,
+    req: Request<ParamsDictionary, FullReplyTimestampedResponse | ErrorResponse, GenerateReplyRequest>,
     res: Response<FullReplyTimestampedResponse | ErrorResponse>,
   ) => {
     try {
@@ -217,10 +217,10 @@ router.post(
         language: req.body.language,
       }, userId);
 
-      const speech: LipSyncAudioWebTransfer = {
+      const speech: TextToSpeechTimestampedResponse = {
         ...result,
         audio: result.audio.map((ab) => Buffer.from(new Uint8Array(ab)).toString('base64')),
-      } satisfies LipSyncAudioWebTransfer;
+      } satisfies TextToSpeechTimestampedResponse;
 
       const payload: FullReplyTimestampedResponse = { text, speech };
 
@@ -236,13 +236,13 @@ router.post(
  * Establish real-time WebRTC voice connection for live speech interaction.
  *
  * @route POST /speech/realtime
- * @param {GetRealtimeVoiceParams} req.body - WebRTC session parameters
+ * @param {RealtimeVoiceRequest} req.body - WebRTC session parameters
  * @returns {WebRtcAnswerResponse|ErrorResponse} 200 - WebRTC answer
  */
 router.post(
   '/speech/realtime',
   async (
-    req: Request<ParamsDictionary, WebRtcAnswerResponse | ErrorResponse, GetRealtimeVoiceParams>,
+    req: Request<ParamsDictionary, WebRtcAnswerResponse | ErrorResponse, RealtimeVoiceRequest>,
     res: Response<WebRtcAnswerResponse | ErrorResponse>,
   ) => {
     try {
@@ -260,16 +260,13 @@ router.post(
  * Create a real-time transcription session for live speech-to-text conversion.
  *
  * @route POST /transcription/realtime
- * @param {GetRealtimeTranscriptionParams} req.body - Transcription session parameters
+ * @param {RealtimeTranscriptionRequest} req.body - Transcription session parameters
  * @returns {TranscriptionSessionCreateResponse|ErrorResponse} 200 - Transcription session details
  */
 router.post(
   '/transcription/realtime',
   async (
-    req: Request<
-            ParamsDictionary,
-            TranscriptionSessionCreateResponse | ErrorResponse,
-            GetRealtimeTranscriptionParams
+    req: Request< ParamsDictionary, TranscriptionSessionCreateResponse | ErrorResponse, RealtimeTranscriptionRequest
         >,
     res: Response<TranscriptionSessionCreateResponse | ErrorResponse>,
   ) => {

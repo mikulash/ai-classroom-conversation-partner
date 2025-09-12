@@ -5,7 +5,7 @@ export interface LipSyncAudio {
   wdurations: number[];
 }
 
-export interface LipSyncAudioWebTransfer {
+export interface TextToSpeechTimestampedResponse {
     audio: string[]; // Base64 encoded strings
     words: string[];
     wtimes: number[];
