@@ -50,7 +50,7 @@ const getRealtimeVoice = async (
     case 'OpenAi':
       return openAiApi.getRealtimeVoice({ ...params, model_api_name }, userId);
     default:
-      throw new Error('Unsupported transcription provider');
+      throw new Error('Unsupported realtime voice provider');
   }
 };
 
