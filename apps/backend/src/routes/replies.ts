@@ -1,15 +1,13 @@
 import { Request, Response, Router } from 'express';
-import { getSpeechAudio } from '../api_universal/getSpeechAudio';
 import { ErrorResponse } from '@repo/shared/types/api/errorResponse';
 import { GetTimestampedAudioParams } from '@repo/shared/types/timestampedSpeech';
 import { LipSyncAudioWebTransfer } from '@repo/shared/types/talkingHead';
-import { getTimestampedSpeechAudio } from '../api_universal/getTimestampedSpeech';
 import {
   AvatarReplyRequest,
   FullReplyPlainResponse,
   FullReplyTimestampedResponse,
 } from '@repo/shared/types/api/avatarReply';
-import { getResponse } from '../api_universal/getResponse';
+import { universalApi } from '../api_universal/universalApi';
 import {
   GetRealtimeTranscriptionParams,
   GetRealtimeVoiceParams,
@@ -20,8 +18,6 @@ import { TranscriptionSessionCreateResponse, WebRtcAnswerResponse } from '@repo/
 import { ParamsDictionary } from 'express-serve-static-core';
 import { verifySupabaseAuth } from '../middleware/verifySupabaseAuth';
 import { getUserId } from '../utils/getUserId';
-import { getRealtimeTranscription } from '../api_universal/getRealtimeTranscription';
-import { getRealtimeVoice } from '../api_universal/getRealtimeVoice';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 
@@ -59,7 +55,7 @@ router.post(
 
       const userId = await getUserId(req);
 
-      const response = await getResponse({
+      const response = await universalApi.getResponse({
         input_text,
         previousMessages,
         personality,
@@ -94,7 +90,7 @@ router.post(
       const { inputMessage, personality, language, response_format } = req.body;
       const userId = await getUserId(req);
 
-      const result = await getSpeechAudio({
+      const result = await universalApi.getSpeechAudio({
         inputMessage,
         personality,
         language,
@@ -135,7 +131,7 @@ router.post(
       const { inputMessage, personality, language } = req.body;
       const userId = await getUserId(req);
 
-      const speechAudio = await getTimestampedSpeechAudio({
+      const speechAudio = await universalApi.getTimestampedSpeechAudio({
         inputMessage,
         personality,
         language,
@@ -173,9 +169,9 @@ router.post(
     try {
       const userId = await getUserId(req);
 
-      const text = await getResponse(req.body, userId);
+      const text = await universalApi.getResponse(req.body, userId);
 
-      const result = await getSpeechAudio({
+      const result = await universalApi.getSpeechAudio({
         inputMessage: text,
         personality: req.body.personality,
         language: req.body.language,
@@ -213,9 +209,9 @@ router.post(
     try {
       const userId = await getUserId(req);
 
-      const text = await getResponse(req.body, userId);
+      const text = await universalApi.getResponse(req.body, userId);
 
-      const result = await getTimestampedSpeechAudio({
+      const result = await universalApi.getTimestampedSpeechAudio({
         inputMessage: text,
         personality: req.body.personality,
         language: req.body.language,
@@ -251,7 +247,7 @@ router.post(
   ) => {
     try {
       const userId = await getUserId(req);
-      const answer = await getRealtimeVoice(req.body, userId);
+      const answer = await universalApi.getRealtimeVoice(req.body, userId);
       res.json(answer);
     } catch (error) {
       console.error('Error getting speech:', error);
@@ -279,7 +275,7 @@ router.post(
   ) => {
     try {
       const userId = await getUserId(req);
-      const transcriptionSessionCreateResponse = await getRealtimeTranscription(req.body, userId);
+      const transcriptionSessionCreateResponse = await universalApi.getRealtimeTranscription(req.body, userId);
       console.log('Transcription session created:', transcriptionSessionCreateResponse);
       res.json(transcriptionSessionCreateResponse);
     } catch (err: any) {
