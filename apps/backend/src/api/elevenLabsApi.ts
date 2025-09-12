@@ -56,9 +56,14 @@ const getTextToSpeech = async (
     );
 
     if (!response.ok) {
-      throw new Error(
-        `ElevenLabs API failed: ${response.status} ${response.statusText}`,
-      );
+      console.error('ElevenLabs API failed: ', response.status, response.statusText);
+
+      return {
+        blob: new Blob([], { type: `audio/${response_format}` }),
+        objectUrl: '',
+        buffer: new ArrayBuffer(0),
+        sampleRate: 0,
+      };
     }
 
     const arrayBuffer = await response.arrayBuffer();
@@ -124,9 +129,14 @@ const getTextToSpeechTimestamped = async (
     );
 
     if (!response.ok) {
-      throw new Error(
-        `ElevenLabs API failed: ${response.status} ${response.statusText}`,
-      );
+      console.error('ElevenLabs API failed: ', response.status, response.statusText);
+
+      return {
+        audio: [],
+        words: [],
+        wtimes: [],
+        wdurations: [],
+      };
     }
 
     // For the timestamped endpoint, the response is a JSON object
