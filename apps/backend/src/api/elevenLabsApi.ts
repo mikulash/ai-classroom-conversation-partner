@@ -94,6 +94,7 @@ const getTimestampedAudio = async (
   try {
     let voice_id = personality.elevenlabs_voice_id;
     if (!voice_id) {
+      // female and male fallback voice ids
       if (personality.sex == 'F') {
         voice_id = process.env.ELEVENLABS_FALLBACK_VOICE_ID_FEMALE || '';
       } else {
@@ -128,6 +129,9 @@ const getTimestampedAudio = async (
       );
     }
 
+    // For the timestamped endpoint, the response is a JSON object
+    // mapping into lipsync object for talking head based on TalkingHead usage examples
+    // based on example of TalkingHead connection with ElevenLabs; from https://github.com/met4citizen/TalkingHead/blob/main/index.html by Mika Suominen
     const jsonResponse =
       (await response.json()) as ElevenLabsTimestampedResponse;
     const lipSyncAudio: LipSyncAudio = {
@@ -145,6 +149,7 @@ const getTimestampedAudio = async (
       jsonResponse?.alignment || jsonResponse?.normalized_alignment;
 
     if (alignment) {
+      // Parse characters into words
       let word = '';
       let time = 0;
       let duration = 0;
@@ -152,16 +157,22 @@ const getTimestampedAudio = async (
       for (let i = 0; i < alignment.characters.length; i++) {
         const startTime = alignment.character_start_times_seconds?.[i] ?? 0;
         const char = alignment.characters[i];
+        // If this is the start of a new word, record the start time
         if (word.length === 0) {
+          // Convert from seconds to milliseconds
+
           time = startTime * 1000;
         }
+        // If we encounter a space, and we have accumulated characters, we've found a word
         if (word.length > 0 && char === ' ') {
           lipSyncAudio.words.push(word);
           lipSyncAudio.wtimes.push(time);
           lipSyncAudio.wdurations.push(duration);
+          // Reset for the next word
           word = '';
           duration = 0;
         } else if (char !== ' ') {
+          // Calculate the duration of this character in milliseconds
           const endTime = alignment.character_end_times_seconds?.[i] ?? 0;
           const charDuration = (endTime - startTime) * 1000;
           duration += charDuration;
@@ -169,6 +180,7 @@ const getTimestampedAudio = async (
         }
       }
 
+      // Add the last word if there is one
       if (word.length > 0) {
         lipSyncAudio.words.push(word);
         lipSyncAudio.wtimes.push(time);

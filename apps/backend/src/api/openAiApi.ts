@@ -196,7 +196,7 @@ const textToSpeech = async (
       blob,
       objectUrl,
       buffer: arrayBuffer,
-      sampleRate: sample_rate,
+      sampleRate: sample_rate, // https://platform.openai.com/docs/guides/text-to-speech
     };
   } catch (error) {
     console.error('Error converting text to speech using OpenAI:', error);

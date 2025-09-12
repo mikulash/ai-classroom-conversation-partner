@@ -33,7 +33,14 @@ const getResponse = async ({
     ],
   });
 
-  return message.content[0]?.text ?? '';
+  const response = message.content
+    .filter((block) => block.type === 'text')
+    .map((block) => block.text)
+    .join('');
+
+  console.log('claude response text', response);
+
+  return response;
 };
 
 export const anthropicApi = { getResponse };
