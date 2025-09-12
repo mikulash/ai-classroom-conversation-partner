@@ -6,7 +6,7 @@ import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
 import { ElevenLabsTimestampedResponse } from '@repo/shared/types/api/elevenlabsTimestampedResponse';
 
-const textToSpeech = async (
+const getTextToSpeech = async (
   params: GetTTSAudioParamsWithModelName,
 ): Promise<GetTTSAudioResponse> => {
   const {
@@ -83,7 +83,7 @@ const textToSpeech = async (
   }
 };
 
-const getTimestampedAudio = async (
+const getTextToSpeechTimestamped = async (
   params: GetTimestampedAudioParamsWithModelName,
 ): Promise<LipSyncAudio> => {
   const { inputMessage, personality, language, model_api_name, sample_rate } = params;
@@ -201,4 +201,4 @@ const getTimestampedAudio = async (
   }
 };
 
-export const elevenLabsApi = { textToSpeech, getTimestampedAudio };
+export const elevenLabsApi = { textToSpeech: getTextToSpeech, getTextToSpeechTimestamped };

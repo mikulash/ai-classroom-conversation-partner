@@ -166,7 +166,7 @@ const getResponse = async ({
   return completion.choices[0]?.message.content ?? '';
 };
 
-const textToSpeech = async (
+const getTextToSpeech = async (
   params: GetTTSAudioParamsWithModelName,
 ): Promise<GetTTSAudioResponse> => {
   const {
@@ -210,12 +210,12 @@ const textToSpeech = async (
   }
 };
 
-async function getTimestampedAudio(
+async function getTextToSpeechTimestamped(
   params: GetTimestampedAudioParamsWithModelName,
   userId: string,
 ): Promise<LipSyncAudio> {
   const { inputMessage, personality, language, model_api_name, sample_rate } = params;
-  const audioResponse = await textToSpeech({
+  const audioResponse = await getTextToSpeech({
     inputMessage,
     personality,
     language,
@@ -254,7 +254,7 @@ export const openAiApi = {
   getRealtimeTranscriptionToken,
   getRealtimeVoice,
   getResponse,
-  textToSpeech,
-  getTimestampedAudio,
+  getTextToSpeech,
+  getTextToSpeechTimestamped,
   createTimestampedTranscription,
 };

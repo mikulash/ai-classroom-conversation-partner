@@ -76,7 +76,7 @@ const getResponse = async (
   }
 };
 
-const getSpeechAudio = async (
+const getTextToSpeech = async (
   params: GetTTSAudioParams,
   userId: string,
 ): Promise<GetTTSAudioResponse> => {
@@ -88,7 +88,7 @@ const getSpeechAudio = async (
   const { provider, api_name, sample_rate } = ttsModel;
   switch (provider) {
     case 'OpenAi':
-      return openAiApi.textToSpeech({
+      return openAiApi.getTextToSpeech({
         ...params,
         model_api_name: api_name,
         sample_rate,
@@ -104,7 +104,7 @@ const getSpeechAudio = async (
   }
 };
 
-const getTimestampedSpeechAudio = async (
+const getTextToSpeechTimestamped = async (
   params: GetTimestampedAudioParams,
   userId: string,
 ): Promise<LipSyncAudio> => {
@@ -116,18 +116,18 @@ const getTimestampedSpeechAudio = async (
   const { provider, api_name, sample_rate } = ttsModel;
   switch (provider) {
     case 'OpenAi':
-      return openAiApi.getTimestampedAudio(
+      return openAiApi.getTextToSpeechTimestamped(
         { ...params, model_api_name: api_name, sample_rate },
         userId,
       );
     case 'ElevenLabs':
-      return elevenLabsApi.getTimestampedAudio({
+      return elevenLabsApi.getTextToSpeechTimestamped({
         ...params,
         model_api_name: api_name,
         sample_rate,
       });
     default:
-      throw new Error('Unsupported TTS provider');
+      throw new Error('Unsupported timestamped TTS provider');
   }
 };
 
@@ -153,7 +153,7 @@ export const universalApi = {
   getRealtimeTranscription,
   getRealtimeVoice,
   getResponse,
-  getSpeechAudio,
-  getTimestampedSpeechAudio,
+  getSpeechAudio: getTextToSpeech,
+  getTimestampedSpeechAudio: getTextToSpeechTimestamped,
   getTimestampedTranscription,
 };
