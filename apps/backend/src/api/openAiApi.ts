@@ -6,18 +6,17 @@ import {
   WebRtcAnswerResponse,
 } from '@repo/shared/types/api/webRTC';
 import {
-  GetRealtimeTranscriptionParamsWithModelName,
-  GetRealtimeVoiceParamsWithModelName,
-  GetResponseParamsWithModelName,
-  GetTTSAudioParamsWithModelName,
   GetTTSAudioResponse,
-  GetTimestampedTranscriptionParamsWithModelName,
 } from '@repo/shared/types/apiClient';
-import { GetTimestampedAudioParamsWithModelName } from '@repo/shared/types/timestampedSpeech';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { getOpenAIClient } from '../clients/clientOpenAi';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
 import { getPreciseLipSyncAudio } from '../utils/lipsyncUtils';
+import {
+  GetRealtimeTranscriptionParamsWithModelName, GetRealtimeVoiceParamsWithModelName,
+  GetResponseParamsWithModelName, GetTimestampedAudioParamsWithModelName,
+  GetTimestampedTranscriptionParamsWithModelName, GetTTSAudioParamsWithModelName,
+} from '../types/api';
 
 const realtimeBaseUrl = 'https://api.openai.com/v1/realtime';
 

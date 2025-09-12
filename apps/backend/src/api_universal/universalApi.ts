@@ -5,9 +5,8 @@ import {
   GetResponseParams,
   TextToSpeechRequest,
   GetTTSAudioResponse,
-  GetTimestampedTranscriptionParams,
+  GetTimestampedTranscriptionParams, TextToSpeechTimestampedRequest,
 } from '@repo/shared/types/apiClient';
-import { TextToSpeechTimestampedRequest } from '@repo/shared/types/timestampedSpeech';
 import {
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,

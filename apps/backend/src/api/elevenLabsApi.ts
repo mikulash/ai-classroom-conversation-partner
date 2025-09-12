@@ -1,10 +1,10 @@
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { ConfigProvider } from '../utils/configProvider';
-import { GetTTSAudioParamsWithModelName, GetTTSAudioResponse } from '@repo/shared/types/apiClient';
-import { GetTimestampedAudioParamsWithModelName } from '@repo/shared/types/timestampedSpeech';
+import { GetTTSAudioResponse } from '@repo/shared/types/apiClient';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
 import { ElevenLabsTimestampedResponse } from '@repo/shared/types/api/elevenlabsTimestampedResponse';
+import { GetTimestampedAudioParamsWithModelName, GetTTSAudioParamsWithModelName } from '../types/api';
 
 const getTextToSpeech = async (
   params: GetTTSAudioParamsWithModelName,

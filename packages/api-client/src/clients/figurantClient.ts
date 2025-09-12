@@ -1,17 +1,17 @@
 import axios, { AxiosInstance } from 'axios';
 import {
-  GenerateReplyRequest,
   FullReplyPlainResponse,
   FullReplyTimestampedResponse,
+  GenerateReplyRequest,
 } from '@repo/shared/types/api/avatarReply';
 import {
+  GetTTSAudioResponse,
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
-  GetTTSAudioResponse,
   TextToSpeechResponse,
+  TextToSpeechTimestampedRequest,
 } from '@repo/shared/types/apiClient';
-import { TextToSpeechTimestampedRequest } from '@repo/shared/types/timestampedSpeech';
 import { LipSyncAudio, TextToSpeechTimestampedResponse } from '@repo/shared/types/talkingHead';
 import { TranscriptionSessionCreateResponse, WebRtcAnswerResponse } from '@repo/shared/types/api/webRTC';
 import { RegisterUserRequest } from '@repo/shared/types/api/RegisterUserRequest';

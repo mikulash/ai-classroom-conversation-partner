@@ -9,11 +9,6 @@ export interface TextToSpeechRequest {
     response_format: 'pcm' | 'mp3';
 }
 
-export interface GetTTSAudioParamsWithModelName extends TextToSpeechRequest {
-    model_api_name: string;
-    sample_rate: number;
-}
-
 export interface GetTTSAudioResponse {
     blob: Blob;
     objectUrl: string;
@@ -36,27 +31,17 @@ export interface GetResponseParams {
     userProfile: Profile
 }
 
-export interface GetResponseParamsWithModelName extends GetResponseParams {
-    model_api_name: string;
-}
 
 export interface GetTimestampedTranscriptionParams {
     audioFile: File;
     language: Language;
 }
 
-export interface GetTimestampedTranscriptionParamsWithModelName extends GetTimestampedTranscriptionParams {
-    model_api_name: string;
-}
 
 export interface RealtimeTranscriptionRequest {
     input_audio_format: string;
     language: Language;
 
-}
-
-export interface GetRealtimeTranscriptionParamsWithModelName extends RealtimeTranscriptionRequest {
-    model_api_name: string;
 }
 
 export interface RealtimeVoiceRequest {
@@ -69,7 +54,9 @@ export interface RealtimeVoiceRequest {
     sdp_offer: string,
 }
 
-export interface GetRealtimeVoiceParamsWithModelName extends RealtimeVoiceRequest {
-    model_api_name: string;
+export interface TextToSpeechTimestampedRequest {
+    inputMessage: string;
+    personality: Personality;
+    language: Language;
 }
 

@@ -1,6 +1,5 @@
 import { Request, Response, Router } from 'express';
 import { ErrorResponse } from '@repo/shared/types/api/errorResponse';
-import { TextToSpeechTimestampedRequest } from '@repo/shared/types/timestampedSpeech';
 import { TextToSpeechTimestampedResponse } from '@repo/shared/types/talkingHead';
 import {
   GenerateReplyRequest,
@@ -12,7 +11,7 @@ import {
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
-  TextToSpeechResponse,
+  TextToSpeechResponse, TextToSpeechTimestampedRequest,
 } from '@repo/shared/types/apiClient';
 import { TranscriptionSessionCreateResponse, WebRtcAnswerResponse } from '@repo/shared/types/api/webRTC';
 import { ParamsDictionary } from 'express-serve-static-core';
