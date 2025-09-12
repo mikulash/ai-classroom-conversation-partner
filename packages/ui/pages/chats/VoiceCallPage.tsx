@@ -5,7 +5,7 @@ import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { apiClient } from '@repo/api-client/src/figurantClient';
+import { apiClient } from '@repo/api-client/src/clients/figurantClient';
 import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useProfile } from '../../hooks/useProfile';
 import { ScenarioInfo } from '../../components/ScenarioInfo';

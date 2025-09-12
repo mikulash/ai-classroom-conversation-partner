@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { authApi, profileApi } from '@repo/api-client/src/supabaseService';
 import { RegisterUserRequest } from '@repo/shared/types/api/RegisterUserRequest';
-import { apiClient } from '@repo/api-client/src/figurantClient';
+import { apiClient } from '@repo/api-client/src/clients/figurantClient';
 import { useUserStore } from './useUserStore';
 
 export const useAuth = () => {

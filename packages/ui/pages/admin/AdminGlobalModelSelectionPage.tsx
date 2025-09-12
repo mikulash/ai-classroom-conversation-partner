@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { modelApi } from '@repo/api-client/src/supabaseService';
-import { apiClient } from '@repo/api-client/src/figurantClient';
+import { apiClient } from '@repo/api-client/src/clients/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';

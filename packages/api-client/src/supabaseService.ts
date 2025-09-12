@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { supabase } from './clients/supabaseClient';
 import type {
   PostgrestResponse,
   PostgrestSingleResponse,
