@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { authApi, profileApi } from '@repo/api-client/src/supabaseService';
-import { apiClient } from '@repo/api-client/src/clients/figurantClient';
+import { authApi, profileApi } from '@repo/frontend-utils/src/supabaseService';
+import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { useUserStore } from './useUserStore';
 import { RegisterUserRequest } from '@repo/shared/types/apiFigurantClient';
 

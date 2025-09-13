@@ -7,7 +7,7 @@ import { AvatarTalkingHead, AvatarTalkingHeadHandle } from '../../components/Ava
 import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
-import { apiClient } from '@repo/api-client/src/clients/figurantClient';
+import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { useProfile } from '../../hooks/useProfile';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { useAppStore } from '../../hooks/useAppStore';

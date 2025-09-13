@@ -20,7 +20,7 @@ COPY apps/web/package.json                      ./apps/web/
 COPY packages/shared/package.json               ./packages/shared/
 COPY packages/ui/package.json                   ./packages/ui/
 COPY packages/assets/package.json               ./packages/assets/
-COPY packages/api-client/package.json           ./packages/api-client/
+COPY packages/frontend-utils/package.json           ./packages/frontend-utils/
 COPY packages/typescript-config/package.json    ./packages/typescript-config/
 COPY packages/eslint-config/package.json        ./packages/eslint-config/
 COPY packages/tailwind-config/package.json      ./packages/tailwind-config/

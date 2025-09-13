@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSession } from './useSession';
-import { profileApi } from '@repo/api-client/src/supabaseService';
+import { profileApi } from '@repo/frontend-utils/src/supabaseService';
 import { useUserStore } from './useUserStore';
 
 

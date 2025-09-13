@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { useTypedTranslation } from './useTypedTranslation';
-import { conversationApi } from '@repo/api-client/src/supabaseService';
+import { conversationApi } from '@repo/frontend-utils/src/supabaseService';
 import { toast } from 'sonner';
 import {
   AppConfig,

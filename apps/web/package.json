@@ -11,7 +11,7 @@
     "start": "serve -s dist -l 4173"
   },
   "dependencies": {
-    "@repo/api-client": "workspace:*",
+    "@repo/frontend-utils": "workspace:*",
     "@repo/assets": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/ui": "workspace:*",
