@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
 import { Header } from '../components/Header';
 import { useEffect } from 'react';
-import { fetchInitialData } from '@repo/api-client/src/supabaseService';
+import { fetchInitialData } from '@repo/frontend-utils/src/supabaseService';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
 

@@ -9,8 +9,8 @@ import { Label } from '../../components/ui/label';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { MdCallEnd } from 'react-icons/md';
-import { GetTTSAudioParams } from '@repo/shared/types/apiClient';
-import { apiClient } from '@repo/api-client/src/figurantClient';
+import { TextToSpeechRequest } from '@repo/shared/types/apiFigurantClient';
+import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useProfile } from '../../hooks/useProfile';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
@@ -171,7 +171,7 @@ export const MessageChatPage: React.FC = () => {
 
   const generateAudio = async (text: string): Promise<string | null> => {
     try {
-      const ttsParams: GetTTSAudioParams = {
+      const ttsParams: TextToSpeechRequest = {
         inputMessage: text,
         personality,
         language,

@@ -17,7 +17,7 @@ app.use('/replies', replyRoutes);
 app.use('/auth', authRoutes);
 
 app.get('/', (req, res) => {
-  res.send('API is running version 11.05.2025v2');
+  res.send('API is running version 11.09.2025v1');
 });
 
 // Health Check

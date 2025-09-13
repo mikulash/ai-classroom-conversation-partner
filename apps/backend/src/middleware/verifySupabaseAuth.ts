@@ -1,6 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { supabaseAdmin } from '../clients/supabase';
 
+/**
+ * Checks for a valid auth token (provided by supabase) when accessing endpoints for communication with AI providers.
+ * Used as middleware
+ * @param req
+ * @param res
+ * @param next
+ */
 export const verifySupabaseAuth = async (
   req: Request,
   res: Response,

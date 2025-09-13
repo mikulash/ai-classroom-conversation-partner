@@ -1,21 +1,30 @@
 import { Request, Response, Router } from 'express';
 import { supabaseAdmin } from '../clients/supabase';
 import { AuthResponse } from '@supabase/supabase-js';
-import { RegisterUserBody } from '@repo/shared/types/api/RegisterUserBody';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
 import { ConfigProvider } from '../utils/configProvider';
+import { RegisterUserRequest } from '@repo/shared/types/apiFigurantClient';
 
 const router = Router({ mergeParams: true });
 
+/**
+ * Health check endpoint for the auth service.
+ * Useful for debugging or development to verify the route is reachable.
+ */
 router.all('/', (req, res) => {
   res.status(200).json({ message: 'Hello from auth!' });
 });
 
-// Register a new user with email validation against allowed university domains
+/**
+ * Registers a new user.
+ * - Only allows registration for emails matching allowed university domains (e\.g\. MUNI students).
+ * - Authentication is managed and stored via Supabase.
+ * - Validates email domain before creating the user.
+ */
 router.post(
   '/register',
   async (
-    req: Request<unknown, unknown, RegisterUserBody>,
+    req: Request<unknown, unknown, RegisterUserRequest>,
     res: Response<AuthResponse | string>,
   ) => {
     const { email, password, full_name, gender } = req.body;

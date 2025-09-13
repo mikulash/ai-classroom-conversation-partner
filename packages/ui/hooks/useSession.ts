@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { authApi } from '@repo/api-client/src/supabaseService';
+import { authApi } from '@repo/frontend-utils/src/supabaseService';
 import type { Session } from '@supabase/supabase-js';
 
 /**

@@ -1,7 +1,7 @@
 ﻿import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { encodeWAV } from '@repo/shared/utils/encodeWav';
-import { getTimestampedTranscription } from '../api_universal/getTimestampedTranscription';
 import { Language } from '@repo/shared/types/language';
+import { universalApi } from '../api_universal/universalApi';
 
 /**
  * Converts a raw PCM ArrayBuffer into a WAV file format.
@@ -75,7 +75,7 @@ export async function getPreciseLipSyncAudio(
   const audioFile = new File([wavBlob], 'audio.wav', { type: 'audio/wav' });
 
   // The transcription API is called with word-level granularity for precise timings.
-  const transcription = await getTimestampedTranscription({
+  const transcription = await universalApi.getTimestampedTranscription({
     audioFile: audioFile,
     language: language,
   }, userId);

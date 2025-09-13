@@ -5,9 +5,3 @@ export interface LipSyncAudio {
   wdurations: number[];
 }
 
-export interface LipSyncAudioWebTransfer {
-    audio: string[]; // Base64 encoded strings
-    words: string[];
-    wtimes: number[];
-    wdurations: number[];
-}

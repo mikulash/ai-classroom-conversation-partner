@@ -1,8 +1,8 @@
 import { getClaudeClient } from '../clients/clientClaude';
-import { GetResponseParamsWithModelName } from '@repo/shared/types/apiClient';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
+import { GetResponseParamsWithModelName } from '../types/api';
 
-export const getClaudeResponse = async ({
+const getResponse = async ({
   input_text,
   previousMessages,
   personality,
@@ -20,16 +20,27 @@ export const getClaudeResponse = async ({
   const message = await claude.messages.create({
     model: model_api_name,
     max_tokens: 1024,
-    system: createPersonalityPrompt({ personality, conversationRole, language, scenario, userProfile }),
-    messages: [...strippedMessages, { role: 'user', content: input_text }],
+    system: createPersonalityPrompt({
+      personality,
+      conversationRole,
+      language,
+      scenario,
+      userProfile,
+    }),
+    messages: [
+      ...strippedMessages,
+      { role: 'user', content: input_text },
+    ],
   });
-
-  console.log('claude response', message);
 
   const response = message.content
     .filter((block) => block.type === 'text')
     .map((block) => block.text)
     .join('');
+
   console.log('claude response text', response);
+
   return response;
 };
+
+export const anthropicApi = { getResponse };

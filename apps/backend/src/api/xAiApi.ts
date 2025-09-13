@@ -1,8 +1,8 @@
 import { getGrokClient } from '../clients/clientGrok';
-import { GetResponseParamsWithModelName } from '@repo/shared/types/apiClient';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
+import { GetResponseParamsWithModelName } from '../types/api';
 
-export const getGrokResponse = async ({
+const getResponse = async ({
   input_text,
   previousMessages,
   personality,
@@ -19,7 +19,13 @@ export const getGrokResponse = async ({
     messages: [
       {
         role: 'system',
-        content: createPersonalityPrompt({ personality, conversationRole, language, scenario, userProfile }),
+        content: createPersonalityPrompt({
+          personality,
+          conversationRole,
+          language,
+          scenario,
+          userProfile,
+        }),
       },
       ...previousMessages,
       { role: 'user', content: input_text },
@@ -28,3 +34,5 @@ export const getGrokResponse = async ({
 
   return completion.choices[0]?.message.content ?? '';
 };
+
+export const xAiApi = { getResponse };

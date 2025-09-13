@@ -8,7 +8,7 @@
     "dev:tauri-backend": "turbo run dev --parallel --filter=figurant-backend... --filter=figurant-tauri...",
     "build": "turbo run build",
     "build:web-backend": "turbo run build --parallel --filter=figurant-backend... --filter=figurant-web...",
-    "build:tauri-backend": "turbo run build --parallel --filter=figurant-backend... --filter=figurant-web...",
+    "build:tauri-backend": "turbo run build --parallel --filter=figurant-backend... --filter=figurant-tauri...",
     "start": "turbo run start --parallel",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "lint": "turbo run lint",

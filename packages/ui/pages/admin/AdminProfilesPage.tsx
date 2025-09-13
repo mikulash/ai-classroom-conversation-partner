@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { profileApi, conversationApi, ConversationWithPersonality } from '@repo/api-client/src/supabaseService';
+import { profileApi, conversationApi, ConversationWithPersonality } from '@repo/frontend-utils/src/supabaseService';
 import { toast } from 'sonner';
 import { Profile, UserRole } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useProfile } from '../../hooks/useProfile';

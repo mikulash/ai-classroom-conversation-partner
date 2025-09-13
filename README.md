@@ -7,10 +7,13 @@ This application provides pedagogy students with realistic training scenarios fe
 
 ## Key Features
 
-- **Realistic Conversation Practice**: Engage with AI-powered virtual stakeholders that respond naturally to different teaching situations
-- **Flexible Communication**: Support for both real-time conversations and asynchronous messaging
+- **Conversation Practice**: Students engage with AI-powered virtual stakeholders that respond naturally to different teaching situations
+- **Flexible Communication**: 
+    - Real-time voice-only conversations using OpenAI's Realtime API
+    - Asynchronous chat-like text message conversations (mimicking SMS or WhatsApp)
+    - Video calls like conversations with avatars rendered using [TalkingHead](https://github.com/met4citizen/TalkingHead)
 - **Safe Learning Environment**: Practice difficult conversations without real-world consequences
-- **Adaptive AI Behavior**: Virtual characters respond according to designed behavioral blueprints
+- **Adaptive AI Behavior**: Virtual characters respond, according to designed behavioral blueprints
 
 ## Use Cases
 
@@ -26,4 +29,3 @@ Built using modern large language models and avatar rendering technologies to cr
 - Anthropic SDK
 - Turborepo
 - Vite for web app, Tauri for desktop app, Tsup for backend
-- avatars are rendered with a slightly customized version of the [TalkingHead](https://github.com/met4citizen/TalkingHead) project.
