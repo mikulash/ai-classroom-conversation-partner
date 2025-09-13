@@ -7,7 +7,7 @@ import {
 } from '@repo/shared/types/api/webRTC';
 import {
   GetTTSAudioResponse,
-} from '@repo/shared/types/apiClient';
+} from 'packages/shared/types/apiFigurantClient';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { getOpenAIClient } from '../clients/clientOpenAi';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';

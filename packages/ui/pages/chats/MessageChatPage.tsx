@@ -9,7 +9,7 @@ import { Label } from '../../components/ui/label';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { MdCallEnd } from 'react-icons/md';
-import { TextToSpeechRequest } from '@repo/shared/types/apiClient';
+import { TextToSpeechRequest } from '@repo/shared/types/apiFigurantClient';
 import { apiClient } from '@repo/api-client/src/clients/figurantClient';
 import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useProfile } from '../../hooks/useProfile';

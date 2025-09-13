@@ -6,7 +6,7 @@ import {
   TextToSpeechRequest,
   GetTTSAudioResponse,
   GetTimestampedTranscriptionParams, TextToSpeechTimestampedRequest,
-} from '@repo/shared/types/apiClient';
+} from 'packages/shared/types/apiFigurantClient';
 import {
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,

@@ -1,5 +1,4 @@
 import { Request, Response, Router } from 'express';
-import { ErrorResponse } from '@repo/shared/types/api/errorResponse';
 import { TextToSpeechTimestampedResponse } from '@repo/shared/types/talkingHead';
 import {
   GenerateReplyRequest,
@@ -11,9 +10,9 @@ import {
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
-  TextToSpeechResponse, TextToSpeechTimestampedRequest,
-} from '@repo/shared/types/apiClient';
-import { TranscriptionSessionCreateResponse, WebRtcAnswerResponse } from '@repo/shared/types/api/webRTC';
+  TextToSpeechResponse, TextToSpeechTimestampedRequest, ErrorResponse, TranscriptionSessionCreateResponse,
+  WebRtcAnswerResponse,
+} from '@repo/shared/types/apiFigurantClient';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { verifySupabaseAuth } from '../middleware/verifySupabaseAuth';
 import { getUserId } from '../utils/getUserId';

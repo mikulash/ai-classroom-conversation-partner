@@ -4,10 +4,10 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card } from './ui/card';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
-import { RegisterUserRequest } from '@repo/shared/types/api/RegisterUserRequest';
 import { useAppStore } from '../hooks/useAppStore';
 import { useNavigate } from 'react-router';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { RegisterUserRequest } from '@repo/shared/types/apiFigurantClient';
 
 interface AuthFormProps {
     onSubmit: (email: string, password: string) => Promise<void>;

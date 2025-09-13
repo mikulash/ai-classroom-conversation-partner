@@ -1,20 +1,16 @@
 import axios, { AxiosInstance } from 'axios';
 import {
-  FullReplyPlainResponse,
-  FullReplyTimestampedResponse,
+  FullReplyPlainResponse, FullReplyTimestampedResponse,
   GenerateReplyRequest,
-} from '@repo/shared/types/api/avatarReply';
-import {
   GetTTSAudioResponse,
   RealtimeTranscriptionRequest,
-  RealtimeVoiceRequest,
+  RealtimeVoiceRequest, RegisterUserRequest,
   TextToSpeechRequest,
   TextToSpeechResponse,
-  TextToSpeechTimestampedRequest,
-} from '@repo/shared/types/apiClient';
-import { LipSyncAudio, TextToSpeechTimestampedResponse } from '@repo/shared/types/talkingHead';
-import { TranscriptionSessionCreateResponse, WebRtcAnswerResponse } from '@repo/shared/types/api/webRTC';
-import { RegisterUserRequest } from '@repo/shared/types/api/RegisterUserRequest';
+  TextToSpeechTimestampedRequest, TextToSpeechTimestampedResponse,
+  TranscriptionSessionCreateResponse, WebRtcAnswerResponse,
+} from '@repo/shared/types/apiFigurantClient';
+import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { AuthResponse } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
 import { Language } from '@repo/shared/types/language';
