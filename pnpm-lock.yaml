@@ -391,6 +391,12 @@ importers:
       axios:
         specifier: ^1.8.4
         version: 1.8.4
+      i18next:
+        specifier: ^25.1.2
+        version: 25.1.2(typescript@5.8.3)
+      react-i18next:
+        specifier: ^15.5.1
+        version: 15.5.1(i18next@25.1.2(typescript@5.8.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*

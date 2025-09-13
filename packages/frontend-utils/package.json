@@ -14,7 +14,9 @@
   "dependencies": {
     "@repo/shared": "workspace:*",
     "axios": "^1.8.4",
-    "@supabase/supabase-js": "^2.49.4"
+    "@supabase/supabase-js": "^2.49.4",
+    "i18next": "^25.1.2",
+    "react-i18next": "^15.5.1"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
