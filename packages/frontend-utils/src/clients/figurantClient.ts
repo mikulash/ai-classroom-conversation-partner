@@ -1,0 +1,150 @@
+import axios, { AxiosInstance } from 'axios';
+import {
+  FullReplyPlainResponse, FullReplyTimestampedResponse,
+  GenerateReplyRequest,
+  GetTTSAudioResponse,
+  RealtimeTranscriptionRequest,
+  RealtimeVoiceRequest, RegisterUserRequest,
+  TextToSpeechRequest,
+  TextToSpeechResponse,
+  TextToSpeechTimestampedRequest, TextToSpeechTimestampedResponse,
+  TranscriptionSessionCreateResponse, WebRtcAnswerResponse,
+} from '@repo/shared/types/apiFigurantClient';
+import { LipSyncAudio } from '@repo/shared/types/talkingHead';
+import { AuthResponse } from '@supabase/supabase-js';
+import { supabase } from './supabaseClient';
+import { Language } from '@repo/shared/types/language';
+import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
+
+
+/**
+ * Client for interacting with the Figurant backend API.
+ */
+export class FigurantApiClient {
+  private readonly axios: AxiosInstance;
+
+  constructor(baseUrl?: string) {
+    this.axios = axios.create({
+      baseURL: baseUrl ?? import.meta.env.VITE_BACKEND_URL,
+    });
+
+    this.axios.interceptors.request.use(async (config) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        config.headers.Authorization = `Bearer ${session.access_token}`;
+      }
+      return config;
+    });
+  }
+
+  async getResponse(request: GenerateReplyRequest): Promise<string> {
+    const { data } = await this.axios.post<string>(`/replies/text`, request);
+    return data;
+  }
+
+  async getSpeechAudio(params: TextToSpeechRequest): Promise<GetTTSAudioResponse> {
+    const { data } = await this.axios.post<TextToSpeechResponse>(`/replies/speech`, params);
+
+    const buffer = this.b64ToArrayBuffer(data.audioBase64);
+    const blob = this.pcmArrayBufferToBlob(buffer, params.response_format ?? 'pcm');
+
+    return {
+      blob,
+      objectUrl: URL.createObjectURL(blob),
+      buffer,
+      sampleRate: data.sampleRate,
+    };
+  }
+
+  async getTimestampedSpeechAudio(params: TextToSpeechTimestampedRequest): Promise<LipSyncAudio> {
+    const { data } = await this.axios.post<TextToSpeechTimestampedResponse>(`/replies/speech/timestamped`, params);
+
+    return {
+      ...data,
+      audio: data.audio.map(this.b64ToArrayBuffer.bind(this)),
+    };
+  }
+
+  async getFullReplyPlain(request: GenerateReplyRequest): Promise<{ text: string; speech: GetTTSAudioResponse }> {
+    const { data } = await this.axios.post<FullReplyPlainResponse>(`/replies/full/plain`, request);
+
+    const buffer = this.b64ToArrayBuffer(data.speech.audioBase64);
+    const blob = this.pcmArrayBufferToBlob(buffer);
+
+    return {
+      text: data.text,
+      speech: {
+        blob,
+        objectUrl: URL.createObjectURL(blob),
+        buffer,
+        sampleRate: data.speech.sampleRate,
+      },
+    };
+  }
+
+  async getFullReplyTimestamped(request: GenerateReplyRequest): Promise<{ text: string; speech: LipSyncAudio }> {
+    const { data } = await this.axios.post<FullReplyTimestampedResponse>(`/replies/full/timestamped`, request);
+
+    return {
+      text: data.text,
+      speech: {
+        ...data.speech,
+        audio: data.speech.audio.map(this.b64ToArrayBuffer.bind(this)),
+      },
+    };
+  }
+
+  async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerResponse> {
+    const { data } = await this.axios.post<WebRtcAnswerResponse>(`/replies/speech/realtime`, request);
+    return data;
+  }
+
+  async getTranscriptionEphemeralToken(
+    inputAudioFormat: string,
+    language: Language,
+  ): Promise<TranscriptionSessionCreateResponse> {
+    const body: RealtimeTranscriptionRequest = {
+      input_audio_format: inputAudioFormat,
+      language: language,
+    };
+
+    const { data } = await this.axios.post<TranscriptionSessionCreateResponse>(
+      '/replies/transcription/realtime',
+      body,
+    );
+
+    return data;
+  }
+
+  async getAiProvidersAvailability(): Promise<AiProviderStatus[]> {
+    const { data } = await this.axios.get<AiProviderStatus[]>(`/replies/providers`);
+    return data;
+  }
+
+  async registerUser(request: RegisterUserRequest): Promise<AuthResponse | string> {
+    try {
+      const { data } = await this.axios.post<AuthResponse>(`/auth/register`, request);
+      return data;
+    } catch (err) {
+      console.error('Error registering user:', err);
+      return 'Error registering user';
+    }
+  }
+
+  /** Base‑64 → ArrayBuffer */
+  private b64ToArrayBuffer(b64: string): ArrayBuffer {
+    const binary = atob(b64);
+    const len = binary.length;
+    const buf = new ArrayBuffer(len);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < len; i++) view[i] = binary.charCodeAt(i);
+    return buf;
+  }
+
+  private pcmArrayBufferToBlob(buf: ArrayBuffer, format = 'pcm'): Blob {
+    return new Blob([buf], { type: `audio/${format}` });
+  }
+}
+
+// Export a singleton instance for convenience
+export const apiClient = new FigurantApiClient();
