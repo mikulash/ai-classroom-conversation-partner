@@ -1,9 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { supabaseAdmin } from '../clients/supabase';
 import { AuthResponse } from '@supabase/supabase-js';
-import { RegisterUserRequest } from '@repo/shared/types/api/RegisterUserRequest';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
 import { ConfigProvider } from '../utils/configProvider';
+import { RegisterUserRequest } from '@repo/shared/types/apiFigurantClient';
 
 const router = Router({ mergeParams: true });
 

@@ -1,13 +1,5 @@
 import { ConfigProvider } from '../utils/configProvider';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
-import {
-  TranscriptionSessionCreateResponse,
-  EphemeralTokenResponse,
-  WebRtcAnswerResponse,
-} from '@repo/shared/types/api/webRTC';
-import {
-  GetTTSAudioResponse,
-} from 'packages/shared/types/apiFigurantClient';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { getOpenAIClient } from '../clients/clientOpenAi';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
@@ -17,6 +9,11 @@ import {
   GetResponseParamsWithModelName, GetTimestampedAudioParamsWithModelName,
   GetTimestampedTranscriptionParamsWithModelName, GetTTSAudioParamsWithModelName,
 } from '../types/api';
+import {
+  EphemeralTokenResponse, GetTTSAudioResponse,
+  TranscriptionSessionCreateResponse,
+  WebRtcAnswerResponse,
+} from '@repo/shared/types/apiFigurantClient';
 
 const realtimeBaseUrl = 'https://api.openai.com/v1/realtime';
 

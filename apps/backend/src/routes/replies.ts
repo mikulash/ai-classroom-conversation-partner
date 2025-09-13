@@ -1,17 +1,12 @@
 import { Request, Response, Router } from 'express';
-import { TextToSpeechTimestampedResponse } from '@repo/shared/types/talkingHead';
-import {
-  GenerateReplyRequest,
-  FullReplyPlainResponse,
-  FullReplyTimestampedResponse,
-} from '@repo/shared/types/api/avatarReply';
 import { universalApi } from '../api_universal/universalApi';
 import {
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
   TextToSpeechResponse, TextToSpeechTimestampedRequest, ErrorResponse, TranscriptionSessionCreateResponse,
-  WebRtcAnswerResponse,
+  WebRtcAnswerResponse, GenerateReplyRequest, TextToSpeechTimestampedResponse, FullReplyPlainResponse,
+  FullReplyTimestampedResponse,
 } from '@repo/shared/types/apiFigurantClient';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { verifySupabaseAuth } from '../middleware/verifySupabaseAuth';

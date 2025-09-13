@@ -2,20 +2,18 @@ import { ConfigProvider } from '../utils/configProvider';
 import {
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
-  GetResponseParams,
+
   TextToSpeechRequest,
   GetTTSAudioResponse,
-  GetTimestampedTranscriptionParams, TextToSpeechTimestampedRequest,
-} from 'packages/shared/types/apiFigurantClient';
-import {
-  TranscriptionSessionCreateResponse,
-  WebRtcAnswerResponse,
-} from '@repo/shared/types/api/webRTC';
+  TextToSpeechTimestampedRequest, TranscriptionSessionCreateResponse, WebRtcAnswerResponse,
+} from '@repo/shared/types/apiFigurantClient';
+
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { openAiApi } from '../api/openAiApi';
 import { anthropicApi } from '../api/anthropicApi';
 import { xAiApi } from '../api/xAiApi';
 import { elevenLabsApi } from '../api/elevenLabsApi';
+import { GetResponseParams, GetTimestampedTranscriptionParams } from '../types/api';
 
 const getRealtimeTranscription = async (
   params: RealtimeTranscriptionRequest,
