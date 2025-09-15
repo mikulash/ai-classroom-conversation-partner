@@ -1,6 +1,5 @@
 import { supabaseAdmin } from '../clients/supabase';
-import { API_KEY } from '@repo/shared/enums/ApiKey';
-import { ApiKey } from '@repo/shared/enums/apiKey';
+import { API_KEY, ApiKey } from '@repo/shared/enums/ApiKey';
 import {
   AppConfig,
   RealtimeModel,
