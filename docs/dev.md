@@ -19,3 +19,9 @@ If you make changes to the database schema, you will need to update generated ty
 ### Generating types
 1. install supabase cli and login like described in [here](https://supabase.com/docs/guides/api/rest/generating-types)
 2. rewrite the file containing the types with command `npx supabase gen types typescript --project-id "$PROJECT_REF" --schema public > ./packages/shared/types/supabase/database.types.ts`. This target path is when running from the root of the repo. Project ref can be found in the settings of your supabase project or in the project URL.
+
+## Deployment
+Deployment instructions for each app are in their respective README files:
+- [Backend](../apps/backend/README.md)
+- [Web](../apps/web/README.md)
+- [Desktop (Tauri)](../apps/tauri/README.md)
