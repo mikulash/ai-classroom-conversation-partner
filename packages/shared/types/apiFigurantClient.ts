@@ -1,4 +1,4 @@
-import { Language } from './language.js';
+import { Language } from '../enums/Language.js';
 import { Personality, Profile, Scenario } from './supabase/supabaseTypeHelpers.js';
 import { ChatMessage } from './chatMessage.js';
 

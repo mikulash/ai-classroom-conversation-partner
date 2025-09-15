@@ -1,12 +1,11 @@
 import { AiProviderStatus } from '../types/apiKeyStatus.js';
-import { API_KEY } from '../enums/ApiKey.js';
+import { API_KEY, ApiKey } from '../enums/ApiKey.js';
 import { Enums } from '../types/supabase/database.types.js';
 import type {
   RealtimeModel, RealtimeTranscriptionModel,
   ResponseModel,
   TimestampedTranscriptionModel, TtsModel,
 } from '../types/supabase/supabaseTypeHelpers.js';
-import { ApiKey } from '../types/apiKey.js';
 
 export const realtimeProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,

@@ -11,7 +11,7 @@ import { useAppStore } from '../hooks/useAppStore';
 import { isProfileAdmin } from '@repo/shared/utils/access';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { createInitials } from '@repo/shared/utils/usernameUtils';
-import { Language } from '@repo/shared/types/language';
+import { Language } from '@repo/shared/enums/Language';
 
 export function Header() {
   const { i18n } = useTypedTranslation();
