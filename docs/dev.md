@@ -21,7 +21,22 @@ If you make changes to the database schema, you will need to update generated ty
 2. rewrite the file containing the types with command `npx supabase gen types typescript --project-id "$PROJECT_REF" --schema public > ./packages/shared/types/supabase/database.types.ts`. This target path is when running from the root of the repo. Project ref can be found in the settings of your supabase project or in the project URL.
 
 ## Deployment
+### Prerequisites:
+- Docker installed and running
+- Valid api keys for required services
+- Node.js and pnpm installed
+
+### Steps:
 Deployment instructions for each app are in their respective README files:
 - [Backend](../apps/backend/README.md)
 - [Web](../apps/web/README.md)
 - [Desktop (Tauri)](../apps/tauri/README.md)
+
+## Problem solving
+- **OpenAI API Issues**: Check https://status.openai.com/
+- **Supabase Issues**: Check https://status.supabase.com/
+- **Anthropic Issues**: Check https://status.anthropic.com/
+- **ElevenLabs Issues**: Check https://status.elevenlabs.io/
+- **Grok Issues**: Check https://status.x.ai/
+
+View logs in deployed environments with: `docker logs -f <container_id>`
