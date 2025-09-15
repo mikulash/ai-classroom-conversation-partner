@@ -1,6 +1,5 @@
 import { Enums, Tables, TablesInsert } from './database.types.js';
-import { Language } from '../language.js';
-import { LANGUAGE } from '../../enums/Language.js';
+import { LANGUAGE, Language } from '../../enums/Language.js';
 
 export type Profile = Tables<'profiles'>;
 export type UserRole = Enums<'user_role'>;

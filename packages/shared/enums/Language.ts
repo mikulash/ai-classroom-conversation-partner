@@ -19,6 +19,8 @@ export const LANGUAGE = {
   },
 } as const;
 
+export type Language = (typeof LANGUAGE)[keyof typeof LANGUAGE];
+
 export const getLanguage = (lang: string) => {
   const language = Object.values(LANGUAGE).find((l) => l.ISO639 === lang);
   if (!language) {
