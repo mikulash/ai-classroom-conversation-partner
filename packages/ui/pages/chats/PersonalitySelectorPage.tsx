@@ -13,8 +13,6 @@ import {
   ConversationRole,
   Personality,
   Scenario,
-  universalDescriptionForPersonality,
-  universalDescriptionForScenario,
 } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { ConversationRoleSelector } from '../../components/ConversationRoleSelector';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -28,6 +26,10 @@ import {
   PersonalityTabKey,
   ScenarioTabKey,
 } from '@repo/shared/utils/customConversationOptions';
+import {
+  universalDescriptionForPersonality,
+  universalDescriptionForScenario,
+} from '@repo/shared/utils/universalDescriptionMoreLanguages';
 
 
 export const PersonalitySelectorPage: React.FC = () => {

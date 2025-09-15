@@ -1,6 +1,8 @@
-import { Scenario, universalDescriptionForScenario } from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import { Scenario } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import React from 'react';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
+
 
 interface ScenarioInfoProps {
     scenario: Scenario | null;
