@@ -1,7 +1,7 @@
-# Desktop (Tauri)
+# Web
 
 ## Overview
-The Tauri package wraps the shared Figurant React experience in a desktop shell. It delivers the same routing and UI that power the web app while adding native capabilities such as the Tauri HTTP, logging, and store plugins for an offline-friendly desktop experience.
+The web package delivers the Figurant React experience in a browser via Vite. It wires up the shared router, authentication, and media handling so end users can chat, stream audio, and manage settings directly from the web.
 
 ## Environment variables
 | Variable                 | Is Required ? | Description                                                                                 |
