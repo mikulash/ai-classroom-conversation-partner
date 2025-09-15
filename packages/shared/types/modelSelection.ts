@@ -15,6 +15,9 @@ export interface ModelOptions {
     realtimeTranscriptionModels: RealtimeTranscriptionModel[];
 }
 
+/**
+ * model options but each model has 'available' property to indicate whether there is api key provided for it to work
+ */
 export type ModelOptionsWithAvailability = {
     [K in keyof ModelOptions]: ModelOptions[K] extends (infer T)[]
         ? WithAvailability<T>[]
