@@ -2,7 +2,6 @@ import { ConfigProvider } from '../utils/configProvider';
 import {
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
-
   TextToSpeechRequest,
   GetTTSAudioResponse,
   TextToSpeechTimestampedRequest, TranscriptionSessionCreateResponse, WebRtcAnswerResponse,

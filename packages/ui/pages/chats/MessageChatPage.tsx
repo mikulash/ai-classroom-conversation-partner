@@ -306,7 +306,7 @@ export const MessageChatPage: React.FC = () => {
     stopAudio();
     stopRecognition();
 
-    // Use passed messages and logs or current state
+    // Use passed messages and logs or the current state
     const finalMessages = messagesToSave || messages;
     const finalLogs = logsToSave || conversationLogs;
     // Mark the chat as ended
