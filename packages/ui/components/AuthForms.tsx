@@ -292,7 +292,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     return (
       <Card className="p-4 sm:p-6 w-full space-y-3 sm:space-y-4 text-center">
         <h2 className="text-xl sm:text-2xl font-bold">{t('thanksForRegistering')} 🎉</h2>
-        <p className="text-xs sm:text-sm text-gray-700">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           {t('confirmationEmailSent')}
         </p>
 

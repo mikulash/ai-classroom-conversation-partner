@@ -17,13 +17,13 @@ export const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
-      <div className="w-full max-w-md space-y-6 sm:space-y-8 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-background py-8 px-4 sm:py-12 sm:px-6">
+      <div className="w-full max-w-md space-y-6 sm:space-y-8 text-center rounded-xl border border-border/60 bg-card p-6 sm:p-8 shadow-sm">
         <header>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">
             {t('welcomeTo', { appName: app_name })}
           </h1>
-          <p className="mt-2 sm:mt-4 text-lg sm:text-xl text-gray-600">
+          <p className="mt-2 sm:mt-4 text-lg sm:text-xl text-muted-foreground">
             {t('aiConversationPartner')}
           </p>
         </header>
@@ -31,7 +31,7 @@ export const HomePage: React.FC = () => {
         <div className="mt-8">
           {isAuthenticated ? (
             <div className="space-y-4">
-              <p className="text-lg text-gray-700">
+              <p className="text-lg text-muted-foreground">
                 {t('helloSignedIn', { name: user?.user_metadata?.full_name ?? user?.email })}
               </p>
               <Button
@@ -42,7 +42,7 @@ export const HomePage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-lg text-gray-700">
+              <p className="text-lg text-muted-foreground">
                 {t('pleaseSignInMessage', { appName: app_name })}
               </p>
               <div className="flex flex-col space-y-4">

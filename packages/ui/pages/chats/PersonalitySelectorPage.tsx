@@ -128,8 +128,8 @@ export const PersonalitySelectorPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 flex flex-col items-center">
-      <div className="w-full max-w-4xl mx-auto border-2 rounded-lg p-8">
+    <div className="min-h-screen p-6 flex flex-col items-center bg-background text-foreground">
+      <div className="w-full max-w-4xl mx-auto border border-border rounded-lg bg-card p-6 sm:p-8 text-card-foreground">
         <h1 className="text-3xl font-bold mb-6">{t('hello')}</h1>
         <h2 className="text-2xl mb-8">{t('selectAvatarPersonality')}</h2>
 
@@ -161,10 +161,10 @@ export const PersonalitySelectorPage: React.FC = () => {
                         className="md:basis-1/2 lg:basis-1/2"
                       >
                         <Card
-                          className={`border-2 cursor-pointer transition-colors ${
+                          className={`cursor-pointer transition-colors rounded-xl border ${
                             selectedPersonality?.id === p.id ?
-                              'border-black' :
-                              'border-gray-300 hover:border-gray-600'
+                              'border-primary ring-2 ring-primary/40' :
+                              'border-border hover:border-primary/60'
                           }`}
                           onClick={() => selectPersonality(p)}
                         >
@@ -222,7 +222,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                         age: Number(e.target.value),
                       })
                     }
-                    className="bg-transparent border-2 border-gray-400"
+                    className="border-border"
                     placeholder={t('personalityForm.placeholder.age')}
                   />
                 </div>
@@ -275,7 +275,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                     })
                   }
                   placeholder={t('personalityForm.placeholder.problem')}
-                  className="bg-transparent border-2 border-gray-400"
+                  className="border-border"
                 />
               </div>
 
@@ -294,7 +294,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                     })
                   }
                   placeholder={t('personalityForm.placeholder.description')}
-                  className="bg-transparent border-2 border-gray-400 h-40"
+                  className="h-40 border border-border"
                 />
               </div>
             </div>
@@ -313,7 +313,7 @@ export const PersonalitySelectorPage: React.FC = () => {
           {/* predefined scenario carousel */}
           <TabsContent value="predefined">
             {scenariosForPersonality.length === 0 ? (
-              <p className="text-gray-400 mb-10">{t('scenarios.noneForPersonality')}</p>
+              <p className="text-muted-foreground mb-10">{t('scenarios.noneForPersonality')}</p>
             ) : (
               <Carousel className="w-full mb-10">
                 <CarouselContent>
@@ -325,10 +325,10 @@ export const PersonalitySelectorPage: React.FC = () => {
                     return (
                       <CarouselItem key={s.id} className="md:basis-1/2 lg:basis-1/2">
                         <Card
-                          className={`border-2 cursor-pointer transition-colors ${
+                          className={`cursor-pointer transition-colors rounded-xl border ${
                             selectedScenario?.id === s.id ?
-                              'border-black' :
-                              'border-gray-300 hover:border-gray-600'
+                              'border-primary ring-2 ring-primary/40' :
+                              'border-border hover:border-primary/60'
                           }`}
                           onClick={() => setSelectedScenario(s)}
                         >
@@ -365,7 +365,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                       setting_en: e.target.value,
                     })
                   }
-                  className="bg-transparent border-2 border-gray-400"
+                  className="border-border"
                   placeholder={t('scenarioForm.placeholder.setting')}
                 />
               </div>
@@ -383,7 +383,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                       situation_description_en: e.target.value,
                     })
                   }
-                  className="bg-transparent border-2 border-gray-400 h-40"
+                  className="h-40 border border-border"
                   placeholder={t('scenarioForm.placeholder.description')}
                 />
               </div>
@@ -392,7 +392,7 @@ export const PersonalitySelectorPage: React.FC = () => {
 
           {/* no scenario chosen */}
           <TabsContent value="none">
-            <div className="mb-10 text-gray-500 italic">{t('scenarios.noneDescription')}</div>
+            <div className="mb-10 italic text-muted-foreground">{t('scenarios.noneDescription')}</div>
           </TabsContent>
         </Tabs>
 

@@ -15,7 +15,7 @@ export const ScenarioInfo: React.FC<ScenarioInfoProps> = ({
 
   if (!scenario) {
     return (
-      <div className="flex-1 border-2 border-gray-400 rounded-lg p-6 bg-gray-50">
+      <div className="flex-1 rounded-lg border border-border bg-card p-6 text-card-foreground">
         <h2 className="text-xl font-semibold mb-2">{t('scenario')}</h2>
         <p className="text-sm">{t('noScenarioSelected')}</p>
       </div>
@@ -24,7 +24,7 @@ export const ScenarioInfo: React.FC<ScenarioInfoProps> = ({
   const { situationDescription, setting } = universalDescriptionForScenario(scenario, language);
 
   return (
-    <div className="flex-1 border-2 border-gray-400 rounded-lg p-6 bg-gray-50">
+    <div className="flex-1 rounded-lg border border-border bg-card p-6 text-card-foreground">
       <h2 className="text-xl font-semibold mb-2">{t('scenario')}</h2>
       {setting && <p className="italic text-sm mb-1">{setting}</p>}
       <p className="text-sm whitespace-pre-wrap">

@@ -135,7 +135,7 @@ export const AvatarTalkingHead = forwardRef<
     <div
       ref={avatarContainerRef}
       style={{ maxHeight: '550px' }}
-      className="w-full h-full bg-gray-900 rounded-lg shadow-md"
+      className="w-full h-full rounded-lg shadow-md bg-secondary text-secondary-foreground"
     >
       {!isAvatarLoaded && (
         <div className="flex items-center justify-center h-full text-white">

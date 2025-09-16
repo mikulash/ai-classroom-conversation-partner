@@ -92,6 +92,11 @@
   },
   "adminSection": "Admin Section",
   "aiConversationPartner": "Your AI-powered conversation partner",
+  "appearance": {
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "toggle": "Toggle theme"
+  },
   "aiGeneratedNote": "Note: The voice and avatar animation you are seeing is AI-generated.",
   "aiProcessing": "AI is processing...",
   "aiResponseError": "Sorry, I'm having trouble responding right now.",

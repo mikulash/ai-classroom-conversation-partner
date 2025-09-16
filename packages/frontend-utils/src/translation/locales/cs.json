@@ -93,6 +93,11 @@
   },
   "adminSection": "Admin sekce",
   "aiConversationPartner": "Váš konverzační partner s umělou inteligencí",
+  "appearance": {
+    "switchToDark": "Přepnout na tmavý režim",
+    "switchToLight": "Přepnout na světlý režim",
+    "toggle": "Přepnout vzhled"
+  },
   "aiGeneratedNote": "Poznámka: Hlas a animace avatara, které vidíte, jsou generovány umělou inteligencí.",
   "aiProcessing": "AI zpracovává...",
   "aiResponseError": "Omlouvám se, mám problém s odpovědí.",

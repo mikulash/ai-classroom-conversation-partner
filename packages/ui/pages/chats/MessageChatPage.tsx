@@ -595,14 +595,14 @@ export const MessageChatPage: React.FC = () => {
       mode="chat"
     >
 
-      <div className="w-full max-w-4xl mx-auto border-2 rounded-lg p-4 sm:p-8 flex flex-col flex-grow">
-        <div className="border-b-2 pb-4 mb-4">
+      <div className="w-full max-w-4xl mx-auto border border-border rounded-lg bg-card p-4 sm:p-8 flex flex-col flex-grow text-card-foreground">
+        <div className="border-b border-border pb-4 mb-4">
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-3xl font-bold">
               {t('chat.chatWith', { name: personality.name })}
             </h1>
             <div className="flex items-center gap-2">
-              <Label htmlFor="audio-toggle" className="text-sm text-gray-600">
+              <Label htmlFor="audio-toggle" className="text-sm text-muted-foreground">
                 {audioEnabled ? t('chat.audioOn') : t('chat.audioOff')}
               </Label>
               <Switch
@@ -616,7 +616,7 @@ export const MessageChatPage: React.FC = () => {
           <PersonalityInfo
             personality={personality}
             conversationRole={conversationRoleName}
-            className="border-2 border-gray-400 rounded-lg p-6 mb-8"
+            className="mb-8 rounded-lg border border-border bg-card p-6 text-card-foreground"
           />
           <ScenarioInfo scenario={scenario}/>
         </div>
@@ -628,7 +628,7 @@ export const MessageChatPage: React.FC = () => {
           onPlayAudio={playMessageAudio}
           isAudioPlaying={isAudioPlaying}
           chatStyle="text"
-          className="flex-grow overflow-y-auto mb-4 p-3 border rounded-md"
+          className="flex-grow overflow-y-auto mb-4 p-3 border border-border rounded-md bg-card text-card-foreground"
         />
 
         <div className="flex items-center">
@@ -692,7 +692,7 @@ export const MessageChatPage: React.FC = () => {
         </div>
 
         {audioEnabled && (
-          <div className="mt-2 text-xs text-center text-gray-500">
+          <div className="mt-2 text-xs text-center text-muted-foreground">
             {t('chat.aiVoiceNote')}
           </div>
         )}

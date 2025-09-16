@@ -296,7 +296,7 @@ export const VoiceCallPage: React.FC = () => {
       onGoToPersonalitySelector={handleGoToPersonalitySelector}
       mode="chat"
     >
-      <div className="w-full max-w-4xl mx-auto border-2 rounded-lg p-4 sm:p-8">
+      <div className="w-full max-w-4xl mx-auto border border-border rounded-lg bg-card p-4 sm:p-8 text-card-foreground">
         <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">{t('voiceCall')}</h1>
 
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -305,7 +305,7 @@ export const VoiceCallPage: React.FC = () => {
               personality={personality!}
               conversationRole={conversationRoleName}
               connectionStatus={connectionStatus}
-              className="border-2 border-gray-400 rounded-lg p-4 sm:p-6"
+              className="rounded-lg border border-border bg-card p-4 sm:p-6 text-card-foreground"
             />
           </div>
 
@@ -320,7 +320,7 @@ export const VoiceCallPage: React.FC = () => {
           assistantName={personality!.name}
           chatStyle="voice"
           isConnected={isConnected}
-          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border-2 border-gray-400 rounded-lg mb-6 sm:mb-8"
+          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border border-border rounded-lg mb-6 sm:mb-8 bg-card text-card-foreground"
         />
 
         <div className="flex justify-center gap-4">

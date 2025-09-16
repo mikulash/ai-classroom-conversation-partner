@@ -37,10 +37,10 @@ export const ResetPasswordRequestForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
+    <div className="min-h-screen flex items-center justify-center bg-background py-8 px-4 sm:py-12 sm:px-6">
 
       <Card className="p-4 sm:p-6 w-full max-w-md">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-foreground">
           {t('forgotPassword', 'Forgot your password?')}
         </h2>
 

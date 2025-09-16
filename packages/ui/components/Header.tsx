@@ -11,6 +11,8 @@ import { useAppStore } from '../hooks/useAppStore';
 import { isProfileAdmin } from '@repo/shared/utils/access';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { createInitials } from '@repo/shared/utils/usernameUtils';
+import { ThemeToggle } from './ThemeToggle';
+import { cn } from '../lib/utils';
 
 export function Header() {
   const { i18n } = useTypedTranslation();
@@ -39,8 +41,8 @@ export function Header() {
   };
 
   return (
-    <header className="py-4 px-4 sm:px-6 shadow-md mb-4">
-      <div className="container mx-auto flex justify-between items-center">
+    <header className="py-4 px-4 sm:px-6 shadow-sm mb-4 bg-background text-foreground border-b border-border/60">
+      <div className="container mx-auto flex justify-between items-center gap-4">
         <h1 className="text-2xl font-bold">
           <Link to="/">{app_name}</Link>
         </h1>
@@ -56,6 +58,8 @@ export function Header() {
             onChange={handleLanguageChange}
             compact
           />
+
+          <ThemeToggle/>
 
           {!isSignedIn && ready && (
             <AuthButtons/>
@@ -86,6 +90,8 @@ export function Header() {
             }}
           />
 
+          <ThemeToggle fullWidth/>
+
           {!isSignedIn && ready && (
             <AuthButtons fullWidth onAnyClick={() => setMenuOpen(false)}/>
           )}
@@ -113,13 +119,14 @@ export function Header() {
 
 const BurgerButton: React.FC<{ open: boolean; onToggle: () => void }> = ({ open, onToggle }) => (
   <button
-    className="sm:hidden flex flex-col justify-center items-center w-10 h-10 rounded focus:outline-none"
+    className="sm:hidden flex flex-col justify-center items-center w-10 h-10 rounded-md border border-border/60 bg-card text-foreground focus:outline-none"
     aria-label={open ? 'Close menu' : 'Open menu'}
+    aria-expanded={open}
     onClick={onToggle}
   >
-    <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${open ? 'rotate-45 translate-y-1.5' : ''}`}/>
-    <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${open ? 'opacity-0' : ''}`}/>
-    <span className={`block w-6 h-0.5 bg-black transition-all ${open ? '-rotate-45 -translate-y-1.5' : ''}`}/>
+    <span className={`block w-6 h-0.5 bg-foreground mb-1 transition-all ${open ? 'rotate-45 translate-y-1.5' : ''}`}/>
+    <span className={`block w-6 h-0.5 bg-foreground mb-1 transition-all ${open ? 'opacity-0' : ''}`}/>
+    <span className={`block w-6 h-0.5 bg-foreground transition-all ${open ? '-rotate-45 -translate-y-1.5' : ''}`}/>
   </button>
 );
 
@@ -135,14 +142,18 @@ const LanguageSelector: React.FC<{
   return (
     <Select value={currentLang.ISO639} onValueChange={onChange}>
       <SelectTrigger
-        className={`${compact ? 'w-24' : 'w-full'} bg-white ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        className={cn(
+          compact ? 'w-24' : 'w-full',
+          'bg-background dark:bg-input/30',
+          disabled && 'opacity-60 cursor-not-allowed',
+        )}
         disabled={disabled}
         title={disabled ? (t?.('languageChangeDisabledInChat') ?? 'Language change is disabled inside a chat thread.') : undefined}
         aria-disabled={disabled}
       >
         <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()}/>
       </SelectTrigger>
-      <SelectContent className="bg-white">
+      <SelectContent className="bg-popover text-popover-foreground">
         {availableLangs.map((lang) => (
           <SelectItem key={lang.ISO639} value={lang.ISO639} disabled={disabled}>
             {lang.NATIVE_NAME} {lang.ISO639 === 'sk' ? t('slovakLanguageNote') : ''}
@@ -216,13 +227,13 @@ const MobileMenuDrawer: React.FC<{
 }> = ({ open, onClose, children }) => {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-40 sm:hidden" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-black/40 sm:hidden" onClick={onClose}>
       <div
-        className="absolute top-0 right-0 w-64 h-full bg-white shadow-lg p-4 flex flex-col gap-4"
+        className="absolute top-0 right-0 w-64 h-full bg-card text-card-foreground border-l border-border shadow-lg p-4 flex flex-col gap-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-end">
-          <button className="text-2xl font-bold" aria-label="Close menu" onClick={onClose}>
+          <button className="text-2xl font-bold text-foreground" aria-label="Close menu" onClick={onClose}>
                         &times;
           </button>
         </div>

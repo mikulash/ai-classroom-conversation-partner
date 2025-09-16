@@ -149,14 +149,14 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
           )}
 
           {mode === 'chat' && (description || defaultDescription) && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {description || defaultDescription}
             </p>
           )}
         </DialogHeader>
 
         {mode === 'chat' && endedDueToTimeLimit && (
-          <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-lg">
+          <div className="mb-4 p-3 rounded-lg bg-yellow-100 text-yellow-800 dark:bg-yellow-200/20 dark:text-yellow-200">
             {t('chat.timeLimit', {
               defaultValue: 'Chat ended after reaching the 5-minute time limit.',
             })}
@@ -164,14 +164,14 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
         )}
 
         {mode === 'chat' && isSavingConversation && (
-          <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg">
+          <div className="mb-4 p-3 rounded-lg bg-primary/15 text-primary dark:bg-primary/30 dark:text-primary-foreground">
             {t('chat.savingConversation', {
               defaultValue: 'Saving conversation...',
             })}
           </div>
         )}
 
-        <ScrollArea className="flex-1 max-h-[60vh] p-4 border rounded-lg">
+        <ScrollArea className="flex-1 max-h-[60vh] p-4 border border-border rounded-lg bg-card text-card-foreground">
           {messages && messages.length > 0 ? (
             messages.map((msg, index) => (
               <div key={index} className={`mb-4 ${msg.role === 'assistant' ? 'pr-4' : 'pl-4'}`}>
@@ -187,10 +187,8 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
                   msg.role === 'assistant' ?
                     mode === 'admin' ?
                       'bg-muted text-foreground' :
-                      'bg-gray-100 text-gray-800' :
-                    mode === 'admin' ?
-                      'bg-primary/10 text-foreground' :
-                      'bg-blue-100 text-blue-800'
+                      'bg-muted text-muted-foreground' :
+                    'bg-primary text-primary-foreground'
                 }`}>
                   {msg.content}
                 </p>
