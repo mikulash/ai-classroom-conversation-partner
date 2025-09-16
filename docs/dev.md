@@ -16,8 +16,9 @@ These are the minimum prerequisites you need to work on the Figurant monorepo lo
 
 ## Changes in DB schema
 If you make changes to the database schema, you will need to update generated types of supabase tables that are located in './packages/shared/types/supabase/database.types.ts'
+
 ### Generating types
-1. install supabase cli and login like described in [here](https://supabase.com/docs/guides/api/rest/generating-types)
+1. install supabase cli and login as described in [here](https://supabase.com/docs/guides/api/rest/generating-types)
 2. rewrite the file containing the types with command `npx supabase gen types typescript --project-id "$PROJECT_REF" --schema public > ./packages/shared/types/supabase/database.types.ts`. This target path is when running from the root of the repo. Project ref can be found in the settings of your supabase project or in the project URL.
 
 ## Deployment
