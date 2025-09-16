@@ -32,15 +32,15 @@ export function AdminNavigation() {
 
   const handleTabChange = (value: string) => {
     if (value === 'global_models') {
-      void navigate( '/admin' );
+      void navigate('/admin');
     } else if (value === 'personalities') {
-      void navigate( '/admin/personalities');
+      void navigate('/admin/personalities');
     } else if (value === 'scenarios') {
-      void navigate( '/admin/scenarios');
+      void navigate('/admin/scenarios');
     } else if (value === 'custom_models') {
-      void navigate( '/admin/custom-models');
+      void navigate('/admin/custom-models');
     } else if (value === 'user_profiles') {
-      void navigate( '/admin/user-profiles');
+      void navigate('/admin/user-profiles');
     }
   };
 

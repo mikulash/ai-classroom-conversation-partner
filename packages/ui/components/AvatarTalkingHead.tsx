@@ -6,12 +6,12 @@ import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { LANGUAGE, Language } from '@repo/shared/enums/Language';
 
 interface AvatarTalkingHeadProps {
-  language?: Language;
-  personality: Personality
+    language?: Language;
+    personality: Personality
 }
 
 export interface AvatarTalkingHeadHandle {
-  speakAudio: (audio: LipSyncAudio) => void;
+    speakAudio: (audio: LipSyncAudio) => void;
 }
 
 export const AvatarTalkingHead = forwardRef<
@@ -53,10 +53,10 @@ export const AvatarTalkingHead = forwardRef<
         lipsyncLang: language.ISO639,
       },
       (ev: {
-          lengthComputable: boolean;
-          loaded: number;
-          total: number;
-        }) => {
+                lengthComputable: boolean;
+                loaded: number;
+                total: number;
+            }) => {
         if (ev.lengthComputable) {
           const percent = Math.min(
             100,

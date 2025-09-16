@@ -1,14 +1,18 @@
 import axios, { AxiosInstance } from 'axios';
 import {
-  FullReplyPlainResponse, FullReplyTimestampedResponse,
+  FullReplyPlainResponse,
+  FullReplyTimestampedResponse,
   GenerateReplyRequest,
   GetTTSAudioResponse,
   RealtimeTranscriptionRequest,
-  RealtimeVoiceRequest, RegisterUserRequest,
+  RealtimeVoiceRequest,
+  RegisterUserRequest,
   TextToSpeechRequest,
   TextToSpeechResponse,
-  TextToSpeechTimestampedRequest, TextToSpeechTimestampedResponse,
-  TranscriptionSessionCreateResponse, WebRtcAnswerResponse,
+  TextToSpeechTimestampedRequest,
+  TextToSpeechTimestampedResponse,
+  TranscriptionSessionCreateResponse,
+  WebRtcAnswerResponse,
 } from '@repo/shared/types/apiFigurantClient';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { AuthResponse } from '@supabase/supabase-js';

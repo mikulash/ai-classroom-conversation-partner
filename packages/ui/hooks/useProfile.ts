@@ -11,7 +11,8 @@ export const useProfile = () => {
   useEffect(() => {
     if (!ready) return; // still checking auth
     if (!session) {
-      clearProfile(); return;
+      clearProfile();
+      return;
     }
 
     // First page load (nothing cached)

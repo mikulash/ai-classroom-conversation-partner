@@ -17,8 +17,8 @@ export const PersonalityInfo: React.FC<PersonalityInfoProps> = ({
   className = 'border-2 border-gray-400 rounded-lg p-6',
 }) => {
   const { t, language } = useTypedTranslation();
-  const problemSummary = language === LANGUAGE.EN? personality.problem_summary_en : personality.problem_summary_cs;
-  const personalityDescription = language === LANGUAGE.EN? personality.personality_description_en : personality.personality_description_cs;
+  const problemSummary = language === LANGUAGE.EN ? personality.problem_summary_en : personality.problem_summary_cs;
+  const personalityDescription = language === LANGUAGE.EN ? personality.personality_description_en : personality.personality_description_cs;
 
   return (
     <div className={className}>

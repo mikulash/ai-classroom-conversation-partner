@@ -1,12 +1,18 @@
 import { Request, Response, Router } from 'express';
 import { universalApi } from '../api_universal/universalApi';
 import {
+  ErrorResponse,
+  FullReplyPlainResponse,
+  FullReplyTimestampedResponse,
+  GenerateReplyRequest,
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
-  TextToSpeechResponse, TextToSpeechTimestampedRequest, ErrorResponse, TranscriptionSessionCreateResponse,
-  WebRtcAnswerResponse, GenerateReplyRequest, TextToSpeechTimestampedResponse, FullReplyPlainResponse,
-  FullReplyTimestampedResponse,
+  TextToSpeechResponse,
+  TextToSpeechTimestampedRequest,
+  TextToSpeechTimestampedResponse,
+  TranscriptionSessionCreateResponse,
+  WebRtcAnswerResponse,
 } from '@repo/shared/types/apiFigurantClient';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { verifySupabaseAuth } from '../middleware/verifySupabaseAuth';
@@ -259,7 +265,7 @@ router.post(
 router.post(
   '/transcription/realtime',
   async (
-    req: Request< ParamsDictionary, TranscriptionSessionCreateResponse | ErrorResponse, RealtimeTranscriptionRequest
+    req: Request<ParamsDictionary, TranscriptionSessionCreateResponse | ErrorResponse, RealtimeTranscriptionRequest
         >,
     res: Response<TranscriptionSessionCreateResponse | ErrorResponse>,
   ) => {

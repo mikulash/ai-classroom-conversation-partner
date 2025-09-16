@@ -44,7 +44,7 @@ export const useAuth = () => {
   );
 
   const signUp = useCallback(
-    async (params: RegisterUserRequest ) => {
+    async (params: RegisterUserRequest) => {
       setLoading(true);
       setError(null);
 

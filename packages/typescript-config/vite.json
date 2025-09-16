@@ -3,9 +3,22 @@
   "extends": "./base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": ["DOM", "DOM.Iterable", "ES2023"]
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2023"
+    ]
   },
-  "types": ["dom-speech-recognition", "react", "react-dom"],
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "types": [
+    "dom-speech-recognition",
+    "react",
+    "react-dom"
+  ],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

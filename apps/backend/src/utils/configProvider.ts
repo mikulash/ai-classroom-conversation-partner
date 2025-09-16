@@ -21,16 +21,16 @@ type Secrets = Record<ApiKey, string | undefined>;
 
 export class ConfigProvider {
   private static instance: ConfigProvider;
+  private static readonly APP_CONFIG_CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+  private static readonly KEEP_ALIVE_INTERVAL_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
   private readonly secrets: Secrets;
   private app_config: AppConfig;
   private readonly model_options: ModelOptions;
   private app_config_last_fetched: number;
-  private static readonly APP_CONFIG_CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
-  private static readonly KEEP_ALIVE_INTERVAL_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
 
   /**
-   * Private constructor; use getInstance() instead.
-   */
+     * Private constructor; use getInstance() instead.
+     */
   private constructor(secrets: Secrets, app_config: AppConfig, model_options: ModelOptions) {
     this.secrets = secrets;
     this.app_config = app_config;
@@ -42,8 +42,8 @@ export class ConfigProvider {
   }
 
   /**
-   * Returns the singleton instance, initializing it on the first call.
-   */
+     * Returns the singleton instance, initializing it on the first call.
+     */
   public static async getInstance(): Promise<ConfigProvider> {
     if (!ConfigProvider.instance) {
       const secrets: Secrets = {
@@ -64,54 +64,10 @@ export class ConfigProvider {
     return ConfigProvider.instance;
   }
 
-  /**
-   * Checks if the app_config cache has expired and refreshes it if needed.
-   */
-  private async refreshAppConfigIfExpired(): Promise<void> {
-    const now = Date.now();
-    const timeSinceLastFetch = now - this.app_config_last_fetched;
-
-    if (timeSinceLastFetch >= ConfigProvider.APP_CONFIG_CACHE_DURATION_MS) {
-      console.log('Refreshing app_config from Supabase...');
-      await this.refreshAppConfig();
-    }
-  }
-
-  /**
-   * Refreshes only the app_config from the database.
-   */
-  private async refreshAppConfig(): Promise<void> {
-    const { data: app_config, error } = await supabaseAdmin
-      .from('app_config')
-      .select(`*`).single();
-
-    if (error || !app_config) {
-      throw new Error(`Supabase App Config refresh error: ${error.message}`);
-    }
-
-    this.app_config = app_config;
-    this.app_config_last_fetched = Date.now();
-  }
-
-  /**
-   * Every 5 days, call refreshAppConfig() to keep Supabase “active.”
-   * This prevents a full 7-day idle window. Avoids stopping the supabase project on the free tier due to inactivity (like between semesters)
-   */
-  private startKeepAliveTimer(): void {
-    setInterval(async () => {
-      try {
-        console.log('Keep-alive: reloading app_config from Supabase');
-        await this.refreshAppConfig();
-      } catch (err) {
-        console.error('Keep-alive reload failed:', err);
-      }
-    }, ConfigProvider.KEEP_ALIVE_INTERVAL_MS);
-  }
-
   private static async loadCompleteConfig(): Promise<{
-    app_config: AppConfig;
-    model_options: ModelOptions;
-  }> {
+        app_config: AppConfig;
+        model_options: ModelOptions;
+    }> {
     const { data: app_config, error } = await supabaseAdmin
       .from('app_config')
       .select(`*`).single();
@@ -205,20 +161,68 @@ export class ConfigProvider {
   public getResponseModelById(id: number): ResponseModel | undefined {
     return this.model_options.responseModels.find((model) => model.id === id);
   }
+
   public getTtsModelById(id: number): TtsModel | undefined {
     return this.model_options.ttsModels.find((model) => model.id === id);
   }
+
   public getRealtimeModelById(id: number): RealtimeModel | undefined {
     return this.model_options.realtimeModels.find((model) => model.id === id);
   }
+
   public getRealtimeTranscriptionModelById(id: number): RealtimeTranscriptionModel | undefined {
     return this.model_options.realtimeTranscriptionModels.find((model) => model.id === id);
   }
+
   public getTimestampedTranscriptionModelById(id: number): TimestampedTranscriptionModel | undefined {
     return this.model_options.timestampedTranscriptionModels.find((model) => model.id === id);
   }
 
   public getAppConfig(): AppConfig {
     return this.app_config;
+  }
+
+  /**
+     * Checks if the app_config cache has expired and refreshes it if needed.
+     */
+  private async refreshAppConfigIfExpired(): Promise<void> {
+    const now = Date.now();
+    const timeSinceLastFetch = now - this.app_config_last_fetched;
+
+    if (timeSinceLastFetch >= ConfigProvider.APP_CONFIG_CACHE_DURATION_MS) {
+      console.log('Refreshing app_config from Supabase...');
+      await this.refreshAppConfig();
+    }
+  }
+
+  /**
+     * Refreshes only the app_config from the database.
+     */
+  private async refreshAppConfig(): Promise<void> {
+    const { data: app_config, error } = await supabaseAdmin
+      .from('app_config')
+      .select(`*`).single();
+
+    if (error || !app_config) {
+      throw new Error(`Supabase App Config refresh error: ${error.message}`);
+    }
+
+    this.app_config = app_config;
+    this.app_config_last_fetched = Date.now();
+  }
+
+  /**
+     * Every 5 days, call refreshAppConfig() to keep Supabase “active.”
+     * This prevents a full 7-day idle window. Avoids stopping the supabase project on the free tier due to inactivity (like between semesters)
+     */
+  private startKeepAliveTimer(): void {
+    setInterval(async () => {
+      try {
+        console.log('Keep-alive: reloading app_config from Supabase');
+        await this.refreshAppConfig();
+      } catch (err) {
+        console.error('Keep-alive reload failed:', err);
+      }
+    }, ConfigProvider.KEEP_ALIVE_INTERVAL_MS);
   }
 }

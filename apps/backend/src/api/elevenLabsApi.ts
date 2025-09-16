@@ -22,7 +22,7 @@ const getTextToSpeech = async (
 
   try {
     const output_format =
-      response_format === 'pcm' ? `pcm_${sample_rate}` : `mp3_${sample_rate}_32`;
+            response_format === 'pcm' ? `pcm_${sample_rate}` : `mp3_${sample_rate}_32`;
     let voice_id = personality.elevenlabs_voice_id;
     if (!voice_id) {
       if (personality.sex == 'F') {
@@ -142,7 +142,7 @@ const getTextToSpeechTimestamped = async (
     // mapping into lipsync object for talking head based on TalkingHead usage examples
     // based on example of TalkingHead connection with ElevenLabs; from https://github.com/met4citizen/TalkingHead/blob/main/index.html by Mika Suominen
     const jsonResponse =
-      (await response.json()) as ElevenLabsTimestampedResponse;
+            (await response.json()) as ElevenLabsTimestampedResponse;
     const lipSyncAudio: LipSyncAudio = {
       audio: [],
       words: [],
@@ -155,7 +155,7 @@ const getTextToSpeechTimestamped = async (
     }
 
     const alignment =
-      jsonResponse?.alignment || jsonResponse?.normalized_alignment;
+            jsonResponse?.alignment || jsonResponse?.normalized_alignment;
 
     if (alignment) {
       // Parse characters into words

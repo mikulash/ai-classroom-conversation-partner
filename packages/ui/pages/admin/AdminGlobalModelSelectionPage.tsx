@@ -11,8 +11,10 @@ import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
 import {
-  getAvailableRealtimeModels, getAvailableRealtimeTranscriptionModels,
-  getAvailableResponseModels, getAvailableTimestampedTranscriptionModels,
+  getAvailableRealtimeModels,
+  getAvailableRealtimeTranscriptionModels,
+  getAvailableResponseModels,
+  getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
@@ -63,18 +65,18 @@ export function AdminGlobalModelSelectionPage() {
       if (responseError || ttsError || realtimeError || timestampedTranscriptionError || realtimeTranscriptionError) {
         console.error(
           responseError?.message ??
-            ttsError?.message ??
-            realtimeError?.message ??
-            timestampedTranscriptionError?.message ??
-            realtimeTranscriptionError?.message,
+                    ttsError?.message ??
+                    realtimeError?.message ??
+                    timestampedTranscriptionError?.message ??
+                    realtimeTranscriptionError?.message,
         );
         toast.error(t('models.loadFailed'), {
           description:
-              responseError?.message ??
-              ttsError?.message ??
-              realtimeError?.message ??
-              timestampedTranscriptionError?.message ??
-              realtimeTranscriptionError?.message,
+                        responseError?.message ??
+                        ttsError?.message ??
+                        realtimeError?.message ??
+                        timestampedTranscriptionError?.message ??
+                        realtimeTranscriptionError?.message,
         });
         setLoading(false);
         return;
@@ -96,28 +98,28 @@ export function AdminGlobalModelSelectionPage() {
 
       // Find selected models based on app_config
       const selectedResponseModel =
-        filteredResponseModels.find((m) => m.id === app_config.response_model_id) || null;
+                filteredResponseModels.find((m) => m.id === app_config.response_model_id) || null;
       const selectedTtsModel =
-        filteredTtsModels.find((m) => m.id === app_config.tts_model_id) || null;
+                filteredTtsModels.find((m) => m.id === app_config.tts_model_id) || null;
       const selectedRealtimeModel =
-        filteredRealtimeModels.find((m) => m.id === app_config.realtime_model_id) || null;
+                filteredRealtimeModels.find((m) => m.id === app_config.realtime_model_id) || null;
       const selectedTimestampedTranscriptionModel =
-        filteredTimestampedTranscriptionModels.find(
-          (m) => m.id === app_config.timestamped_transcription_model_id,
-        ) || null;
+                filteredTimestampedTranscriptionModels.find(
+                  (m) => m.id === app_config.timestamped_transcription_model_id,
+                ) || null;
       const selectedRealtimeTranscriptionModel =
-        filteredRealtimeTranscriptionModels.find(
-          (m) => m.id === app_config.realtime_transcription_model_id,
-        ) || null;
+                filteredRealtimeTranscriptionModels.find(
+                  (m) => m.id === app_config.realtime_transcription_model_id,
+                ) || null;
 
       setModelSelectionState({
         responseModel: selectedResponseModel || filteredResponseModels[0] || null,
         ttsModel: selectedTtsModel || filteredTtsModels[0] || null,
         realtimeModel: selectedRealtimeModel || filteredRealtimeModels[0] || null,
         timestampedTranscriptionModel:
-          selectedTimestampedTranscriptionModel || filteredTimestampedTranscriptionModels[0] || null,
+                    selectedTimestampedTranscriptionModel || filteredTimestampedTranscriptionModels[0] || null,
         realtimeTranscriptionModel:
-          selectedRealtimeTranscriptionModel || filteredRealtimeTranscriptionModels[0] || null,
+                    selectedRealtimeTranscriptionModel || filteredRealtimeTranscriptionModels[0] || null,
       });
 
       setLoading(false);
@@ -210,7 +212,7 @@ export function AdminGlobalModelSelectionPage() {
           selectModelLabel={t('models.selectModel')}
         />
         <Alert variant="default">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="h-4 w-4"/>
           <AlertTitle>{t('models.warningTitle')}</AlertTitle>
           <AlertDescription>
             {t('models.warningDescription')}

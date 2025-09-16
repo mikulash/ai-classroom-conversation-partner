@@ -3,10 +3,17 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "noEmit": false,        // browser package but we want JS for tests
+    "noEmit": false,
+    // browser package but we want JS for tests
     "declaration": true,
     "declarationMap": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.json"],
-  "exclude": ["dist"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.json"
+  ],
+  "exclude": [
+    "dist"
+  ]
 }

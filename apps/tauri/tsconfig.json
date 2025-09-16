@@ -1,10 +1,21 @@
 {
   "extends": "@repo/typescript-config/vite.json",
-  "include": ["src", "vite.config.ts"],
+  "include": [
+    "src",
+    "vite.config.ts"
+  ],
   "references": [
-    { "path": "../../packages/ui" },
-    { "path": "../../packages/shared" },
-    { "path": "../../packages/frontend-utils" },
-    { "path": "../../packages/assets" }
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/frontend-utils"
+    },
+    {
+      "path": "../../packages/assets"
+    }
   ]
 }

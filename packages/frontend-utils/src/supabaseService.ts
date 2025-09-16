@@ -1,9 +1,5 @@
 import { supabase } from './clients/supabaseClient';
-import type {
-  PostgrestResponse,
-  PostgrestSingleResponse,
-  Session,
-} from '@supabase/supabase-js';
+import type { PostgrestResponse, PostgrestSingleResponse, Session } from '@supabase/supabase-js';
 import type {
   AppConfig,
   Conversation,
@@ -13,9 +9,9 @@ import type {
   PersonalityInsert,
   Profile,
   ProfileInsert,
-  ResponseModel,
   RealtimeModel,
   RealtimeTranscriptionModel,
+  ResponseModel,
   Scenario,
   ScenarioInsert,
   TimestampedTranscriptionModel,
@@ -24,14 +20,14 @@ import type {
 } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 
 export type ConversationWithPersonality = Pick<
-  Conversation,
-  | 'id'
-  | 'start_time'
-  | 'end_time'
-  | 'ended_reason'
-  | 'conversation_type'
-  | 'messages'
-  | 'personality_id'
+    Conversation,
+    | 'id'
+    | 'start_time'
+    | 'end_time'
+    | 'ended_reason'
+    | 'conversation_type'
+    | 'messages'
+    | 'personality_id'
 > & { personalities: { name: string } | null };
 
 // Initial data used on app bootstrap

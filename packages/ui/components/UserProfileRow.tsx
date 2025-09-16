@@ -62,9 +62,9 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
             className="p-0 h-8 w-8"
           >
             {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4"/>
             ) : (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4"/>
             )}
           </Button>
         </TableCell>
@@ -92,7 +92,7 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
             disabled={isProcessing || isCurrentUser}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t('admin.profiles.table.role')} />
+              <SelectValue placeholder={t('admin.profiles.table.role')}/>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="basic">

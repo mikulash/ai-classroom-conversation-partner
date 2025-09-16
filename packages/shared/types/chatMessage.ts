@@ -1,6 +1,6 @@
 export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp?: Date;
-  audioUrl?: string | null;
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp?: Date;
+    audioUrl?: string | null;
 }

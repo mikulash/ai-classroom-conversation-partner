@@ -85,6 +85,7 @@ export interface ElevenLabsTimestampedResponse {
 export interface ErrorResponse {
     message: string;
     statusCode?: number;
+
     [key: string]: any; // additional properties
 }
 
@@ -123,7 +124,7 @@ export interface TranscriptionSessionCreateResponse {
     };
     client_secret: {
         expires_at: string;
-        value : string;
+        value: string;
     } | null;
     expires_at?: number;
 }

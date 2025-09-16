@@ -189,7 +189,7 @@ export function AdminPersonalitiesPage() {
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-sm text-blue-800 font-medium mb-2">{t('personalities.requiredFieldsNotice')}</p>
         <p className="text-xs text-blue-700">
-          {t( 'personalities.requiredFieldsDescription' )}
+          {t('personalities.requiredFieldsDescription')}
         </p>
       </div>
 
@@ -309,7 +309,7 @@ export function AdminPersonalitiesPage() {
             handleSelectChange('openai_voice_name', value as Enums<'OpenAiVoiceName'>)
           }>
           <SelectTrigger>
-            <SelectValue placeholder={t('personalities.selectVoice')} />
+            <SelectValue placeholder={t('personalities.selectVoice')}/>
           </SelectTrigger>
           <SelectContent>
             {

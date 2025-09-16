@@ -7,8 +7,8 @@ import { Textarea } from '../components/ui/textarea';
 import {
   authApi,
   conversationApi,
-  profileApi,
   ConversationWithPersonality,
+  profileApi,
 } from '@repo/frontend-utils/src/supabaseService';
 import { ProfileInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useUserStore } from '../hooks/useUserStore';
