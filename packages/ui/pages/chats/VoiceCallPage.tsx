@@ -305,7 +305,7 @@ export const VoiceCallPage: React.FC = () => {
               personality={personality!}
               conversationRole={conversationRoleName}
               connectionStatus={connectionStatus}
-              className="border-2 border-gray-400 rounded-lg p-4 sm:p-6"
+              className="border border-border rounded-lg p-4 sm:p-6 bg-card text-card-foreground"
             />
           </div>
 
@@ -320,7 +320,7 @@ export const VoiceCallPage: React.FC = () => {
           assistantName={personality!.name}
           chatStyle="voice"
           isConnected={isConnected}
-          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border-2 border-gray-400 rounded-lg mb-6 sm:mb-8"
+          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border border-border rounded-lg mb-6 sm:mb-8 bg-card text-card-foreground"
         />
 
         <div className="flex justify-center gap-4">

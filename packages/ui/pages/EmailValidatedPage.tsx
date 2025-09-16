@@ -8,11 +8,11 @@ export const EmailValidatedPage: React.FC = () => {
   const { t } = useTypedTranslation();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
       <div className="w-full max-w-md space-y-8 text-center">
         <Card className="p-6 w-full max-w-md space-y-4 text-center">
           <h2 className="text-2xl font-bold">{t('emailValidatedSuccess')}</h2>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-muted-foreground">
             {t('emailValidatedMessage')}
           </p>
 

@@ -410,15 +410,15 @@ export const VideoCallPage: React.FC = () => {
 
   const [statusText, statusStyle] = (() => {
     if (!conversationStarted) {
-      return [t('readyToStart'), 'text-gray-600'] as [string, string];
+      return [t('readyToStart'), 'text-muted-foreground'] as [string, string];
     } else if (error) {
-      return [t('voiceDetectionErrorStatus'), 'text-red-600'];
+      return [t('voiceDetectionErrorStatus'), 'text-destructive'];
     } else if (isTranscribing) {
-      return [t('listeningToYou'), 'text-green-600'];
+      return [t('listeningToYou'), 'text-emerald-500 dark:text-emerald-300'];
     } else if (isAiProcessing) {
-      return [t('aiProcessing'), 'text-purple-600'];
+      return [t('aiProcessing'), 'text-primary'];
     } else {
-      return [t('readyWaitingForSpeech'), 'text-blue-600'];
+      return [t('readyWaitingForSpeech'), 'text-primary'];
     }
   })();
 
@@ -439,7 +439,7 @@ export const VideoCallPage: React.FC = () => {
         <span className={`font-bold ${statusStyle}`}>{statusText}</span>
       </p>
       {error && (
-        <p className="text-red-600 mt-2">
+        <p className="text-destructive mt-2">
           {error}
         </p>
       )}
@@ -460,11 +460,11 @@ export const VideoCallPage: React.FC = () => {
       mode="chat"
     >
 
-      <div className="w-full max-w-4xl mx-auto border-2 rounded-lg p-4 sm:p-8">
+      <div className="w-full max-w-4xl mx-auto border border-border rounded-lg p-4 sm:p-8 bg-card text-card-foreground">
         <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">{t('videoCall')}</h1>
 
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="flex-1 border-2 border-gray-400 rounded-lg p-4 relative"
+          <div className="flex-1 border border-border rounded-lg p-4 relative"
             style={{ maxHeight: '550px' }}>
             <AvatarTalkingHead ref={avatarRef} language={language} personality={personality}/>
           </div>
@@ -473,7 +473,7 @@ export const VideoCallPage: React.FC = () => {
             personality={personality}
             conversationRole={conversationRoleName}
             connectionStatus={connectionStatus}
-            className="flex-1 border-2 border-gray-400 rounded-lg p-4 sm:p-6"
+            className="flex-1 border border-border rounded-lg p-4 sm:p-6 bg-card text-card-foreground"
           />
         </div>
 
@@ -485,7 +485,7 @@ export const VideoCallPage: React.FC = () => {
           isProcessing={isAiProcessing}
           assistantName={personality.name}
           chatStyle="voice"
-          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border-2 border-gray-400 rounded-lg mb-6 sm:mb-8"
+          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border border-border rounded-lg mb-6 sm:mb-8 bg-card text-card-foreground"
           emptyStateMessage={emptyStateMessage}
           isConnected={isTranscribing}
         />
@@ -494,25 +494,26 @@ export const VideoCallPage: React.FC = () => {
           {!conversationStarted ? (
             <Button
               onClick={startConversation}
-              className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
+              className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl h-auto flex items-center gap-2"
               disabled={isAiProcessing}
             >
-              <span className="mr-2">{t('startConversation')}</span>
+              <span>{t('startConversation')}</span>
               <FaPlay className="inline-block align-middle"/>
             </Button>
           ) : (
             <Button
               onClick={handleEndCall}
-              className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-red-600 hover:bg-red-700 text-white rounded-md flex items-center"
+              variant="destructive"
+              className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl h-auto flex items-center gap-2"
               disabled={isSavingConversation}
             >
-              <span className="mr-2">{t('endCall')}</span>
+              <span>{t('endCall')}</span>
               <MdCallEnd className="inline-block align-middle"/>
             </Button>
           )}
         </div>
 
-        <div className="mt-2 text-xs sm:text-sm text-center text-gray-500">
+        <div className="mt-2 text-xs sm:text-sm text-center text-muted-foreground">
           <div>
             {t('aiGeneratedNote')}
           </div>

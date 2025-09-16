@@ -135,10 +135,10 @@ export const AvatarTalkingHead = forwardRef<
     <div
       ref={avatarContainerRef}
       style={{ maxHeight: '550px' }}
-      className="w-full h-full bg-gray-900 rounded-lg shadow-md"
+      className="w-full h-full bg-card text-card-foreground rounded-lg shadow-md border border-border"
     >
       {!isAvatarLoaded && (
-        <div className="flex items-center justify-center h-full text-white">
+        <div className="flex items-center justify-center h-full text-foreground">
           <Loader className="animate-spin mr-2" size={20}/>
           <span>{loadingMessage}</span>
         </div>

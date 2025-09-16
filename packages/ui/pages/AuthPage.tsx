@@ -37,13 +37,13 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
+    <div className="min-h-screen flex items-center justify-center bg-background py-8 px-4 sm:py-12 sm:px-6">
       <div className="w-full max-w-md space-y-6 sm:space-y-8">
         <header className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">
             {t('welcomeTo', { appName: app_name })}
           </h1>
-          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">
             {isSignIn ? t('signInToAccount') : t('createNewAccount')}
           </p>
         </header>

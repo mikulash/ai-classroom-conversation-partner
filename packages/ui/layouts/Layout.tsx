@@ -34,13 +34,13 @@ export const Layout = () => {
   }, [setConversationOptions]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header/>
       <main className="flex-grow">
         <Outlet/>
       </main>
       <Toaster/>
-      <footer className="p-4 bg-gray-100"/>
+      <footer className="p-4 bg-muted"/>
     </div>
   );
 };

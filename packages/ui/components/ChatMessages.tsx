@@ -30,7 +30,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   chatStyle = 'voice',
   isConnected = true,
   emptyStateMessage,
-  className = 'h-64 overflow-y-auto p-4 border-2 border-gray-400 rounded-lg',
+  className = 'h-64 overflow-y-auto p-4 border border-border rounded-lg bg-card text-card-foreground',
 }) => {
   const { t } = useTypedTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -61,8 +61,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           key={index}
           className={`p-3 rounded-lg ${
             msg.role === 'user' ?
-              'bg-blue-100 text-blue-800 ml-8' :
-              'bg-gray-100 text-gray-800 mr-8'
+              'bg-primary/20 text-primary ml-8' :
+              'bg-muted text-foreground mr-8'
           }`}
         >
           <div className="font-semibold mb-1">
@@ -73,7 +73,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       ))}
 
       {currentTranscript && currentTranscript !== lastMessageContent && (
-        <div className="p-3 rounded-lg bg-blue-50 text-blue-800 ml-8 border border-blue-200">
+        <div className="p-3 rounded-lg bg-primary/10 text-primary ml-8 border border-primary/30">
           <div className="font-semibold mb-1">
             {t('you')} ({t('listeningActive')})
           </div>
@@ -82,7 +82,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       )}
 
       {assistantTranscript && (
-        <div className="p-3 rounded-lg bg-gray-50 text-gray-800 mr-8 border border-gray-200">
+        <div className="p-3 rounded-lg bg-muted text-foreground mr-8 border border-border">
           <div className="font-semibold mb-1">
             {assistantName} ({t('listeningActive')})
           </div>
@@ -91,16 +91,16 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       )}
 
       {isProcessing && !currentTranscript && !assistantTranscript && (
-        <div className="bg-gray-100 text-gray-800 p-3 rounded-lg mr-8">
+        <div className="bg-muted text-muted-foreground p-3 rounded-lg mr-8">
           <div className="font-semibold mb-1">{t('aiProcessing')}</div>
           <div className="flex space-x-2">
-            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce"></div>
             <div
-              className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+              className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce"
               style={{ animationDelay: '0.2s' }}
             ></div>
             <div
-              className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+              className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce"
               style={{ animationDelay: '0.4s' }}
             ></div>
           </div>
@@ -119,8 +119,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           <div
             className={`max-w-[70%] p-3 rounded-lg ${
               msg.role === 'user' ?
-                'bg-blue-500 text-white rounded-br-none' :
-                'bg-gray-200 text-gray-800 rounded-bl-none'
+                'bg-primary text-primary-foreground rounded-br-none' :
+                'bg-muted text-foreground rounded-bl-none'
             }`}
           >
             <div className="flex justify-between items-start">
@@ -128,7 +128,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
               {msg.role === 'assistant' && msg.audioUrl && onPlayAudio && (
                 <button
                   onClick={() => onPlayAudio(msg, index)}
-                  className="ml-1 p-1 rounded-full hover:bg-gray-300 transition-colors"
+                  className="ml-1 p-1 rounded-full hover:bg-muted/80 transition-colors"
                   title={
                     isAudioPlaying ? t('chat.stopRecording') : t('chat.startRecording')
                   }
@@ -146,7 +146,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             {msg.timestamp && (
               <p
                 className={`text-xs mt-1 ${
-                  msg.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                  msg.role === 'user' ? 'text-primary-foreground/80' : 'text-muted-foreground'
                 }`}
               >
                 {msg.timestamp.toLocaleTimeString([], {
@@ -161,18 +161,18 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
       {isAiTyping && (
         <div className="flex justify-start">
-          <div className="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[70%]">
+          <div className="bg-muted text-foreground p-3 rounded-lg rounded-bl-none max-w-[70%]">
             <div className="flex space-x-1">
               <div
-                className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce"
                 style={{ animationDelay: '0s' }}
               ></div>
               <div
-                className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce"
                 style={{ animationDelay: '0.2s' }}
               ></div>
               <div
-                className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce"
                 style={{ animationDelay: '0.4s' }}
               ></div>
             </div>
@@ -188,7 +188,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             !currentTranscript &&
             !assistantTranscript &&
             !isAiTyping ? (
-          <div className="text-gray-500 text-center py-8">
+          <div className="text-muted-foreground text-center py-8">
             {emptyStateMessage || defaultEmptyStateMessage}
           </div>
         ) : chatStyle === 'voice' ? (

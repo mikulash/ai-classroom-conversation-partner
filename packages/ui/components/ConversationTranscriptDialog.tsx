@@ -149,14 +149,14 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
           )}
 
           {mode === 'chat' && (description || defaultDescription) && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {description || defaultDescription}
             </p>
           )}
         </DialogHeader>
 
         {mode === 'chat' && endedDueToTimeLimit && (
-          <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-lg">
+          <div className="mb-4 p-3 bg-amber-200/60 text-amber-900 dark:text-amber-200 rounded-lg">
             {t('chat.timeLimit', {
               defaultValue: 'Chat ended after reaching the 5-minute time limit.',
             })}
@@ -164,7 +164,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
         )}
 
         {mode === 'chat' && isSavingConversation && (
-          <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg">
+          <div className="mb-4 p-3 bg-primary/20 text-primary rounded-lg">
             {t('chat.savingConversation', {
               defaultValue: 'Saving conversation...',
             })}
@@ -187,10 +187,10 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
                   msg.role === 'assistant' ?
                     mode === 'admin' ?
                       'bg-muted text-foreground' :
-                      'bg-gray-100 text-gray-800' :
+                      'bg-muted text-foreground' :
                     mode === 'admin' ?
                       'bg-primary/10 text-foreground' :
-                      'bg-blue-100 text-blue-800'
+                      'bg-primary/20 text-primary'
                 }`}>
                   {msg.content}
                 </p>

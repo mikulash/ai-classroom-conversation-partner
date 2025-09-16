@@ -602,7 +602,7 @@ export const MessageChatPage: React.FC = () => {
               {t('chat.chatWith', { name: personality.name })}
             </h1>
             <div className="flex items-center gap-2">
-              <Label htmlFor="audio-toggle" className="text-sm text-gray-600">
+              <Label htmlFor="audio-toggle" className="text-sm text-muted-foreground">
                 {audioEnabled ? t('chat.audioOn') : t('chat.audioOff')}
               </Label>
               <Switch
@@ -616,7 +616,7 @@ export const MessageChatPage: React.FC = () => {
           <PersonalityInfo
             personality={personality}
             conversationRole={conversationRoleName}
-            className="border-2 border-gray-400 rounded-lg p-6 mb-8"
+            className="border border-border rounded-lg p-6 mb-8 bg-card text-card-foreground"
           />
           <ScenarioInfo scenario={scenario}/>
         </div>
@@ -692,7 +692,7 @@ export const MessageChatPage: React.FC = () => {
         </div>
 
         {audioEnabled && (
-          <div className="mt-2 text-xs text-center text-gray-500">
+          <div className="mt-2 text-xs text-center text-muted-foreground">
             {t('chat.aiVoiceNote')}
           </div>
         )}

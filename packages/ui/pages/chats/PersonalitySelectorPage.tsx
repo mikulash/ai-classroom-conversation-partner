@@ -161,10 +161,10 @@ export const PersonalitySelectorPage: React.FC = () => {
                         className="md:basis-1/2 lg:basis-1/2"
                       >
                         <Card
-                          className={`border-2 cursor-pointer transition-colors ${
+                          className={`cursor-pointer transition-colors border ${
                             selectedPersonality?.id === p.id ?
-                              'border-black' :
-                              'border-gray-300 hover:border-gray-600'
+                              'border-primary ring-2 ring-primary/40' :
+                              'border-border hover:border-primary/60'
                           }`}
                           onClick={() => selectPersonality(p)}
                         >
@@ -222,7 +222,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                         age: Number(e.target.value),
                       })
                     }
-                    className="bg-transparent border-2 border-gray-400"
+                    className="bg-background border border-border"
                     placeholder={t('personalityForm.placeholder.age')}
                   />
                 </div>
@@ -275,7 +275,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                     })
                   }
                   placeholder={t('personalityForm.placeholder.problem')}
-                  className="bg-transparent border-2 border-gray-400"
+                  className="bg-background border border-border"
                 />
               </div>
 
@@ -294,7 +294,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                     })
                   }
                   placeholder={t('personalityForm.placeholder.description')}
-                  className="bg-transparent border-2 border-gray-400 h-40"
+                  className="bg-background border border-border h-40"
                 />
               </div>
             </div>
@@ -313,7 +313,7 @@ export const PersonalitySelectorPage: React.FC = () => {
           {/* predefined scenario carousel */}
           <TabsContent value="predefined">
             {scenariosForPersonality.length === 0 ? (
-              <p className="text-gray-400 mb-10">{t('scenarios.noneForPersonality')}</p>
+              <p className="text-muted-foreground mb-10">{t('scenarios.noneForPersonality')}</p>
             ) : (
               <Carousel className="w-full mb-10">
                 <CarouselContent>
@@ -325,10 +325,10 @@ export const PersonalitySelectorPage: React.FC = () => {
                     return (
                       <CarouselItem key={s.id} className="md:basis-1/2 lg:basis-1/2">
                         <Card
-                          className={`border-2 cursor-pointer transition-colors ${
+                          className={`cursor-pointer transition-colors border ${
                             selectedScenario?.id === s.id ?
-                              'border-black' :
-                              'border-gray-300 hover:border-gray-600'
+                              'border-primary ring-2 ring-primary/40' :
+                              'border-border hover:border-primary/60'
                           }`}
                           onClick={() => setSelectedScenario(s)}
                         >
@@ -365,7 +365,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                       setting_en: e.target.value,
                     })
                   }
-                  className="bg-transparent border-2 border-gray-400"
+                  className="bg-background border border-border"
                   placeholder={t('scenarioForm.placeholder.setting')}
                 />
               </div>
@@ -383,7 +383,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                       situation_description_en: e.target.value,
                     })
                   }
-                  className="bg-transparent border-2 border-gray-400 h-40"
+                  className="bg-background border border-border h-40"
                   placeholder={t('scenarioForm.placeholder.description')}
                 />
               </div>
@@ -392,7 +392,7 @@ export const PersonalitySelectorPage: React.FC = () => {
 
           {/* no scenario chosen */}
           <TabsContent value="none">
-            <div className="mb-10 text-gray-500 italic">{t('scenarios.noneDescription')}</div>
+            <div className="mb-10 text-muted-foreground italic">{t('scenarios.noneDescription')}</div>
           </TabsContent>
         </Tabs>
 
@@ -409,9 +409,9 @@ export const PersonalitySelectorPage: React.FC = () => {
             isVoiceCallEnabled && (<Button
               onClick={() => storeAndNavigate('/voice-call')}
               disabled={isStartButtonDisabled()}
-              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
+              className="px-8 py-6 text-xl h-auto flex items-center gap-2"
             >
-              <span className="mr-2">{t('actions.startVoiceCall')}</span>
+              <span>{t('actions.startVoiceCall')}</span>
               <MdOutlinePhoneInTalk className="inline-block align-middle"/>
             </Button>
             )
@@ -420,9 +420,9 @@ export const PersonalitySelectorPage: React.FC = () => {
             isVideoCallEnabled && (<Button
               onClick={() => storeAndNavigate('/video-call')}
               disabled={isStartButtonDisabled()}
-              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
+              className="px-8 py-6 text-xl h-auto flex items-center gap-2"
             >
-              <span className="mr-2">{t('actions.startVideoCall')}</span>
+              <span>{t('actions.startVideoCall')}</span>
               <FaVideo/>
             </Button>)
           }
@@ -430,9 +430,9 @@ export const PersonalitySelectorPage: React.FC = () => {
             isMessageChatEnabled && <Button
               onClick={() => storeAndNavigate('/message-chat')}
               disabled={isStartButtonDisabled()}
-              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
+              className="px-8 py-6 text-xl h-auto flex items-center gap-2"
             >
-              <span className="mr-2">{t('actions.startMessageChat')}</span>
+              <span>{t('actions.startMessageChat')}</span>
               <IoMdSend size={20}/>
             </Button>
           }

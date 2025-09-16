@@ -37,7 +37,7 @@ export const ResetPasswordRequestForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
+    <div className="min-h-screen flex items-center justify-center bg-background py-8 px-4 sm:py-12 sm:px-6">
 
       <Card className="p-4 sm:p-6 w-full max-w-md">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
@@ -45,7 +45,7 @@ export const ResetPasswordRequestForm: React.FC = () => {
         </h2>
 
         {message ? (
-          <p className="text-center text-xs sm:text-sm text-green-600">{message}</p>
+          <p className="text-center text-xs sm:text-sm text-emerald-600 dark:text-emerald-400">{message}</p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -60,7 +60,7 @@ export const ResetPasswordRequestForm: React.FC = () => {
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? t('loading.general') : t('sendResetLink', 'Send reset link')}
