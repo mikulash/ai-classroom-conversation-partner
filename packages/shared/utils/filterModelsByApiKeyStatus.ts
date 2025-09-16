@@ -2,9 +2,11 @@ import { AiProviderStatus } from '../types/apiKeyStatus.js';
 import { API_KEY, ApiKey } from '../enums/ApiKey.js';
 import { Enums } from '../types/supabase/database.types.js';
 import type {
-  RealtimeModel, RealtimeTranscriptionModel,
+  RealtimeModel,
+  RealtimeTranscriptionModel,
   ResponseModel,
-  TimestampedTranscriptionModel, TtsModel,
+  TimestampedTranscriptionModel,
+  TtsModel,
 } from '../types/supabase/supabaseTypeHelpers.js';
 
 export const realtimeProvidersApiKeys = {

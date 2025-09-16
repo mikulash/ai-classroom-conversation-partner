@@ -3,25 +3,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { ModelSelection } from '@repo/shared/types/modelSelection';
 
 interface BaseModel {
-  id: number;
-  provider: string;
-  friendly_name?: string;
-  api_name: string;
-  available: boolean;
+    id: number;
+    provider: string;
+    friendly_name?: string;
+    api_name: string;
+    available: boolean;
 }
 
 export interface ModelSectionConfig {
-  label: string;
-  modelKey: keyof ModelSelection;
-  models: BaseModel[];
+    label: string;
+    modelKey: keyof ModelSelection;
+    models: BaseModel[];
 }
 
 interface ModelSelectionFormProps {
-  sections: ModelSectionConfig[];
-  modelSelection: Partial<ModelSelection>;
-  setModelSelection: React.Dispatch<React.SetStateAction<Partial<ModelSelection>>>;
-  selectProviderLabel: string;
-  selectModelLabel: string;
+    sections: ModelSectionConfig[];
+    modelSelection: Partial<ModelSelection>;
+    setModelSelection: React.Dispatch<React.SetStateAction<Partial<ModelSelection>>>;
+    selectProviderLabel: string;
+    selectModelLabel: string;
 }
 
 export function ModelSelectionForm({
@@ -32,7 +32,7 @@ export function ModelSelectionForm({
   selectModelLabel,
 }: ModelSelectionFormProps) {
   const getProviders = (models: BaseModel[]): string[] =>
-    Array.from(new Set(models.map((m) => m.provider).filter(Boolean))) as string[];
+        Array.from(new Set(models.map((m) => m.provider).filter(Boolean))) as string[];
 
   const getModelsForProvider = (
     providerName: string,
@@ -62,7 +62,7 @@ export function ModelSelectionForm({
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={selectProviderLabel} />
+                <SelectValue placeholder={selectProviderLabel}/>
               </SelectTrigger>
               <SelectContent>
                 {getProviders(section.models).map((provider) => {
@@ -91,7 +91,7 @@ export function ModelSelectionForm({
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={selectModelLabel} />
+                <SelectValue placeholder={selectModelLabel}/>
               </SelectTrigger>
               <SelectContent className="max-h-60 overflow-y-auto">
                 {getModelsForProvider(currentProvider, section.models).map((model) => (

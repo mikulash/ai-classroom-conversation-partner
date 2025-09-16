@@ -4,18 +4,18 @@ import { IoVolumeMediumOutline, IoVolumeOffOutline } from 'react-icons/io5';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
 interface ChatMessagesProps {
-  messages: ChatMessage[];
-  currentTranscript?: string;
-  assistantTranscript?: string;
-  isProcessing?: boolean;
-  isAiTyping?: boolean;
-  assistantName: string;
-  onPlayAudio?: (message: ChatMessage, index: number) => void;
-  isAudioPlaying?: boolean;
-  chatStyle?: 'voice' | 'text';
-  isConnected?: boolean;
-  emptyStateMessage?: string;
-  className?: string;
+    messages: ChatMessage[];
+    currentTranscript?: string;
+    assistantTranscript?: string;
+    isProcessing?: boolean;
+    isAiTyping?: boolean;
+    assistantName: string;
+    onPlayAudio?: (message: ChatMessage, index: number) => void;
+    isAudioPlaying?: boolean;
+    chatStyle?: 'voice' | 'text';
+    isConnected?: boolean;
+    emptyStateMessage?: string;
+    className?: string;
 }
 
 export const ChatMessages: React.FC<ChatMessagesProps> = ({
@@ -43,7 +43,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
+                chatContainerRef.current.scrollHeight;
     }
   };
 
@@ -52,7 +52,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
     t('connectToBeginConversation');
 
   const lastMessageContent =
-      messages.length > 0 ? messages[messages.length - 1].content : '';
+        messages.length > 0 ? messages[messages.length - 1].content : '';
 
   const renderVoiceChat = () => (
     <div className="space-y-4">
@@ -134,11 +134,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                   }
                 >
                   {isAudioPlaying &&
-                  index ===
-                    messages.findIndex((m) => m.audioUrl === msg.audioUrl) ? (
-                      <IoVolumeOffOutline size={16} />
+                                    index ===
+                                    messages.findIndex((m) => m.audioUrl === msg.audioUrl) ? (
+                      <IoVolumeOffOutline size={16}/>
                     ) : (
-                      <IoVolumeMediumOutline size={16} />
+                      <IoVolumeMediumOutline size={16}/>
                     )}
                 </button>
               )}
@@ -185,9 +185,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   return (
     <div className={className} ref={chatContainerRef}>
       {messages.length === 0 &&
-      !currentTranscript &&
-      !assistantTranscript &&
-      !isAiTyping ? (
+            !currentTranscript &&
+            !assistantTranscript &&
+            !isAiTyping ? (
           <div className="text-gray-500 text-center py-8">
             {emptyStateMessage || defaultEmptyStateMessage}
           </div>
@@ -196,7 +196,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
         ) : (
           renderTextChat()
         )}
-      <div ref={messagesEndRef} />
+      <div ref={messagesEndRef}/>
     </div>
   );
 };

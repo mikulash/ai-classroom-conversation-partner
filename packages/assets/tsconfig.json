@@ -5,11 +5,14 @@
     "outDir": "dist",
     "declaration": true,
     "lib": [
-      "DOM", "ES2023"
+      "DOM",
+      "ES2023"
     ],
     "composite": true,
-    "noEmit": false},
+    "noEmit": false
+  },
   "include": [
-    "TalkingHead-1.4.0/**/*", "index.ts"
+    "TalkingHead-1.4.0/**/*",
+    "index.ts"
   ]
 }

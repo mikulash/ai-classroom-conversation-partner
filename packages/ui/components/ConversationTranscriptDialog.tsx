@@ -212,7 +212,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
                 disabled={isDeleting || isSavingConversation}
                 className="flex items-center gap-2"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4"/>
                 {t('admin.conversations.delete', { defaultValue: 'Delete' })}
               </Button>
             )}

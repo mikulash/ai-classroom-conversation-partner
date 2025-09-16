@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { LANGUAGE } from '@repo/shared/enums/Language';
+import { LANGUAGE, Language } from '@repo/shared/enums/Language';
 import { useSession } from '../hooks/useSession';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { useProfile } from '../hooks/useProfile';
@@ -11,7 +11,6 @@ import { useAppStore } from '../hooks/useAppStore';
 import { isProfileAdmin } from '@repo/shared/utils/access';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { createInitials } from '@repo/shared/utils/usernameUtils';
-import { Language } from '@repo/shared/enums/Language';
 
 export function Header() {
   const { i18n } = useTypedTranslation();
@@ -46,7 +45,7 @@ export function Header() {
           <Link to="/">{app_name}</Link>
         </h1>
 
-        <BurgerButton open={menuOpen} onToggle={() => setMenuOpen((o) => !o)} />
+        <BurgerButton open={menuOpen} onToggle={() => setMenuOpen((o) => !o)}/>
 
         {/* Desktop */}
         <div className="items-center flex-wrap gap-2 hidden sm:flex">
@@ -59,13 +58,13 @@ export function Header() {
           />
 
           {!isSignedIn && ready && (
-            <AuthButtons />
+            <AuthButtons/>
           )}
 
           {isSignedIn && (
             <>
-              {isAdmin && <AdminSectionButton />}
-              <ProfileAvatarLink initials={initials} />
+              {isAdmin && <AdminSectionButton/>}
+              <ProfileAvatarLink initials={initials}/>
               <SignOutBtn
                 onSignOut={() => {
                   void signOut();
@@ -88,13 +87,13 @@ export function Header() {
           />
 
           {!isSignedIn && ready && (
-            <AuthButtons fullWidth onAnyClick={() => setMenuOpen(false)} />
+            <AuthButtons fullWidth onAnyClick={() => setMenuOpen(false)}/>
           )}
 
           {isSignedIn && (
             <>
-              {isAdmin && <AdminSectionButton fullWidth onClick={() => setMenuOpen(false)} />}
-              <ProfileAvatarLink initials={initials} onClick={() => setMenuOpen(false)} />
+              {isAdmin && <AdminSectionButton fullWidth onClick={() => setMenuOpen(false)}/>}
+              <ProfileAvatarLink initials={initials} onClick={() => setMenuOpen(false)}/>
               <SignOutBtn
                 fullWidth
                 onSignOut={() => {
@@ -109,7 +108,7 @@ export function Header() {
       </div>
     </header>
   );
-};
+}
 
 
 const BurgerButton: React.FC<{ open: boolean; onToggle: () => void }> = ({ open, onToggle }) => (
@@ -118,9 +117,9 @@ const BurgerButton: React.FC<{ open: boolean; onToggle: () => void }> = ({ open,
     aria-label={open ? 'Close menu' : 'Open menu'}
     onClick={onToggle}
   >
-    <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${open ? 'rotate-45 translate-y-1.5' : ''}`} />
-    <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${open ? 'opacity-0' : ''}`} />
-    <span className={`block w-6 h-0.5 bg-black transition-all ${open ? '-rotate-45 -translate-y-1.5' : ''}`} />
+    <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${open ? 'rotate-45 translate-y-1.5' : ''}`}/>
+    <span className={`block w-6 h-0.5 bg-black mb-1 transition-all ${open ? 'opacity-0' : ''}`}/>
+    <span className={`block w-6 h-0.5 bg-black transition-all ${open ? '-rotate-45 -translate-y-1.5' : ''}`}/>
   </button>
 );
 
@@ -141,7 +140,7 @@ const LanguageSelector: React.FC<{
         title={disabled ? (t?.('languageChangeDisabledInChat') ?? 'Language change is disabled inside a chat thread.') : undefined}
         aria-disabled={disabled}
       >
-        <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()} />
+        <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()}/>
       </SelectTrigger>
       <SelectContent className="bg-white">
         {availableLangs.map((lang) => (

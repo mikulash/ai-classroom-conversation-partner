@@ -9,11 +9,7 @@ import { Card, CardContent, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Button } from '../../components/ui/button';
-import {
-  ConversationRole,
-  Personality,
-  Scenario,
-} from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import { ConversationRole, Personality, Scenario } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { ConversationRoleSelector } from '../../components/ConversationRoleSelector';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';

@@ -34,7 +34,9 @@ export const HomePage: React.FC = () => {
               <p className="text-lg text-gray-700">
                 {t('helloSignedIn', { name: user?.user_metadata?.full_name ?? user?.email })}
               </p>
-              <Button className="w-full py-4 sm:py-6 text-lg sm:text-xl bg-green-700 hover:bg-green-600 text-white" asChild>
+              <Button
+                className="w-full py-4 sm:py-6 text-lg sm:text-xl bg-green-700 hover:bg-green-600 text-white"
+                asChild>
                 <Link to="/chat">{t('goToPersonalitySelector')}</Link>
               </Button>
             </div>

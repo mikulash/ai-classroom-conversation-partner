@@ -1,9 +1,13 @@
 # Backend
 
 ## Overview
-The backend package hosts the Express API that powers Figurant's conversational features. It exposes authentication and reply routes, coordinates with multiple AI providers for responses and speech synthesis, and fetches config data from Supabase.
+
+The backend package hosts the Express API that powers Figurant's conversational features. It exposes authentication and
+reply routes, coordinates with multiple AI providers for responses and speech synthesis, and fetches config data from
+Supabase.
 
 ## Environment variables
+
 | Variable                              | Is Required ?                                                 | Usage                                                                                       | 
 |---------------------------------------|---------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | `SUPABASE_URL`                        | **Required**                                                  | DB                                                                                          |
@@ -18,6 +22,7 @@ The backend package hosts the Express API that powers Figurant's conversational 
 ## Deployment
 
 ### Docker
+
 1. Build the production image from the repository root so the workspace context is available to the multi-stage build:
 
    ```bash
@@ -30,4 +35,5 @@ The backend package hosts the Express API that powers Figurant's conversational 
    docker run --env-file ./apps/backend/.env -p 4000:4000 figurant-backend
    ```
 
-The image installs only production dependencies and copies the compiled TypeScript from `dist`, so it is ready to push to a registry or orchestrate with Compose/Kubernetes once the environment variables are configured.
+The image installs only production dependencies and copies the compiled TypeScript from `dist`, so it is ready to push
+to a registry or orchestrate with Compose/Kubernetes once the environment variables are configured.

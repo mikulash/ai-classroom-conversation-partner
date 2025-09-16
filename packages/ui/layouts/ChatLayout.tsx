@@ -54,7 +54,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <Loading />
+        <Loading/>
       </div>
     );
   }

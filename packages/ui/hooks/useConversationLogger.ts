@@ -6,7 +6,7 @@ export const useConversationLogger = () => {
 
   const isDevelopment = import.meta.env.MODE === 'development';
 
-  const logMessage = useCallback((level:logLevel, message: string, data?: any, includeInRecord = true) => {
+  const logMessage = useCallback((level: logLevel, message: string, data?: any, includeInRecord = true) => {
     if (isDevelopment) {
       if (!data) {
         console[level](message);

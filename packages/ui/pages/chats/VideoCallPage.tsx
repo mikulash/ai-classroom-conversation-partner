@@ -464,7 +464,8 @@ export const VideoCallPage: React.FC = () => {
         <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">{t('videoCall')}</h1>
 
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="flex-1 border-2 border-gray-400 rounded-lg p-4 relative" style={{ maxHeight: '550px' }}>
+          <div className="flex-1 border-2 border-gray-400 rounded-lg p-4 relative"
+            style={{ maxHeight: '550px' }}>
             <AvatarTalkingHead ref={avatarRef} language={language} personality={personality}/>
           </div>
 

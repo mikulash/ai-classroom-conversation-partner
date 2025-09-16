@@ -2,7 +2,10 @@
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
     "rootDir": ".",
-    "lib": ["DOM", "ES2023"],
+    "lib": [
+      "DOM",
+      "ES2023"
+    ],
     "noEmit": false,
     "outDir": "dist",
     "sourceMap": true,
@@ -13,5 +16,9 @@
     "enums/**/*.ts",
     "types/**/*.ts",
     "utils/**/*.ts"
-  ],  "exclude": ["node_modules", "dist"]
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

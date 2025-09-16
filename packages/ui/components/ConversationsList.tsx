@@ -62,7 +62,7 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
   return (
     <div className="space-y-2">
       <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-        <MessageSquare className="h-4 w-4" />
+        <MessageSquare className="h-4 w-4"/>
         {t('conversations', { defaultValue: 'Conversations' })} ({conversations.length})
       </h4>
       {conversations.map((conversation) => (
@@ -77,7 +77,8 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
                 <span className="font-medium text-sm">
                   {conversation.personality?.name || 'Unknown Personality'}
                 </span>
-                <span className={`text-xs px-2 py-1 rounded ${getConversationTypeStyles(conversation.conversation_type)}`}>
+                <span
+                  className={`text-xs px-2 py-1 rounded ${getConversationTypeStyles(conversation.conversation_type)}`}>
                   {conversation.conversation_type}
                 </span>
               </div>

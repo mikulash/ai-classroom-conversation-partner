@@ -10,13 +10,13 @@ export const ProtectedRoute: React.FC = () => {
   const { t } = useTypedTranslation();
 
   if (!ready) {
-    return <Loading message={t('loading.checkingAuth')} />;
+    return <Loading message={t('loading.checkingAuth')}/>;
   }
 
   if (!session?.user) {
-    return <NotFoundPage />;
+    return <NotFoundPage/>;
   }
 
-  return <Outlet />;
+  return <Outlet/>;
 };
 

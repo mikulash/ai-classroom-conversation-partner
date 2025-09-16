@@ -2,10 +2,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import {
-  Scenario,
-  ScenarioInsert,
-} from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import { Scenario, ScenarioInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
 
 interface ScenariosTableProps {

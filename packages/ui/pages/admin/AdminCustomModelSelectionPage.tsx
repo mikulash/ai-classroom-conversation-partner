@@ -11,8 +11,10 @@ import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
 import {
-  getAvailableRealtimeModels, getAvailableRealtimeTranscriptionModels,
-  getAvailableResponseModels, getAvailableTimestampedTranscriptionModels,
+  getAvailableRealtimeModels,
+  getAvailableRealtimeTranscriptionModels,
+  getAvailableResponseModels,
+  getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
 
@@ -68,18 +70,18 @@ export function AdminCustomModelSelectionPage() {
       if (responseError || ttsError || realtimeError || timestampedError || realtimeTransError) {
         console.error(
           responseError?.message ??
-                ttsError?.message ??
-                realtimeError?.message ??
-                timestampedError?.message ??
-                realtimeTransError?.message,
+                    ttsError?.message ??
+                    realtimeError?.message ??
+                    timestampedError?.message ??
+                    realtimeTransError?.message,
         );
         toast.error(t('models.loadFailed'), {
           description:
-            responseError?.message ??
-            ttsError?.message ??
-            realtimeError?.message ??
-            timestampedError?.message ??
-            realtimeTransError?.message,
+                        responseError?.message ??
+                        ttsError?.message ??
+                        realtimeError?.message ??
+                        timestampedError?.message ??
+                        realtimeTransError?.message,
         });
         setLoading(false);
         return;
@@ -163,9 +165,9 @@ export function AdminCustomModelSelectionPage() {
       tts_model_id: selection.ttsModel?.id ?? null,
       realtime_model_id: selection.realtimeModel?.id ?? null,
       timestamped_transcription_model_id:
-        selection.timestampedTranscriptionModel?.id ?? null,
+                selection.timestampedTranscriptionModel?.id ?? null,
       realtime_transcription_model_id:
-        selection.realtimeTranscriptionModel?.id ?? null,
+                selection.realtimeTranscriptionModel?.id ?? null,
     });
 
     if (error) {

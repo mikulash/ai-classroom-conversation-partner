@@ -1,10 +1,12 @@
 import { ConfigProvider } from '../utils/configProvider';
 import {
+  GetTTSAudioResponse,
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
-  GetTTSAudioResponse,
-  TextToSpeechTimestampedRequest, TranscriptionSessionCreateResponse, WebRtcAnswerResponse,
+  TextToSpeechTimestampedRequest,
+  TranscriptionSessionCreateResponse,
+  WebRtcAnswerResponse,
 } from '@repo/shared/types/apiFigurantClient';
 
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';

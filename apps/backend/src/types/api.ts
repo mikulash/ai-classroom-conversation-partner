@@ -1,7 +1,7 @@
 import {
-  TextToSpeechRequest,
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
+  TextToSpeechRequest,
   TextToSpeechTimestampedRequest,
 } from '@repo/shared/types/apiFigurantClient';
 import { Language } from '@repo/shared/enums/Language';
@@ -36,4 +36,6 @@ export type GetRealtimeTranscriptionParamsWithModelName = WithModelName<Realtime
 
 export type GetRealtimeVoiceParamsWithModelName = WithModelName<RealtimeVoiceRequest>;
 
-export type GetTimestampedAudioParamsWithModelName = WithModelName<TextToSpeechTimestampedRequest, { sample_rate: number }>;
+export type GetTimestampedAudioParamsWithModelName = WithModelName<TextToSpeechTimestampedRequest, {
+    sample_rate: number
+}>;

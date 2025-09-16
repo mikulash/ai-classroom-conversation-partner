@@ -1,4 +1,3 @@
-
 export const isValidUniversityEmail = (email: string, allowedDomains: string[]): boolean => {
   if (allowedDomains.length === 0) return true;
 

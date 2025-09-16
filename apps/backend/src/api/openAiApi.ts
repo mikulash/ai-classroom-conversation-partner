@@ -5,12 +5,16 @@ import { getOpenAIClient } from '../clients/clientOpenAi';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
 import { getPreciseLipSyncAudio } from '../utils/lipsyncUtils';
 import {
-  GetRealtimeTranscriptionParamsWithModelName, GetRealtimeVoiceParamsWithModelName,
-  GetResponseParamsWithModelName, GetTimestampedAudioParamsWithModelName,
-  GetTimestampedTranscriptionParamsWithModelName, GetTTSAudioParamsWithModelName,
+  GetRealtimeTranscriptionParamsWithModelName,
+  GetRealtimeVoiceParamsWithModelName,
+  GetResponseParamsWithModelName,
+  GetTimestampedAudioParamsWithModelName,
+  GetTimestampedTranscriptionParamsWithModelName,
+  GetTTSAudioParamsWithModelName,
 } from '../types/api';
 import {
-  EphemeralTokenResponse, GetTTSAudioResponse,
+  EphemeralTokenResponse,
+  GetTTSAudioResponse,
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,
 } from '@repo/shared/types/apiFigurantClient';
@@ -181,7 +185,7 @@ const getTextToSpeech = async (
       voice: personality.openai_voice_name,
       input: inputMessage,
       instructions:
-        personality.voice_instructions + `Speak in ${language.ENGLISH_NAME}.`,
+                personality.voice_instructions + `Speak in ${language.ENGLISH_NAME}.`,
       response_format: response_format,
     });
 
