@@ -1,4 +1,4 @@
-import { Language } from '@repo/shared/types/language';
+import { Language } from '@repo/shared/enums/Language';
 import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
 

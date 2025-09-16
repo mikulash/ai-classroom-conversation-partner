@@ -13,7 +13,7 @@ import {
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { AuthResponse } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
-import { Language } from '@repo/shared/types/language';
+import { Language } from '@repo/shared/enums/Language';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 
 

@@ -256,7 +256,7 @@
     "updateFailed": "Update failed",
     "updateSuccess": "Personality updated",
     "voice": "Voice",
-    "voiceInstructions": "Voice Instructions",
+    "voiceInstructions": "Voice Instructions (in english only)",
     "validationError": "Validation Error",
     "requiredFieldsNotice": "Required Information",
     "requiredFieldsDescription": "All personality data including name, problem summaries, and personality descriptions in both English and Czech are required. These fields ensure the AI can properly understand and respond to users in their preferred language with the correct personality context.",

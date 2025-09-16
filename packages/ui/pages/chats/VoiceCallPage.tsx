@@ -9,7 +9,7 @@ import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useProfile } from '../../hooks/useProfile';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
-import { ChatPageProps } from '@repo/shared/types/ChatPageProps';
+import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Log } from '@repo/shared/types/log';

@@ -5,9 +5,9 @@ import { Loading } from '../components/Loading';
 import { Dialog, DialogContent } from '@radix-ui/react-dialog';
 import { DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
-import { ChatPageProps } from '@repo/shared/types/ChatPageProps';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import React from 'react';
+import { ChatPageProps } from '../lib/types/ChatPageProps';
 
 interface ChatLayoutProps {
     children: React.ReactNode;

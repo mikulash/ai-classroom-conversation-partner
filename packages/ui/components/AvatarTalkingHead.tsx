@@ -3,8 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { Loader } from 'lucide-react';
 import { AVATAR_MODELS, TalkingHead } from '@repo/assets';
 import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { Language } from '@repo/shared/types/language';
-import { LANGUAGE } from '@repo/shared/enums/Language';
+import { LANGUAGE, Language } from '@repo/shared/enums/Language';
 
 interface AvatarTalkingHeadProps {
   language?: Language;

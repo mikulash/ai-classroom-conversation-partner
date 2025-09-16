@@ -1,4 +1,4 @@
-import { Language } from '../types/language.js';
+import { Language } from '../enums/Language.js';
 import { Personality, Profile, Scenario } from '../types/supabase/supabaseTypeHelpers.js';
 
 interface GetPersonalityPromptParams {

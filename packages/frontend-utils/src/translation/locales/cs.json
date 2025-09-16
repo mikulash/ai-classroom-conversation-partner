@@ -256,7 +256,7 @@
     "updateFailed": "Aktualizace selhala",
     "updateSuccess": "Osobnost aktualizována",
     "voice": "Hlas",
-    "voiceInstructions": "Pokyny pro hlas",
+    "voiceInstructions": "Pokyny pro hlas (pouze anglicky)",
     "validationError": "Chyba validace",
     "requiredFieldsNotice": "Povinné informace",
     "requiredFieldsDescription": "Všechna data osobnosti včetně jména, shrnutí problémů a popisů osobnosti v angličtině i češtině jsou povinná. Tato pole zajišťují, že AI dokáže správně porozumět uživatelům a odpovídat jim v jejich preferovaném jazyce se správným kontextem osobnosti.",

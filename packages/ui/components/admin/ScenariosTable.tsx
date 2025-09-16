@@ -5,8 +5,8 @@ import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import {
   Scenario,
   ScenarioInsert,
-  universalDescriptionForScenario,
 } from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
 
 interface ScenariosTableProps {
     scenarios: Scenario[];
