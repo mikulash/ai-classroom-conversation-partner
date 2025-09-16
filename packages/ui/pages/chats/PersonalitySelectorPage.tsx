@@ -16,7 +16,7 @@ import {
 } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { ConversationRoleSelector } from '../../components/ConversationRoleSelector';
 import { useAppStore } from '../../hooks/useAppStore';
-import { ChatPageProps } from '@repo/shared/types/ChatPageProps';
+import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { LANGUAGE } from '@repo/shared/enums/Language';
 import {

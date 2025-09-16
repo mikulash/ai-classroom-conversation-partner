@@ -1,4 +1,4 @@
-import { Personality, Scenario } from './supabase/supabaseTypeHelpers.js';
+import { Personality, Scenario } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 
 export interface ChatPageProps {
     personality: Personality;

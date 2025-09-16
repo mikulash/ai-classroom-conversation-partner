@@ -11,7 +11,7 @@ import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { useProfile } from '../../hooks/useProfile';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { useAppStore } from '../../hooks/useAppStore';
-import { ChatPageProps } from '@repo/shared/types/ChatPageProps';
+import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
 import { initRealtimeTranscriptionConnection } from '../../lib/initRealtimeTranscriptionConnection';

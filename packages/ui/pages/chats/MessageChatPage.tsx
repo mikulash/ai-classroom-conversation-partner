@@ -19,13 +19,13 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { Button } from '../../components/ui/button';
 import { getLanguage } from '@repo/shared/enums/Language';
 import { Loading } from '../../components/Loading';
-import { ChatPageProps } from '@repo/shared/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { Log } from '@repo/shared/types/log';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
+import { ChatPageProps } from '../../lib/types/ChatPageProps';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
