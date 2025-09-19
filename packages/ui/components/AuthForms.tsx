@@ -12,7 +12,7 @@ import { RegisterUserRequest } from '@repo/shared/types/apiFigurantClient';
 interface AuthFormProps {
     onSubmit: (email: string, password: string) => Promise<void>;
     submitButtonText: string;
-    isLoading?: boolean;
+    isLoading: boolean;
     /** Accept any error shape – string | { message?: string; code?: any; reasons?: string[] } */
     error?: any;
 }
@@ -21,7 +21,7 @@ interface AuthFormProps {
 export const AuthForm: React.FC<AuthFormProps> = ({
   onSubmit,
   submitButtonText,
-  isLoading = false,
+  isLoading,
   error = null,
 }) => {
   const { t } = useTypedTranslation();
@@ -122,7 +122,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 interface SignInFormProps {
     onSignIn: (email: string, password: string) => Promise<void>;
     onSwitchToSignUp: () => void;
-    isLoading?: boolean;
+    isLoading: boolean;
     error?: any;
 }
 

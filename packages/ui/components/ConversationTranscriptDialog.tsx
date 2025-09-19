@@ -40,7 +40,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
   onOpenChange,
   messages,
   personalityName,
-  mode = 'chat',
+  mode,
   hasEndedDueToTimeLimit = false,
   isSavingConversation = false,
   onGoToPersonalitySelector,

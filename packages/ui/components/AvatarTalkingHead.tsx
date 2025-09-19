@@ -3,10 +3,10 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { Loader } from 'lucide-react';
 import { AVATAR_MODELS, TalkingHead } from '@repo/assets';
 import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { LANGUAGE, Language } from '@repo/shared/enums/Language';
+import { Language } from '@repo/shared/enums/Language';
 
 interface AvatarTalkingHeadProps {
-    language?: Language;
+    language: Language;
     personality: Personality
 }
 
@@ -73,8 +73,7 @@ export const AvatarTalkingHead = forwardRef<
     const initializeAvatar = async () => {
       if (avatarContainerRef.current && !headRef.current) {
         try {
-          const { personality } = props;
-          const language = props.language || LANGUAGE.CS;
+          const { personality, language } = props;
 
           // Initialize TalkingHead
           headRef.current = new TalkingHead(avatarContainerRef.current, {
