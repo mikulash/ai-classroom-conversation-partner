@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { Log, logLevel } from '@repo/shared/types/log';
+import { ConversationLog, logLevel } from '@repo/shared/types/conversationLog';
 
 export const useConversationLogger = () => {
-  const [conversationLogs, setConversationLogs] = useState<Log[]>([]);
+  const [conversationLogs, setConversationLogs] = useState<ConversationLog[]>([]);
 
   const isDevelopment = import.meta.env.MODE === 'development';
 

@@ -20,7 +20,7 @@ import { Button } from '../../components/ui/button';
 import { getLanguage } from '@repo/shared/enums/Language';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { Log } from '@repo/shared/types/log';
+import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
@@ -302,7 +302,7 @@ export const MessageChatPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [isAiTyping, pendingAiMessage, messages, consecutiveSilencePrompts]);
 
-  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: Log[]) => {
+  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLog[]) => {
     stopAudio();
     stopRecognition();
 
@@ -373,7 +373,7 @@ export const MessageChatPage: React.FC = () => {
       setMessages(finalMessages);
 
       // Add a log entry for the goodbye message
-      const goodbyeLog: Log = {
+      const goodbyeLog: ConversationLog = {
         timestamp: new Date().toISOString(),
         level: 'log',
         message: 'Chat ending due to silence - sending goodbye message',

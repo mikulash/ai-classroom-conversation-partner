@@ -9,7 +9,7 @@ import {
   Profile,
   Scenario,
 } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { Log } from '@repo/shared/types/log';
+import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { Enums, Json } from '@repo/shared/types/supabase/database.types';
 
@@ -38,7 +38,7 @@ export const useConversationSaver = ({
     endReason: 'timeLimit' | 'silence' | 'manual',
     conversationType: Enums<'conversation_type'>,
     messagesToSave?: ChatMessage[],
-    logsToSave?: Log[],
+    logsToSave?: ConversationLog[],
   ) => {
     if (conversationSavedRef.current || !userProfile || !personality) {
       return;

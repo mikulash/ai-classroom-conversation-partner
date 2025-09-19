@@ -1,6 +1,6 @@
 import { Json } from './supabase/database.types.js';
 
-export interface Log {
+export interface ConversationLog {
     timestamp: string;
     level: logLevel;
     message: string;
