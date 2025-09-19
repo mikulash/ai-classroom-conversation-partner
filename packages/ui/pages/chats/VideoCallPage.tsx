@@ -47,6 +47,9 @@ export const VideoCallPage: React.FC = () => {
   const [endedDueToTimeLimit, setEndedDueToTimeLimit] = useState(false);
   const chatEndedRef = useRef<boolean>(false);
   const [consecutiveSilencePrompts, setConsecutiveSilencePrompts] = useState(0);
+  const resetConsecutiveSilencePrompts = useCallback(() => {
+    setConsecutiveSilencePrompts(0);
+  }, [setConsecutiveSilencePrompts]);
 
   const appConfig = useAppStore((state) => state.appConfig);
   const { silence_timeout_in_seconds, max_conversation_duration_in_seconds } = appConfig;
@@ -56,7 +59,7 @@ export const VideoCallPage: React.FC = () => {
   const avatarRef = useRef<AvatarTalkingHeadHandle>(null);
   const userProfile = useProfile();
   const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
-  const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage);
+  const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage, resetConsecutiveSilencePrompts);
 
   const { isSavingConversation, conversationSavedRef, saveConversationToDatabase } = useConversationSaver({
     userProfile,

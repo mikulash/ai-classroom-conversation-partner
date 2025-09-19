@@ -1,5 +1,5 @@
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { Input } from '../../components/ui/input';
 import { ChatMessages } from '../../components/ChatMessages';
@@ -48,6 +48,9 @@ export const MessageChatPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pendingAiMessage, setPendingAiMessage] = useState<ChatMessage | null>(null);
   const [consecutiveSilencePrompts, setConsecutiveSilencePrompts] = useState(0);
+  const resetConsecutiveSilencePrompts = useCallback(() => {
+    setConsecutiveSilencePrompts(0);
+  }, [setConsecutiveSilencePrompts]);
   const [showTranscriptDialog, setShowTranscriptDialog] = useState(false);
 
   const userProfile = useProfile();
@@ -66,7 +69,7 @@ export const MessageChatPage: React.FC = () => {
   const conversationType = audioEnabled ? 'TextWithAudio' : 'TextOnly';
 
   const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
-  const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage);
+  const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage, resetConsecutiveSilencePrompts);
 
   const { isSavingConversation, conversationSavedRef, saveConversationToDatabase } = useConversationSaver({
     userProfile,
