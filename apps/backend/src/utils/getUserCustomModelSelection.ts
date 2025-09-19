@@ -8,15 +8,16 @@ export async function getUserCustomModelConfig(userId: string): Promise<CustomMo
     const { data, error } = await supabaseAdmin
       .from('admin_users_custom_model_selection')
       .select('*')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .single();
 
 
-    if (error || !data || data.length === 0) {
+    if (error || !data) {
       console.warn('Could not fetch user model config:', error);
       return null;
     }
 
-    return data[0];
+    return data;
   } catch (error) {
     console.error('Error in getUserCustomModelConfig:', error);
     return null;
