@@ -35,22 +35,22 @@ export const VideoCallPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
-  const [conversationStarted, setConversationStarted] = useState(false);
+  const [hasConversationStarted, setHasConversationStarted] = useState(false);
   const [connection, setConnection] = useState<RealtimeConnection | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
+  const [isBrowserDialogVisible, setIsBrowserDialogVisible] = useState(false);
 
   // Transcript dialog and time limit states
-  const [showTranscriptDialog, setShowTranscriptDialog] = useState(false);
+  const [isTranscriptDialogVisible, setIsTranscriptDialogVisible] = useState(false);
   const [chatStartTime] = useState<number>(Date.now());
-  const [endedDueToTimeLimit, setEndedDueToTimeLimit] = useState(false);
-  const chatEndedRef = useRef<boolean>(false);
-  const [consecutiveSilencePrompts, setConsecutiveSilencePrompts] = useState(0);
+  const [hasEndedDueToTimeLimit, setHasEndedDueToTimeLimit] = useState(false);
+  const hasChatEndedRef = useRef<boolean>(false);
+  const [consecutiveSilencePromptsCount, setConsecutiveSilencePromptsCount] = useState(0);
   const resetConsecutiveSilencePrompts = useCallback(() => {
-    setConsecutiveSilencePrompts(0);
-  }, [setConsecutiveSilencePrompts]);
+    setConsecutiveSilencePromptsCount(0);
+  }, [setConsecutiveSilencePromptsCount]);
 
   const appConfig = useAppStore((state) => state.appConfig);
   const { silence_timeout_in_seconds, max_conversation_duration_in_seconds } = appConfig;
@@ -155,7 +155,7 @@ export const VideoCallPage: React.FC = () => {
   useEffect(() => {
     const timeLimit = max_conversation_duration_in_seconds * 1000;
     const interval = setInterval(() => {
-      if (chatEndedRef.current) {
+      if (hasChatEndedRef.current) {
         clearInterval(interval);
         return;
       }
@@ -181,16 +181,16 @@ export const VideoCallPage: React.FC = () => {
   }, [chatStartTime]);
 
   useEffect(() => {
-    if (!conversationStarted) return;
+    if (!hasConversationStarted) return;
 
     const interval = setInterval(() => {
       logMessage('log', 'silenceDetection: Checking for silence', {
         isAiProcessing,
-        chatEnded: chatEndedRef.current,
+        chatEnded: hasChatEndedRef.current,
       });
 
       if (isAiProcessing) return;
-      if (chatEndedRef.current) {
+      if (hasChatEndedRef.current) {
         clearInterval(interval);
         return;
       }
@@ -205,14 +205,14 @@ export const VideoCallPage: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [conversationStarted, isAiProcessing, silence_timeout_in_seconds]);
+  }, [hasConversationStarted, isAiProcessing, silence_timeout_in_seconds]);
 
   const startConversation = async () => {
     logMessage('log', 'startConversation: Starting conversation with personality', {
       personalityName: personality?.name,
       conversationRole: conversationRoleName,
     });
-    setConversationStarted(true);
+    setHasConversationStarted(true);
     setIsConnecting(true);
     setError(null);
     markActivity();
@@ -233,10 +233,10 @@ export const VideoCallPage: React.FC = () => {
 
   const sendSilencePrompt = async () => {
     logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
-    if (!personality || !userProfile || chatEndedRef.current) return;
+    if (!personality || !userProfile || hasChatEndedRef.current) return;
 
     // Check if we've reached the maximum number of consecutive silence prompts
-    if (consecutiveSilencePrompts >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
+    if (consecutiveSilencePromptsCount >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
       logMessage('log', 'Maximum consecutive silence prompts reached - ending chat');
 
       setIsAiProcessing(true);
@@ -264,7 +264,7 @@ export const VideoCallPage: React.FC = () => {
           timestamp: new Date().toISOString(),
           level: 'log',
           message: silenceSystemPrompt,
-          data: { consecutiveSilencePrompts, reply },
+          data: { consecutiveSilencePrompts: consecutiveSilencePromptsCount, reply },
         };
         const finalLogs = [...conversationLogs, goodbyeLog];
         setConversationLogs(finalLogs);
@@ -279,7 +279,7 @@ export const VideoCallPage: React.FC = () => {
       return;
     }
 
-    setConsecutiveSilencePrompts((prev) => prev + 1);
+    setConsecutiveSilencePromptsCount((prev) => prev + 1);
     setIsAiProcessing(true);
 
     try {
@@ -357,10 +357,10 @@ export const VideoCallPage: React.FC = () => {
     const finalMessages = messagesToSave || messages;
     const finalLogs = logsToSave || conversationLogs;
 
-    chatEndedRef.current = true;
+    hasChatEndedRef.current = true;
 
     if (reason === 'timeLimit') {
-      setEndedDueToTimeLimit(true);
+      setHasEndedDueToTimeLimit(true);
     }
 
     // Save conversation to a database
@@ -368,12 +368,12 @@ export const VideoCallPage: React.FC = () => {
       await saveConversationToDatabase(reason, 'Video', finalMessages, finalLogs);
     }
 
-    setShowTranscriptDialog(true);
+    setIsTranscriptDialogVisible(true);
   };
 
   // Handler for going to personality selector after viewing transcript
   const handleGoToPersonalitySelector = () => {
-    setShowTranscriptDialog(false);
+    setIsTranscriptDialogVisible(false);
     navigate('/chat');
   };
 
@@ -407,7 +407,7 @@ export const VideoCallPage: React.FC = () => {
   }
 
   const emptyStateMessage = (() => {
-    if (!conversationStarted) {
+    if (!hasConversationStarted) {
       return t('clickStartConversation');
     }
 
@@ -423,7 +423,7 @@ export const VideoCallPage: React.FC = () => {
   })();
 
   const [statusText, statusStyle] = (() => {
-    if (!conversationStarted) {
+    if (!hasConversationStarted) {
       return [t('readyToStart'), 'text-gray-600'] as [string, string];
     } else if (error) {
       return [t('voiceDetectionErrorStatus'), 'text-red-600'];
@@ -439,7 +439,7 @@ export const VideoCallPage: React.FC = () => {
   })();
 
   const uiStatusMessage = (() => {
-    if (!conversationStarted) {
+    if (!hasConversationStarted) {
       return t('clickStartConversationFullMessage');
     } else if (error) {
       return t('voiceDetectionFailedMessage');
@@ -467,11 +467,11 @@ export const VideoCallPage: React.FC = () => {
   return (
     <ChatLayout
       isLoading={isLoading}
-      showBrowserDialog={showBrowserDialog}
-      setShowBrowserDialog={setShowBrowserDialog}
-      showTranscriptDialog={showTranscriptDialog}
-      setShowTranscriptDialog={setShowTranscriptDialog}
-      endedDueToTimeLimit={endedDueToTimeLimit}
+      isBrowserDialogVisible={isBrowserDialogVisible}
+      setIsBrowserDialogVisible={setIsBrowserDialogVisible}
+      isTranscriptDialogVisible={isTranscriptDialogVisible}
+      setIsTranscriptDialogVisible={setIsTranscriptDialogVisible}
+      hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
       isSavingConversation={isSavingConversation}
       messages={messages}
       onGoToPersonalitySelector={handleGoToPersonalitySelector}
@@ -509,7 +509,7 @@ export const VideoCallPage: React.FC = () => {
         />
 
         <div className="flex justify-center gap-4">
-          {!conversationStarted ? (
+          {!hasConversationStarted ? (
             <Button
               onClick={startConversation}
               className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"

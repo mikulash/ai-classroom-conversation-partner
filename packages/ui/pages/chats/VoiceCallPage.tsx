@@ -30,17 +30,17 @@ export const VoiceCallPage: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingInput, setProcessingInput] = useState(false);
+  const [isProcessingInput, setIsProcessingInput] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [assistantTranscript, setAssistantTranscript] = useState('');
 
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  const [showTranscriptDialog, setShowTranscriptDialog] = useState(false);
+  const [isBrowserDialogVisible, setIsBrowserDialogVisible] = useState(false);
+  const [isTranscriptDialogVisible, setIsTranscriptDialogVisible] = useState(false);
   const [chatStartTime, setChatStartTime] = useState<number | null>(null);
-  const [endedDueToTimeLimit, setEndedDueToTimeLimit] = useState(false);
-  const chatEndedRef = useRef<boolean>(false);
+  const [hasEndedDueToTimeLimit, setHasEndedDueToTimeLimit] = useState(false);
+  const hasChatEndedRef = useRef<boolean>(false);
   const isConnectingRef = useRef(false);
 
   const { t, language } = useTypedTranslation();
@@ -74,7 +74,7 @@ export const VoiceCallPage: React.FC = () => {
     setIsConnected(false);
     setCurrentTranscript('');
     setAssistantTranscript('');
-    setProcessingInput(false);
+    setIsProcessingInput(false);
     // Reset chat start time when disconnecting
     setChatStartTime(null);
   }, [logMessage]);
@@ -109,12 +109,12 @@ export const VoiceCallPage: React.FC = () => {
           break;
         case 'input_audio_buffer.speech_started':
           logMessage('log', 'User speech started');
-          setProcessingInput(true);
+          setIsProcessingInput(true);
           setCurrentTranscript('');
           break;
         case 'input_audio_buffer.speech_stopped':
           logMessage('log', 'User speech stopped');
-          setProcessingInput(false);
+          setIsProcessingInput(false);
           break;
         default:
           logMessage('log', 'Unhandled server event', { type: ev.type });
@@ -199,21 +199,21 @@ export const VoiceCallPage: React.FC = () => {
     const finalLogs = logsToSave || conversationLogs;
 
     // Mark the chat as ended
-    chatEndedRef.current = true;
+    hasChatEndedRef.current = true;
 
     if (reason === 'timeLimit') {
-      setEndedDueToTimeLimit(true);
+      setHasEndedDueToTimeLimit(true);
     }
 
     if (reason) {
       await saveConversationToDatabase(reason, 'VoiceOnly', finalMessages, finalLogs);
     }
 
-    setShowTranscriptDialog(true);
+    setIsTranscriptDialogVisible(true);
   }, [logMessage, messages, conversationLogs, saveConversationToDatabase]);
 
   const handleGoToPersonalitySelector = useCallback(() => {
-    setShowTranscriptDialog(false);
+    setIsTranscriptDialogVisible(false);
     navigate('/chat');
   }, [navigate]);
 
@@ -239,7 +239,7 @@ export const VoiceCallPage: React.FC = () => {
     const timeLimit = max_conversation_duration_in_seconds * 1000;
     const interval = setInterval(() => {
       // Skip if chat has already ended
-      if (chatEndedRef.current) {
+      if (hasChatEndedRef.current) {
         clearInterval(interval);
         return;
       }
@@ -262,7 +262,7 @@ export const VoiceCallPage: React.FC = () => {
     }, 10000); // Check every 10 seconds
 
     return () => clearInterval(interval);
-  }, [chatStartTime, max_conversation_duration_in_seconds, chatEndedRef, logMessage, handleEndCallWithReason]);
+  }, [chatStartTime, max_conversation_duration_in_seconds, hasChatEndedRef, logMessage, handleEndCallWithReason]);
 
   const connectionStatusMessage = isConnecting ?
     'Connecting...' :
@@ -278,7 +278,7 @@ export const VoiceCallPage: React.FC = () => {
           {connectionStatusMessage}
         </span>
       </p>
-      {processingInput && <p className="text-sm text-yellow-600">{t('listening')}</p>}
+      {isProcessingInput && <p className="text-sm text-yellow-600">{t('listening')}</p>}
       {error && <p className="text-red-600 text-sm">{error}</p>}
     </div>
   );
@@ -286,11 +286,11 @@ export const VoiceCallPage: React.FC = () => {
   return (
     <ChatLayout
       isLoading={isLoading}
-      showBrowserDialog={showBrowserDialog}
-      setShowBrowserDialog={setShowBrowserDialog}
-      showTranscriptDialog={showTranscriptDialog}
-      setShowTranscriptDialog={setShowTranscriptDialog}
-      endedDueToTimeLimit={endedDueToTimeLimit}
+      isBrowserDialogVisible={isBrowserDialogVisible}
+      setIsBrowserDialogVisible={setIsBrowserDialogVisible}
+      isTranscriptDialogVisible={isTranscriptDialogVisible}
+      setIsTranscriptDialogVisible={setIsTranscriptDialogVisible}
+      hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
       isSavingConversation={isSavingConversation}
       messages={messages}
       onGoToPersonalitySelector={handleGoToPersonalitySelector}

@@ -587,11 +587,11 @@ export const MessageChatPage: React.FC = () => {
   return (
     <ChatLayout
       isLoading={isLoading}
-      showBrowserDialog={showBrowserDialog}
-      setShowBrowserDialog={setShowBrowserDialog}
-      showTranscriptDialog={showTranscriptDialog}
-      setShowTranscriptDialog={setShowTranscriptDialog}
-      endedDueToTimeLimit={endedDueToTimeLimit}
+      isBrowserDialogVisible={showBrowserDialog}
+      setIsBrowserDialogVisible={setShowBrowserDialog}
+      isTranscriptDialogVisible={showTranscriptDialog}
+      setIsTranscriptDialogVisible={setShowTranscriptDialog}
+      hasEndedDueToTimeLimit={endedDueToTimeLimit}
       isSavingConversation={isSavingConversation}
       messages={messages}
       onGoToPersonalitySelector={handleGoToPersonalitySelector}
