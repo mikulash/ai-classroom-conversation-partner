@@ -19,7 +19,7 @@ export function AdminPersonalitiesPage() {
   const personalities = useAppStore((state) => state.personalities);
   const setPersonalities = useAppStore((state) => state.setPersonalities);
 
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -62,7 +62,7 @@ export function AdminPersonalitiesPage() {
   };
 
   async function fetchPersonalities() {
-    setLoading(true);
+    setIsLoading(true);
     const { data, error } = await personalityApi.all();
 
     if (error) {
@@ -74,7 +74,7 @@ export function AdminPersonalitiesPage() {
       const sortedPersonalities = data.toSorted((a, b) => a.id - b.id);
       setPersonalities(sortedPersonalities);
     }
-    setLoading(false);
+    setIsLoading(false);
   }
 
   const handleEdit = (personality: Personality) => {
@@ -345,7 +345,7 @@ export function AdminPersonalitiesPage() {
     </div>
   );
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
         <span className="text-muted-foreground">{t('common.loading')}</span>

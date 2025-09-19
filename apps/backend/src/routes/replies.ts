@@ -298,7 +298,7 @@ router.get(
   (req: Request, res: Response<AiProviderStatus[]>) => {
     const providers: AiProviderStatus[] = Object.entries(API_KEY).map(([, envKey]) => ({
       apiKey: envKey, // KEY name, not the actual secret
-      available: Boolean(process.env[envKey]),
+      isAvailable: Boolean(process.env[envKey]),
     }));
 
     res.status(200).json(providers);

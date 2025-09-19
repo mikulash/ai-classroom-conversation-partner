@@ -13,8 +13,8 @@ export const ResetPasswordForm: React.FC = () => {
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,21 +36,21 @@ export const ResetPasswordForm: React.FC = () => {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
 
     const { error } = await authApi.updatePassword(newPassword);
     if (error) {
       setError(error.message);
     } else {
-      setSuccess(true);
+      setIsSuccess(true);
     }
 
-    setLoading(false);
+    setIsLoading(false);
   };
 
   return (
     <Card className="p-4 sm:p-6 w-full max-w-md">
-      {success ? (
+      {isSuccess ? (
         <>
           <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
             {t('passwordUpdated', 'Password updated! ✅')}
@@ -93,8 +93,8 @@ export const ResetPasswordForm: React.FC = () => {
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t('loading.general') : t('updatePassword', 'Update password')}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? t('loading.general') : t('updatePassword', 'Update password')}
             </Button>
           </form>
         </>

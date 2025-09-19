@@ -12,11 +12,11 @@ import { ChatPageProps } from '../lib/types/ChatPageProps';
 interface ChatLayoutProps {
     children: React.ReactNode;
     isLoading: boolean;
-    showBrowserDialog: boolean;
-    setShowBrowserDialog: (show: boolean) => void;
-    showTranscriptDialog: boolean;
-    setShowTranscriptDialog: (show: boolean) => void;
-    endedDueToTimeLimit: boolean;
+    isBrowserDialogVisible: boolean;
+    setIsBrowserDialogVisible: (show: boolean) => void;
+    isTranscriptDialogVisible: boolean;
+    setIsTranscriptDialogVisible: (show: boolean) => void;
+    hasEndedDueToTimeLimit: boolean;
     isSavingConversation: boolean;
     messages: ChatMessage[];
     onGoToPersonalitySelector: () => void;
@@ -26,11 +26,11 @@ interface ChatLayoutProps {
 export const ChatLayout: React.FC<ChatLayoutProps> = ({
   children,
   isLoading,
-  showBrowserDialog,
-  setShowBrowserDialog,
-  showTranscriptDialog,
-  setShowTranscriptDialog,
-  endedDueToTimeLimit,
+  isBrowserDialogVisible,
+  setIsBrowserDialogVisible,
+  isTranscriptDialogVisible,
+  setIsTranscriptDialogVisible,
+  hasEndedDueToTimeLimit,
   isSavingConversation,
   messages,
   onGoToPersonalitySelector,
@@ -69,7 +69,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
 
   return (
     <div className="flex flex-col flex-grow p-4 sm:p-6">
-      <Dialog open={showBrowserDialog} onOpenChange={setShowBrowserDialog}>
+      <Dialog open={isBrowserDialogVisible} onOpenChange={setIsBrowserDialogVisible}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('speechRecognitionError')}</DialogTitle>
@@ -79,9 +79,9 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
       </Dialog>
 
       <ConversationTranscriptDialog
-        isOpen={showTranscriptDialog}
-        onOpenChange={setShowTranscriptDialog}
-        endedDueToTimeLimit={endedDueToTimeLimit}
+        isOpen={isTranscriptDialogVisible}
+        onOpenChange={setIsTranscriptDialogVisible}
+        hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
         isSavingConversation={isSavingConversation}
         messages={messages}
         personalityName={personality.name}

@@ -26,13 +26,13 @@ export function UserProfilePage() {
   const [conversationRole, setConversationRole] = useState('');
   const [gender, setGender] = useState<string>('');
   const [bio, setBio] = useState<string>('');
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const [conversations, setConversations] = useState<MyConversation[]>([]);
-  const [loadingConversations, setLoadingConversations] = useState(false);
+  const [isLoadingConversations, setIsLoadingConversations] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
-  const [showConversationDialog, setShowConversationDialog] = useState(false);
+  const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
   const { setProfile, profile: cachedProfile } = useUserStore();
 
@@ -56,7 +56,7 @@ export function UserProfilePage() {
     }
 
     try {
-      setLoadingConversations(true);
+      setIsLoadingConversations(true);
 
       const { data, error } = await conversationApi.byUser(session.user.id);
 
@@ -82,13 +82,13 @@ export function UserProfilePage() {
         });
       }
     } finally {
-      setLoadingConversations(false);
+      setIsLoadingConversations(false);
     }
   };
 
   const handleConversationClick = (conversation: MyConversation) => {
     setSelectedConversation(conversation);
-    setShowConversationDialog(true);
+    setIsConversationDialogVisible(true);
   };
 
   const formatDateTime = (dateString: string) => {
@@ -96,8 +96,8 @@ export function UserProfilePage() {
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    setSuccess(false);
+    setIsSaving(true);
+    setIsSuccess(false);
     try {
       const {
         data: { session },
@@ -124,8 +124,8 @@ export function UserProfilePage() {
       } else {
         console.log('Profile saved successfully');
         setProfile(freshData[0]);
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
+        setIsSuccess(true);
+        setTimeout(() => setIsSuccess(false), 3000);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -134,7 +134,7 @@ export function UserProfilePage() {
         console.error('Unexpected error saving profile:', error);
       }
     } finally {
-      setSaving(false);
+      setIsSaving(false);
     }
   };
 
@@ -187,7 +187,7 @@ export function UserProfilePage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {success && (
+            {isSuccess && (
               <div className="p-4 mb-4 text-green-800 bg-green-100 rounded">
                 {t('profileSavedSuccess')}
               </div>
@@ -236,8 +236,8 @@ export function UserProfilePage() {
           </CardContent>
 
           <CardFooter className="justify-end">
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? t('saving') : t('saveChanges')}
+            <Button onClick={handleSave} disabled={isSaving}>
+              {isSaving ? t('saving') : t('saveChanges')}
             </Button>
           </CardFooter>
         </Card>
@@ -248,7 +248,7 @@ export function UserProfilePage() {
             <Button
               variant="outline"
               onClick={fetchConversations}
-              disabled={loadingConversations}
+              disabled={isLoadingConversations}
             >
               {t('refresh')}
             </Button>
@@ -257,7 +257,7 @@ export function UserProfilePage() {
           <CardContent>
             <ConversationsList
               conversations={conversations}
-              isLoading={loadingConversations}
+              isLoading={isLoadingConversations}
               onConversationClick={handleConversationClick}
               formatDateTime={formatDateTime}
             />
@@ -266,8 +266,8 @@ export function UserProfilePage() {
       </div>
 
       <ConversationTranscriptDialog
-        isOpen={showConversationDialog}
-        onOpenChange={setShowConversationDialog}
+        isOpen={isConversationDialogVisible}
+        onOpenChange={setIsConversationDialogVisible}
         messages={selectedConversation?.messages || []}
         personalityName={selectedConversation?.personality?.name || 'Unknown'}
         mode="admin"
@@ -282,7 +282,7 @@ export function UserProfilePage() {
           setConversations((prev) => prev.filter((conv) => conv.id !== selectedConversation?.id));
           setSelectedConversation(null);
         }}
-        allowDelete={true} // Enable delete for user's own conversations
+        isDeleteAllowed={true} // Enable delete for user's own conversations
       />
     </>
   );

@@ -25,7 +25,7 @@ export function Header() {
   const { pathname } = useLocation();
 
   // Disable language change on /chat/* but allow on /chat or /chat/
-  const langDisabled = /^\/chat\/.+/.test(pathname);
+  const isLanguageChangeDisabled = /^\/chat\/.+/.test(pathname);
 
   const availableLangs = Object.values(LANGUAGE);
   const currentLang = availableLangs.find((l) => l.ISO639 === i18n.language) || LANGUAGE.EN;
@@ -34,7 +34,7 @@ export function Header() {
   const initials = createInitials(profile?.full_name);
 
   const handleLanguageChange = (newIso: string) => {
-    if (langDisabled) return;
+    if (isLanguageChangeDisabled) return;
     void i18n.changeLanguage(newIso);
   };
 
@@ -52,7 +52,7 @@ export function Header() {
           <LanguageSelector
             availableLangs={availableLangs}
             currentLang={currentLang}
-            disabled={langDisabled}
+            disabled={isLanguageChangeDisabled}
             onChange={handleLanguageChange}
             compact
           />
@@ -80,7 +80,7 @@ export function Header() {
           <LanguageSelector
             availableLangs={availableLangs}
             currentLang={currentLang}
-            disabled={langDisabled}
+            disabled={isLanguageChangeDisabled}
             onChange={(iso) => {
               handleLanguageChange(iso);
             }}

@@ -7,14 +7,14 @@ interface PersonalityInfoProps {
     personality: Personality;
     conversationRole: string;
     connectionStatus?: React.ReactNode;
-    className?: string;
+    className: string;
 }
 
 export const PersonalityInfo: React.FC<PersonalityInfoProps> = ({
   personality,
   conversationRole,
   connectionStatus,
-  className = 'border-2 border-gray-400 rounded-lg p-6',
+  className,
 }) => {
   const { t, language } = useTypedTranslation();
   const problemSummary = language === LANGUAGE.EN ? personality.problem_summary_en : personality.problem_summary_cs;

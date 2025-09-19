@@ -18,14 +18,14 @@ export function AdminProfilesPage() {
   const { t } = useTypedTranslation();
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [search, setSearch] = useState('');
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
   const [userConversations, setUserConversations] = useState<Record<string, MyConversation[]>>({});
   const [loadingConversations, setLoadingConversations] = useState<Set<string>>(new Set());
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
-  const [showConversationDialog, setShowConversationDialog] = useState(false);
+  const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
   const profile = useProfile();
 
@@ -36,7 +36,7 @@ export function AdminProfilesPage() {
   const fetchData = async () => {
     if (!profile) return;
     try {
-      setLoading(true);
+      setIsLoading(true);
 
       // Load profile rows
       const { data, error: profileError } = await profileApi.getAll();
@@ -55,7 +55,7 @@ export function AdminProfilesPage() {
         });
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -124,7 +124,7 @@ export function AdminProfilesPage() {
 
   const handleConversationClick = (conversation: MyConversation) => {
     setSelectedConversation(conversation);
-    setShowConversationDialog(true);
+    setIsConversationDialogVisible(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -171,7 +171,7 @@ export function AdminProfilesPage() {
     return null;
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
         <span className="text-muted-foreground">
@@ -193,7 +193,7 @@ export function AdminProfilesPage() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('admin.profiles.searchPlaceholder')}
             />
-            <Button variant="outline" onClick={fetchData} disabled={loading}>
+            <Button variant="outline" onClick={fetchData} disabled={isLoading}>
               {t('admin.profiles.refresh')}
             </Button>
           </div>
@@ -244,8 +244,8 @@ export function AdminProfilesPage() {
       </Card>
 
       <ConversationTranscriptDialog
-        isOpen={showConversationDialog}
-        onOpenChange={setShowConversationDialog}
+        isOpen={isConversationDialogVisible}
+        onOpenChange={setIsConversationDialogVisible}
         messages={selectedConversation?.messages || []}
         personalityName={selectedConversation?.personality?.name || 'Unknown'}
         mode="admin"
@@ -272,7 +272,7 @@ export function AdminProfilesPage() {
           }
           setSelectedConversation(null);
         }}
-        allowDelete={true} // Enable delete for admin
+        isDeleteAllowed={true} // Enable delete for admin
       />
     </>
   );

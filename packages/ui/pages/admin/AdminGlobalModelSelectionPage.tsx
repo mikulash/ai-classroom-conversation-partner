@@ -39,7 +39,7 @@ export function AdminGlobalModelSelectionPage() {
     realtimeTranscriptionModel: undefined,
   });
 
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   /** Load available models + current config */
@@ -78,7 +78,7 @@ export function AdminGlobalModelSelectionPage() {
                         timestampedTranscriptionError?.message ??
                         realtimeTranscriptionError?.message,
         });
-        setLoading(false);
+        setIsLoading(false);
         return;
       }
 
@@ -122,7 +122,7 @@ export function AdminGlobalModelSelectionPage() {
                     selectedRealtimeTranscriptionModel || filteredRealtimeTranscriptionModels[0] || null,
       });
 
-      setLoading(false);
+      setIsLoading(false);
     })();
   }, [app_config]);
 
@@ -190,7 +190,7 @@ export function AdminGlobalModelSelectionPage() {
     },
   ];
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className='flex justify-center items-center h-96'>
         <span className='text-muted-foreground'>{t('common.loading')}</span>

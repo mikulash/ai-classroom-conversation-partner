@@ -51,22 +51,22 @@ export const MessageChatPage: React.FC = () => {
   const resetConsecutiveSilencePrompts = useCallback(() => {
     setConsecutiveSilencePrompts(0);
   }, [setConsecutiveSilencePrompts]);
-  const [showTranscriptDialog, setShowTranscriptDialog] = useState(false);
+  const [isTranscriptDialogVisible, setIsTranscriptDialogVisible] = useState(false);
 
   const userProfile = useProfile();
 
   const [inputMessage, setInputMessage] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-  const initialMessageSentRef = useRef<boolean>(false);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+  const isInitialMessageSentRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const language = getLanguage(i18n.language);
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
+  const [isBrowserDialogVisible, setIsBrowserDialogVisible] = useState(false);
   const [chatStartTime] = useState<number>(Date.now());
   const chatEndedRef = useRef<boolean>(false);
 
-  const conversationType = audioEnabled ? 'TextWithAudio' : 'TextOnly';
+  const conversationType = isAudioEnabled ? 'TextWithAudio' : 'TextOnly';
 
   const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
   const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage, resetConsecutiveSilencePrompts);
@@ -80,8 +80,7 @@ export const MessageChatPage: React.FC = () => {
     logMessage,
   });
 
-
-  const [endedDueToTimeLimit, setEndedDueToTimeLimit] = useState(false);
+  const [hasEndedDueToTimeLimit, setHasEndedDueToTimeLimit] = useState(false);
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -109,7 +108,7 @@ export const MessageChatPage: React.FC = () => {
       logMessage('error', 'Speech recognition error', ev.error);
       toast.error('Speech recognition failed; returning to chat list…');
       if (ev.error === 'network') {
-        setShowBrowserDialog(true);
+        setIsBrowserDialogVisible(true);
         setSrSupported(false);
         setIsRecording(false);
       }
@@ -258,7 +257,7 @@ export const MessageChatPage: React.FC = () => {
       timestamp: new Date(),
     };
 
-    if (audioEnabled) {
+    if (isAudioEnabled) {
       setPendingAiMessage(newMsg);
       try {
         const audioUrl = await generateAudio(responseText);
@@ -270,7 +269,7 @@ export const MessageChatPage: React.FC = () => {
           setPendingAiMessage(null);
 
           // Only try to play audio if the component is still mounted and audio is enabled
-          if (audioEnabled) {
+          if (isAudioEnabled) {
             await playAudio(audioUrl);
           }
           markActivity();
@@ -316,7 +315,7 @@ export const MessageChatPage: React.FC = () => {
     chatEndedRef.current = true;
 
     if (reason === 'timeLimit') {
-      setEndedDueToTimeLimit(true);
+      setHasEndedDueToTimeLimit(true);
     }
 
     // Save conversation to database
@@ -324,7 +323,7 @@ export const MessageChatPage: React.FC = () => {
       await saveConversationToDatabase(reason, conversationType, finalMessages, finalLogs);
     }
 
-    setShowTranscriptDialog(true);
+    setIsTranscriptDialogVisible(true);
   };
 
   useEffect(() => {
@@ -422,8 +421,8 @@ export const MessageChatPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!initialMessageSentRef.current) {
-      initialMessageSentRef.current = true;
+    if (!isInitialMessageSentRef.current) {
+      isInitialMessageSentRef.current = true;
       setTimeout(() => sendInitialAIMessage(personality, conversationRoleName), 1000);
     }
     setIsLoading(false);
@@ -524,7 +523,7 @@ export const MessageChatPage: React.FC = () => {
   };
 
   const handleAudioToggle = (checked: boolean) => {
-    setAudioEnabled(checked);
+    setIsAudioEnabled(checked);
     if (!checked) {
       stopAudio();
       if (pendingAiMessage) {
@@ -557,7 +556,7 @@ export const MessageChatPage: React.FC = () => {
   };
 
   const handleGoToPersonalitySelector = () => {
-    setShowTranscriptDialog(false);
+    setIsTranscriptDialogVisible(false);
     navigate('/chat');
   };
 
@@ -587,11 +586,11 @@ export const MessageChatPage: React.FC = () => {
   return (
     <ChatLayout
       isLoading={isLoading}
-      showBrowserDialog={showBrowserDialog}
-      setShowBrowserDialog={setShowBrowserDialog}
-      showTranscriptDialog={showTranscriptDialog}
-      setShowTranscriptDialog={setShowTranscriptDialog}
-      endedDueToTimeLimit={endedDueToTimeLimit}
+      isBrowserDialogVisible={isBrowserDialogVisible}
+      setIsBrowserDialogVisible={setIsBrowserDialogVisible}
+      isTranscriptDialogVisible={isTranscriptDialogVisible}
+      setIsTranscriptDialogVisible={setIsTranscriptDialogVisible}
+      hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
       isSavingConversation={isSavingConversation}
       messages={messages}
       onGoToPersonalitySelector={handleGoToPersonalitySelector}
@@ -606,11 +605,11 @@ export const MessageChatPage: React.FC = () => {
             </h1>
             <div className="flex items-center gap-2">
               <Label htmlFor="audio-toggle" className="text-sm text-gray-600">
-                {audioEnabled ? t('chat.audioOn') : t('chat.audioOff')}
+                {isAudioEnabled ? t('chat.audioOn') : t('chat.audioOff')}
               </Label>
               <Switch
                 id="audio-toggle"
-                checked={audioEnabled}
+                checked={isAudioEnabled}
                 onCheckedChange={handleAudioToggle}
               />
             </div>
@@ -626,7 +625,7 @@ export const MessageChatPage: React.FC = () => {
 
         <ChatMessages
           messages={messages}
-          isAiTyping={isAiTyping || (audioEnabled && pendingAiMessage !== null)}
+          isAiTyping={isAiTyping || (isAudioEnabled && pendingAiMessage !== null)}
           assistantName={personality.name}
           onPlayAudio={playMessageAudio}
           isAudioPlaying={isAudioPlaying}
@@ -694,7 +693,7 @@ export const MessageChatPage: React.FC = () => {
           </Button>
         </div>
 
-        {audioEnabled && (
+        {isAudioEnabled && (
           <div className="mt-2 text-xs text-center text-gray-500">
             {t('chat.aiVoiceNote')}
           </div>
