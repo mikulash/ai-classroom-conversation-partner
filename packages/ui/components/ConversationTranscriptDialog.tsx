@@ -7,6 +7,7 @@ import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { conversationApi } from '@repo/frontend-utils/src/supabaseService';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
+import { formatMessageTime, getLocalizedDateTimeString } from '../lib/timeFormatters';
 
 interface ConversationTranscriptDialogProps {
     isOpen: boolean;
@@ -54,23 +55,6 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
   const { t, language } = useTypedTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
-  // Universal format message time function
-  const formatMessageTime = (timestamp?: Date | string) => {
-    if (!timestamp) return '';
-    const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
-    return new Intl.DateTimeFormat(language.BCP47, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    }).format(date);
-  };
-
-  // Format datetime for admin view
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
 
   // Handle conversation deletion
   const handleDeleteConversation = async () => {
@@ -142,8 +126,8 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
           {mode === 'admin' && conversationMetadata && (
             <div className="text-sm text-muted-foreground space-y-1">
               <div>{t('admin.conversations.type', { defaultValue: 'Type' })}: {conversationMetadata.conversationType}</div>
-              <div>{t('admin.conversations.started', { defaultValue: 'Started' })}: {formatDateTime(conversationMetadata.startTime)}</div>
-              <div>{t('admin.conversations.ended', { defaultValue: 'Ended' })}: {formatDateTime(conversationMetadata.endTime)} ({conversationMetadata.endedReason})</div>
+              <div>{t('admin.conversations.started', { defaultValue: 'Started' })}: {getLocalizedDateTimeString(conversationMetadata.startTime)}</div>
+              <div>{t('admin.conversations.ended', { defaultValue: 'Ended' })}: {getLocalizedDateTimeString(conversationMetadata.endTime)} ({conversationMetadata.endedReason})</div>
               <div>{t('admin.conversations.messages', { defaultValue: 'Messages' })}: {messages.length}</div>
             </div>
           )}
@@ -180,7 +164,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
                     {msg.role === 'assistant' ? personalityName : t('chat.you', { defaultValue: 'User' })}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {msg.timestamp && formatMessageTime(msg.timestamp)}
+                    {msg.timestamp && formatMessageTime(language, msg.timestamp)}
                   </span>
                 </div>
                 <p className={`p-3 rounded-lg text-sm ${
