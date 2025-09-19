@@ -37,6 +37,7 @@ export const VideoCallPage: React.FC = () => {
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [conversationStarted, setConversationStarted] = useState(false);
   const [connection, setConnection] = useState<RealtimeConnection | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
@@ -212,6 +213,8 @@ export const VideoCallPage: React.FC = () => {
       conversationRole: conversationRoleName,
     });
     setConversationStarted(true);
+    setIsConnecting(true);
+    setError(null);
     markActivity();
 
     try {
@@ -223,6 +226,8 @@ export const VideoCallPage: React.FC = () => {
     } catch (e) {
       logMessage('error', 'Failed to start conversation', e);
       setError((e as Error).message);
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -404,11 +409,17 @@ export const VideoCallPage: React.FC = () => {
   const emptyStateMessage = (() => {
     if (!conversationStarted) {
       return t('clickStartConversation');
-    } else if (connection && !error) {
-      return t('startSpeaking');
-    } else {
+    }
+
+    if (error) {
       return t('voiceDetectionError');
     }
+
+    if (isConnecting || !connection) {
+      return t('voiceDetectionInitializingMessage');
+    }
+
+    return t('startSpeaking');
   })();
 
   const [statusText, statusStyle] = (() => {
@@ -416,6 +427,8 @@ export const VideoCallPage: React.FC = () => {
       return [t('readyToStart'), 'text-gray-600'] as [string, string];
     } else if (error) {
       return [t('voiceDetectionErrorStatus'), 'text-red-600'];
+    } else if (isConnecting || !connection) {
+      return [t('voiceDetectionInitializingStatus'), 'text-blue-600'];
     } else if (isTranscribing) {
       return [t('listeningToYou'), 'text-green-600'];
     } else if (isAiProcessing) {
@@ -430,6 +443,8 @@ export const VideoCallPage: React.FC = () => {
       return t('clickStartConversationFullMessage');
     } else if (error) {
       return t('voiceDetectionFailedMessage');
+    } else if (isConnecting || !connection) {
+      return t('voiceDetectionInitializingMessage');
     } else {
       return t('voiceDetectionActiveMessage');
     }
