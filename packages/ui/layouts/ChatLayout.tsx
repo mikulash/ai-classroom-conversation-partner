@@ -81,7 +81,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
       <ConversationTranscriptDialog
         isOpen={isTranscriptDialogVisible}
         onOpenChange={setIsTranscriptDialogVisible}
-        endedDueToTimeLimit={hasEndedDueToTimeLimit}
+        hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
         isSavingConversation={isSavingConversation}
         messages={messages}
         personalityName={personality.name}

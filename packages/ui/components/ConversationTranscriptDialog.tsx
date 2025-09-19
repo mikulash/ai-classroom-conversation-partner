@@ -14,9 +14,9 @@ interface ConversationTranscriptDialogProps {
     onOpenChange: (open: boolean) => void;
     messages: ChatMessage[];
     personalityName: string;
-    mode?: 'admin' | 'chat'; // Determines the context
+    mode: 'admin' | 'chat'; // Determines the context
 
-    endedDueToTimeLimit?: boolean;
+    hasEndedDueToTimeLimit?: boolean;
     isSavingConversation?: boolean;
     onGoToPersonalitySelector?: () => void;
 
@@ -32,7 +32,7 @@ interface ConversationTranscriptDialogProps {
     onClose?: () => void;
     conversationId?: number;
     onConversationDeleted?: () => void;
-    allowDelete?: boolean;
+    isDeleteAllowed?: boolean;
 }
 
 export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialogProps> = ({
@@ -41,7 +41,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
   messages,
   personalityName,
   mode = 'chat',
-  endedDueToTimeLimit = false,
+  hasEndedDueToTimeLimit = false,
   isSavingConversation = false,
   onGoToPersonalitySelector,
   conversationMetadata,
@@ -50,7 +50,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
   onClose,
   conversationId,
   onConversationDeleted,
-  allowDelete = false,
+  isDeleteAllowed = false,
 }) => {
   const { t, language } = useTypedTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -139,7 +139,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
           )}
         </DialogHeader>
 
-        {mode === 'chat' && endedDueToTimeLimit && (
+        {mode === 'chat' && hasEndedDueToTimeLimit && (
           <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-lg">
             {t('chat.timeLimit', {
               defaultValue: 'Chat ended after reaching the 5-minute time limit.',
@@ -189,7 +189,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
 
         <DialogFooter>
           <div className="flex justify-between w-full">
-            {allowDelete && conversationId && (
+            {isDeleteAllowed && conversationId && (
               <Button
                 variant="destructive"
                 onClick={() => setShowDeleteConfirmation(true)}

@@ -33,7 +33,7 @@ export const ttsProvidersApiKeys = {
 } as const satisfies Record<Enums<'providers_tts_model'>, ApiKey>;
 
 
-export type WithAvailability<T> = T & { available: boolean };
+export type WithAvailability<T> = T & { isAvailable: boolean };
 
 /**
  * Generic function to get models with availability status
@@ -57,7 +57,7 @@ const getAvailableModels = <
     );
     return {
       ...model,
-      available: providerStatus?.available === true,
+      isAvailable: providerStatus?.isAvailable === true,
     };
   });
 };

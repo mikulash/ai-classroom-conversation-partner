@@ -17,7 +17,7 @@ export function AdminScenariosPage() {
   const setScenarios = useAppStore((state) => state.setScenarios);
   const personalities = useAppStore((state) => state.personalities);
 
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -37,7 +37,7 @@ export function AdminScenariosPage() {
   }, []);
 
   async function fetchData() {
-    setLoading(true);
+    setIsLoading(true);
 
     const [scenariosRes] = await Promise.all([
       scenarioApi.all(),
@@ -56,7 +56,7 @@ export function AdminScenariosPage() {
       setScenarios(sortedScenarios);
     }
 
-    setLoading(false);
+    setIsLoading(false);
   }
 
 
@@ -149,7 +149,7 @@ export function AdminScenariosPage() {
   };
 
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
         <span className="text-muted-foreground">{t('admin.scenarios.loading')}</span>

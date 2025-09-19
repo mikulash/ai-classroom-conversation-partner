@@ -191,7 +191,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   const [gender, setGender] = useState('');
   const [clientErr, setClientErr] = useState<string | null>(null);
   const [passwordErr, setPasswordErr] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = e.target.value;
@@ -258,7 +258,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         full_name: fullName,
         gender,
       });
-      setSuccess(true);
+      setIsSuccess(true);
     } catch (err) {
       // Parent handles displaying the error, we just avoid unhandled rejections.
       console.error('Error during sign-up:', err);
@@ -288,7 +288,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     );
   };
 
-  if (success) {
+  if (isSuccess) {
     return (
       <Card className="p-4 sm:p-6 w-full space-y-3 sm:space-y-4 text-center">
         <h2 className="text-xl sm:text-2xl font-bold">{t('thanksForRegistering')} 🎉</h2>
