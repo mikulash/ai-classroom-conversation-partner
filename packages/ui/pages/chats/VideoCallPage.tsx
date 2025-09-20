@@ -151,11 +151,6 @@ export const VideoCallPage: React.FC = () => {
     if (!hasConversationStarted) return;
 
     const interval = setInterval(() => {
-      logMessage('log', 'silenceDetection: Checking for silence', {
-        isAiProcessing,
-        chatEnded: hasChatEndedRef.current,
-      });
-
       if (isAiProcessing) return;
       if (hasChatEndedRef.current) {
         clearInterval(interval);
@@ -166,8 +161,16 @@ export const VideoCallPage: React.FC = () => {
       const elapsed = now - lastActivityRef.current;
       if (elapsed > silence_timeout_in_seconds * 1000 && !silenceTriggeredRef.current) {
         silenceTriggeredRef.current = true;
-        logMessage('log', 'Silence timeout reached – prompting AI');
-        void sendSilencePrompt();
+
+        logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
+        if (!personality || !userProfile || hasChatEndedRef.current) return;
+
+        if (consecutiveSilencePromptsCount >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
+          void handleSilencePromptLimitReached();
+          return;
+        }
+
+        void sendSilenceReminderPrompt();
       }
     }, 1000);
 
@@ -198,56 +201,55 @@ export const VideoCallPage: React.FC = () => {
     }
   };
 
-  const sendSilencePrompt = async () => {
-    logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
+  const handleSilencePromptLimitReached = async () => {
     if (!personality || !userProfile || hasChatEndedRef.current) return;
 
-    // Check if we've reached the maximum number of consecutive silence prompts
-    if (consecutiveSilencePromptsCount >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
-      logMessage('log', 'Maximum consecutive silence prompts reached - ending chat');
+    logMessage('log', 'Maximum consecutive silence prompts reached - ending chat');
 
-      setIsAiProcessing(true);
-      try {
-        const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
-          input_text: 'The user has been silent for too long. Respond with a short goodbye.',
-          previousMessages: messages,
-          personality,
-          conversationRole: conversationRoleName,
-          language,
-          scenario,
-          userProfile,
-        });
+    setIsAiProcessing(true);
+    try {
+      const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
+        input_text: 'The user has been silent for too long. Respond with a short goodbye.',
+        previousMessages: messages,
+        personality,
+        conversationRole: conversationRoleName,
+        language,
+        scenario,
+        userProfile,
+      });
 
-        const finalMessage = { content: reply, role: 'assistant', timestamp: new Date() } as ChatMessage;
-        const finalMessages = [...messages, finalMessage];
+      const finalMessage = { content: reply, role: 'assistant', timestamp: new Date() } as ChatMessage;
+      const finalMessages = [...messages, finalMessage];
 
-        setMessages(finalMessages);
+      setMessages(finalMessages);
 
-        avatarRef.current?.speakAudio(speech);
-        const silenceSystemPrompt = t('chat.silencePromptGoodbye');
+      avatarRef.current?.speakAudio(speech);
+      const silenceSystemPrompt = t('chat.silencePromptGoodbye');
 
-        // Add a log entry for the goodbye message
-        const goodbyeLog: ConversationLog = {
-          timestamp: new Date().toISOString(),
-          level: 'log',
-          message: silenceSystemPrompt,
-          data: { consecutiveSilencePrompts: consecutiveSilencePromptsCount, reply },
-        };
-        const finalLogs = [...conversationLogs, goodbyeLog];
-        setConversationLogs(finalLogs);
+      // Add a log entry for the goodbye message
+      const goodbyeLog: ConversationLog = {
+        timestamp: new Date().toISOString(),
+        level: 'log',
+        message: silenceSystemPrompt,
+        data: { consecutiveSilencePrompts: consecutiveSilencePromptsCount, reply },
+      };
+      const finalLogs = [...conversationLogs, goodbyeLog];
+      setConversationLogs(finalLogs);
 
-        // Wait a moment before ending the chat, then pass the final messages and logs
-        setTimeout(() => handleEndChatWithReason('silence', finalMessages, finalLogs), 2000);
-      } catch (err) {
-        logMessage('error', 'Error during final silence prompt:', err);
-      } finally {
-        setIsAiProcessing(false);
-      }
-      return;
+      // Wait a moment before ending the chat, then pass the final messages and logs
+      setTimeout(() => handleEndChatWithReason('silence', finalMessages, finalLogs), 2000);
+    } catch (err) {
+      logMessage('error', 'Error during final silence prompt:', err);
+    } finally {
+      setIsAiProcessing(false);
     }
+  };
 
+  const sendSilenceReminderPrompt = async () => {
     setConsecutiveSilencePromptsCount((prev) => prev + 1);
     setIsAiProcessing(true);
+
+    if (!personality || !userProfile || hasChatEndedRef.current) return;
 
     try {
       const silenceSystemPrompt = t('chat.silencePrompt');
