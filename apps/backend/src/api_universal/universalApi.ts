@@ -29,8 +29,6 @@ const getRealtimeTranscription = async (
   switch (provider) {
     case 'OpenAi':
       return openAiApi.getRealtimeTranscriptionToken({ ...params, model_api_name });
-    default:
-      throw new Error('Unsupported transcription provider');
   }
 };
 
@@ -47,8 +45,6 @@ const getRealtimeVoice = async (
   switch (provider) {
     case 'OpenAi':
       return openAiApi.getRealtimeVoice({ ...params, model_api_name }, userId);
-    default:
-      throw new Error('Unsupported realtime voice provider');
   }
 };
 
@@ -69,8 +65,6 @@ const getResponse = async (
       return anthropicApi.getResponse({ ...params, model_api_name });
     case 'xAi':
       return xAiApi.getResponse({ ...params, model_api_name });
-    default:
-      throw new Error('Unsupported response provider');
   }
 };
 
@@ -97,8 +91,6 @@ const getTextToSpeech = async (
         model_api_name: api_name,
         sample_rate,
       });
-    default:
-      throw new Error('Unsupported TTS provider');
   }
 };
 
@@ -124,8 +116,6 @@ const getTextToSpeechTimestamped = async (
         model_api_name: api_name,
         sample_rate,
       });
-    default:
-      throw new Error('Unsupported timestamped TTS provider');
   }
 };
 
@@ -142,8 +132,6 @@ const getTimestampedTranscription = async (
   switch (provider) {
     case 'OpenAi':
       return openAiApi.createTimestampedTranscription({ ...params, model_api_name });
-    default:
-      throw new Error('Unsupported transcription provider');
   }
 };
 
