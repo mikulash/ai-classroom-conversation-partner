@@ -10,23 +10,23 @@ import {
 } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { getUserCustomModelConfig } from './getUserCustomModelSelection';
 import { ModelOptions } from '@repo/shared/types/modelSelection';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 /**
  * Singleton provider for accessing API keys stored in Supabase Vault.
  * Fetches all secrets once and caches them for the lifetime of the process.
- * App config is cached for 5 minutes and then refreshed.
+ * App config is automatically updated via real-time subscriptions.
  */
 
 type Secrets = Record<ApiKey, string | undefined>;
 
 export class ConfigProvider {
   private static instance: ConfigProvider;
-  private static readonly APP_CONFIG_CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
   private static readonly KEEP_ALIVE_INTERVAL_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
   private readonly secrets: Secrets;
   private app_config: AppConfig;
   private readonly model_options: ModelOptions;
-  private app_config_last_fetched: number;
+  private subscription: RealtimeChannel | null = null;
 
   /**
      * Private constructor; use getInstance() instead.
@@ -35,9 +35,11 @@ export class ConfigProvider {
     this.secrets = secrets;
     this.app_config = app_config;
     this.model_options = model_options;
-    this.app_config_last_fetched = Date.now();
 
-    // start a background timer that reloads app_config every 5 days
+    // Set up real-time subscription for app_config changes
+    this.setupRealtimeSubscription();
+
+    // Start a background timer that reloads app_config every 5 days
     this.startKeepAliveTimer();
   }
 
@@ -56,9 +58,6 @@ export class ConfigProvider {
       const complete_configuration = await ConfigProvider.loadCompleteConfig();
 
       ConfigProvider.instance = new ConfigProvider(secrets, complete_configuration.app_config, complete_configuration.model_options);
-    } else {
-      // Check if app_config cache has expired
-      await ConfigProvider.instance.refreshAppConfigIfExpired();
     }
 
     return ConfigProvider.instance;
@@ -106,6 +105,47 @@ export class ConfigProvider {
       app_config,
       model_options,
     };
+  }
+
+  /**
+     * Sets up real-time subscription to app_config table changes
+     */
+  private setupRealtimeSubscription(): void {
+    this.subscription = supabaseAdmin
+      .channel('app-config-changes')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'app_config' },
+        (payload) => {
+          console.log('App config change received:', payload);
+          if (payload.new && typeof payload.new === 'object') {
+            this.app_config = payload.new as AppConfig;
+            console.log('App config updated via real-time subscription');
+          }
+        },
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to app_config changes');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('Error subscribing to app_config changes');
+        } else if (status === 'TIMED_OUT') {
+          console.warn('Subscription to app_config changes timed out');
+        } else if (status === 'CLOSED') {
+          console.log('Subscription to app_config changes closed');
+        }
+      });
+  }
+
+  /**
+     * Cleanup method to unsubscribe from real-time changes
+     */
+  public cleanup(): void {
+    if (this.subscription) {
+      void supabaseAdmin.removeChannel(this.subscription);
+      this.subscription = null;
+      console.log('Unsubscribed from app_config changes');
+    }
   }
 
   public getApiKey(keyName: ApiKey): string {
@@ -183,20 +223,8 @@ export class ConfigProvider {
   }
 
   /**
-     * Checks if the app_config cache has expired and refreshes it if needed.
-     */
-  private async refreshAppConfigIfExpired(): Promise<void> {
-    const now = Date.now();
-    const timeSinceLastFetch = now - this.app_config_last_fetched;
-
-    if (timeSinceLastFetch >= ConfigProvider.APP_CONFIG_CACHE_DURATION_MS) {
-      console.log('Refreshing app_config from Supabase...');
-      await this.refreshAppConfig();
-    }
-  }
-
-  /**
-     * Refreshes only the app_config from the database.
+     * Refreshes the app_config from the database manually.
+     * This is now only used by the keep-alive timer.
      */
   private async refreshAppConfig(): Promise<void> {
     const { data: app_config, error } = await supabaseAdmin
@@ -208,11 +236,10 @@ export class ConfigProvider {
     }
 
     this.app_config = app_config;
-    this.app_config_last_fetched = Date.now();
   }
 
   /**
-     * Every 5 days, call refreshAppConfig() to keep Supabase “active.”
+     * Every 5 days, call refreshAppConfig() to keep Supabase "active."
      * This prevents a full 7-day idle window. Avoids stopping the supabase project on the free tier due to inactivity (like between semesters)
      */
   private startKeepAliveTimer(): void {
