@@ -11,6 +11,7 @@ import {
 import { getUserCustomModelConfig } from './getUserCustomModelSelection';
 import { ModelOptions } from '@repo/shared/types/modelSelection';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { fetchAppConfig, fetchModelOptions } from './supabaseAdminService';
 
 /**
  * Singleton provider for accessing API keys stored in Supabase Vault.
@@ -67,39 +68,8 @@ export class ConfigProvider {
         app_config: AppConfig;
         model_options: ModelOptions;
     }> {
-    const { data: app_config, error } = await supabaseAdmin
-      .from('app_config')
-      .select(`*`).single();
-    if (error || !app_config) {
-      throw new Error(`Supabase App Config error: ${error.message}`);
-    }
-
-    const { data: responseModels, error: responseModelsError } = await supabaseAdmin
-      .from('response_models')
-      .select('*');
-    const { data: ttsModels, error: ttsModelsError } = await supabaseAdmin
-      .from('tts_models')
-      .select('*');
-    const { data: realtimeModels, error: realtimeModelsError } = await supabaseAdmin
-      .from('realtime_models')
-      .select('*');
-    const { data: realtimeTranscriptionModels, error: realtimeTranscriptionModelsError } = await supabaseAdmin
-      .from('realtime_transcription_models')
-      .select('*');
-    const { data: timestampedTranscriptionModels, error: timestampedTranscriptionModelsError } = await supabaseAdmin
-      .from('timestamped_transcription_models')
-      .select('*');
-
-    if (responseModelsError || ttsModelsError || realtimeModelsError || realtimeTranscriptionModelsError || timestampedTranscriptionModelsError) {
-      throw new Error(`Supabase Model Options error: ${responseModelsError?.message || ttsModelsError?.message || realtimeModelsError?.message} || ${timestampedTranscriptionModelsError?.message}`);
-    }
-    const model_options: ModelOptions = {
-      responseModels: responseModels,
-      ttsModels: ttsModels,
-      realtimeModels: realtimeModels,
-      timestampedTranscriptionModels: timestampedTranscriptionModels,
-      realtimeTranscriptionModels: realtimeTranscriptionModels,
-    };
+    const app_config = await fetchAppConfig();
+    const model_options = await fetchModelOptions();
 
     return {
       app_config,
