@@ -29,3 +29,9 @@ Built using modern large language models and avatar rendering technologies to cr
 - Anthropic SDK
 - Turborepo
 - Vite for web app, Tauri for desktop app, Tsup for backend
+
+## Screenshots
+![CharacterSelector.png](docs/assets/CharacterSelector.png)
+![AdminModelSelection.png](docs/assets/AdminModelSelection.png)
+![TextMessageChat.png](docs/assets/TextMessageChat.png)
+![VideoCall.png](docs/assets/VideoCall.png)
