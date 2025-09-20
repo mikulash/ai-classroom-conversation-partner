@@ -197,15 +197,7 @@ export class ConfigProvider {
      * This is now only used by the keep-alive timer.
      */
   private async refreshAppConfig(): Promise<void> {
-    const { data: app_config, error } = await supabaseAdmin
-      .from('app_config')
-      .select(`*`).single();
-
-    if (error || !app_config) {
-      throw new Error(`Supabase App Config refresh error: ${error.message}`);
-    }
-
-    this.app_config = app_config;
+    this.app_config = await fetchAppConfig();
   }
 
   /**
