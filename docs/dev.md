@@ -36,6 +36,26 @@ Deployment instructions for each app are in their respective README files:
 - [Web](../apps/web/README.md)
 - [Desktop (Tauri)](../apps/tauri/README.md)
 
+## Adding new AI models
+it depends if the provider is already supported or if you want to add a new provider
+### Existing provider
+>`OpenAI`, `Anthropic`, `xAI`, `ElevenLabs`
+
+if you want to add a new AI model for an already supported provider, you need to add this new model to fitting db table in supabase dashboard (response_models table, tts_models table, etc.)
+
+each table that stores models has a column
+- `provider` that specifies which provider the model belongs to
+- `friendly_name` that is used in the UI
+- `api_name` that is used in the API calls to the provider, for example, OpenAI allows to automatically use the latest version like `gpt-4o` or you can specify a specific version like `gpt-4o-2024-08-06`
+
+### New provider
+if you want to add a new provider, you need to do the following steps:
+1. you need to add this new provider to the postgres enum for which the models will be added, for example, adding provider `Google` to the `tts_models` table. You need to add Google value to the `providers_tts_model enum` in supabase dashboard [here](https://supabase.com/dashboard/project/_/database/types)
+2. now we can use this provider when adding new models to the `tts_models` table
+3. you need to implement the provider client in the backend project (see `packages/backend/src/lib/ai/` folder for existing providers) and implement specific api calls that follows existing interfaces.
+4. every place you need to update when added the new provider can be highlighted by TypeScript's typechecking. First, you need to generate the types for supabase as in a section above. Now the TypeScript will highlight the uncovered switch case branch you need to implement. This highlighted error will probably be in [the universalApi](../apps/backend/src/api_universal/universalApi.ts) file where the api calls are made based on the provider and model selected.
+
+
 ## Problem solving
 - **OpenAI API Issues**: Check https://status.openai.com/
 - **Supabase Issues**: Check https://status.supabase.com/

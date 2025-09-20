@@ -4,7 +4,6 @@ _aka my Master's thesis at Masaryk University software engineering program in 20
 An AI-powered simulation platform that helps students of pedagogical faculty practice classroom conversations in a safe, controlled virtual environment.
 This application provides pedagogy students with realistic training scenarios featuring virtual students, parents, and colleagues.
 
-
 ## Key Features
 
 - **Conversation Practice**: Students engage with AI-powered virtual stakeholders that respond naturally to different teaching situations
