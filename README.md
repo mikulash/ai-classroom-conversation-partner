@@ -11,7 +11,7 @@ This application provides pedagogy students with realistic training scenarios fe
     - Real-time voice-only conversations using OpenAI's Realtime API
     - Asynchronous chat-like text message conversations (mimicking SMS or WhatsApp)
     - Video calls like conversations with avatars rendered using [TalkingHead](https://github.com/met4citizen/TalkingHead)
-- **Safe Learning Environment**: Practice difficult conversations without real-world consequences
+- **Safe Learning Environment**: Practice challenging conversations without real-world consequences
 - **Adaptive AI Behavior**: Virtual characters respond, according to designed behavioral blueprints
 
 ## Use Cases
@@ -30,7 +30,15 @@ Built using modern large language models and avatar rendering technologies to cr
 - Vite for web app, Tauri for desktop app, Tsup for backend
 
 ## Screenshots
+### Character and Scenario Selection
+Select virtual characters and scenarios to practice specific conversations or create a custom setup.
 ![CharacterSelector.png](docs/assets/CharacterSelector.png)
-![AdminModelSelection.png](docs/assets/AdminModelSelection.png)
+### Text message chat
+Communicate with AI characters like in a messaging app.
 ![TextMessageChat.png](docs/assets/TextMessageChat.png)
+### Voice call
+Engage in real-time voice conversations with AI characters 
 ![VideoCall.png](docs/assets/VideoCall.png)
+### Admin section
+Managing existing characters and scenarios or creating new ones. Also selecting models used for responses, TTS, and STT by every user or overriding the selection for admin's own account.
+![AdminModelSelection.png](docs/assets/AdminModelSelection.png)
