@@ -26,12 +26,16 @@
     "eslint": "^9.25.0",
     "i18next-scanner": "^4.6.0",
     "prettier": "latest",
+    "supabase": "^2.40.7",
     "turbo": "latest"
   },
   "pnpm": {
     "overrides": {
       "@types/react": "18.3.1",
       "@types/react-dom": "18.3.1"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "supabase"
+    ]
   }
 }
