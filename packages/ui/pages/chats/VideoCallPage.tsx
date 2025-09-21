@@ -202,8 +202,10 @@ export const VideoCallPage: React.FC = () => {
   };
 
   const handleSilencePromptLimitReached = async () => {
-    if (!personality || !userProfile || hasChatEndedRef.current) return;
-
+    if (!personality || !userProfile || hasChatEndedRef.current) {
+      setIsAiProcessing(false);
+      return;
+    }
     logMessage('log', 'Maximum consecutive silence prompts reached - ending chat');
 
     setIsAiProcessing(true);
