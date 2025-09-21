@@ -249,7 +249,10 @@ export const VideoCallPage: React.FC = () => {
     setConsecutiveSilencePromptsCount((prev) => prev + 1);
     setIsAiProcessing(true);
 
-    if (!personality || !userProfile || hasChatEndedRef.current) return;
+    if (!personality || !userProfile || hasChatEndedRef.current) {
+      setIsAiProcessing(false);
+      return;
+    }
 
     try {
       const silenceSystemPrompt = t('chat.silencePrompt');
