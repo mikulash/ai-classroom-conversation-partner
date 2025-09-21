@@ -20,6 +20,12 @@ import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
+import {
+  getVoiceChatEmptyStateMessage,
+  getVoiceChatStatusLabel,
+  getVoiceChatUiStatusMessage,
+  processRealtimeTranscriptionEvent,
+} from '../../lib/videoCallPageUtils';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
@@ -85,53 +91,14 @@ export const VideoCallPage: React.FC = () => {
   }, [isAiProcessing]);
 
   const handleRealtimeEvent = useCallback((ev: RealtimeEvent) => {
-    logMessage('log', 'Received Realtime event:', ev, false);
-    switch (ev.type) {
-      case 'error':
-        logMessage('error', 'Realtime API error:', ev.error);
-        setError(ev.error?.message || 'Unknown error occurred');
-        break;
-
-      case 'transcription_session.created':
-        logMessage('log', 'Transcription session created', null, false);
-        break;
-
-      case 'transcription_session.updated':
-        logMessage('log', 'Transcription session updated', null, false);
-        break;
-
-      case 'conversation.item.input_audio_transcription.delta':
-        // For gpt-4o-transcribe or GPT-4o mini Transcribe, this will be incremental
-        setCurrentTranscript((p) => p + ev.delta);
-        setIsTranscribing(true);
-        markActivity();
-        break;
-
-      case 'conversation.item.input_audio_transcription.completed':
-        setIsTranscribing(false);
-        handleTranscriptionCompleted(ev.transcript, ev.item_id);
-        break;
-
-      case 'input_audio_buffer.committed':
-        logMessage('log', 'Audio buffer committed:', ev.item_id);
-        setIsTranscribing(true);
-        break;
-
-      case 'input_audio_buffer.speech_started':
-        logMessage('log', 'Speech started');
-        setIsTranscribing(true);
-        markActivity();
-        break;
-
-      case 'input_audio_buffer.speech_stopped':
-        logMessage('log', 'Speech stopped');
-        markActivity();
-        break;
-
-      default:
-        logMessage('log', 'Unhandled event:', { type: ev.type, event: ev });
-        break;
-    }
+    processRealtimeTranscriptionEvent(ev, {
+      setIsTranscribing,
+      handleTranscriptionCompleted,
+      logMessage,
+      setError,
+      setCurrentTranscript,
+      onUserActivity: markActivity,
+    });
   }, [handleTranscriptionCompleted]);
 
   useEffect(() => {
@@ -184,11 +151,6 @@ export const VideoCallPage: React.FC = () => {
     if (!hasConversationStarted) return;
 
     const interval = setInterval(() => {
-      logMessage('log', 'silenceDetection: Checking for silence', {
-        isAiProcessing,
-        chatEnded: hasChatEndedRef.current,
-      });
-
       if (isAiProcessing) return;
       if (hasChatEndedRef.current) {
         clearInterval(interval);
@@ -199,8 +161,16 @@ export const VideoCallPage: React.FC = () => {
       const elapsed = now - lastActivityRef.current;
       if (elapsed > silence_timeout_in_seconds * 1000 && !silenceTriggeredRef.current) {
         silenceTriggeredRef.current = true;
-        logMessage('log', 'Silence timeout reached – prompting AI');
-        void sendSilencePrompt();
+
+        logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
+        if (!personality || !userProfile || hasChatEndedRef.current) return;
+
+        if (consecutiveSilencePromptsCount >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
+          void handleSilencePromptLimitReached();
+          return;
+        }
+
+        void sendSilenceReminderPrompt();
       }
     }, 1000);
 
@@ -231,56 +201,60 @@ export const VideoCallPage: React.FC = () => {
     }
   };
 
-  const sendSilencePrompt = async () => {
-    logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
-    if (!personality || !userProfile || hasChatEndedRef.current) return;
-
-    // Check if we've reached the maximum number of consecutive silence prompts
-    if (consecutiveSilencePromptsCount >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
-      logMessage('log', 'Maximum consecutive silence prompts reached - ending chat');
-
-      setIsAiProcessing(true);
-      try {
-        const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
-          input_text: 'The user has been silent for too long. Respond with a short goodbye.',
-          previousMessages: messages,
-          personality,
-          conversationRole: conversationRoleName,
-          language,
-          scenario,
-          userProfile,
-        });
-
-        const finalMessage = { content: reply, role: 'assistant', timestamp: new Date() } as ChatMessage;
-        const finalMessages = [...messages, finalMessage];
-
-        setMessages(finalMessages);
-
-        avatarRef.current?.speakAudio(speech);
-        const silenceSystemPrompt = t('chat.silencePromptGoodbye');
-
-        // Add a log entry for the goodbye message
-        const goodbyeLog: ConversationLog = {
-          timestamp: new Date().toISOString(),
-          level: 'log',
-          message: silenceSystemPrompt,
-          data: { consecutiveSilencePrompts: consecutiveSilencePromptsCount, reply },
-        };
-        const finalLogs = [...conversationLogs, goodbyeLog];
-        setConversationLogs(finalLogs);
-
-        // Wait a moment before ending the chat, then pass the final messages and logs
-        setTimeout(() => handleEndChatWithReason('silence', finalMessages, finalLogs), 2000);
-      } catch (err) {
-        logMessage('error', 'Error during final silence prompt:', err);
-      } finally {
-        setIsAiProcessing(false);
-      }
+  const handleSilencePromptLimitReached = async () => {
+    if (!personality || !userProfile || hasChatEndedRef.current) {
+      setIsAiProcessing(false);
       return;
     }
+    logMessage('log', 'Maximum consecutive silence prompts reached - ending chat');
 
+    setIsAiProcessing(true);
+    try {
+      const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
+        input_text: 'The user has been silent for too long. Respond with a short goodbye.',
+        previousMessages: messages,
+        personality,
+        conversationRole: conversationRoleName,
+        language,
+        scenario,
+        userProfile,
+      });
+
+      const finalMessage = { content: reply, role: 'assistant', timestamp: new Date() } as ChatMessage;
+      const finalMessages = [...messages, finalMessage];
+
+      setMessages(finalMessages);
+
+      avatarRef.current?.speakAudio(speech);
+      const silenceSystemPrompt = t('chat.silencePromptGoodbye');
+
+      // Add a log entry for the goodbye message
+      const goodbyeLog: ConversationLog = {
+        timestamp: new Date().toISOString(),
+        level: 'log',
+        message: silenceSystemPrompt,
+        data: { consecutiveSilencePrompts: consecutiveSilencePromptsCount, reply },
+      };
+      const finalLogs = [...conversationLogs, goodbyeLog];
+      setConversationLogs(finalLogs);
+
+      // Wait a moment before ending the chat, then pass the final messages and logs
+      setTimeout(() => handleEndChatWithReason('silence', finalMessages, finalLogs), 2000);
+    } catch (err) {
+      logMessage('error', 'Error during final silence prompt:', err);
+    } finally {
+      setIsAiProcessing(false);
+    }
+  };
+
+  const sendSilenceReminderPrompt = async () => {
     setConsecutiveSilencePromptsCount((prev) => prev + 1);
     setIsAiProcessing(true);
+
+    if (!personality || !userProfile || hasChatEndedRef.current) {
+      setIsAiProcessing(false);
+      return;
+    }
 
     try {
       const silenceSystemPrompt = t('chat.silencePrompt');
@@ -406,49 +380,31 @@ export const VideoCallPage: React.FC = () => {
     );
   }
 
-  const emptyStateMessage = (() => {
-    if (!hasConversationStarted) {
-      return t('clickStartConversation');
-    }
+  const emptyStateMessage = getVoiceChatEmptyStateMessage({
+    hasConversationStarted,
+    error,
+    isConnecting,
+    connection,
+    t,
+  });
 
-    if (error) {
-      return t('voiceDetectionError');
-    }
+  const [statusText, statusStyle] = getVoiceChatStatusLabel({
+    hasConversationStarted,
+    error,
+    isConnecting,
+    connection,
+    isTranscribing,
+    isAiProcessing,
+    t,
+  });
 
-    if (isConnecting || !connection) {
-      return t('voiceDetectionInitializingMessage');
-    }
-
-    return t('startSpeaking');
-  })();
-
-  const [statusText, statusStyle] = (() => {
-    if (!hasConversationStarted) {
-      return [t('readyToStart'), 'text-gray-600'] as [string, string];
-    } else if (error) {
-      return [t('voiceDetectionErrorStatus'), 'text-red-600'];
-    } else if (isConnecting || !connection) {
-      return [t('voiceDetectionInitializingStatus'), 'text-blue-600'];
-    } else if (isTranscribing) {
-      return [t('listeningToYou'), 'text-green-600'];
-    } else if (isAiProcessing) {
-      return [t('aiProcessing'), 'text-purple-600'];
-    } else {
-      return [t('readyWaitingForSpeech'), 'text-blue-600'];
-    }
-  })();
-
-  const uiStatusMessage = (() => {
-    if (!hasConversationStarted) {
-      return t('clickStartConversationFullMessage');
-    } else if (error) {
-      return t('voiceDetectionFailedMessage');
-    } else if (isConnecting || !connection) {
-      return t('voiceDetectionInitializingMessage');
-    } else {
-      return t('voiceDetectionActiveMessage');
-    }
-  })();
+  const uiStatusMessage = getVoiceChatUiStatusMessage({
+    hasConversationStarted,
+    error,
+    isConnecting,
+    connection,
+    t,
+  });
 
   const connectionStatus = (
     <div className="mt-4">
