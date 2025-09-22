@@ -82,7 +82,6 @@ export const VoiceCallPage: React.FC = () => {
   const handleServerEvent = useCallback((e: MessageEvent) => {
     try {
       const ev = JSON.parse(e.data);
-      logMessage('log', 'Received server event:', { type: ev.type });
 
       switch (ev.type) {
         case 'error':
@@ -97,27 +96,22 @@ export const VoiceCallPage: React.FC = () => {
           }
           break;
         case 'response.audio_transcript.done':
-          logMessage('log', 'Assistant audio transcript completed', { transcript: ev.transcript });
           setMessages((p) => [...p, { role: 'assistant', content: ev.transcript, timestamp: new Date() }]);
           setIsProcessing(false);
           setAssistantTranscript('');
           break;
         case 'conversation.item.input_audio_transcription.completed':
-          logMessage('log', 'User audio transcript completed', { transcript: ev.transcript });
           setMessages((p) => [...p, { role: 'user', content: ev.transcript, timestamp: new Date() }]);
           setCurrentTranscript('');
           break;
         case 'input_audio_buffer.speech_started':
-          logMessage('log', 'User speech started');
           setIsProcessingInput(true);
           setCurrentTranscript('');
           break;
         case 'input_audio_buffer.speech_stopped':
-          logMessage('log', 'User speech stopped');
           setIsProcessingInput(false);
           break;
         default:
-          logMessage('log', 'Unhandled server event', { type: ev.type });
           break;
       }
     } catch (err) {
