@@ -90,7 +90,6 @@ export const VoiceCallPage: React.FC = () => {
           break;
         case 'conversation.item.created':
           if (ev.item.type === 'message' && ev.item.role === 'assistant') {
-            logMessage('log', 'Assistant message created');
             setIsProcessing(true);
             setAssistantTranscript('');
           }
@@ -147,7 +146,6 @@ export const VoiceCallPage: React.FC = () => {
       const audioEl = document.createElement('audio');
       audioEl.autoplay = true;
       pc.ontrack = (e) => {
-        logMessage('log', 'Received audio track');
         audioEl.srcObject = e.streams[0] || null;
       };
       dc.onclose = () => {

@@ -78,9 +78,7 @@ export const VideoCallPage: React.FC = () => {
   });
 
 
-  const handleTranscriptionCompleted = useCallback((transcript: string, itemId: string) => {
-    logMessage('log', 'Transcription completed:', { transcript, itemId });
-
+  const handleTranscriptionCompleted = useCallback((transcript: string) => {
     setCurrentTranscript('');
     markActivity();
     resetSilenceCounter(); // Reset silence counter on user activity
@@ -269,7 +267,6 @@ export const VideoCallPage: React.FC = () => {
         userProfile,
       });
 
-      logMessage('log', 'sendSilencePrompt: Received AI response', { replyLength: reply.length });
       setMessages((prev) => [...prev, { content: reply, role: 'assistant', timestamp: new Date() }]);
       avatarRef.current?.speakAudio(speech);
     } catch (err) {
@@ -281,7 +278,6 @@ export const VideoCallPage: React.FC = () => {
   };
 
   const sendMessage = async (messageToSend: string) => {
-    logMessage('log', 'sendMessage: Sending user message', { messageLength: messageToSend.length });
     if (!messageToSend.trim() || !personality) return;
 
     // Don't stop the WebRTC connection, just mark that we're processing
@@ -304,7 +300,6 @@ export const VideoCallPage: React.FC = () => {
         userProfile,
       });
 
-      logMessage('log', 'sendMessage: Received AI response', { replyLength: reply.length });
       setMessages((m) => [
         ...m,
         { content: reply, role: 'assistant', timestamp: new Date() },
