@@ -5,7 +5,7 @@ import type { SetStateAction } from 'react';
 
 interface ProcessRealtimeTranscriptionEventParams {
     setIsTranscribing: (value: SetStateAction<boolean>) => void;
-    handleTranscriptionCompleted: (transcript: string, itemId: string) => void;
+    handleTranscriptionCompleted: (transcript: string) => void;
     logMessage: (level: logLevel, message: string, data?: any, includeInRecord?: boolean) => void;
     setError: (value: SetStateAction<string | null>) => void;
     setCurrentTranscript: (value: SetStateAction<string>) => void;
@@ -46,22 +46,19 @@ export const processRealtimeTranscriptionEvent = (
 
     case 'conversation.item.input_audio_transcription.completed':
       setIsTranscribing(false);
-      handleTranscriptionCompleted(event.transcript, event.item_id);
+      handleTranscriptionCompleted(event.transcript);
       break;
 
     case 'input_audio_buffer.committed':
-      logMessage('log', 'Audio buffer committed:', event.item_id);
       setIsTranscribing(true);
       break;
 
     case 'input_audio_buffer.speech_started':
-      logMessage('log', 'Speech started');
       setIsTranscribing(true);
       onUserActivity();
       break;
 
     case 'input_audio_buffer.speech_stopped':
-      logMessage('log', 'Speech stopped');
       onUserActivity();
       break;
 

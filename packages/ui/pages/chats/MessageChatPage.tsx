@@ -503,7 +503,6 @@ export const MessageChatPage: React.FC = () => {
         userProfile,
       };
 
-      logMessage('log', 'Message chat - Request message:', requestMessage);
       const aiText = await apiClient.getResponse(requestMessage);
       if (aiText) await processAiResponse(aiText);
       else throw new Error('Empty response from AI');
