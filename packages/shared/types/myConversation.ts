@@ -1,4 +1,4 @@
-import { ChatMessage } from './chatMessage.js';
+import { ChatMessage } from './chatMessage';
 
 export interface MyConversation {
     id: number;

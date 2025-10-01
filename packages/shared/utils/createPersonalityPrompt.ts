@@ -1,5 +1,5 @@
-import { Language } from '../enums/Language.js';
-import { Personality, Profile, Scenario } from '../types/supabase/supabaseTypeHelpers.js';
+import { Language } from '../enums/Language';
+import { Personality, Profile, Scenario } from '../types/supabase/supabaseTypeHelpers';
 
 interface GetPersonalityPromptParams {
     personality: Personality;
