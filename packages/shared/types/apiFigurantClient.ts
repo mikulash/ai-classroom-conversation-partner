@@ -1,6 +1,6 @@
-import { Language } from '../enums/Language.js';
-import { Personality, Profile, Scenario } from './supabase/supabaseTypeHelpers.js';
-import { ChatMessage } from './chatMessage.js';
+import { Language } from '../enums/Language';
+import { Personality, Profile, Scenario } from './supabase/supabaseTypeHelpers';
+import { ChatMessage } from './chatMessage';
 
 export interface TextToSpeechRequest {
     inputMessage: string;

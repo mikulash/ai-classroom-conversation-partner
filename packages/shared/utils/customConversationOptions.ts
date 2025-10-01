@@ -1,5 +1,5 @@
-import { ConversationRole, Personality, Scenario } from '../types/supabase/supabaseTypeHelpers.js';
-import { LANGUAGE, Language } from '../enums/Language.js';
+import { ConversationRole, Personality, Scenario } from '../types/supabase/supabaseTypeHelpers';
+import { LANGUAGE, Language } from '../enums/Language';
 
 export type PersonalityTabKey = 'predefined' | 'custom';
 export type ScenarioTabKey = 'none' | 'predefined' | 'custom';

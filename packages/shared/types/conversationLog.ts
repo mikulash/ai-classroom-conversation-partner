@@ -1,4 +1,4 @@
-import { Json } from './supabase/database.types.js';
+import { Json } from './supabase/database.types';
 
 export interface ConversationLog {
     timestamp: string;

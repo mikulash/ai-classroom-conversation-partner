@@ -1,5 +1,5 @@
-import { LANGUAGE, Language } from '../enums/Language.js';
-import { Personality, Scenario } from '../types/supabase/supabaseTypeHelpers.js';
+import { LANGUAGE, Language } from '../enums/Language';
+import { Personality, Scenario } from '../types/supabase/supabaseTypeHelpers';
 
 export const universalDescriptionForScenario = (s: Scenario, lang: Language): {
     situationDescription: string;

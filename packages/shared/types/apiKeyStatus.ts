@@ -1,4 +1,4 @@
-import { ApiKey } from '../enums/ApiKey.js';
+import { ApiKey } from '../enums/ApiKey';
 
 export interface AiProviderStatus {
     apiKey: ApiKey;

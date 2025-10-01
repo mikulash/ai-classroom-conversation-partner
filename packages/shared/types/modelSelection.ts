@@ -4,8 +4,8 @@ import {
   ResponseModel,
   TimestampedTranscriptionModel,
   TtsModel,
-} from './supabase/supabaseTypeHelpers.js';
-import { WithAvailability } from '../utils/filterModelsByApiKeyStatus.js';
+} from './supabase/supabaseTypeHelpers';
+import { WithAvailability } from '../utils/filterModelsByApiKeyStatus';
 
 export interface ModelOptions {
     responseModels: ResponseModel[];

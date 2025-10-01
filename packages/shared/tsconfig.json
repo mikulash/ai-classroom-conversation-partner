@@ -9,8 +9,8 @@
     "noEmit": false,
     "outDir": "dist",
     "sourceMap": true,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "include": [
     "enums/**/*.ts",
