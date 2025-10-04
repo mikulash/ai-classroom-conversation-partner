@@ -22,7 +22,7 @@ export function createPersonalityPrompt({
   }
   prompt += `You are roleplaying as ${personality.name}, a ${personality.age}-year-old. Your gender is ${personality.gender} with the following problem: "${personality.problem_summary_en}". 
             Additional context about you: "${personality.personality_description_en}". 
-            Respond in first person as if you are ${personality.name}. Keep your initial message brief and conversational, like in a chat.
+            Respond in first person as if you are ${personality.name}. Keep your messages brief and conversational, like in a chat.
             You will output only the spoken dialogue without any additional stage directions, descriptions, or actions`;
 
   prompt += `You are talking to a user whose is acting as your ${conversationRole}. `;
