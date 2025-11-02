@@ -339,14 +339,22 @@ async function migrateData() {
 
     if (profError) throw new Error(`Failed to fetch profiles: ${profError.message}`);
 
-    // Fetch auth users to get emails
-    const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-    if (usersError) throw new Error(`Failed to fetch auth users: ${usersError.message}`);
-
-    // Create a map of user id to email
-    const userEmailMap = new Map(users.map(u => [u.id, u.email]));
+    // Try to fetch auth users to get emails (optional - may fail with permission error)
+    let userEmailMap = new Map<string, string>();
+    try {
+      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      if (!usersError && users) {
+        userEmailMap = new Map(users.map(u => [u.id, u.email!]));
+        console.log(`   Found ${users.length} auth users with emails`);
+      } else {
+        console.log('   ⚠️  Cannot fetch auth users (permission denied) - will use emails from profiles table');
+      }
+    } catch (error) {
+      console.log('   ⚠️  Cannot fetch auth users (permission denied) - will use emails from profiles table');
+    }
 
     for (const profile of profiles || []) {
+      // Priority: 1) auth.users email, 2) profiles.email, 3) generated email
       const email = userEmailMap.get(profile.id) || profile.email || `user-${profile.id}@migrated.local`;
 
       await prisma.profile.upsert({
