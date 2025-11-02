@@ -67,22 +67,22 @@ ELEVENLABS_FALLBACK_VOICE_ID_MALE=elevenlabs-voice-id
 2. **Generate Prisma Client**:
    ```bash
    cd apps/backend
-   npx prisma generate
+   pnpm prisma generate
    ```
 
 3. **Push Database Schema**:
    ```bash
-   npx prisma db push
+   pnpm prisma db push
    ```
 
 4. **Seed Database**:
    ```bash
-   npm run prisma:seed
+   pnpm prisma:seed
    ```
 
 5. **Verify with Prisma Studio** (optional):
    ```bash
-   npx prisma studio
+   pnpm prisma studio
    ```
 
 ### 2. Frontend Setup
@@ -122,7 +122,7 @@ import { api } from '@repo/frontend-utils/src/apiService';
 #### Start Backend
 ```bash
 cd apps/backend
-npm run dev
+pnpm dev
 ```
 
 The server will run on `http://localhost:4000`
@@ -130,13 +130,13 @@ The server will run on `http://localhost:4000`
 #### Start Frontend (Web)
 ```bash
 cd apps/web
-npm run dev
+pnpm dev
 ```
 
 #### Start Frontend (Tauri)
 ```bash
 cd apps/tauri
-npm run tauri dev
+pnpm tauri dev
 ```
 
 ## API Changes
@@ -281,17 +281,17 @@ The Prisma schema maintains the same structure as Supabase:
 docker ps | grep postgres
 
 # Check connection
-npx prisma db pull
+pnpm prisma db pull
 ```
 
 ### Prisma Client Issues
 ```bash
 # Regenerate client
-npx prisma generate
+pnpm prisma generate
 
 # Reset database (⚠️ deletes all data)
-npx prisma db push --force-reset
-npx prisma db seed
+pnpm prisma db push --force-reset
+pnpm prisma db seed
 ```
 
 ### Frontend Auth Issues
@@ -392,9 +392,9 @@ packages/ui/
 - [x] Frontend: Update useAuth hook
 - [x] Frontend: Update useSession hook
 - [x] Frontend: Update useProfile hook
-- [ ] Generate Prisma client: `npx prisma generate`
-- [ ] Push database schema: `npx prisma db push`
-- [ ] Seed database: `npm run prisma:seed`
+- [ ] Generate Prisma client: `pnpm prisma generate`
+- [ ] Push database schema: `pnpm prisma db push`
+- [ ] Seed database: `pnpm prisma:seed`
 - [ ] Update frontend components using Supabase imports
 - [ ] Test registration flow
 - [ ] Test login flow

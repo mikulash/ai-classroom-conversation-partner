@@ -13,7 +13,8 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:studio": "prisma studio",
     "db:push": "prisma db push",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "migrate:supabase": "tsx scripts/migrate-from-supabase.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
