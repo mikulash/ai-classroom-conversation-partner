@@ -1,5 +1,5 @@
 import { Label } from '@radix-ui/react-label';
-import { authApi } from '@repo/frontend-utils/src/supabaseService';
+import { authApi } from '@repo/frontend-utils/src/apiService';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import React, { useState } from 'react';
