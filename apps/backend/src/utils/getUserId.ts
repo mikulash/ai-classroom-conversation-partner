@@ -1,8 +1,8 @@
 import { Request } from 'express';
-import { supabaseAdmin } from '../clients/supabase';
+import { extractTokenFromHeader, verifyToken } from './auth.js';
 
 /**
- * Extracts the user ID from a request's Bearer token using Supabase authentication.
+ * Extracts the user ID from a request's Bearer token using JWT authentication.
  * Throws an error if the token is missing, invalid, or expired.
  *
  * @param {Request} req - The Express request object containing the authorization header.
@@ -10,16 +10,16 @@ import { supabaseAdmin } from '../clients/supabase';
  * @throws {Error} If the bearer token is missing, invalid, or expired.
  */
 export async function getUserId(req: Request): Promise<string> {
-  const auth = req.header('authorization') ?? '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  const token = extractTokenFromHeader(req.header('authorization'));
 
   if (!token) {
     throw new Error('Missing bearer token');
   }
 
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !user) {
+  try {
+    const decoded = verifyToken(token);
+    return decoded.userId;
+  } catch (error) {
     throw new Error('Invalid or expired token');
   }
-  return user.id;
 }

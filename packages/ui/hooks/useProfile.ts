@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useSession } from './useSession';
-import { profileApi } from '@repo/frontend-utils/src/supabaseService';
 import { useUserStore } from './useUserStore';
 
 
@@ -15,13 +14,12 @@ export const useProfile = () => {
       return;
     }
 
-    // First page load (nothing cached)
-    profileApi
-      .getById(session.user.id)
-      .then(({ data, error }) => {
-        if (!error && data) setProfile(data);
-      });
-  }, [ready, session?.user.id]);
+    // Profile is already set from session.user
+    // session.user contains the full profile from JWT auth
+    if (session.user && !profile) {
+      setProfile(session.user);
+    }
+  }, [ready, session?.user]);
 
   return profile;
 };

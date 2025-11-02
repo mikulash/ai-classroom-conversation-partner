@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { universalApi } from '../api_universal/universalApi';
+import { universalApi } from '../api_universal/universalApi.js';
 import {
   ErrorResponse,
   FullReplyPlainResponse,
@@ -15,15 +15,15 @@ import {
   WebRtcAnswerResponse,
 } from '@repo/shared/types/apiFigurantClient';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { verifySupabaseAuth } from '../middleware/verifySupabaseAuth';
-import { getUserId } from '../utils/getUserId';
+import { authenticate } from '../middleware/auth.js';
+import { getUserId } from '../utils/getUserId.js';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 
 const router = Router({ mergeParams: true });
 
 // Apply authentication middleware to all routes
-router.use(verifySupabaseAuth);
+router.use(authenticate);
 
 /**
  * Health check endpoint.

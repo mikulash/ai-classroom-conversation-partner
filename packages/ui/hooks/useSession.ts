@@ -1,28 +1,51 @@
 import { useEffect, useState } from 'react';
-import { authApi } from '@repo/frontend-utils/src/supabaseService';
-import type { Session } from '@supabase/supabase-js';
+import { authApi } from '@repo/frontend-utils/src/apiService';
 
 /**
- * Returns the current Supabase auth session and keeps it in sync
- * with any future auth changes.
+ * Session type compatible with previous Supabase session
+ */
+export interface Session {
+  access_token: string;
+  user: any;
+}
+
+/**
+ * Returns the current JWT auth session and keeps it in sync
+ * with localStorage changes.
  */
 export const useSession = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // Initial session check
     authApi.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setReady(true); // we have an answer
+      setReady(true);
     });
 
+    // Listen for auth state changes via onAuthStateChange
     const { data: { subscription } } =
             authApi.onAuthStateChange((_event, session) => {
               setSession(session);
-              setReady(true); // already true after init
+              setReady(true);
             });
 
-    return () => subscription.unsubscribe();
+    // Listen for storage events (for cross-tab sync)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth_token' || e.key === 'user_profile') {
+        authApi.getSession().then(({ data: { session } }) => {
+          setSession(session);
+        });
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   return { session, ready };

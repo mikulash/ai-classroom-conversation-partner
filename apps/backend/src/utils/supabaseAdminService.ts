@@ -1,66 +1,53 @@
-import { supabaseAdmin } from '../clients/supabase';
+import { prisma } from '../clients/prisma.js';
 import { ModelOptions } from '@repo/shared/types/modelSelection';
 
 export const fetchAppConfig = async () => {
-  const { data: app_config, error } = await supabaseAdmin
-    .from('app_config')
-    .select(`*`).single();
-  if (error || !app_config) {
-    throw new Error(`Supabase App Config error: ${error.message}`);
+  const app_config = await prisma.appConfig.findFirst();
+  if (!app_config) {
+    throw new Error('App Config not found');
   }
   return app_config;
 };
 
 export const fetchModelOptions = async () => {
-  const { data: responseModels, error: responseModelsError } = await supabaseAdmin
-    .from('response_models')
-    .select('*');
-  const { data: ttsModels, error: ttsModelsError } = await supabaseAdmin
-    .from('tts_models')
-    .select('*');
-  const { data: realtimeModels, error: realtimeModelsError } = await supabaseAdmin
-    .from('realtime_models')
-    .select('*');
-  const { data: realtimeTranscriptionModels, error: realtimeTranscriptionModelsError } = await supabaseAdmin
-    .from('realtime_transcription_models')
-    .select('*');
-  const { data: timestampedTranscriptionModels, error: timestampedTranscriptionModelsError } = await supabaseAdmin
-    .from('timestamped_transcription_models')
-    .select('*');
+  try {
+    const [responseModels, ttsModels, realtimeModels, timestampedTranscriptionModels, realtimeTranscriptionModels] =
+      await Promise.all([
+        prisma.responseModel.findMany(),
+        prisma.ttsModel.findMany(),
+        prisma.realtimeModel.findMany(),
+        prisma.timestampedTranscriptionModel.findMany(),
+        prisma.realtimeTranscriptionModel.findMany(),
+      ]);
 
-  if (responseModelsError || ttsModelsError || realtimeModelsError || realtimeTranscriptionModelsError || timestampedTranscriptionModelsError) {
-    const errorMessages = [
-      responseModelsError?.message,
-      ttsModelsError?.message,
-      realtimeModelsError?.message,
-      realtimeTranscriptionModelsError?.message,
-      timestampedTranscriptionModelsError?.message,
-    ].filter(Boolean).join('; ');
-    throw new Error(`Supabase Model Options error: ${errorMessages}`);
+    const model_options: ModelOptions = {
+      responseModels,
+      ttsModels,
+      realtimeModels,
+      timestampedTranscriptionModels,
+      realtimeTranscriptionModels,
+    };
+
+    return model_options;
+  } catch (error) {
+    throw new Error(`Failed to fetch model options: ${error}`);
   }
-  const model_options: ModelOptions = {
-    responseModels,
-    ttsModels,
-    realtimeModels,
-    timestampedTranscriptionModels,
-    realtimeTranscriptionModels,
-  };
-
-  return model_options;
 };
 
 export const fetchUserCustomModelConfig = async (userId: string) => {
-  const { data, error } = await supabaseAdmin
-    .from('admin_users_custom_model_selection')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+  try {
+    const data = await prisma.adminUserCustomModelSelection.findUnique({
+      where: { userId },
+    });
 
-
-  if (error || !data) {
-    console.warn('Could not fetch user model config:', error);
+    if (!data) {
+      console.warn('Could not fetch user model config for userId:', userId);
+      return null;
+    }
+    return data;
+  } catch (error) {
+    console.warn('Error fetching user model config:', error);
     return null;
   }
-  return data;
 };
 

@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
 import { Header } from '../components/Header';
 import { useEffect } from 'react';
-import { fetchInitialData } from '@repo/frontend-utils/src/supabaseService';
+import { fetchInitialData } from '@repo/frontend-utils/src/apiService';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
 
@@ -16,7 +16,7 @@ export const Layout = () => {
       const [pRes, sRes, rRes, aRes] = await fetchInitialData();
 
       if (pRes.error || sRes.error || rRes.error || aRes.error) {
-        console.error('Supabase fetch error', pRes.error, sRes.error, rRes.error, aRes.error);
+        console.error('API fetch error', pRes.error, sRes.error, rRes.error, aRes.error);
         return;
       }
 
@@ -29,7 +29,7 @@ export const Layout = () => {
     };
 
     fetchData().catch((err) =>
-      console.error('Error fetching data from Supabase:', err),
+      console.error('Error fetching initial data:', err),
     );
   }, [setConversationOptions]);
 

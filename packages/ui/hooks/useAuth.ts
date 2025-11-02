@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { authApi, profileApi } from '@repo/frontend-utils/src/supabaseService';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { authApi } from '@repo/frontend-utils/src/apiService';
+import { api } from '@repo/frontend-utils/src/apiService';
 import { useUserStore } from './useUserStore';
 import { RegisterUserRequest } from '@repo/shared/types/apiFigurantClient';
 
@@ -14,28 +14,19 @@ export const useAuth = () => {
       setLoading(true);
       setError(null);
 
-      const { data, error } =
+      const { data, error: authError } =
                 await authApi.signInWithPassword(email, password);
 
-      if (error) {
-        setError(error.message);
+      if (authError) {
+        setError(authError.message);
         setLoading(false);
         return false;
       }
 
-      const { data: profile, error: pError } = await profileApi.getById(
-        data.user.id,
-      );
+      console.log('[signIn] user:', data.user);
 
-      if (pError) {
-        setError(pError.message);
-        return false;
-      }
-
-      console.log('[signIn] profile:', profile);
-
-      setProfile(profile);
-
+      // User profile is already included in the auth response
+      setProfile(data.user);
 
       setLoading(false);
       return !!data.session;
@@ -48,17 +39,24 @@ export const useAuth = () => {
       setLoading(true);
       setError(null);
 
-      const res = await apiClient.registerUser(params);
+      try {
+        const response = await api.post('/api/auth/register', params);
 
-      if (typeof res === 'string') {
-        setError(res);
-      } else if (res.error) {
-        setError(res.error.message);
+        const { user, token } = response.data;
+
+        // Store token and user
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('user_profile', JSON.stringify(user));
+
+        setProfile(user);
+        setLoading(false);
+        return true;
+      } catch (err: any) {
+        const errorMessage = err.response?.data?.message || 'Registration failed';
+        setError(errorMessage);
+        setLoading(false);
+        return false;
       }
-
-      console.log('[signUp] res:', res);
-
-      setLoading(false);
     },
     [],
   );
