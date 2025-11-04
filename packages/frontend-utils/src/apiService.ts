@@ -84,8 +84,15 @@ const createApiClient = (): AxiosInstance => {
 
 const api = createApiClient();
 
+interface InitialData {
+  personalities: Personality[];
+  scenarios: Scenario[];
+  conversationRoles: ConversationRole[];
+  appConfig: AppConfig;
+}
+
 // -------------------- Initial Data Fetch --------------------
-export async function fetchInitialData() {
+export async function fetchInitialData() : Promise<InitialData> {
   try {
     const [personalities, scenarios, conversationRoles, appConfig] = await Promise.all([
       api.get<Personality[]>('/api/personalities'),
@@ -94,12 +101,14 @@ export async function fetchInitialData() {
       api.get<AppConfig>('/api/app-config'),
     ]);
 
-    return [
-      { data: personalities.data, error: null },
-      { data: scenarios.data, error: null },
-      { data: conversationRoles.data, error: null },
-      { data: appConfig.data, error: null },
-    ];
+
+    return {
+      personalities: personalities.data,
+      scenarios: scenarios.data,
+      conversationRoles: conversationRoles.data,
+      appConfig: appConfig.data,
+    }
+
   } catch (error: any) {
     console.error('Error fetching initial data:', error);
     throw error;

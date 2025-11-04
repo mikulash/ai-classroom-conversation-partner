@@ -159,8 +159,7 @@ export function AdminCustomModelSelectionPage() {
 
     setIsSaving(true);
 
-    const { error, data } = await modelApi.upsertAdminUserSelection({
-      user_id: session?.user.id,
+    const { error, data } = await modelApi.upsertAdminUserSelection(session?.user.id, {
       response_model_id: selection.responseModel?.id ?? null,
       tts_model_id: selection.ttsModel?.id ?? null,
       realtime_model_id: selection.realtimeModel?.id ?? null,

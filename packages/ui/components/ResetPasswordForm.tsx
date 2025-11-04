@@ -11,6 +11,7 @@ export const ResetPasswordForm: React.FC = () => {
   const { t } = useTypedTranslation();
   const navigate = useNavigate();
 
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +32,11 @@ export const ResetPasswordForm: React.FC = () => {
     e.preventDefault();
     setError(null);
 
+    if (!currentPassword) {
+      setError(t('currentPasswordRequired', 'Current password is required'));
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError(t('passwordsDontMatch', 'Passwords do not match'));
       return;
@@ -38,7 +44,7 @@ export const ResetPasswordForm: React.FC = () => {
 
     setIsLoading(true);
 
-    const { error } = await authApi.updatePassword(newPassword);
+    const { error } = await authApi.updatePassword(currentPassword, newPassword);
     if (error) {
       setError(error.message);
     } else {
@@ -65,6 +71,20 @@ export const ResetPasswordForm: React.FC = () => {
             {t('setNewPassword', 'Choose a new password')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword">
+                {t('currentPassword', 'Current password')}
+              </Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder={t('currentPasswordPlaceholder', 'Enter current password')}
+                required
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="newPassword">{t('newPassword', 'New password')}</Label>
               <Input

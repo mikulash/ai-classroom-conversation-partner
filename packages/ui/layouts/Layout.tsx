@@ -13,19 +13,14 @@ export const Layout = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [pRes, sRes, rRes, aRes] = await fetchInitialData();
-
-      if (pRes.error || sRes.error || rRes.error || aRes.error) {
-        console.error('API fetch error', pRes.error, sRes.error, rRes.error, aRes.error);
-        return;
-      }
+      const initialData = await fetchInitialData();
 
       setConversationOptions({
-        personalities: pRes.data,
-        scenarios: sRes.data,
-        conversationRoles: rRes.data,
+        personalities: initialData.personalities,
+        scenarios: initialData.scenarios,
+        conversationRoles: initialData.conversationRoles,
       });
-      setAppConfig(aRes.data);
+      setAppConfig(initialData.appConfig);
     };
 
     fetchData().catch((err) =>
