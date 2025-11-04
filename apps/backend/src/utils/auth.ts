@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import type { StringValue } from "ms";
+import type { StringValue } from 'ms';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN as StringValue || '7d';
@@ -30,8 +30,8 @@ export async function comparePassword(password: string, hashedPassword: string):
  * Generate a JWT token for a user
  */
 export function generateToken(payload: JWTPayload): string {
-    const options: jwt.SignOptions = { expiresIn: JWT_EXPIRES_IN };
-    return jwt.sign(payload, JWT_SECRET, {
+  const options: jwt.SignOptions = { expiresIn: JWT_EXPIRES_IN };
+  return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });
 }

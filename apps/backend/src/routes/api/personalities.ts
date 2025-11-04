@@ -71,8 +71,6 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
       personalityDescriptionEn,
       problemSummaryCs,
       personalityDescriptionCs,
-      settingEn,
-      settingCs,
       isHidden,
     } = req.body;
 
@@ -96,8 +94,6 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
         personalityDescriptionEn,
         problemSummaryCs,
         personalityDescriptionCs,
-        settingEn,
-        settingCs,
         isHidden: isHidden || false,
       },
     });
@@ -129,8 +125,6 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
       personalityDescriptionEn,
       problemSummaryCs,
       personalityDescriptionCs,
-      settingEn,
-      settingCs,
       isHidden,
     } = req.body;
 
@@ -149,8 +143,6 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
         personalityDescriptionEn,
         problemSummaryCs,
         personalityDescriptionCs,
-        settingEn,
-        settingCs,
         isHidden,
       },
     });

@@ -23,7 +23,7 @@ const getTextToSpeech = async (
   try {
     const output_format =
             response_format === 'pcm' ? `pcm_${sample_rate}` : `mp3_${sample_rate}_32`;
-    let voice_id = personality.elevenlabs_voice_id;
+    let voice_id = personality.elevenlabsVoiceId;
     if (!voice_id) {
       if (personality.sex == 'F') {
         voice_id = process.env.ELEVENLABS_FALLBACK_VOICE_ID_FEMALE || '';
@@ -96,7 +96,7 @@ const getTextToSpeechTimestamped = async (
   const ELEVENLABS_API_KEY = apiKeysProvider.getApiKey(API_KEY.ELEVENLABS);
 
   try {
-    let voice_id = personality.elevenlabs_voice_id;
+    let voice_id = personality.elevenlabsVoiceId;
     if (!voice_id) {
       // female and male fallback voice ids
       if (personality.sex == 'F') {

@@ -46,6 +46,21 @@ export interface Conversation {
     usedConfig: object | null
 }
 
+// export interface ConversationInsert {
+//     id: number
+//     createdAt: Date
+//     userId: string
+//     personalityId: number | null
+//     scenarioId: number | null
+//     startTime: Date
+//     endTime: Date
+//     endedReason: string
+//     messages: object | null
+//     logs: object | null
+//     conversationType: ConversationType
+//     usedConfig: object | null
+// }
+
 export interface ConversationRole {
     id: number
     createdAt: Date
@@ -110,6 +125,18 @@ export interface Profile {
     bio: string | null
     userRole: UserRole
 }
+
+// export interface ProfileInsert {
+//     id: string
+//     createdAt: Date
+//     updatedAt: Date
+//     email: string | null
+//     fullName: string | null
+//     gender: string | null
+//     conversationRole: string
+//     bio: string | null
+//     userRole: UserRole
+// }
 
 export interface RealtimeModel {
     id: number

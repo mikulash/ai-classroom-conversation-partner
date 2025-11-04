@@ -30,7 +30,9 @@
         "VITE_SUPABASE_ANON_KEY",
         "MODE",
         "NODE_ENV",
-        "DATABASE_URL"
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "JWT_EXPIRES_IN"
 
       ]
     },
@@ -80,7 +82,9 @@
         "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
         "MODE",
         "NODE_ENV",
-        "DATABASE_URL"
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "JWT_EXPIRES_IN"
       ]
     }
   }
