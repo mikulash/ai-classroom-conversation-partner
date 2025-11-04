@@ -43,6 +43,8 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
+**/generated/**
+
 # Tauri specific
 **/target/
 apps/tauri/src-tauri/icons/*
