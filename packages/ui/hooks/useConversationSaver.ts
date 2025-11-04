@@ -4,7 +4,8 @@ import { conversationApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
 import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { AppConfig, ConversationType, Personality, Profile, Scenario } from '@repo/shared/generated/prisma/client';
+import { AppConfig, Personality, Profile, Scenario } from '@repo/shared/types/db/entities';
+import { ConversationType } from '@repo/shared/types/db/enums';
 import { ConversationUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Conversation';
 import { InputJsonValue } from '@repo/shared/generated/prisma/internal/prismaNamespace';
 

@@ -1,12 +1,20 @@
 import { AiProviderStatus } from '../types/apiKeyStatus';
 import { API_KEY, ApiKey } from '../enums/ApiKey';
 import {
-    RealtimeModel, RealtimeModelProvider,
-    RealtimeTranscriptionModel,
-    ResponseModel, ResponseModelProvider,
-    TimestampedTranscriptionModel, TimestampedTranscriptionModelProvider, TranscriptionModelProvider,
-    TtsModel, TtsModelProvider,
-} from "../generated/prisma/client";
+  RealtimeModel,
+  RealtimeTranscriptionModel,
+  ResponseModel,
+  TimestampedTranscriptionModel,
+  TtsModel,
+} from '../types/db/entities';
+
+import {
+  RealtimeModelProvider,
+  ResponseModelProvider,
+  TimestampedTranscriptionModelProvider, TranscriptionModelProvider,
+  TtsModelProvider,
+} from '../types/db/enums';
+
 
 export const realtimeProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,

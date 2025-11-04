@@ -15,7 +15,7 @@ import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
-import { Personality } from '@repo/shared/generated/prisma/client';
+import { Personality } from '@repo/shared/types/db/entities';
 
 export const VoiceCallPage: React.FC = () => {
   const navigate = useNavigate();

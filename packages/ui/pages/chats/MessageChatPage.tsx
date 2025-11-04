@@ -25,7 +25,7 @@ import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
-import { Personality } from '@repo/shared/generated/prisma/client';
+import { Personality } from '@repo/shared/types/db/entities';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 

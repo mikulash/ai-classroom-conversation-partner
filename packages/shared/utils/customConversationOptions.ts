@@ -1,23 +1,23 @@
 import { LANGUAGE, Language } from '../enums/Language';
-import {ConversationRole, Personality, Scenario} from "../generated/prisma/client";
+import { ConversationRole, Personality, Scenario } from '../types/db/entities';
 
 export type PersonalityTabKey = 'predefined' | 'custom';
 export type ScenarioTabKey = 'none' | 'predefined' | 'custom';
 export const DEFAULT_PERSONALITY: Omit<Personality, 'createdAt'> = {
-    id: 0,
-    name: '',
-    personalityDescriptionCs: '',
-    personalityDescriptionEn: '',
-    problemSummaryCs: '',
-    problemSummaryEn: '',
-    sex: 'M' as const,
-    age: 30,
-    gender: 'M' as const,
-    avatarUrl: '',
-    voiceInstructions: null,
-    openaiVoiceName: 'alloy' as const,
-    elevenlabsVoiceId: null,
-    isHidden: false,
+  id: 0,
+  name: '',
+  personalityDescriptionCs: '',
+  personalityDescriptionEn: '',
+  problemSummaryCs: '',
+  problemSummaryEn: '',
+  sex: 'M' as const,
+  age: 30,
+  gender: 'M' as const,
+  avatarUrl: '',
+  voiceInstructions: null,
+  openaiVoiceName: 'alloy' as const,
+  elevenlabsVoiceId: null,
+  isHidden: false,
 };
 
 
@@ -34,7 +34,7 @@ const createCustomScenario = (customData: Partial<Scenario>): Scenario => ({
   settingEn: customData.settingEn ?? '',
   situationDescriptionCs: customData.situationDescriptionCs ?? '',
   situationDescriptionEn: customData.situationDescriptionEn ?? '',
-  createdAt: customData.createdAt ?? new Date()
+  createdAt: customData.createdAt ?? new Date(),
 });
 
 export const getUserRoleName = (

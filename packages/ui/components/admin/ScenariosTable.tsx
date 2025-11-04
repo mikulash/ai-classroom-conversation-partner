@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Button } from '../ui/button';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
-import { Scenario } from '@repo/shared/generated/prisma/client';
+import { Scenario } from '@repo/shared/types/db/entities';
 import { ScenarioUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Scenario';
 
 interface ScenariosTableProps {

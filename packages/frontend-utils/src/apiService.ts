@@ -1,45 +1,45 @@
 import axios, { AxiosInstance } from 'axios';
 import {
-  type AdminUserCustomModelSelection,
-  type AppConfig,
-  type Conversation,
-  type ConversationRole,
-  type Personality,
-  type Profile,
-  type RealtimeModel,
-  type RealtimeTranscriptionModel,
-  type ResponseModel,
-  type Scenario,
-  type TimestampedTranscriptionModel,
-  type TtsModel,
-  type UserRole,
-} from '@repo/shared/generated/prisma/client';
+  AdminUserCustomModelSelection,
+  AppConfig,
+  Conversation,
+  ConversationRole,
+  Personality,
+  Profile,
+  RealtimeModel,
+  RealtimeTranscriptionModel,
+  ResponseModel,
+  Scenario,
+  TimestampedTranscriptionModel,
+  TtsModel,
+} from '@repo/shared/types/db/entities';
 import {
-  type ConversationUncheckedCreateInput,
-  type PersonalityUncheckedCreateInput, ProfileUncheckedCreateInput,
-  type ScenarioUncheckedCreateInput,
+  ConversationUncheckedCreateInput,
+  PersonalityUncheckedCreateInput, ProfileUncheckedCreateInput,
+  ScenarioUncheckedCreateInput,
 } from '@repo/shared/generated/prisma/models';
+import { UserRole } from '@repo/shared/types/db/enums';
 
 export type ConversationWithPersonality = Pick<
-  Conversation,
-  | 'id'
-  | 'startTime'
-  | 'endTime'
-  | 'endedReason'
-  | 'conversationType'
-  | 'messages'
-  | 'personalityId'
+    Conversation,
+    | 'id'
+    | 'startTime'
+    | 'endTime'
+    | 'endedReason'
+    | 'conversationType'
+    | 'messages'
+    | 'personalityId'
 > & { personality: { name: string } | null };
 
 // API Response types
 interface AuthResponse {
-  user: Profile;
-  token: string;
+    user: Profile;
+    token: string;
 }
 
 interface ApiResponse<T> {
-  data: T;
-  error?: { message: string };
+    data: T;
+    error?: { message: string };
 }
 
 // Create axios instance with base configuration
@@ -86,14 +86,14 @@ const createApiClient = (): AxiosInstance => {
 const api = createApiClient();
 
 interface InitialData {
-  personalities: Personality[];
-  scenarios: Scenario[];
-  conversationRoles: ConversationRole[];
-  appConfig: AppConfig;
+    personalities: Personality[];
+    scenarios: Scenario[];
+    conversationRoles: ConversationRole[];
+    appConfig: AppConfig;
 }
 
 // -------------------- Initial Data Fetch --------------------
-export async function fetchInitialData() : Promise<InitialData> {
+export async function fetchInitialData(): Promise<InitialData> {
   try {
     const [personalities, scenarios, conversationRoles, appConfig] = await Promise.all([
       api.get<Personality[]>('/api/personalities'),
@@ -118,8 +118,8 @@ export async function fetchInitialData() : Promise<InitialData> {
 // -------------------- Auth API --------------------
 export const authApi = {
   /**
-   * Get current session from localStorage
-   */
+     * Get current session from localStorage
+     */
   getSession: async () => {
     const token = localStorage.getItem('auth_token');
     const userStr = localStorage.getItem('user_profile');
@@ -145,8 +145,8 @@ export const authApi = {
   },
 
   /**
-   * Sign in with email and password
-   */
+     * Sign in with email and password
+     */
   signInWithPassword: async (email: string, password: string) => {
     try {
       const response = await api.post<AuthResponse>('/api/auth/login', {
@@ -176,8 +176,8 @@ export const authApi = {
   },
 
   /**
-   * Sign out
-   */
+     * Sign out
+     */
   signOut: async () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_profile');
@@ -185,9 +185,9 @@ export const authApi = {
   },
 
   /**
-   * Reset password for email
-   * Note: This needs to be implemented on the backend
-   */
+     * Reset password for email
+     * Note: This needs to be implemented on the backend
+     */
   resetPasswordForEmail: async (email: string, redirectTo?: string) => {
     // TODO: Implement password reset on backend
     console.warn('Password reset not implemented yet');
@@ -198,8 +198,8 @@ export const authApi = {
   },
 
   /**
-   * Update password
-   */
+     * Update password
+     */
   updatePassword: async (currentPassword: string, newPassword: string) => {
     try {
       await api.put('/api/auth/password', {
@@ -216,9 +216,9 @@ export const authApi = {
   },
 
   /**
-   * Auth state change listener (for compatibility)
-   * In JWT-based auth, we don't have real-time updates, but we can check periodically
-   */
+     * Auth state change listener (for compatibility)
+     * In JWT-based auth, we don't have real-time updates, but we can check periodically
+     */
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
     // Check initial state
     authApi.getSession().then(({ data }) => {
@@ -295,7 +295,10 @@ export const conversationApi = {
       const response = await api.post<Conversation>('/api/conversations', conversation);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to create conversation' } };
+      return {
+        data: null as any,
+        error: { message: error.response?.data?.message || 'Failed to create conversation' },
+      };
     }
   },
 
@@ -304,7 +307,10 @@ export const conversationApi = {
       const response = await api.delete<{ message: string }>(`/api/conversations/${id}`);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to delete conversation' } };
+      return {
+        data: null as any,
+        error: { message: error.response?.data?.message || 'Failed to delete conversation' },
+      };
     }
   },
 };
@@ -325,7 +331,10 @@ export const personalityApi = {
       const response = await api.post<Personality>('/api/personalities', personality);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to create personality' } };
+      return {
+        data: null as any,
+        error: { message: error.response?.data?.message || 'Failed to create personality' },
+      };
     }
   },
 
@@ -334,7 +343,10 @@ export const personalityApi = {
       const response = await api.put<Personality>(`/api/personalities/${id}`, personality);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to update personality' } };
+      return {
+        data: null as any,
+        error: { message: error.response?.data?.message || 'Failed to update personality' },
+      };
     }
   },
 
@@ -343,7 +355,10 @@ export const personalityApi = {
       const response = await api.delete<{ message: string }>(`/api/personalities/${id}`);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to delete personality' } };
+      return {
+        data: null as any,
+        error: { message: error.response?.data?.message || 'Failed to delete personality' },
+      };
     }
   },
 };
@@ -421,7 +436,10 @@ export const modelApi = {
       const response = await api.get<TimestampedTranscriptionModel[]>('/api/models/timestamped-transcription');
       return { data: response.data };
     } catch (error: any) {
-      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch transcription models' } };
+      return {
+        data: [],
+        error: { message: error.response?.data?.message || 'Failed to fetch transcription models' },
+      };
     }
   },
 
@@ -430,7 +448,10 @@ export const modelApi = {
       const response = await api.get<RealtimeTranscriptionModel[]>('/api/models/realtime-transcription');
       return { data: response.data };
     } catch (error: any) {
-      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch realtime transcription models' } };
+      return {
+        data: [],
+        error: { message: error.response?.data?.message || 'Failed to fetch realtime transcription models' },
+      };
     }
   },
 
@@ -439,7 +460,10 @@ export const modelApi = {
       const response = await api.get<AdminUserCustomModelSelection>(`/api/models/admin-selection/${userId}`);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to fetch admin selection' } };
+      return {
+        data: null as any,
+        error: { message: error.response?.data?.message || 'Failed to fetch admin selection' },
+      };
     }
   },
 
@@ -448,7 +472,10 @@ export const modelApi = {
       const response = await api.put<AdminUserCustomModelSelection>(`/api/models/admin-selection/${userId}`, payload);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to update admin selection' } };
+      return {
+        data: null as any,
+        error: { message: error.response?.data?.message || 'Failed to update admin selection' },
+      };
     }
   },
 
@@ -457,7 +484,10 @@ export const modelApi = {
       const response = await api.put<AppConfig>('/api/app-config', payload);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to update app config' } };
+      return {
+        data: null as any,
+        error: { message: error.response?.data?.message || 'Failed to update app config' },
+      };
     }
   },
 };

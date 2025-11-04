@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { Profile } from '@repo/shared/generated/prisma/client';
+import { Profile } from '@repo/shared/types/db/entities';
 
 interface UserSlice {
     profile: Profile | null

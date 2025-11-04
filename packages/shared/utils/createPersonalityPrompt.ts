@@ -1,5 +1,5 @@
 import { Language } from '../enums/Language';
-import {Personality, Profile, Scenario} from "../generated/prisma/client";
+import { Personality, Profile, Scenario } from '../types/db/entities';
 
 interface GetPersonalityPromptParams {
     personality: Personality;

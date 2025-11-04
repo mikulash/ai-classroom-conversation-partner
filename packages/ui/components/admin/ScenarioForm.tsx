@@ -4,7 +4,7 @@ import { Label } from '@radix-ui/react-label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { LANGUAGE } from '@repo/shared/enums/Language';
-import { Personality } from '@repo/shared/generated/prisma/client';
+import { Personality } from '@repo/shared/types/db/entities';
 import { ScenarioUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Scenario';
 
 interface ScenarioFormProps {

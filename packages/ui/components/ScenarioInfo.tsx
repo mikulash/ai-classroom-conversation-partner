@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
-import {Scenario} from "@repo/shared/generated/prisma/client";
+import { Scenario } from '@repo/shared/types/db/entities';
 
 
 interface ScenarioInfoProps {

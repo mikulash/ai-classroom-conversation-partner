@@ -11,7 +11,7 @@ import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
-import { Profile } from '@repo/shared/generated/prisma/client';
+import { Profile } from '@repo/shared/types/db/entities';
 import { type UserRole } from '@repo/shared/generated/prisma/enums';
 
 

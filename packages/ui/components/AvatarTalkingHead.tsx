@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { Loader } from 'lucide-react';
 import { AVATAR_MODELS, TalkingHead } from '@repo/assets';
 import { Language } from '@repo/shared/enums/Language';
-import { Personality } from '@repo/shared/generated/prisma/client';
+import { Personality } from '@repo/shared/types/db/entities';
 
 interface AvatarTalkingHeadProps {
     language: Language;

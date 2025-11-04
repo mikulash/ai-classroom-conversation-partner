@@ -1,5 +1,5 @@
 import { LANGUAGE, Language } from '../enums/Language';
-import {Personality, Scenario} from "../generated/prisma/client";
+import { Personality, Scenario } from '../types/db/entities';
 
 export const universalDescriptionForScenario = (s: Scenario, lang: Language): {
     situationDescription: string;

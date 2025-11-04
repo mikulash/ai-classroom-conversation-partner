@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AppConfig, ConversationRole, Personality, Scenario } from '@repo/shared/generated/prisma/client';
+import { AppConfig, ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
 
 interface AppState {
     personalities: Personality[];

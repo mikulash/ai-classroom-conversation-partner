@@ -25,7 +25,7 @@ import {
   universalDescriptionForPersonality,
   universalDescriptionForScenario,
 } from '@repo/shared/utils/universalDescriptionMoreLanguages';
-import { ConversationRole, Personality, Scenario } from '@repo/shared/generated/prisma/client';
+import { ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
 
 
 export const PersonalitySelectorPage: React.FC = () => {

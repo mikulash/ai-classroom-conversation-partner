@@ -28,7 +28,9 @@
         "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
         "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
         "VITE_SUPABASE_ANON_KEY",
-        "MODE"
+        "MODE",
+        "NODE_ENV",
+        "DATABASE_URL"
 
       ]
     },
@@ -76,7 +78,9 @@
         "VITE_SUPABASE_ANON_KEY",
         "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
         "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
-        "MODE"
+        "MODE",
+        "NODE_ENV",
+        "DATABASE_URL"
       ]
     }
   }

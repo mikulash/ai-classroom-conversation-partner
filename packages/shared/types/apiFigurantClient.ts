@@ -1,5 +1,6 @@
 import { Language } from '../enums/Language';
 import { ChatMessage } from './chatMessage';
+import { Personality, Profile, Scenario } from './db/entities';
 
 export interface TextToSpeechRequest {
     inputMessage: string;

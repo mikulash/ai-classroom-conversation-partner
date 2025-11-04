@@ -12,7 +12,8 @@ import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { PersonalityUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Personality';
-import { OpenAiVoice, Personality } from '@repo/shared/generated/prisma/client';
+import { Personality } from '@repo/shared/types/db/entities';
+import { OpenAiVoice } from '@repo/shared/types/db/enums';
 
 export function AdminPersonalitiesPage() {
   const { t } = useTypedTranslation();

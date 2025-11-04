@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { LANGUAGE } from '@repo/shared/enums/Language';
-import { Personality } from '@repo/shared/generated/prisma/client';
+import { Personality } from '@repo/shared/types/db/entities';
 
 interface PersonalityInfoProps {
     personality: Personality;

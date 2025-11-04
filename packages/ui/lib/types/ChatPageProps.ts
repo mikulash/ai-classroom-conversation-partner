@@ -1,5 +1,5 @@
 
-import { Personality, Scenario } from '@repo/shared/generated/prisma/client';
+import { Personality, Scenario } from '@repo/shared/types/db/entities';
 
 export interface ChatPageProps {
     personality: Personality;

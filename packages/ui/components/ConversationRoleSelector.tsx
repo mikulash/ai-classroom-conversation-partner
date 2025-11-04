@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { LANGUAGE } from '@repo/shared/enums/Language';
-import { ConversationRole } from '@repo/shared/generated/prisma/client';
+import { ConversationRole } from '@repo/shared/types/db/entities';
 
 /**
  * Props for the role selector (rewritten to work with role **names**, not objects).

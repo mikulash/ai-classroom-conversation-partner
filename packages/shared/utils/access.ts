@@ -1,4 +1,4 @@
-import { Profile } from '../generated/prisma/client';
+import { Profile } from '../types/db/entities';
 
 
 export const isProfileAdmin = (profile: Profile) => {
