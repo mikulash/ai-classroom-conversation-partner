@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import prisma from "@repo/shared/prisma/client";
+import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 
 const router = Router();
@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
           select: {
             id: true,
             situationDescriptionEn: true,
-            situationDescriptionCz: true,
+            situationDescriptionCs: true,
           },
         },
       },
@@ -122,7 +122,7 @@ router.post('/', async (req, res) => {
         personalityId,
         scenarioId: scenarioId || null,
         startTime: new Date(startTime),
-        endTime: endTime ? new Date(endTime) : null,
+        endTime: endTime ? new Date(endTime) : undefined,
         endedReason,
         messages,
         logs,
@@ -212,7 +212,7 @@ router.get('/user/:userId', requireAdmin, async (req, res) => {
           select: {
             id: true,
             situationDescriptionEn: true,
-            situationDescriptionCz: true,
+            situationDescriptionCs: true,
           },
         },
       },

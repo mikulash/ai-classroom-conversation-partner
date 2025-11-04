@@ -33,26 +33,17 @@
     "lint": "eslint . --max-warnings 0",
     "dev": "tsc -b --watch",
     "build": "tsc -b",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts",
-    "prisma:studio": "prisma studio",
-    "db:push": "prisma db push --force-reset",
-    "db:seed": "prisma db seed",
-    "migrate:supabase": "tsx scripts/migrate-from-supabase.ts"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^6.18.0"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
     "eslint": "^9.25.0",
     "@types/node": "^22.15.6",
-    "prisma": "^6.18.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*"
   }

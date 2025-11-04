@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import prisma from "@repo/shared/prisma/client";
+import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 
 const router = Router();
@@ -69,10 +69,10 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
       openaiVoiceName,
       problemSummaryEn,
       personalityDescriptionEn,
-      problemSummaryCz,
-      personalityDescriptionCz,
+      problemSummaryCs,
+      personalityDescriptionCs,
       settingEn,
-      settingCz,
+      settingCs,
       isHidden,
     } = req.body;
 
@@ -94,10 +94,10 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
         openaiVoiceName,
         problemSummaryEn,
         personalityDescriptionEn,
-        problemSummaryCz,
-        personalityDescriptionCz,
+        problemSummaryCs,
+        personalityDescriptionCs,
         settingEn,
-        settingCz,
+        settingCs,
         isHidden: isHidden || false,
       },
     });
@@ -127,10 +127,10 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
       openaiVoiceName,
       problemSummaryEn,
       personalityDescriptionEn,
-      problemSummaryCz,
-      personalityDescriptionCz,
+      problemSummaryCs,
+      personalityDescriptionCs,
       settingEn,
-      settingCz,
+      settingCs,
       isHidden,
     } = req.body;
 
@@ -147,10 +147,10 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
         openaiVoiceName,
         problemSummaryEn,
         personalityDescriptionEn,
-        problemSummaryCz,
-        personalityDescriptionCz,
+        problemSummaryCs,
+        personalityDescriptionCs,
         settingEn,
-        settingCz,
+        settingCs,
         isHidden,
       },
     });

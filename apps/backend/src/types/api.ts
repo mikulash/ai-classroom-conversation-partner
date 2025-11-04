@@ -6,6 +6,7 @@ import {
 } from '@repo/shared/types/apiFigurantClient';
 import { Language } from '@repo/shared/enums/Language';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { Personality, Scenario, Profile } from '../generated/prisma/client';
 
 type WithModelName<T, Extra extends object = object> = T & { model_api_name: string } & Extra;
 

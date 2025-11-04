@@ -2,7 +2,7 @@ import { defineConfig, type Options } from 'tsup';
 
 export default defineConfig((options: Options) => ({
   entry: ['src/index.ts'],
-  format: ['esm', 'cjs'],
+  format: ['esm'],
   target: 'node22',
   clean: true,
   outDir: 'dist',

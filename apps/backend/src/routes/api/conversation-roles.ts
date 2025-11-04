@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import prisma from "@repo/shared/prisma/client";
+import prisma from '../../clients/prisma';
 
 const router = Router();
 

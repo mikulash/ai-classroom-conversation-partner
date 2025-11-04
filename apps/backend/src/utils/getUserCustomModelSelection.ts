@@ -1,5 +1,5 @@
 import { fetchUserCustomModelConfig } from './databaseService';
-import {AdminUserCustomModelSelection} from "@repo/shared/generated/prisma/client";
+import { AdminUserCustomModelSelection } from '../generated/prisma/client';
 
 const nullConfigCache = new Map<string, number>(); // userId -> expiration timestamp
 const NULL_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes

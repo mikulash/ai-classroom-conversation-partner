@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import prisma from "@repo/shared/prisma/client";
+import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 
 const router = Router();
@@ -63,7 +63,7 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/', authenticate, requireAdmin, async (req, res) => {
   try {
-    const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCz, settingCz } = req.body;
+    const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
 
     // Validate required fields
     if (!involvedPersonalityId) {
@@ -86,8 +86,8 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
         involvedPersonalityId,
         situationDescriptionEn,
         settingEn,
-        situationDescriptionCz,
-        settingCz,
+        situationDescriptionCs,
+        settingCs,
       },
       include: {
         personality: {
@@ -114,7 +114,7 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
 router.put('/:id', authenticate, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCz, settingCz } = req.body;
+    const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
 
     // If personality is being updated, check if it exists
     if (involvedPersonalityId) {
@@ -134,8 +134,8 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
         involvedPersonalityId,
         situationDescriptionEn,
         settingEn,
-        situationDescriptionCz,
-        settingCz,
+        situationDescriptionCs,
+        settingCs,
       },
       include: {
         personality: {

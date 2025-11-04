@@ -2,10 +2,10 @@ import { API_KEY, ApiKey } from '@repo/shared/enums/ApiKey';
 import { getUserCustomModelConfig } from './getUserCustomModelSelection';
 import { fetchAppConfig, fetchModelOptions } from './databaseService';
 import type { AppConfig, RealtimeModel,
-    RealtimeTranscriptionModel,
-    ResponseModel,
-    TimestampedTranscriptionModel,
-    TtsModel } from "@repo/shared/generated/prisma/client";
+  RealtimeTranscriptionModel,
+  ResponseModel,
+  TimestampedTranscriptionModel,
+  TtsModel } from '../generated/prisma/client';
 
 /**
  * Fetches all secrets once and caches them for the lifetime of the process.
@@ -143,7 +143,6 @@ export class ConfigProvider {
   public getAppConfig(): AppConfig {
     return this.app_config;
   }
-
 }
 
 
