@@ -1,40 +1,40 @@
-import { ConversationRole, Personality, Scenario } from '../types/supabase/supabaseTypeHelpers';
 import { LANGUAGE, Language } from '../enums/Language';
+import {ConversationRole, Personality, Scenario} from "../generated/prisma/client";
 
 export type PersonalityTabKey = 'predefined' | 'custom';
 export type ScenarioTabKey = 'none' | 'predefined' | 'custom';
-export const DEFAULT_PERSONALITY: Omit<Personality, 'created_at'> = {
-  id: 0,
-  name: '',
-  personality_description_cs: '',
-  personality_description_en: '',
-  problem_summary_cs: '',
-  problem_summary_en: '',
-  sex: 'M' as const,
-  age: 30,
-  gender: 'M' as const,
-  avatar_url: '',
-  voice_instructions: null,
-  openai_voice_name: 'alloy' as const,
-  elevenlabs_voice_id: null,
-  is_hidden: false,
+export const DEFAULT_PERSONALITY: Omit<Personality, 'createdAt'> = {
+    id: 0,
+    name: '',
+    personalityDescriptionCs: '',
+    personalityDescriptionEn: '',
+    problemSummaryCs: '',
+    problemSummaryEn: '',
+    sex: 'M' as const,
+    age: 30,
+    gender: 'M' as const,
+    avatarUrl: '',
+    voiceInstructions: null,
+    openaiVoiceName: 'alloy' as const,
+    elevenlabsVoiceId: null,
+    isHidden: false,
 };
 
 
 export const createCustomPersonality = (customData: Partial<Personality>): Personality => ({
   ...DEFAULT_PERSONALITY,
   ...customData,
-  created_at: new Date().toISOString(),
+  createdAt: new Date(),
 });
 
 const createCustomScenario = (customData: Partial<Scenario>): Scenario => ({
   id: customData.id ?? 0,
-  involved_personality_id: customData.involved_personality_id ?? null,
-  setting_cs: customData.setting_cs ?? '',
-  setting_en: customData.setting_en ?? '',
-  situation_description_cs: customData.situation_description_cs ?? '',
-  situation_description_en: customData.situation_description_en ?? '',
-  created_at: customData.created_at ?? new Date().toISOString(),
+  involvedPersonalityId: customData.involvedPersonalityId ?? 0,
+  settingCs: customData.settingCs ?? '',
+  settingEn: customData.settingEn ?? '',
+  situationDescriptionCs: customData.situationDescriptionCs ?? '',
+  situationDescriptionEn: customData.situationDescriptionEn ?? '',
+  createdAt: customData.createdAt ?? new Date()
 });
 
 export const getUserRoleName = (
@@ -43,7 +43,7 @@ export const getUserRoleName = (
   currentLanguage: Language,
 ): string => {
   if (!selectedRole) return customName;
-  return currentLanguage === LANGUAGE.EN ? selectedRole.name_en : selectedRole.name_cs;
+  return currentLanguage === LANGUAGE.EN ? selectedRole.nameEn : selectedRole.nameCs;
 };
 
 export const getScenario = (

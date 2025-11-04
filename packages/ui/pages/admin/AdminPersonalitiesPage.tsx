@@ -9,10 +9,10 @@ import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { personalityApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
-import { Personality, PersonalityInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { Constants, Enums } from '@repo/shared/types/supabase/database.types';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
+import { PersonalityUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Personality';
+import { OpenAiVoice, Personality } from '@repo/shared/generated/prisma/client';
 
 export function AdminPersonalitiesPage() {
   const { t } = useTypedTranslation();
@@ -25,25 +25,25 @@ export function AdminPersonalitiesPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   // A clean template for new personalities
-  const emptyPersonality: PersonalityInsert = {
+  const emptyPersonality: PersonalityUncheckedCreateInput = {
     name: '',
-    problem_summary_en: '',
-    problem_summary_cs: '',
-    personality_description_en: '',
-    personality_description_cs: '',
+    problemSummaryEn: '',
+    problemSummaryCs: '',
+    personalityDescriptionEn: '',
+    personalityDescriptionCs: '',
     gender: '',
-    openai_voice_name: 'alloy',
+    openaiVoiceName: 'alloy',
   };
 
   const [currentPersonality, setCurrentPersonality] =
-        useState<PersonalityInsert>(emptyPersonality);
+        useState<PersonalityUncheckedCreateInput>(emptyPersonality);
 
   useEffect(() => {
     fetchPersonalities();
   }, []);
 
   // Validation function for required fields
-  const validateRequiredFields = (personality: PersonalityInsert): string | null => {
+  const validateRequiredFields = (personality: PersonalityUncheckedCreateInput): string | null => {
     const requiredFields = [
       { field: 'name', label: t('personalities.name') },
       { field: 'problem_summary_en', label: t('personalities.problemSummaryEn') },
@@ -53,7 +53,7 @@ export function AdminPersonalitiesPage() {
     ];
 
     for (const { field, label } of requiredFields) {
-      const value = personality[field as keyof PersonalityInsert];
+      const value = personality[field as keyof PersonalityUncheckedCreateInput];
       if (!value || (typeof value === 'string' && value.trim() === '')) {
         return `${label} is required and cannot be empty.`;
       }
@@ -130,16 +130,16 @@ export function AdminPersonalitiesPage() {
       currentPersonality.id,
       {
         name: currentPersonality.name,
-        problem_summary_en: currentPersonality.problem_summary_en,
-        problem_summary_cs: currentPersonality.problem_summary_cs,
-        personality_description_en: currentPersonality.personality_description_en,
-        personality_description_cs: currentPersonality.personality_description_cs,
+        problemSummaryEn: currentPersonality.problemSummaryEn,
+        problemSummaryCs: currentPersonality.problemSummaryCs,
+        personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
+        personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
         gender: currentPersonality.gender,
         age: currentPersonality.age,
-        avatar_url: currentPersonality.avatar_url,
-        openai_voice_name: currentPersonality.openai_voice_name,
-        elevenlabs_voice_id: currentPersonality.elevenlabs_voice_id,
-        voice_instructions: currentPersonality.voice_instructions,
+        avatarUrl: currentPersonality.avatarUrl,
+        openaiVoiceName: currentPersonality.openaiVoiceName,
+        elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId,
+        voiceInstructions: currentPersonality.voiceInstructions,
       },
     );
 
@@ -236,7 +236,7 @@ export function AdminPersonalitiesPage() {
           <Input
             id="avatar_url"
             name="avatar_url"
-            value={currentPersonality.avatar_url ?? ''}
+            value={currentPersonality.avatarUrl ?? ''}
             onChange={handleInputChange}
             placeholder="https://models.readyplayer.me/6820bbc0e036577fe085562c.glb"
           />
@@ -250,7 +250,7 @@ export function AdminPersonalitiesPage() {
         <Textarea
           id="problem_summary_en"
           name="problem_summary_en"
-          value={currentPersonality.problem_summary_en}
+          value={currentPersonality.problemSummaryEn}
           onChange={handleInputChange}
           rows={3}
           placeholder={t('personalities.problemSummaryEnPlaceholder')}
@@ -264,7 +264,7 @@ export function AdminPersonalitiesPage() {
         <Textarea
           id="problem_summary_cs"
           name="problem_summary_cs"
-          value={currentPersonality.problem_summary_cs}
+          value={currentPersonality.problemSummaryCs}
           onChange={handleInputChange}
           rows={3}
           placeholder={t('personalities.problemSummaryCsPlaceholder')}
@@ -279,7 +279,7 @@ export function AdminPersonalitiesPage() {
         <Textarea
           id="personality_description_en"
           name="personality_description_en"
-          value={currentPersonality.personality_description_en}
+          value={currentPersonality.personalityDescriptionEn}
           onChange={handleInputChange}
           rows={3}
           placeholder={t('personalities.personalityDescriptionEnPlaceholder')}
@@ -293,7 +293,7 @@ export function AdminPersonalitiesPage() {
         <Textarea
           id="personality_description_cs"
           name="personality_description_cs"
-          value={currentPersonality.personality_description_cs}
+          value={currentPersonality.personalityDescriptionCs}
           onChange={handleInputChange}
           rows={3}
           placeholder={t('personalities.personalityDescriptionCsPlaceholder')}
@@ -304,16 +304,16 @@ export function AdminPersonalitiesPage() {
       <div className="grid gap-2">
         <Label htmlFor="openai_voice_name">{t('personalities.openaiVoice')}</Label>
         <Select
-          value={currentPersonality.openai_voice_name ?? 'alloy'}
+          value={currentPersonality.openaiVoiceName ?? 'alloy'}
           onValueChange={(value) =>
-            handleSelectChange('openai_voice_name', value as Enums<'OpenAiVoiceName'>)
+            handleSelectChange('openai_voice_name', value as OpenAiVoice)
           }>
           <SelectTrigger>
             <SelectValue placeholder={t('personalities.selectVoice')}/>
           </SelectTrigger>
           <SelectContent>
             {
-              Constants.public.Enums.OpenAiVoiceName.map((voice) => (
+              Object.values(OpenAiVoice).map((voice) => (
                 <SelectItem key={voice} value={voice}>
                   {voice.charAt(0).toUpperCase() + voice.slice(1)}
                 </SelectItem>
@@ -326,7 +326,7 @@ export function AdminPersonalitiesPage() {
         <Input
           id="elevenlabs_voice_id"
           name="elevenlabs_voice_id"
-          value={currentPersonality.elevenlabs_voice_id ?? ''}
+          value={currentPersonality.elevenlabsVoiceId ?? ''}
           onChange={handleInputChange}
           placeholder={t('personalities.elevenlabsVoiceIdPlaceholder')}
         />
@@ -336,7 +336,7 @@ export function AdminPersonalitiesPage() {
         <Textarea
           id="voice_instructions"
           name="voice_instructions"
-          value={currentPersonality.voice_instructions ?? ''}
+          value={currentPersonality.voiceInstructions ?? ''}
           onChange={handleInputChange}
           rows={3}
           placeholder={t('personalities.voiceInstructionsPlaceholder')}
@@ -387,9 +387,9 @@ export function AdminPersonalitiesPage() {
                   <TableCell>{personality.gender}</TableCell>
                   <TableCell>{personality.age ?? '-'}</TableCell>
                   <TableCell className="max-w-xs truncate">
-                    {personality.problem_summary_en}
+                    {personality.problemSummaryEn}
                   </TableCell>
-                  <TableCell>{personality.openai_voice_name}</TableCell>
+                  <TableCell>{personality.openaiVoiceName}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button

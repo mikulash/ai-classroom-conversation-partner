@@ -1,5 +1,5 @@
 import { LANGUAGE, Language } from '../enums/Language';
-import { Personality, Scenario } from '../types/supabase/supabaseTypeHelpers';
+import {Personality, Scenario} from "../generated/prisma/client";
 
 export const universalDescriptionForScenario = (s: Scenario, lang: Language): {
     situationDescription: string;
@@ -7,9 +7,9 @@ export const universalDescriptionForScenario = (s: Scenario, lang: Language): {
 } => {
   const situationDescription =
         lang === LANGUAGE.EN ?
-          s.situation_description_en :
-          s.situation_description_cs;
-  const setting = lang === LANGUAGE.EN ? s.setting_en : s.setting_cs;
+          s.situationDescriptionEn :
+          s.situationDescriptionCs;
+  const setting = lang === LANGUAGE.EN ? s.settingEn : s.settingCs;
   return {
     situationDescription,
     setting,
@@ -21,8 +21,8 @@ export const universalDescriptionForPersonality = (p: Personality, lang: Languag
     personalityDescription: string,
 
 } => {
-  const problemSummary = lang === LANGUAGE.EN ? p.problem_summary_en : p.problem_summary_cs;
-  const personalityDescription = lang === LANGUAGE.EN ? p.personality_description_en : p.personality_description_cs;
+  const problemSummary = lang === LANGUAGE.EN ? p.problemSummaryEn : p.problemSummaryCs;
+  const personalityDescription = lang === LANGUAGE.EN ? p.personalityDescriptionEn : p.personalityDescriptionCs;
   return {
     problemSummary,
     personalityDescription,

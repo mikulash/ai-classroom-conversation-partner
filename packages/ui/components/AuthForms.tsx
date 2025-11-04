@@ -27,7 +27,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const { t } = useTypedTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowed_domains) || [];
+  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowedDomains) || [];
   const [clientErr, setClientErr] = useState<string | null>(null);
   const INVALID_MAIL_MSG = t('invalidEmailDomains', { domains: ALLOWED_DOMAINS.join(' or ') });
 
@@ -169,7 +169,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
 
 
 interface SignUpFormProps {
-    onSignUp: (params: RegisterUserRequest) => Promise<void>;
+    onSignUp: (params: RegisterUserRequest) => Promise<boolean>;
     onSwitchToSignIn: () => void;
     isLoading?: boolean;
     error?: any;
@@ -186,7 +186,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowed_domains) || [];
+  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowedDomains) || [];
 
   const [gender, setGender] = useState('');
   const [clientErr, setClientErr] = useState<string | null>(null);

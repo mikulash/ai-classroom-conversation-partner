@@ -10,7 +10,6 @@ import {
   ConversationWithPersonality,
   profileApi,
 } from '@repo/frontend-utils/src/apiService';
-import { ProfileInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useUserStore } from '../hooks/useUserStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
@@ -18,6 +17,7 @@ import { ConversationTranscriptDialog } from '../components/ConversationTranscri
 import { ConversationsList } from '../components/ConversationsList';
 import { toast } from 'sonner';
 import { MyConversation } from '@repo/shared/types/myConversation';
+import { ProfileUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Profile';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
@@ -38,8 +38,8 @@ export function UserProfilePage() {
 
   useEffect(() => {
     if (!cachedProfile) return;
-    setFullName(cachedProfile.full_name ?? '');
-    setConversationRole(cachedProfile.conversation_role);
+    setFullName(cachedProfile.fullName ?? '');
+    setConversationRole(cachedProfile.conversationRole);
     setGender(cachedProfile.gender ?? '');
     setBio(cachedProfile.bio ?? '');
   }, [cachedProfile]);
@@ -62,15 +62,21 @@ export function UserProfilePage() {
 
       if (error) throw error;
 
+      const toIsoString = (value: Date | string | null | undefined): string => {
+        if (!value) return '';
+        const date = value instanceof Date ? value : new Date(value);
+        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+      };
+
       const conversationsData: MyConversation[] = data.map((conv: ConversationWithPersonality) => ({
         id: conv.id,
-        start_time: conv.start_time,
-        end_time: conv.end_time,
-        ended_reason: conv.ended_reason,
-        conversation_type: conv.conversation_type,
-        messages: Array.isArray(conv.messages) ? conv.messages as unknown as ChatMessage[] : [],
-        personality_id: conv.personality_id,
-        personality: conv.personalities ? { name: conv.personalities.name } : null,
+        start_time: toIsoString(conv.startTime),
+        end_time: toIsoString(conv.endTime),
+        ended_reason: conv.endedReason ?? '',
+        conversation_type: conv.conversationType,
+        messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
+        personality_id: conv.personalityId ?? null,
+        personality: conv.personality ? { name: conv.personality.name } : null,
       }));
 
       setConversations(conversationsData);
@@ -108,10 +114,10 @@ export function UserProfilePage() {
         return;
       }
 
-      const payload: ProfileInsert = {
+      const payload: ProfileUncheckedCreateInput = {
         id: session.user.id,
-        full_name: fullName,
-        conversation_role: conversationRole,
+        fullName: fullName,
+        conversationRole: conversationRole,
         gender,
         bio,
       };
@@ -152,15 +158,14 @@ export function UserProfilePage() {
         const userId = session.user.id;
         const { data, error: profileError } = await profileApi.getById(
           userId,
-          'full_name, conversation_role, gender, bio',
         );
         if (profileError) {
           console.error('Error fetching user profile:', profileError);
           return;
         }
         if (data) {
-          setFullName(data.full_name ?? '');
-          setConversationRole(data.conversation_role ?? '');
+          setFullName(data.fullName ?? '');
+          setConversationRole(data.conversationRole ?? '');
           setGender(data.gender ?? '');
           setBio(data.bio ?? '');
         }

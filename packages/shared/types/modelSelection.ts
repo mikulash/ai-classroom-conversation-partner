@@ -4,7 +4,7 @@ import {
   ResponseModel,
   TimestampedTranscriptionModel,
   TtsModel,
-} from './supabase/supabaseTypeHelpers';
+} from "../generated/prisma/client";
 import { WithAvailability } from '../utils/filterModelsByApiKeyStatus';
 
 export interface ModelOptions {

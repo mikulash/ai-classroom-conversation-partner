@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
 import { PrismaClient } from '@prisma/client';
-import { Database } from '@repo/shared/types/supabase/database.types';
 
 // Supabase connection (source)
 const SUPABASE_URL = process.env.SUPABASE_URL!;
@@ -8,7 +7,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 // New PostgreSQL connection (destination)
 const prisma = new PrismaClient();
-const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: {
     persistSession: false,
     autoRefreshToken: false,
@@ -275,8 +274,6 @@ async function migrateData() {
           personalityDescriptionEn: personality.personality_description_en,
           problemSummaryCz: personality.problem_summary_cs,
           personalityDescriptionCz: personality.personality_description_cs,
-          settingEn: personality.setting_en,
-          settingCz: personality.setting_cs,
           isHidden: personality.is_hidden,
         },
         update: {
@@ -292,8 +289,6 @@ async function migrateData() {
           personalityDescriptionEn: personality.personality_description_en,
           problemSummaryCz: personality.problem_summary_cs,
           personalityDescriptionCz: personality.personality_description_cs,
-          settingEn: personality.setting_en,
-          settingCz: personality.setting_cs,
           isHidden: personality.is_hidden,
         },
       });
@@ -331,131 +326,6 @@ async function migrateData() {
     }
     console.log(`✅ Migrated ${scenarios?.length || 0} scenarios\n`);
 
-    // 10. Migrate Profiles (from auth.users + profiles)
-    console.log('📦 Migrating profiles...');
-    const { data: profiles, error: profError } = await supabase
-      .from('profiles')
-      .select('*');
-
-    if (profError) throw new Error(`Failed to fetch profiles: ${profError.message}`);
-
-    // Try to fetch auth users to get emails (optional - may fail with permission error)
-    let userEmailMap = new Map<string, string>();
-    try {
-      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-      if (!usersError && users) {
-        userEmailMap = new Map(users.map(u => [u.id, u.email!]));
-        console.log(`   Found ${users.length} auth users with emails`);
-      } else {
-        console.log('   ⚠️  Cannot fetch auth users (permission denied) - will use emails from profiles table');
-      }
-    } catch (error) {
-      console.log('   ⚠️  Cannot fetch auth users (permission denied) - will use emails from profiles table');
-    }
-
-    for (const profile of profiles || []) {
-      // Priority: 1) auth.users email, 2) profiles.email, 3) generated email
-      const email = userEmailMap.get(profile.id) || profile.email || `user-${profile.id}@migrated.local`;
-
-      await prisma.profile.upsert({
-        where: { id: profile.id },
-        create: {
-          id: profile.id,
-          createdAt: new Date(profile.created_at),
-          updatedAt: new Date(profile.updated_at),
-          email: email,
-          password: '$2b$10$MIGRATION.PLACEHOLDER.USERS.NEED.TO.RESET.PASSWORD', // Placeholder - users need to reset
-          fullName: profile.full_name,
-          gender: profile.gender,
-          conversationRole: profile.conversation_role,
-          bio: profile.bio,
-          userRole: profile.user_role as any,
-        },
-        update: {
-          email: email,
-          fullName: profile.full_name,
-          gender: profile.gender,
-          conversationRole: profile.conversation_role,
-          bio: profile.bio,
-          userRole: profile.user_role as any,
-        },
-      });
-    }
-    console.log(`✅ Migrated ${profiles?.length || 0} profiles`);
-    console.log(`⚠️  NOTE: All users have placeholder passwords and will need to contact admin to reset\n`);
-
-    // 11. Migrate Admin User Custom Model Selection
-    console.log('📦 Migrating admin_users_custom_model_selection...');
-    const { data: adminSelections, error: asError } = await supabase
-      .from('admin_users_custom_model_selection')
-      .select('*');
-
-    if (asError) throw new Error(`Failed to fetch admin_users_custom_model_selection: ${asError.message}`);
-
-    for (const selection of adminSelections || []) {
-      await prisma.adminUserCustomModelSelection.upsert({
-        where: { userId: selection.user_id },
-        create: {
-          userId: selection.user_id,
-          createdAt: new Date(selection.created_at),
-          responseModelId: selection.response_model_id,
-          ttsModelId: selection.tts_model_id,
-          realtimeModelId: selection.realtime_model_id,
-          realtimeTranscriptionModelId: selection.realtime_transcription_model_id,
-          timestampedTranscriptionModelId: selection.timestamped_transcription_model_id,
-        },
-        update: {
-          responseModelId: selection.response_model_id,
-          ttsModelId: selection.tts_model_id,
-          realtimeModelId: selection.realtime_model_id,
-          realtimeTranscriptionModelId: selection.realtime_transcription_model_id,
-          timestampedTranscriptionModelId: selection.timestamped_transcription_model_id,
-        },
-      });
-    }
-    console.log(`✅ Migrated ${adminSelections?.length || 0} admin custom model selections\n`);
-
-    // 12. Migrate Conversations
-    console.log('📦 Migrating conversations...');
-    const { data: conversations, error: convError } = await supabase
-      .from('conversations')
-      .select('*');
-
-    if (convError) throw new Error(`Failed to fetch conversations: ${convError.message}`);
-
-    for (const conversation of conversations || []) {
-      await prisma.conversation.upsert({
-        where: { id: conversation.id },
-        create: {
-          id: conversation.id,
-          createdAt: new Date(conversation.created_at),
-          userId: conversation.user_id,
-          personalityId: conversation.personality_id,
-          scenarioId: conversation.scenario_id,
-          startTime: new Date(conversation.start_time),
-          endTime: conversation.end_time ? new Date(conversation.end_time) : null,
-          endedReason: conversation.ended_reason,
-          messages: conversation.messages as any,
-          logs: conversation.logs as any,
-          conversationType: conversation.conversation_type as any,
-          usedConfig: conversation.used_config as any,
-        },
-        update: {
-          userId: conversation.user_id,
-          personalityId: conversation.personality_id,
-          scenarioId: conversation.scenario_id,
-          startTime: new Date(conversation.start_time),
-          endTime: conversation.end_time ? new Date(conversation.end_time) : null,
-          endedReason: conversation.ended_reason,
-          messages: conversation.messages as any,
-          logs: conversation.logs as any,
-          conversationType: conversation.conversation_type as any,
-          usedConfig: conversation.used_config as any,
-        },
-      });
-    }
-    console.log(`✅ Migrated ${conversations?.length || 0} conversations\n`);
-
     console.log('🎉 Migration completed successfully!\n');
     console.log('📊 Summary:');
     console.log(`   - Response Models: ${responseModels?.length || 0}`);
@@ -467,9 +337,6 @@ async function migrateData() {
     console.log(`   - Conversation Roles: ${conversationRoles?.length || 0}`);
     console.log(`   - Personalities: ${personalities?.length || 0}`);
     console.log(`   - Scenarios: ${scenarios?.length || 0}`);
-    console.log(`   - Profiles: ${profiles?.length || 0}`);
-    console.log(`   - Admin Custom Selections: ${adminSelections?.length || 0}`);
-    console.log(`   - Conversations: ${conversations?.length || 0}`);
     console.log('\n⚠️  IMPORTANT: All migrated users have placeholder passwords.');
     console.log('   Users will need to contact an admin to reset their passwords.\n');
 

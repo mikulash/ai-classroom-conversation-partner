@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ConversationRole } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { LANGUAGE } from '@repo/shared/enums/Language';
+import { ConversationRole } from '@repo/shared/generated/prisma/client';
 
 /**
  * Props for the role selector (rewritten to work with role **names**, not objects).
@@ -25,7 +25,7 @@ export const ConversationRoleSelector: React.FC<ConversationRoleSelectorProps> =
   const { t, language } = useTypedTranslation();
 
   const translatedName = (r: ConversationRole) =>
-    language === LANGUAGE.EN ? r.name_en : r.name_cs;
+    language === LANGUAGE.EN ? r.nameEn : r.nameCs;
 
   const matchedPredefined = predefinedRoles.find((r) => translatedName(r) === value);
 

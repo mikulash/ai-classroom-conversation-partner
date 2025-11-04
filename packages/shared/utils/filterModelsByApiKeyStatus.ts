@@ -1,36 +1,35 @@
 import { AiProviderStatus } from '../types/apiKeyStatus';
 import { API_KEY, ApiKey } from '../enums/ApiKey';
-import { Enums } from '../types/supabase/database.types';
-import type {
-  RealtimeModel,
-  RealtimeTranscriptionModel,
-  ResponseModel,
-  TimestampedTranscriptionModel,
-  TtsModel,
-} from '../types/supabase/supabaseTypeHelpers';
+import {
+    RealtimeModel, RealtimeModelProvider,
+    RealtimeTranscriptionModel,
+    ResponseModel, ResponseModelProvider,
+    TimestampedTranscriptionModel, TimestampedTranscriptionModelProvider, TranscriptionModelProvider,
+    TtsModel, TtsModelProvider,
+} from "../generated/prisma/client";
 
 export const realtimeProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
-} as const satisfies Record<Enums<'providers_realtime_model'>, ApiKey>;
+} as const satisfies Record<RealtimeModelProvider, ApiKey>;
 
 export const realtimeTranscriptionProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
-} as const satisfies Record<Enums<'providers_realtime_transcription_model'>, ApiKey>;
+} as const satisfies Record<TranscriptionModelProvider, ApiKey>;
 
 export const responseProvidersApiKeys = {
   'Anthropic': API_KEY.CLAUDE,
   'xAi': API_KEY.GROK,
   'OpenAi': API_KEY.OPENAI,
-} as const satisfies Record<Enums<'providers_response_model'>, ApiKey>;
+} as const satisfies Record<ResponseModelProvider, ApiKey>;
 
 export const timestampedTranscriptionProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
-} as const satisfies Record<Enums<'providers_timestamped_transcription_model'>, ApiKey>;
+} as const satisfies Record<TimestampedTranscriptionModelProvider, ApiKey>;
 
 export const ttsProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
   'ElevenLabs': API_KEY.ELEVENLABS,
-} as const satisfies Record<Enums<'providers_tts_model'>, ApiKey>;
+} as const satisfies Record<TtsModelProvider, ApiKey>;
 
 
 export type WithAvailability<T> = T & { isAvailable: boolean };

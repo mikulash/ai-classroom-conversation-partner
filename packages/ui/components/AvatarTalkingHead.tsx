@@ -2,8 +2,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Loader } from 'lucide-react';
 import { AVATAR_MODELS, TalkingHead } from '@repo/assets';
-import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { Language } from '@repo/shared/enums/Language';
+import { Personality } from '@repo/shared/generated/prisma/client';
 
 interface AvatarTalkingHeadProps {
     language: Language;
@@ -83,8 +83,8 @@ export const AvatarTalkingHead = forwardRef<
           });
 
           // Determine the avatar URL to try first
-          const customAvatarUrl = personality.avatar_url && personality.avatar_url.trim() !== '' ?
-            personality.avatar_url :
+          const customAvatarUrl = personality.avatarUrl && personality.avatarUrl.trim() !== '' ?
+            personality.avatarUrl :
             null;
 
           const defaultAvatarUrl = getDefaultAvatarUrl(personality);

@@ -87,7 +87,7 @@ const getRealtimeVoice = async (
       userProfile,
     });
     sessionBody.input_audio_transcription = {
-      model: realtimeTranscriptionModel.api_name,
+      model: realtimeTranscriptionModel.apiName,
       language: language.ISO639,
     };
     sessionBody.output_audio_format = 'pcm16';

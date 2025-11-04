@@ -59,7 +59,7 @@ export const VideoCallPage: React.FC = () => {
   }, [setConsecutiveSilencePromptsCount]);
 
   const appConfig = useAppStore((state) => state.appConfig);
-  const { silence_timeout_in_seconds, max_conversation_duration_in_seconds } = appConfig;
+  const { silenceTimeoutInSeconds, maxConversationDurationInSeconds } = appConfig;
 
   const { t, language } = useTypedTranslation();
 
@@ -118,7 +118,7 @@ export const VideoCallPage: React.FC = () => {
   useEffect(() => () => connection?.close(), [connection]);
 
   useEffect(() => {
-    const timeLimit = max_conversation_duration_in_seconds * 1000;
+    const timeLimit = maxConversationDurationInSeconds * 1000;
     const interval = setInterval(() => {
       if (hasChatEndedRef.current) {
         clearInterval(interval);
@@ -157,7 +157,7 @@ export const VideoCallPage: React.FC = () => {
 
       const now = Date.now();
       const elapsed = now - lastActivityRef.current;
-      if (elapsed > silence_timeout_in_seconds * 1000 && !silenceTriggeredRef.current) {
+      if (elapsed > silenceTimeoutInSeconds * 1000 && !silenceTriggeredRef.current) {
         silenceTriggeredRef.current = true;
 
         logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
@@ -173,7 +173,7 @@ export const VideoCallPage: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [hasConversationStarted, isAiProcessing, silence_timeout_in_seconds]);
+  }, [hasConversationStarted, isAiProcessing, silenceTimeoutInSeconds]);
 
   const startConversation = async () => {
     logMessage('log', 'startConversation: Starting conversation with personality', {

@@ -25,7 +25,7 @@ const getRealtimeTranscription = async (
   if (!realtimeTranscriptionModel) {
     throw new Error('No models loaded');
   }
-  const { provider, api_name: model_api_name } = realtimeTranscriptionModel;
+  const { provider, apiName: model_api_name } = realtimeTranscriptionModel;
   switch (provider) {
     case 'OpenAi':
       return openAiApi.getRealtimeTranscriptionToken({ ...params, model_api_name });
@@ -41,7 +41,7 @@ const getRealtimeVoice = async (
   if (!realtimeModel) {
     throw new Error('No models loaded');
   }
-  const { provider, api_name: model_api_name } = realtimeModel;
+  const { provider, apiName: model_api_name } = realtimeModel;
   switch (provider) {
     case 'OpenAi':
       return openAiApi.getRealtimeVoice({ ...params, model_api_name }, userId);
@@ -57,7 +57,7 @@ const getResponse = async (
   if (!responseModel) {
     throw new Error('No models loaded');
   }
-  const { provider, api_name: model_api_name } = responseModel;
+  const { provider, apiName: model_api_name } = responseModel;
   switch (provider) {
     case 'OpenAi':
       return openAiApi.getResponse({ ...params, model_api_name });
@@ -77,19 +77,19 @@ const getTextToSpeech = async (
   if (!ttsModel) {
     throw new Error('No models loaded');
   }
-  const { provider, api_name, sample_rate } = ttsModel;
+  const { provider, apiName, sampleRate } = ttsModel;
   switch (provider) {
     case 'OpenAi':
       return openAiApi.getTextToSpeech({
         ...params,
-        model_api_name: api_name,
-        sample_rate,
+        model_api_name: apiName,
+        sample_rate: sampleRate
       });
     case 'ElevenLabs':
       return elevenLabsApi.textToSpeech({
         ...params,
-        model_api_name: api_name,
-        sample_rate,
+        model_api_name: apiName,
+        sample_rate: sampleRate
       });
   }
 };
@@ -103,18 +103,18 @@ const getTextToSpeechTimestamped = async (
   if (!ttsModel) {
     throw new Error('No models loaded');
   }
-  const { provider, api_name, sample_rate } = ttsModel;
+  const { provider, apiName, sampleRate } = ttsModel;
   switch (provider) {
     case 'OpenAi':
       return openAiApi.getTextToSpeechTimestamped(
-        { ...params, model_api_name: api_name, sample_rate },
+        { ...params, model_api_name: apiName, sample_rate: sampleRate },
         userId,
       );
     case 'ElevenLabs':
       return elevenLabsApi.getTextToSpeechTimestamped({
         ...params,
-        model_api_name: api_name,
-        sample_rate,
+        model_api_name: apiName,
+          sample_rate: sampleRate,
       });
   }
 };
@@ -128,7 +128,7 @@ const getTimestampedTranscription = async (
   if (!timestampedTranscriptionModel) {
     throw new Error('No models loaded');
   }
-  const { provider, api_name: model_api_name } = timestampedTranscriptionModel;
+  const { provider, apiName: model_api_name } = timestampedTranscriptionModel;
   switch (provider) {
     case 'OpenAi':
       return openAiApi.createTimestampedTranscription({ ...params, model_api_name });

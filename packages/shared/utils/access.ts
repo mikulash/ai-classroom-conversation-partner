@@ -1,9 +1,10 @@
-import { Profile } from '../types/supabase/supabaseTypeHelpers';
+import {Profile} from "../generated/prisma/client";
+
 
 export const isProfileAdmin = (profile: Profile) => {
-  return profile.user_role === 'admin' || profile.user_role === 'owner';
+  return profile.userRole === 'admin' || profile.userRole === 'owner';
 };
 
 export const isProfileOwner = (profile: Profile) => {
-  return profile.user_role === 'owner';
+  return profile.userRole === 'owner';
 };

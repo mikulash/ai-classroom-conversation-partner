@@ -10,7 +10,7 @@ export const HomePage: React.FC = () => {
   const { session, ready } = useSession();
   const user = session?.user;
   const isAuthenticated = !!user;
-  const { app_name } = useAppStore((state) => state.appConfig);
+  const { appName } = useAppStore((state) => state.appConfig);
 
   if (!ready) {
     return null;
@@ -21,7 +21,7 @@ export const HomePage: React.FC = () => {
       <div className="w-full max-w-md space-y-6 sm:space-y-8 text-center">
         <header>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            {t('welcomeTo', { appName: app_name })}
+            {t('welcomeTo', { appName: appName })}
           </h1>
           <p className="mt-2 sm:mt-4 text-lg sm:text-xl text-gray-600">
             {t('aiConversationPartner')}
@@ -43,7 +43,7 @@ export const HomePage: React.FC = () => {
           ) : (
             <div className="space-y-4">
               <p className="text-lg text-gray-700">
-                {t('pleaseSignInMessage', { appName: app_name })}
+                {t('pleaseSignInMessage', { appName: appName })}
               </p>
               <div className="flex flex-col space-y-4">
                 <Button

@@ -1,4 +1,5 @@
-import { Personality, Scenario } from '@repo/shared/types/supabase/supabaseTypeHelpers';
+
+import { Personality, Scenario } from '@repo/shared/generated/prisma/client';
 
 export interface ChatPageProps {
     personality: Personality;

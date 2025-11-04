@@ -4,10 +4,11 @@ import { Label } from '@radix-ui/react-label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { LANGUAGE } from '@repo/shared/enums/Language';
-import { Personality, ScenarioInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import { Personality } from '@repo/shared/generated/prisma/client';
+import { ScenarioUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Scenario';
 
 interface ScenarioFormProps {
-    scenario: ScenarioInsert;
+    scenario: ScenarioUncheckedCreateInput;
     personalities: Personality[];
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onSelectChange: (field: string, value: string) => void;
@@ -28,7 +29,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
         <Textarea
           id="setting_en"
           name="setting_en"
-          value={scenario.setting_en ?? ''}
+          value={scenario.settingEn ?? ''}
           onChange={onInputChange}
           rows={3}
         />
@@ -39,7 +40,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
         <Textarea
           id="setting_cs"
           name="setting_cs"
-          value={scenario.setting_cs ?? ''}
+          value={scenario.settingCs ?? ''}
           onChange={onInputChange}
           rows={3}
         />
@@ -50,7 +51,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
         <Textarea
           id="situation_description_en"
           name="situation_description_en"
-          value={scenario.situation_description_en ?? ''}
+          value={scenario.situationDescriptionEn ?? ''}
           onChange={onInputChange}
           rows={4}
         />
@@ -61,7 +62,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
         <Textarea
           id="situation_description_cs"
           name="situation_description_cs"
-          value={scenario.situation_description_cs ?? ''}
+          value={scenario.situationDescriptionCs ?? ''}
           onChange={onInputChange}
           rows={4}
         />
@@ -71,8 +72,8 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
         <Label htmlFor="involved_personality_id">{t('admin.scenarios.form.personality')}</Label>
         <Select
           value={
-            scenario.involved_personality_id !== null ?
-              String(scenario.involved_personality_id) :
+            scenario.involvedPersonalityId !== null ?
+              String(scenario.involvedPersonalityId) :
               'none'
           }
           onValueChange={(value) => onSelectChange('involved_personality_id', value)}
@@ -83,7 +84,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
           <SelectContent>
             <SelectItem value="none">{t('admin.scenarios.form.none')}</SelectItem>
             {personalities.map((p) => {
-              const problemSummary = language == LANGUAGE.EN ? p.problem_summary_en : p.problem_summary_cs;
+              const problemSummary = language == LANGUAGE.EN ? p.problemSummaryEn : p.problemSummaryCs;
               return (
                 <SelectItem key={p.id} value={String(p.id)}>
                   {p.name} – {problemSummary}

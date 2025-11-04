@@ -1,34 +1,35 @@
 import axios, { AxiosInstance } from 'axios';
-import type {
-  AppConfig,
-  Conversation,
-  ConversationInsert,
-  CustomModelSelection,
-  Personality,
-  PersonalityInsert,
-  Profile,
-  ProfileInsert,
-  RealtimeModel,
-  RealtimeTranscriptionModel,
-  ResponseModel,
-  Scenario,
-  ScenarioInsert,
-  TimestampedTranscriptionModel,
-  TtsModel,
-  UserRole,
-  ConversationRole,
-} from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import {
+  type AdminUserCustomModelSelection,
+  type AppConfig,
+  type Conversation,
+  type ConversationRole,
+  type Personality,
+  type Profile,
+  type RealtimeModel,
+  type RealtimeTranscriptionModel,
+  type ResponseModel,
+  type Scenario,
+  type TimestampedTranscriptionModel,
+  type TtsModel,
+  type UserRole,
+} from '@repo/shared/generated/prisma/client';
+import {
+  type ConversationUncheckedCreateInput,
+  type PersonalityUncheckedCreateInput, ProfileUncheckedCreateInput,
+  type ScenarioUncheckedCreateInput,
+} from '@repo/shared/generated/prisma/models';
 
 export type ConversationWithPersonality = Pick<
   Conversation,
   | 'id'
-  | 'start_time'
-  | 'end_time'
-  | 'ended_reason'
-  | 'conversation_type'
+  | 'startTime'
+  | 'endTime'
+  | 'endedReason'
+  | 'conversationType'
   | 'messages'
-  | 'personality_id'
-> & { personalities: { name: string } | null };
+  | 'personalityId'
+> & { personality: { name: string } | null };
 
 // API Response types
 interface AuthResponse {
@@ -61,7 +62,7 @@ const createApiClient = (): AxiosInstance => {
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
 
   // Response interceptor to handle errors
@@ -76,7 +77,7 @@ const createApiClient = (): AxiosInstance => {
         window.location.href = '/login';
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   return client;
@@ -107,8 +108,7 @@ export async function fetchInitialData() : Promise<InitialData> {
       scenarios: scenarios.data,
       conversationRoles: conversationRoles.data,
       appConfig: appConfig.data,
-    }
-
+    };
   } catch (error: any) {
     console.error('Error fetching initial data:', error);
     throw error;
@@ -258,7 +258,7 @@ export const profileApi = {
     }
   },
 
-  upsert: async (payload: Partial<Profile>): Promise<ApiResponse<Profile>> => {
+  upsert: async (payload: ProfileUncheckedCreateInput): Promise<ApiResponse<Profile>> => {
     try {
       const response = await api.put<Profile>(`/api/profiles/${payload.id}`, payload);
       return { data: response.data };
@@ -281,16 +281,16 @@ export const profileApi = {
 
 // -------------------- Conversation API --------------------
 export const conversationApi = {
-  byUser: async (userId: string): Promise<ApiResponse<Conversation[]>> => {
+  byUser: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
     try {
-      const response = await api.get<Conversation[]>('/api/conversations');
+      const response = await api.get<ConversationWithPersonality[]>('/api/conversations');
       return { data: response.data };
     } catch (error: any) {
       return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch conversations' } };
     }
   },
 
-  insert: async (conversation: ConversationInsert): Promise<ApiResponse<Conversation>> => {
+  insert: async (conversation: ConversationUncheckedCreateInput): Promise<ApiResponse<Conversation>> => {
     try {
       const response = await api.post<Conversation>('/api/conversations', conversation);
       return { data: response.data };
@@ -320,7 +320,7 @@ export const personalityApi = {
     }
   },
 
-  insert: async (personality: PersonalityInsert): Promise<ApiResponse<Personality>> => {
+  insert: async (personality: PersonalityUncheckedCreateInput): Promise<ApiResponse<Personality>> => {
     try {
       const response = await api.post<Personality>('/api/personalities', personality);
       return { data: response.data };
@@ -359,7 +359,7 @@ export const scenarioApi = {
     }
   },
 
-  insert: async (scenario: ScenarioInsert): Promise<ApiResponse<Scenario>> => {
+  insert: async (scenario: ScenarioUncheckedCreateInput): Promise<ApiResponse<Scenario>> => {
     try {
       const response = await api.post<Scenario>('/api/scenarios', scenario);
       return { data: response.data };
@@ -368,7 +368,7 @@ export const scenarioApi = {
     }
   },
 
-  update: async (id: number, scenario: Partial<Scenario>): Promise<ApiResponse<Scenario>> => {
+  update: async (id: number, scenario: ScenarioUncheckedCreateInput): Promise<ApiResponse<Scenario>> => {
     try {
       const response = await api.put<Scenario>(`/api/scenarios/${id}`, scenario);
       return { data: response.data };
@@ -434,18 +434,18 @@ export const modelApi = {
     }
   },
 
-  adminUserSelection: async (userId: string): Promise<ApiResponse<CustomModelSelection>> => {
+  adminUserSelection: async (userId: string): Promise<ApiResponse<AdminUserCustomModelSelection>> => {
     try {
-      const response = await api.get<CustomModelSelection>(`/api/models/admin-selection/${userId}`);
+      const response = await api.get<AdminUserCustomModelSelection>(`/api/models/admin-selection/${userId}`);
       return { data: response.data };
     } catch (error: any) {
       return { data: null as any, error: { message: error.response?.data?.message || 'Failed to fetch admin selection' } };
     }
   },
 
-  upsertAdminUserSelection: async (userId: string, payload: Partial<CustomModelSelection>): Promise<ApiResponse<CustomModelSelection>> => {
+  upsertAdminUserSelection: async (userId: string, payload: Partial<AdminUserCustomModelSelection>): Promise<ApiResponse<AdminUserCustomModelSelection>> => {
     try {
-      const response = await api.put<CustomModelSelection>(`/api/models/admin-selection/${userId}`, payload);
+      const response = await api.put<AdminUserCustomModelSelection>(`/api/models/admin-selection/${userId}`, payload);
       return { data: response.data };
     } catch (error: any) {
       return { data: null as any, error: { message: error.response?.data?.message || 'Failed to update admin selection' } };

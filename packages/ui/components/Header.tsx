@@ -18,7 +18,7 @@ export function Header() {
   const { signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { app_name } = useAppStore((state) => state.appConfig);
+  const { appName } = useAppStore((state) => state.appConfig);
   const profile = useProfile();
   const isSignedIn = ready && !!session?.user;
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export function Header() {
   const currentLang = availableLangs.find((l) => l.ISO639 === i18n.language) || LANGUAGE.EN;
 
   const isAdmin = !!profile && isProfileAdmin(profile);
-  const initials = createInitials(profile?.full_name);
+  const initials = createInitials(profile?.fullName);
 
   const handleLanguageChange = (newIso: string) => {
     if (isLanguageChangeDisabled) return;
@@ -42,7 +42,7 @@ export function Header() {
     <header className="py-4 px-4 sm:px-6 shadow-md mb-4">
       <div className="container mx-auto flex justify-between items-center">
         <h1 className="text-2xl font-bold">
-          <Link to="/">{app_name}</Link>
+          <Link to="/">{appName}</Link>
         </h1>
 
         <BurgerButton open={menuOpen} onToggle={() => setMenuOpen((o) => !o)}/>

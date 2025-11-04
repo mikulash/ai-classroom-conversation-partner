@@ -5,7 +5,6 @@ import {
   TextToSpeechTimestampedRequest,
 } from '@repo/shared/types/apiFigurantClient';
 import { Language } from '@repo/shared/enums/Language';
-import { Personality, Profile, Scenario } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 
 type WithModelName<T, Extra extends object = object> = T & { model_api_name: string } & Extra;

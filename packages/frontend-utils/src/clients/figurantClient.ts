@@ -16,7 +16,6 @@ import {
 } from '@repo/shared/types/apiFigurantClient';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { AuthResponse } from '@supabase/supabase-js';
-import { supabase } from './supabaseClient';
 import { Language } from '@repo/shared/enums/Language';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 
@@ -32,13 +31,13 @@ export class FigurantApiClient {
       baseURL: baseUrl ?? import.meta.env.VITE_BACKEND_URL,
     });
 
-    this.axios.interceptors.request.use(async (config) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.access_token) {
-        config.headers.Authorization = `Bearer ${session.access_token}`;
-      }
-      return config;
-    });
+    // this.axios.interceptors.request.use(async (config) => {
+    //   const { data: { session } } = await supabase.auth.getSession();
+    //   if (session?.access_token) {
+    //     config.headers.Authorization = `Bearer ${session.access_token}`;
+    //   }
+    //   return config;
+    // });
   }
 
   async getResponse(request: GenerateReplyRequest): Promise<string> {

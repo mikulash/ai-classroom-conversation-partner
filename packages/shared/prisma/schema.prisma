@@ -1,0 +1,352 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS (match Supabase values, readable names)
+// ============================================
+
+enum UserRole {
+  basic  @map("basic")
+  admin  @map("admin")
+  owner  @map("owner")
+
+  @@map("user_role")
+}
+
+enum ConversationType {
+  VoiceOnly     @map("VoiceOnly")
+  Video         @map("Video")
+  TextOnly      @map("TextOnly")
+  TextWithAudio @map("TextWithAudio")
+
+  @@map("conversation_type")
+}
+
+enum OpenAiVoice {
+  alloy   @map("alloy")
+  ash     @map("ash")
+  ballad  @map("ballad")
+  coral   @map("coral")
+  echo    @map("echo")
+  fable   @map("fable")
+  onyx    @map("onyx")
+  nova    @map("nova")
+  sage    @map("sage")
+  shimmer @map("shimmer")
+  verse   @map("verse")
+
+  @@map("openai_voice_name")
+}
+
+enum Gender {
+  F @map("F")
+  M @map("M")
+
+  @@map("personality_sex")
+}
+
+enum ResponseModelProvider {
+  OpenAi    @map("OpenAi")
+  xAi       @map("xAi")
+  Anthropic @map("Anthropic")
+
+  @@map("providers_response_model")
+}
+
+enum TtsModelProvider {
+  OpenAi     @map("OpenAi")
+  ElevenLabs @map("ElevenLabs")
+
+  @@map("providers_tts_model")
+}
+
+enum RealtimeModelProvider {
+  OpenAi @map("OpenAi")
+
+  @@map("providers_realtime_model")
+}
+
+enum TranscriptionModelProvider {
+  OpenAi @map("OpenAi")
+
+  @@map("providers_realtime_transcription_model")
+}
+
+enum TimestampedTranscriptionModelProvider {
+  OpenAi @map("OpenAi")
+
+  @@map("providers_timestamped_transcription_model")
+}
+
+// ============================================
+// PROFILES
+// ============================================
+
+model Profile {
+  id               String    @id
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
+  email            String?
+  fullName         String?   @map("full_name")
+  gender           String?
+  conversationRole String    @default("") @map("conversation_role")
+  bio              String?
+  userRole         UserRole  @default(basic) @map("user_role")
+
+  // Relations
+  conversations             Conversation[]
+  adminCustomModelSelection AdminUserCustomModelSelection?
+
+  @@map("profiles")
+}
+
+// ============================================
+// ADMIN USER CUSTOM MODEL SELECTION
+// ============================================
+
+model AdminUserCustomModelSelection {
+  userId                       String   @id @map("user_id")
+  createdAt                    DateTime @default(now()) @map("created_at")
+  responseModelId              Int?     @map("response_model_id")
+  ttsModelId                   Int?     @map("tts_model_id")
+  realtimeModelId              Int?     @map("realtime_model_id")
+  realtimeTranscriptionModelId Int?     @map("realtime_transcription_model_id")
+  timestampedTranscriptionModelId Int?  @map("timestamped_transcription_model_id")
+
+  // Relations
+  profile                       Profile                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responseModel                 ResponseModel?                  @relation(fields: [responseModelId], references: [id])
+  ttsModel                      TtsModel?                       @relation(fields: [ttsModelId], references: [id])
+  realtimeModel                 RealtimeModel?                  @relation(fields: [realtimeModelId], references: [id])
+  realtimeTranscriptionModel    RealtimeTranscriptionModel?     @relation(fields: [realtimeTranscriptionModelId], references: [id])
+  timestampedTranscriptionModel TimestampedTranscriptionModel?  @relation(fields: [timestampedTranscriptionModelId], references: [id])
+
+  @@map("admin_users_custom_model_selection")
+}
+
+// ============================================
+// PERSONALITIES
+// ============================================
+
+model Personality {
+  id                       Int           @id @default(autoincrement())
+  createdAt                DateTime      @default(now()) @map("created_at")
+  name                     String
+  age                      Int?
+  avatarUrl                String?       @map("avatar_url")
+  gender                   String        @default("")
+  sex                      Gender        @default(M)
+  voiceInstructions        String?       @map("voice_instructions")
+  elevenlabsVoiceId        String?       @map("elevenlabs_voice_id")
+  openaiVoiceName          OpenAiVoice   @map("openai_voice_name")
+  problemSummaryEn         String        @default("") @map("problem_summary_en")
+  personalityDescriptionEn String        @default("") @map("personality_description_en")
+  problemSummaryCs         String        @default("") @map("problem_summary_cs")
+  personalityDescriptionCs String        @default("") @map("personality_description_cs")
+  isHidden                 Boolean       @default(false) @map("is_hidden")
+
+  // Relations
+  scenarios     Scenario[]
+  conversations Conversation[]
+
+  @@map("personalities")
+}
+
+// ============================================
+// SCENARIOS
+// ============================================
+
+model Scenario {
+  id                     Int       @id @default(autoincrement())
+  createdAt              DateTime  @default(now()) @map("created_at")
+  involvedPersonalityId  Int?      @map("involved_personality_id")
+  situationDescriptionEn String    @default("") @map("situation_description_en")
+  settingEn              String    @default("") @map("setting_en")
+  situationDescriptionCs String    @default("") @map("situation_description_cs")
+  settingCs              String    @default("") @map("setting_cs")
+
+  // Relations
+  personality  Personality?  @relation(fields: [involvedPersonalityId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+
+  @@map("scenarios")
+}
+
+// ============================================
+// CONVERSATION ROLES
+// ============================================
+
+model ConversationRole {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  nameEn    String   @map("name_en")
+  nameCs    String   @map("name_cs")
+
+  @@map("conversation_roles")
+}
+
+// ============================================
+// CONVERSATIONS
+// ============================================
+
+model Conversation {
+  id               Int              @id @default(autoincrement())
+  createdAt        DateTime         @default(now()) @map("created_at")
+  userId           String           @map("user_id")
+  personalityId    Int?             @map("personality_id")
+  scenarioId       Int?             @map("scenario_id")
+  startTime        DateTime         @map("start_time")
+  endTime          DateTime         @default(now()) @map("end_time")
+  endedReason      String           @default("") @map("ended_reason")
+  messages         Json?
+  logs             Json?
+  conversationType ConversationType @map("conversation_type")
+  usedConfig       Json?            @map("used_config")
+
+  // Relations
+  user         Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personality  Personality? @relation(fields: [personalityId], references: [id])
+  scenario     Scenario?    @relation(fields: [scenarioId], references: [id])
+
+  @@map("conversations")
+}
+
+// ============================================
+// RESPONSE MODELS
+// ============================================
+
+model ResponseModel {
+  id           Int                  @id @default(autoincrement())
+  createdAt    DateTime             @default(now()) @map("created_at")
+  friendlyName String               @map("friendly_name")
+  apiName      String               @map("api_name")
+  docsUrl      String?              @map("docs_url")
+  isEnabled    Boolean              @default(true) @map("is_enabled")
+  provider     ResponseModelProvider
+
+  // Relations
+  adminSelections          AdminUserCustomModelSelection[]
+  appConfigAsResponseModel AppConfig[]
+
+  @@map("response_models")
+}
+
+// ============================================
+// TTS MODELS
+// ============================================
+
+model TtsModel {
+  id                                   Int              @id @default(autoincrement())
+  createdAt                            DateTime         @default(now()) @map("created_at")
+  friendlyName                         String           @map("friendly_name")
+  apiName                              String           @map("api_name")
+  sampleRate                           Int              @map("sample_rate")
+  docsUrl                              String           @map("docs_url")
+  isEnabled                            Boolean          @default(true) @map("is_enabled")
+  provider                             TtsModelProvider
+  allowsWordLevelTimestampedTranscript Boolean          @default(false) @map("allows_word_level_timestamped_transcript")
+
+  // Relations
+  adminSelections     AdminUserCustomModelSelection[]
+  appConfigAsTtsModel AppConfig[]
+
+  @@map("tts_models")
+}
+
+// ============================================
+// REALTIME MODELS
+// ============================================
+
+model RealtimeModel {
+  id           Int                  @id @default(autoincrement())
+  createdAt    DateTime             @default(now()) @map("created_at")
+  friendlyName String               @map("friendly_name")
+  apiName      String               @map("api_name")
+  docsUrl      String?              @map("docs_url")
+  isEnabled    Boolean              @default(true) @map("is_enabled")
+  provider     RealtimeModelProvider
+
+  // Relations
+  adminSelections          AdminUserCustomModelSelection[]
+  appConfigAsRealtimeModel AppConfig[]
+
+  @@map("realtime_models")
+}
+
+// ============================================
+// REALTIME TRANSCRIPTION MODELS
+// ============================================
+
+model RealtimeTranscriptionModel {
+  id                       Int                        @id @default(autoincrement())
+  createdAt                DateTime                   @default(now()) @map("created_at")
+  friendlyName             String                     @map("friendly_name")
+  provider                 TranscriptionModelProvider
+  apiName                  String                     @map("api_name")
+  docsUrl                  String?                    @map("docs_url")
+  isEnabled                Boolean?                   @default(true) @map("is_enabled")
+  allowsWordLevelTimestamps Boolean                   @default(false) @map("allows_word_level_timestamps")
+
+  // Relations
+  adminSelections                      AdminUserCustomModelSelection[]
+  appConfigAsRealtimeTranscriptionModel AppConfig[]
+
+  @@map("realtime_transcription_models")
+}
+
+// ============================================
+// TIMESTAMPED TRANSCRIPTION MODELS
+// ============================================
+
+model TimestampedTranscriptionModel {
+  id           Int                                @id @default(autoincrement())
+  createdAt    DateTime                           @default(now()) @map("created_at")
+  friendlyName String                             @map("friendly_name")
+  provider     TimestampedTranscriptionModelProvider
+  apiName      String                             @map("api_name")
+  docsUrl      String?                            @map("docs_url")
+  isEnabled    Boolean                            @default(true) @map("is_enabled")
+
+  // Relations
+  adminSelections                      AdminUserCustomModelSelection[]
+  appConfigAsTimestampedTranscriptionModel AppConfig[]
+
+  @@map("timestamped_transcription_models")
+}
+
+// ============================================
+// APP CONFIG
+// ============================================
+
+model AppConfig {
+  id                               Int        @id @default(autoincrement())
+  editedAt                         DateTime   @default(now()) @updatedAt @map("edited_at")
+  responseModelId                  Int?       @map("response_model_id")
+  ttsModelId                       Int?       @map("tts_model_id")
+  realtimeModelId                  Int?       @map("realtime_model_id")
+  silenceTimeoutInSeconds          Int        @default(30) @map("silence_timeout_in_seconds")
+  allowedDomains                   String[]   @default([]) @map("allowed_domains")
+  appName                          String     @default("AI FIGURANT") @map("app_name")
+  realtimeTranscriptionModelId     Int?       @map("realtime_transcription_model_id")
+  timestampedTranscriptionModelId  Int?       @map("timestamped_transcription_model_id")
+  maxConversationDurationInSeconds Int        @default(300) @map("max_conversation_duration_in_seconds")
+
+  // Relations
+  responseModel                 ResponseModel?                 @relation(fields: [responseModelId], references: [id])
+  ttsModel                      TtsModel?                      @relation(fields: [ttsModelId], references: [id])
+  realtimeModel                 RealtimeModel?                 @relation(fields: [realtimeModelId], references: [id])
+  realtimeTranscriptionModel    RealtimeTranscriptionModel?    @relation(fields: [realtimeTranscriptionModelId], references: [id])
+  timestampedTranscriptionModel TimestampedTranscriptionModel? @relation(fields: [timestampedTranscriptionModelId], references: [id])
+
+  @@map("app_config")
+}

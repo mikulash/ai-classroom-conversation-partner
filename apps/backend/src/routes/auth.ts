@@ -30,7 +30,7 @@ router.post(
     const { email, password, full_name, gender } = req.body;
 
     const configProvider = await ConfigProvider.getInstance();
-    const ALLOWED_DOMAINS = configProvider.getAppConfig().allowed_domains ?? [];
+    const ALLOWED_DOMAINS = configProvider.getAppConfig().allowedDomains ?? [];
 
     if (!isValidUniversityEmail(email, ALLOWED_DOMAINS)) {
       res.status(400).json('Email must end with' + ALLOWED_DOMAINS.join(', '));

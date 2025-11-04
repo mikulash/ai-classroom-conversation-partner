@@ -3,36 +3,24 @@ import { Button } from './ui/button';
 import { TableCell, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { Profile, UserRole } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { type Profile } from '@repo/shared/generated/prisma/client';
+import { type UserRole } from '@repo/shared/generated/prisma/enums';
+import { MyConversation } from '@repo/shared/types/myConversation';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ConversationsList } from './ConversationsList';
-
-interface Conversation {
-    id: number;
-    start_time: string;
-    end_time: string;
-    ended_reason: string;
-    conversation_type: string;
-    messages: ChatMessage[];
-    personality_id: number | null;
-    personality: {
-        name: string;
-    } | null;
-}
 
 interface UserProfileRowProps {
     profile: Profile;
     currentUserId?: string;
     isExpanded: boolean;
     isProcessing: boolean;
-    conversations: Conversation[];
+    conversations: MyConversation[];
     isLoadingConversations: boolean;
     onToggleExpansion: (userId: string) => void;
     onRoleChange: (profileId: string, newRole: UserRole) => void;
-    onConversationClick: (conversation: Conversation) => void;
-    formatDate: (dateString: string) => string;
-    formatDateTime: (dateString: string) => string;
+    onConversationClick: (conversation: MyConversation) => void;
+    formatDate: (dateValue: string | Date | null | undefined) => string;
+    formatDateTime: (dateValue: string | Date | null | undefined) => string;
 }
 
 export const UserProfileRow: React.FC<UserProfileRowProps> = ({
@@ -83,11 +71,11 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
           className="max-w-xs truncate cursor-pointer"
           onClick={() => onToggleExpansion(profile.id)}
         >
-          {profile.full_name ?? '—'}
+          {profile.fullName ?? '-'}
         </TableCell>
         <TableCell>
           <Select
-            value={profile.user_role}
+            value={profile.userRole}
             onValueChange={(value: UserRole) => onRoleChange(profile.id, value)}
             disabled={isProcessing || isCurrentUser}
           >
@@ -113,7 +101,7 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
           )}
         </TableCell>
         <TableCell className="text-right text-sm text-muted-foreground">
-          {formatDate(profile.created_at)}
+          {formatDate(profile.createdAt)}
         </TableCell>
       </TableRow>
 
@@ -134,4 +122,3 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
     </React.Fragment>
   );
 };
-

@@ -1,6 +1,6 @@
 import { Language } from '../enums/Language';
-import { Personality, Profile, Scenario } from './supabase/supabaseTypeHelpers';
 import { ChatMessage } from './chatMessage';
+import {Personality, Profile, Scenario} from "../generated/prisma/client";
 
 export interface TextToSpeechRequest {
     inputMessage: string;

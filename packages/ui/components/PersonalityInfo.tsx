@@ -1,7 +1,7 @@
 import React from 'react';
-import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { LANGUAGE } from '@repo/shared/enums/Language';
+import { Personality } from '@repo/shared/generated/prisma/client';
 
 interface PersonalityInfoProps {
     personality: Personality;
@@ -17,8 +17,8 @@ export const PersonalityInfo: React.FC<PersonalityInfoProps> = ({
   className,
 }) => {
   const { t, language } = useTypedTranslation();
-  const problemSummary = language === LANGUAGE.EN ? personality.problem_summary_en : personality.problem_summary_cs;
-  const personalityDescription = language === LANGUAGE.EN ? personality.personality_description_en : personality.personality_description_cs;
+  const problemSummary = language === LANGUAGE.EN ? personality.problemSummaryEn : personality.problemSummaryCs;
+  const personalityDescription = language === LANGUAGE.EN ? personality.personalityDescriptionEn : personality.personalityDescriptionCs;
 
   return (
     <div className={className}>

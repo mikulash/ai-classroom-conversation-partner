@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { prisma } from '../../clients/prisma.js';
 import { hashPassword, comparePassword, generateToken } from '../../utils/auth.js';
 import { authenticate } from '../../middleware/auth.js';
+import prisma from "@repo/shared/prisma/client";
 
 const router = Router();
 

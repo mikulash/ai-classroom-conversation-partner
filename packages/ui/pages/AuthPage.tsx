@@ -10,7 +10,7 @@ export const AuthPage: React.FC = () => {
   const { t } = useTypedTranslation();
   const { signIn, signUp, loading, error } = useAuth();
   const { session, ready } = useSession();
-  const { app_name } = useAppStore((state) => state.appConfig);
+  const { appName } = useAppStore((state) => state.appConfig);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ export const AuthPage: React.FC = () => {
       <div className="w-full max-w-md space-y-6 sm:space-y-8">
         <header className="text-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
-            {t('welcomeTo', { appName: app_name })}
+            {t('welcomeTo', { appName: appName })}
           </h1>
           <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
             {isSignIn ? t('signInToAccount') : t('createNewAccount')}

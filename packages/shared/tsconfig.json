@@ -15,7 +15,9 @@
   "include": [
     "enums/**/*.ts",
     "types/**/*.ts",
-    "utils/**/*.ts"
+    "utils/**/*.ts",
+    "prisma/**/*.ts",
+    "generated/**/*.ts",
   ],
   "exclude": [
     "node_modules",

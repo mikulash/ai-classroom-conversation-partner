@@ -13,7 +13,7 @@ export const ResetPasswordRequestForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowed_domains) || [];
+  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowedDomains) || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

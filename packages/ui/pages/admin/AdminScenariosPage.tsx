@@ -4,11 +4,11 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogT
 import { Button } from '../../components/ui/button';
 import { scenarioApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
-import { ScenarioInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
+import { ScenarioCreateInput, ScenarioUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Scenario';
 
 
 export function AdminScenariosPage() {
@@ -22,15 +22,15 @@ export function AdminScenariosPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  const emptyScenario: ScenarioInsert = {
-    setting_en: '',
-    setting_cs: '',
-    situation_description_en: '',
-    situation_description_cs: '',
-    involved_personality_id: null,
+  const emptyScenario: ScenarioUncheckedCreateInput = {
+    settingEn: '',
+    settingCs: '',
+    situationDescriptionCs: '',
+    situationDescriptionEn: '',
+    involvedPersonalityId: null,
   };
 
-  const [currentScenario, setCurrentScenario] = useState<ScenarioInsert>(emptyScenario);
+  const [currentScenario, setCurrentScenario] = useState<ScenarioUncheckedCreateInput>(emptyScenario);
 
   useEffect(() => {
     fetchData();
@@ -60,7 +60,7 @@ export function AdminScenariosPage() {
   }
 
 
-  const handleEdit = (scenario: ScenarioInsert) => {
+  const handleEdit = (scenario: ScenarioUncheckedCreateInput) => {
     setCurrentScenario(scenario);
     setIsEditDialogOpen(true);
   };

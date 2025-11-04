@@ -5,13 +5,14 @@ import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { conversationApi, ConversationWithPersonality, profileApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
-import { Profile, UserRole } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useProfile } from '../../hooks/useProfile';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
+import { Profile } from '@repo/shared/generated/prisma/client';
+import { type UserRole } from '@repo/shared/generated/prisma/enums';
 
 
 export function AdminProfilesPage() {
@@ -72,15 +73,21 @@ export function AdminProfilesPage() {
 
       if (error) throw error;
 
+      const toIsoString = (value: Date | string | null | undefined): string => {
+        if (!value) return '';
+        const date = value instanceof Date ? value : new Date(value);
+        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+      };
+
       const conversations: MyConversation[] = data.map((conv: ConversationWithPersonality) => ({
         id: conv.id,
-        start_time: conv.start_time,
-        end_time: conv.end_time,
-        ended_reason: conv.ended_reason,
-        conversation_type: conv.conversation_type,
-        messages: Array.isArray(conv.messages) ? conv.messages as unknown as ChatMessage[] : [],
-        personality_id: conv.personality_id,
-        personality: conv.personalities ? { name: conv.personalities.name } : null,
+        start_time: toIsoString(conv.startTime),
+        end_time: toIsoString(conv.endTime),
+        ended_reason: conv.endedReason ?? '',
+        conversation_type: conv.conversationType,
+        messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
+        personality_id: conv.personalityId ?? null,
+        personality: conv.personality ? { name: conv.personality.name } : null,
       }));
 
       setUserConversations((prev) => ({
@@ -127,12 +134,16 @@ export function AdminProfilesPage() {
     setIsConversationDialogVisible(true);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+  const formatDate = (dateValue: string | Date | null | undefined) => {
+    if (!dateValue) return '-';
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return Number.isNaN(date.getTime()) ? '-' : date.toLocaleDateString();
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
+  const formatDateTime = (dateValue: string | Date | null | undefined) => {
+    if (!dateValue) return '-';
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString();
   };
 
   const filteredProfiles = useMemo(() => {
@@ -140,7 +151,7 @@ export function AdminProfilesPage() {
     if (profiles.length === 0) return [];
     return profiles.filter((p) =>
       p.email?.toLowerCase().includes(search.toLowerCase().trim()) ||
-            p.full_name?.toLowerCase().includes(search.toLowerCase().trim()),
+            p.fullName?.toLowerCase().includes(search.toLowerCase().trim()),
     );
   }, [profiles, search]);
 
@@ -153,7 +164,7 @@ export function AdminProfilesPage() {
 
       toast.success(t('admin.profiles.notifications.updateSuccess'));
       setProfiles((prev) =>
-        prev.map((p) => (p.id === profileId ? { ...p, user_role: newRole } : p)),
+        prev.map((p) => (p.id === profileId ? { ...p, userRole: newRole } : p)),
       );
     } catch (error: unknown) {
       if (error instanceof Error) {

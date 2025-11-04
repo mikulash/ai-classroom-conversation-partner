@@ -2,16 +2,11 @@ import { useCallback, useRef, useState } from 'react';
 import { useTypedTranslation } from './useTypedTranslation';
 import { conversationApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
-import {
-  AppConfig,
-  ConversationInsert,
-  Personality,
-  Profile,
-  Scenario,
-} from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { Enums, Json } from '@repo/shared/types/supabase/database.types';
+import { AppConfig, ConversationType, Personality, Profile, Scenario } from '@repo/shared/generated/prisma/client';
+import { ConversationUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Conversation';
+import { InputJsonValue } from '@repo/shared/generated/prisma/internal/prismaNamespace';
 
 interface ConversationSaverParams {
     userProfile?: Profile | null;
@@ -36,7 +31,7 @@ export const useConversationSaver = ({
 
   const saveConversationToDatabase = useCallback(async (
     endReason: 'timeLimit' | 'silence' | 'manual',
-    conversationType: Enums<'conversation_type'>,
+    conversationType:ConversationType,
     messagesToSave?: ChatMessage[],
     logsToSave?: ConversationLog[],
   ) => {
@@ -48,22 +43,22 @@ export const useConversationSaver = ({
       setIsSavingConversation(true);
       conversationSavedRef.current = true;
 
-      const conversationData: ConversationInsert = {
-        start_time: new Date(chatStartTime).toISOString(),
-        end_time: new Date().toISOString(),
-        ended_reason: endReason,
+      const conversationData: ConversationUncheckedCreateInput = {
+        startTime: new Date(chatStartTime).toISOString(),
+        endTime: new Date().toISOString(),
+        endedReason: endReason,
         messages: (messagesToSave || []).map((msg) => ({
           content: msg.content,
           role: msg.role,
           timestamp: msg.timestamp?.toISOString() || new Date().toISOString(),
-        })) as Json,
-        personality_id: personality.id,
-        scenario_id: scenario?.id || null,
-        user_id: userProfile.id,
-        logs: (logsToSave || []) as unknown as Json,
-        created_at: new Date().toISOString(),
-        conversation_type: conversationType,
-        used_config: appConfig,
+        })) as InputJsonValue,
+        personalityId: personality.id,
+        scenarioId: scenario?.id || null,
+        userId: userProfile.id,
+        logs: (logsToSave || []) as unknown as InputJsonValue,
+        createdAt: new Date().toISOString(),
+        conversationType: conversationType,
+        usedConfig: appConfig,
       };
 
       const { error } = await conversationApi.insert(conversationData);

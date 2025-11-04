@@ -5,8 +5,8 @@ import { ModelSelection } from '@repo/shared/types/modelSelection';
 interface BaseModel {
     id: number;
     provider: string;
-    friendly_name?: string;
-    api_name: string;
+    friendlyName?: string;
+    apiName: string;
     isAvailable: boolean;
 }
 
@@ -97,9 +97,9 @@ export function ModelSelectionForm({
                 {getModelsForProvider(currentProvider, section.models).map((model) => (
                   <SelectItem key={model.id} value={String(model.id)} disabled={!model.isAvailable}>
                     <div className="flex flex-col">
-                      <span>{model.friendly_name ?? model.api_name}</span>
-                      {model.api_name && model.friendly_name && (
-                        <span className="text-xs text-muted-foreground">{model.api_name}</span>
+                      <span>{model.friendlyName ?? model.apiName}</span>
+                      {model.apiName && model.friendlyName && (
+                        <span className="text-xs text-muted-foreground">{model.apiName}</span>
                       )}
                     </div>
                   </SelectItem>
