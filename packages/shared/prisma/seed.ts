@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -129,15 +129,15 @@ async function main() {
     data: [
       {
         nameEn: 'Student',
-        nameCz: 'Student',
+        nameCs: 'Student',
       },
       {
         nameEn: 'Teacher',
-        nameCz: 'Učitel',
+        nameCs: 'Učitel',
       },
       {
         nameEn: 'Professional',
-        nameCz: 'Profesionál',
+        nameCs: 'Profesionál',
       },
     ],
     skipDuplicates: true,
@@ -172,8 +172,8 @@ async function main() {
       problemSummaryEn: 'Struggling with work-life balance',
       personalityDescriptionEn:
         'A young professional dealing with stress and time management issues. Friendly and open to conversation.',
-      problemSummaryCz: 'Bojuje s rovnováhou mezi pracovním a osobním životem',
-      personalityDescriptionCz:
+      problemSummaryCs: 'Bojuje s rovnováhou mezi pracovním a osobním životem',
+      personalityDescriptionCs:
         'Mladá profesionálka, která se potýká se stresem a problémy s time managementem. Přátelská a otevřená konverzaci.',
       isHidden: false,
     },
@@ -185,8 +185,8 @@ async function main() {
       involvedPersonalityId: personality.id,
       situationDescriptionEn: 'Meeting at a coffee shop to discuss career challenges',
       settingEn: 'Casual coffee shop environment',
-      situationDescriptionCz: 'Setkání v kavárně k diskusi o kariérních výzvách',
-      settingCz: 'Neformální prostředí kavárny',
+      situationDescriptionCs: 'Setkání v kavárně k diskusi o kariérních výzvách',
+      settingCs: 'Neformální prostředí kavárny',
     },
   });
 

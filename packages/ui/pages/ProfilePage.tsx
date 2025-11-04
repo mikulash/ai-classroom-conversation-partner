@@ -125,11 +125,11 @@ export function UserProfilePage() {
       const { error: updateError, data: freshData } = await profileApi.upsert(
         payload,
       );
-      if (updateError || freshData[0] === null) {
+      if (updateError || freshData === null) {
         console.error('Error saving profile:', updateError);
       } else {
         console.log('Profile saved successfully');
-        setProfile(freshData[0]);
+        setProfile(freshData);
         setIsSuccess(true);
         setTimeout(() => setIsSuccess(false), 3000);
       }

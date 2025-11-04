@@ -1,4 +1,4 @@
-import {Profile} from "../generated/prisma/client";
+import { Profile } from '../generated/prisma/client';
 
 
 export const isProfileAdmin = (profile: Profile) => {
@@ -8,3 +8,4 @@ export const isProfileAdmin = (profile: Profile) => {
 export const isProfileOwner = (profile: Profile) => {
   return profile.userRole === 'owner';
 };
+
