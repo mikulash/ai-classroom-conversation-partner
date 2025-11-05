@@ -89,14 +89,35 @@ enum TimestampedTranscriptionModelProvider {
 }
 
 // ============================================
+// REFRESH TOKENS
+// ============================================
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  revoked   Boolean  @default(false)
+
+  // Relations
+  user Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+  @@index([userId])
+  @@index([token])
+}
+
+// ============================================
 // PROFILES
 // ============================================
 
 model Profile {
-  id               String    @id
+  id               String    @id @default(uuid())
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
-  email            String?
+  email            String?   @unique
+  password         String?
   fullName         String?   @map("full_name")
   gender           String?
   conversationRole String    @default("") @map("conversation_role")
@@ -106,6 +127,7 @@ model Profile {
   // Relations
   conversations             Conversation[]
   adminCustomModelSelection AdminUserCustomModelSelection?
+  refreshTokens             RefreshToken[]
 
   @@map("profiles")
 }

@@ -1,5 +1,14 @@
 import { Router } from 'express';
-import { hashPassword, comparePassword, generateToken } from '../../utils/auth.js';
+import {
+  hashPassword,
+  comparePassword,
+  generateToken,
+  generateRefreshToken,
+  storeRefreshToken,
+  verifyRefreshToken,
+  revokeRefreshToken,
+  revokeAllUserRefreshTokens
+} from '../../utils/auth.js';
 import { authenticate } from '../../middleware/auth.js';
 import prisma from '../../clients/prisma';
 
@@ -70,16 +79,20 @@ router.post('/register', async (req, res) => {
       },
     });
 
-    // Generate JWT token
-    const token = generateToken({
+    // Generate JWT access token and refresh token
+    const accessToken = generateToken({
       userId: user.id,
-      email: user.email,
+      email: user.email || '',
       userRole: user.userRole,
     });
 
+    const refreshToken = generateRefreshToken();
+    await storeRefreshToken(user.id, refreshToken);
+
     res.status(201).json({
       user,
-      token,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -112,6 +125,11 @@ router.post('/login', async (req, res) => {
     }
 
     // Verify password
+    if (!user.password) {
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
+
     const isValidPassword = await comparePassword(password, user.password);
 
     if (!isValidPassword) {
@@ -119,19 +137,23 @@ router.post('/login', async (req, res) => {
       return;
     }
 
-    // Generate JWT token
-    const token = generateToken({
+    // Generate JWT access token and refresh token
+    const accessToken = generateToken({
       userId: user.id,
-      email: user.email,
+      email: user.email || '',
       userRole: user.userRole,
     });
 
-    // Return user data (without password) and token
+    const refreshToken = generateRefreshToken();
+    await storeRefreshToken(user.id, refreshToken);
+
+    // Return user data (without password) and tokens
     const { password: _, ...userWithoutPassword } = user;
 
     res.status(200).json({
       user: userWithoutPassword,
-      token,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -179,25 +201,98 @@ router.get('/me', authenticate, async (req, res) => {
 
 /**
  * POST /api/auth/refresh
- * Refresh JWT token
+ * Refresh access token using refresh token
  */
-router.post('/refresh', authenticate, async (req, res) => {
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      res.status(400).json({ message: 'Refresh token is required' });
+      return;
+    }
+
+    // Verify the refresh token
+    const userId = await verifyRefreshToken(refreshToken);
+
+    if (!userId) {
+      res.status(401).json({ message: 'Invalid or expired refresh token' });
+      return;
+    }
+
+    // Get user data
+    const user = await prisma.profile.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        userRole: true,
+      },
+    });
+
+    if (!user || !user.email) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Generate new access token
+    const accessToken = generateToken({
+      userId: user.id,
+      email: user.email,
+      userRole: user.userRole,
+    });
+
+    // Optionally rotate refresh token (revoke old one and issue new one)
+    // This is more secure but requires client to update both tokens
+    const newRefreshToken = generateRefreshToken();
+    await revokeRefreshToken(refreshToken);
+    await storeRefreshToken(user.id, newRefreshToken);
+
+    res.status(200).json({
+      accessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/auth/logout
+ * Logout user and revoke refresh token
+ */
+router.post('/logout', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      await revokeRefreshToken(refreshToken);
+    }
+
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/auth/logout-all
+ * Logout user from all devices (revoke all refresh tokens)
+ */
+router.post('/logout-all', authenticate, async (req, res) => {
   try {
     if (!req.user) {
       res.status(401).json({ message: 'Not authenticated' });
       return;
     }
 
-    // Generate new token
-    const token = generateToken({
-      userId: req.user.userId,
-      email: req.user.email,
-      userRole: req.user.userRole,
-    });
+    await revokeAllUserRefreshTokens(req.user.userId);
 
-    res.status(200).json({ token });
+    res.status(200).json({ message: 'Logged out from all devices successfully' });
   } catch (error) {
-    console.error('Token refresh error:', error);
+    console.error('Logout all error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -231,6 +326,11 @@ router.put('/password', authenticate, async (req, res) => {
     }
 
     // Verify current password
+    if (!user.password) {
+      res.status(401).json({ message: 'Current password is not set' });
+      return;
+    }
+
     const isValidPassword = await comparePassword(currentPassword, user.password);
 
     if (!isValidPassword) {
