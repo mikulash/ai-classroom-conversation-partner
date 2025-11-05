@@ -182,10 +182,10 @@ const getTextToSpeech = async (
     const openai = await getOpenAIClient();
     const speechResponse = await openai.audio.speech.create({
       model: model_api_name,
-      voice: personality.openai_voice_name,
+      voice: personality.openaiVoiceName,
       input: inputMessage,
       instructions:
-                personality.voice_instructions + `Speak in ${language.ENGLISH_NAME}.`,
+                personality.voiceInstructions + `Speak in ${language.ENGLISH_NAME}.`,
       response_format: response_format,
     });
 
