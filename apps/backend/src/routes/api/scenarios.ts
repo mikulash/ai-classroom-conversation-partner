@@ -1,6 +1,19 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import {
+  CreateScenarioRequest,
+  UpdateScenarioRequest,
+  ScenarioWithPersonality,
+  ErrorResponse,
+  MessageResponse,
+} from '@repo/shared/types/apiRoutes';
+
+// Path parameter types
+interface ScenarioIdParams extends ParamsDictionary {
+  id: string;
+}
 
 const router = Router();
 
@@ -8,7 +21,12 @@ const router = Router();
  * GET /api/scenarios
  * Get all scenarios (public access)
  */
-router.get('/', async (req, res) => {
+router.get(
+  '/',
+  async (
+    req: Request,
+    res: Response<ScenarioWithPersonality[] | ErrorResponse>,
+  ) => {
   try {
     const scenarios = await prisma.scenario.findMany({
       include: {
@@ -34,7 +52,12 @@ router.get('/', async (req, res) => {
  * GET /api/scenarios/:id
  * Get a specific scenario by ID
  */
-router.get('/:id', async (req, res) => {
+router.get(
+  '/:id',
+  async (
+    req: Request<ScenarioIdParams>,
+    res: Response<ScenarioWithPersonality | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
 
@@ -61,7 +84,14 @@ router.get('/:id', async (req, res) => {
  * POST /api/scenarios
  * Create a new scenario (admin only)
  */
-router.post('/', authenticate, requireAdmin, async (req, res) => {
+router.post(
+  '/',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<ParamsDictionary, ScenarioWithPersonality | ErrorResponse, CreateScenarioRequest>,
+    res: Response<ScenarioWithPersonality | ErrorResponse>,
+  ) => {
   try {
     const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
 
@@ -111,7 +141,14 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
  * PUT /api/scenarios/:id
  * Update a scenario (admin only)
  */
-router.put('/:id', authenticate, requireAdmin, async (req, res) => {
+router.put(
+  '/:id',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<ScenarioIdParams, ScenarioWithPersonality | ErrorResponse, UpdateScenarioRequest>,
+    res: Response<ScenarioWithPersonality | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
     const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
@@ -159,7 +196,14 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
  * DELETE /api/scenarios/:id
  * Delete a scenario (admin only)
  */
-router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
+router.delete(
+  '/:id',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<ScenarioIdParams>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
 

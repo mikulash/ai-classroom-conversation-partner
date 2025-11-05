@@ -13,8 +13,7 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:studio": "prisma studio",
     "db:push": "prisma db push --force-reset",
-    "db:seed": "prisma db seed",
-    "migrate:supabase": "tsx scripts/migrate-from-supabase.ts"
+    "db:seed": "prisma db seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -26,7 +25,6 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@repo/shared": "workspace:*",
-    "@supabase/supabase-js": "^2.49.4",
     "@types/ms": "^2.1.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",

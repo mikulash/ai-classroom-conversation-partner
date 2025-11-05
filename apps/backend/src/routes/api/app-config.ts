@@ -1,6 +1,12 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 import prisma from '../../clients/prisma';
+import {
+  UpdateAppConfigRequest,
+  AppConfigWithModels,
+  ErrorResponse,
+} from '@repo/shared/types/apiRoutes';
 
 const router = Router();
 
@@ -8,7 +14,12 @@ const router = Router();
  * GET /api/app-config
  * Get app configuration (public access)
  */
-router.get('/', async (req, res) => {
+router.get(
+  '/',
+  async (
+    req: Request,
+    res: Response<AppConfigWithModels | ErrorResponse>,
+  ) => {
   try {
     const config = await prisma.appConfig.findFirst({
       include: {
@@ -36,7 +47,14 @@ router.get('/', async (req, res) => {
  * PUT /api/app-config
  * Update app configuration (admin only)
  */
-router.put('/', authenticate, requireAdmin, async (req, res) => {
+router.put(
+  '/',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<ParamsDictionary, AppConfigWithModels | ErrorResponse, UpdateAppConfigRequest>,
+    res: Response<AppConfigWithModels | ErrorResponse>,
+  ) => {
   try {
     const {
       responseModelId,

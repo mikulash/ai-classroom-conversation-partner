@@ -1,5 +1,15 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
+import {
+  ConversationRoleResponse,
+  ErrorResponse,
+} from '@repo/shared/types/apiRoutes';
+
+// Path parameter types
+interface ConversationRoleIdParams extends ParamsDictionary {
+  id: string;
+}
 
 const router = Router();
 
@@ -7,7 +17,12 @@ const router = Router();
  * GET /api/conversation-roles
  * Get all conversation roles (public access)
  */
-router.get('/', async (req, res) => {
+router.get(
+  '/',
+  async (
+    req: Request,
+    res: Response<ConversationRoleResponse[] | ErrorResponse>,
+  ) => {
   try {
     const roles = await prisma.conversationRole.findMany({
       orderBy: { createdAt: 'desc' },
@@ -24,7 +39,12 @@ router.get('/', async (req, res) => {
  * GET /api/conversation-roles/:id
  * Get a specific conversation role by ID
  */
-router.get('/:id', async (req, res) => {
+router.get(
+  '/:id',
+  async (
+    req: Request<ConversationRoleIdParams>,
+    res: Response<ConversationRoleResponse | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
 

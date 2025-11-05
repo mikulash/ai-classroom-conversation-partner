@@ -1,6 +1,20 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import { Personality } from '@repo/shared/types/db/entities';
+import {
+  CreatePersonalityRequest,
+  UpdatePersonalityRequest,
+  PersonalityWithScenarios,
+  ErrorResponse,
+  MessageResponse,
+} from '@repo/shared/types/apiRoutes';
+
+// Path parameter types
+interface PersonalityIdParams extends ParamsDictionary {
+  id: string;
+}
 
 const router = Router();
 
@@ -8,7 +22,12 @@ const router = Router();
  * GET /api/personalities
  * Get all personalities (public access, but filter hidden ones for non-admins)
  */
-router.get('/', async (req, res) => {
+router.get(
+  '/',
+  async (
+    req: Request,
+    res: Response<Personality[] | ErrorResponse>,
+  ) => {
   try {
     // Check if user is authenticated and is admin
     const isAdmin = req.header('authorization') ? false : false; // Will be set by middleware if needed
@@ -29,7 +48,12 @@ router.get('/', async (req, res) => {
  * GET /api/personalities/:id
  * Get a specific personality by ID
  */
-router.get('/:id', async (req, res) => {
+router.get(
+  '/:id',
+  async (
+    req: Request<PersonalityIdParams>,
+    res: Response<PersonalityWithScenarios | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
 
@@ -56,7 +80,14 @@ router.get('/:id', async (req, res) => {
  * POST /api/personalities
  * Create a new personality (admin only)
  */
-router.post('/', authenticate, requireAdmin, async (req, res) => {
+router.post(
+  '/',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<ParamsDictionary, Personality | ErrorResponse, CreatePersonalityRequest>,
+    res: Response<Personality | ErrorResponse>,
+  ) => {
   try {
     const {
       name,
@@ -109,7 +140,14 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
  * PUT /api/personalities/:id
  * Update a personality (admin only)
  */
-router.put('/:id', authenticate, requireAdmin, async (req, res) => {
+router.put(
+  '/:id',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<PersonalityIdParams, Personality | ErrorResponse, UpdatePersonalityRequest>,
+    res: Response<Personality | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
     const {
@@ -158,7 +196,14 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
  * DELETE /api/personalities/:id
  * Delete a personality (admin only)
  */
-router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
+router.delete(
+  '/:id',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<PersonalityIdParams>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
 

@@ -33,7 +33,8 @@ export const useSession = () => {
 
     // Listen for storage events (for cross-tab sync)
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'auth_token' || e.key === 'user_profile') {
+      // Updated to use new localStorage keys
+      if (e.key === 'access_token' || e.key === 'refresh_token' || e.key === 'user_profile') {
         authApi.getSession().then(({ data: { session } }) => {
           setSession(session);
         });

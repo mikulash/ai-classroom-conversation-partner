@@ -1,6 +1,19 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin, requireOwner } from '../../middleware/auth.js';
+import {
+  UpdateProfileRequest,
+  UpdateRoleRequest,
+  ProfileResponse,
+  ErrorResponse,
+  MessageResponse,
+} from '@repo/shared/types/apiRoutes';
+
+// Path parameter types
+interface ProfileIdParams extends ParamsDictionary {
+  id: string;
+}
 
 const router = Router();
 
@@ -11,7 +24,13 @@ router.use(authenticate);
  * GET /api/profiles
  * Get all profiles (admin/owner only)
  */
-router.get('/', requireOwner, async (req, res) => {
+router.get(
+  '/',
+  requireOwner,
+  async (
+    req: Request,
+    res: Response<ProfileResponse[] | ErrorResponse>,
+  ) => {
   try {
     const profiles = await prisma.profile.findMany({
       select: {
@@ -39,7 +58,12 @@ router.get('/', requireOwner, async (req, res) => {
  * GET /api/profiles/:id
  * Get a specific profile by ID
  */
-router.get('/:id', async (req, res) => {
+router.get(
+  '/:id',
+  async (
+    req: Request<ProfileIdParams>,
+    res: Response<ProfileResponse | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
 
@@ -80,7 +104,12 @@ router.get('/:id', async (req, res) => {
  * PUT /api/profiles/:id
  * Update a profile
  */
-router.put('/:id', async (req, res) => {
+router.put(
+  '/:id',
+  async (
+    req: Request<ProfileIdParams, ProfileResponse | ErrorResponse, UpdateProfileRequest>,
+    res: Response<ProfileResponse | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
     const { fullName, gender, conversationRole, bio } = req.body;
@@ -123,7 +152,13 @@ router.put('/:id', async (req, res) => {
  * PUT /api/profiles/:id/role
  * Update user role (admin/owner only)
  */
-router.put('/:id/role', requireAdmin, async (req, res) => {
+router.put(
+  '/:id/role',
+  requireAdmin,
+  async (
+    req: Request<ProfileIdParams, ProfileResponse | ErrorResponse, UpdateRoleRequest>,
+    res: Response<ProfileResponse | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
     const { userRole } = req.body;
@@ -166,7 +201,13 @@ router.put('/:id/role', requireAdmin, async (req, res) => {
  * DELETE /api/profiles/:id
  * Delete a profile (owner only)
  */
-router.delete('/:id', requireOwner, async (req, res) => {
+router.delete(
+  '/:id',
+  requireOwner,
+  async (
+    req: Request<ProfileIdParams>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
   try {
     const { id } = req.params;
 

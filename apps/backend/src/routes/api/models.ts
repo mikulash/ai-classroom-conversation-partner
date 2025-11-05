@@ -1,6 +1,25 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import {
+  ResponseModel,
+  TtsModel,
+  RealtimeModel,
+  RealtimeTranscriptionModel,
+  TimestampedTranscriptionModel,
+} from '@repo/shared/types/db/entities';
+import {
+  UpdateAdminSelectionRequest,
+  AdminSelectionWithModels,
+  ErrorResponse,
+  MessageResponse,
+} from '@repo/shared/types/apiRoutes';
+
+// Path parameter types
+interface UserIdParams extends ParamsDictionary {
+  userId: string;
+}
 
 const router = Router();
 
@@ -12,7 +31,12 @@ const router = Router();
  * GET /api/models/response
  * Get all response models
  */
-router.get('/response', async (req, res) => {
+router.get(
+  '/response',
+  async (
+    req: Request,
+    res: Response<ResponseModel[] | ErrorResponse>,
+  ) => {
   try {
     const models = await prisma.responseModel.findMany({
       where: { isEnabled: true },
@@ -33,7 +57,12 @@ router.get('/response', async (req, res) => {
  * GET /api/models/tts
  * Get all TTS models
  */
-router.get('/tts', async (req, res) => {
+router.get(
+  '/tts',
+  async (
+    req: Request,
+    res: Response<TtsModel[] | ErrorResponse>,
+  ) => {
   try {
     const models = await prisma.ttsModel.findMany({
       where: { isEnabled: true },
@@ -54,7 +83,12 @@ router.get('/tts', async (req, res) => {
  * GET /api/models/realtime
  * Get all realtime models
  */
-router.get('/realtime', async (req, res) => {
+router.get(
+  '/realtime',
+  async (
+    req: Request,
+    res: Response<RealtimeModel[] | ErrorResponse>,
+  ) => {
   try {
     const models = await prisma.realtimeModel.findMany({
       where: { isEnabled: true },
@@ -75,7 +109,12 @@ router.get('/realtime', async (req, res) => {
  * GET /api/models/realtime-transcription
  * Get all realtime transcription models
  */
-router.get('/realtime-transcription', async (req, res) => {
+router.get(
+  '/realtime-transcription',
+  async (
+    req: Request,
+    res: Response<RealtimeTranscriptionModel[] | ErrorResponse>,
+  ) => {
   try {
     const models = await prisma.realtimeTranscriptionModel.findMany({
       where: { isEnabled: true },
@@ -96,7 +135,12 @@ router.get('/realtime-transcription', async (req, res) => {
  * GET /api/models/timestamped-transcription
  * Get all timestamped transcription models
  */
-router.get('/timestamped-transcription', async (req, res) => {
+router.get(
+  '/timestamped-transcription',
+  async (
+    req: Request,
+    res: Response<TimestampedTranscriptionModel[] | ErrorResponse>,
+  ) => {
   try {
     const models = await prisma.timestampedTranscriptionModel.findMany({
       where: { isEnabled: true },
@@ -117,7 +161,14 @@ router.get('/timestamped-transcription', async (req, res) => {
  * GET /api/models/admin-selection/:userId
  * Get admin custom model selection for a user (admin only)
  */
-router.get('/admin-selection/:userId', authenticate, requireAdmin, async (req, res) => {
+router.get(
+  '/admin-selection/:userId',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<UserIdParams>,
+    res: Response<AdminSelectionWithModels | null | ErrorResponse>,
+  ) => {
   try {
     const { userId } = req.params;
 
@@ -143,7 +194,14 @@ router.get('/admin-selection/:userId', authenticate, requireAdmin, async (req, r
  * PUT /api/models/admin-selection/:userId
  * Update admin custom model selection for a user (admin only)
  */
-router.put('/admin-selection/:userId', authenticate, requireAdmin, async (req, res) => {
+router.put(
+  '/admin-selection/:userId',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<UserIdParams, AdminSelectionWithModels | ErrorResponse, UpdateAdminSelectionRequest>,
+    res: Response<AdminSelectionWithModels | ErrorResponse>,
+  ) => {
   try {
     const { userId } = req.params;
     const {
@@ -201,7 +259,14 @@ router.put('/admin-selection/:userId', authenticate, requireAdmin, async (req, r
  * DELETE /api/models/admin-selection/:userId
  * Delete admin custom model selection for a user (admin only)
  */
-router.delete('/admin-selection/:userId', authenticate, requireAdmin, async (req, res) => {
+router.delete(
+  '/admin-selection/:userId',
+  authenticate,
+  requireAdmin,
+  async (
+    req: Request<UserIdParams>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
   try {
     const { userId } = req.params;
 
