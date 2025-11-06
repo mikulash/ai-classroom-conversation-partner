@@ -1,4 +1,3 @@
-
 export interface ConversationLog {
     timestamp: string;
     level: logLevel;

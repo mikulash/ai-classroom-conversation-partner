@@ -2,8 +2,14 @@ import { Router, Request, Response } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin, requireOwner } from '../../middleware/auth.js';
-import { Profile, ProfileExtended } from '@repo/shared/types/db/entities';
-import { ErrorResponse } from '@repo/shared/types/apiFigurantClient';
+import { ProfileExtended } from '@repo/shared/types/db/entities';
+import {
+  ErrorResponse,
+  MessageResponse,
+  UpdateProfileRequest,
+  UpdateUserRoleRequest,
+  ProfileResponse,
+} from '@repo/shared/types/api';
 import { UserRole } from '@repo/shared/types/db/enums';
 // Path parameter types
 interface ProfileIdParams extends ParamsDictionary {
@@ -58,7 +64,7 @@ router.get(
   requireOwner,
   async (
     req: Request,
-    res: Response<ProfileExtended[] | ErrorResponse>,
+    res: Response<ProfileResponse[] | ErrorResponse>,
   ) => {
     try {
       const users = await prisma.user.findMany({
@@ -86,7 +92,7 @@ router.get(
   '/:id',
   async (
     req: Request<ProfileIdParams>,
-    res: Response<ProfileExtended | ErrorResponse>,
+    res: Response<ProfileResponse | ErrorResponse>,
   ) => {
     try {
       const { id } = req.params;
@@ -132,10 +138,10 @@ router.put(
   async (
     req: Request<
             ProfileIdParams,
-            ProfileExtended | ErrorResponse,
-            Profile
+            ProfileResponse | ErrorResponse,
+            UpdateProfileRequest
         >,
-    res: Response<ProfileExtended | ErrorResponse>,
+    res: Response<ProfileResponse | ErrorResponse>,
   ) => {
     try {
       const { id } = req.params;
@@ -205,14 +211,14 @@ router.put(
   async (
     req: Request<
             ProfileIdParams,
-            ProfileExtended | ErrorResponse,
-            UserRole
+            ProfileResponse | ErrorResponse,
+            UpdateUserRoleRequest
         >,
-    res: Response<ProfileExtended | ErrorResponse>,
+    res: Response<ProfileResponse | ErrorResponse>,
   ) => {
     try {
       const { id } = req.params;
-      const userRole = req.body;
+      const { userRole } = req.body;
 
       if (!['basic', 'admin', 'owner'].includes(userRole)) {
         res.status(400).json({ message: 'Invalid user role' });
@@ -265,7 +271,7 @@ router.delete(
   requireOwner,
   async (
     req: Request<ProfileIdParams>,
-    res: Response<{ message: string } | ErrorResponse>,
+    res: Response<MessageResponse | ErrorResponse>,
   ) => {
     try {
       const { id } = req.params;

@@ -4,7 +4,7 @@ import prisma from '../../clients/prisma';
 import {
   ConversationRoleResponse,
   ErrorResponse,
-} from '@repo/shared/types/apiRoutes';
+} from '@repo/shared/types/api';
 
 // Path parameter types
 interface ConversationRoleIdParams extends ParamsDictionary {

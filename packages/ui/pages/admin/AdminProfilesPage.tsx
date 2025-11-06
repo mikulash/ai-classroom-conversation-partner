@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { conversationApi, ConversationWithPersonality, profileApi } from '@repo/frontend-utils/src/apiService';
+import { conversationApi, profileApi } from '@repo/frontend-utils/src/apiService';
+import { ConversationWithPersonality } from '@repo/shared/types/api';
 import { toast } from 'sonner';
 import { useProfile } from '../../hooks/useProfile';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
@@ -11,14 +12,14 @@ import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
-import { ProfileExtended } from '@repo/shared/types/db/entities';
+import { ProfileResponse } from '@repo/shared/types/api';
 import { UserRole } from '@repo/shared/types/db/enums';
 
 
 export function AdminProfilesPage() {
   const { t } = useTypedTranslation();
 
-  const [profiles, setProfiles] = useState<ProfileExtended[]>([]);
+  const [profiles, setProfiles] = useState<ProfileResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [search, setSearch] = useState('');

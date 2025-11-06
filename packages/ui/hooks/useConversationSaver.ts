@@ -6,16 +6,15 @@ import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import {
   AppConfig,
-  ConversationCreate,
   Personality,
-  Profile,
   Scenario,
 } from '@repo/shared/types/db/entities';
 import { ConversationType } from '@repo/shared/types/db/enums';
+import { CreateConversationRequest, ProfileResponse } from '@repo/shared/types/api';
 
 
 interface ConversationSaverParams {
-    userProfile?: Profile | null;
+    userProfile?: ProfileResponse | null;
     personality: Personality;
     scenario?: Scenario | null;
     chatStartTime: number;
@@ -49,7 +48,7 @@ export const useConversationSaver = ({
       setIsSavingConversation(true);
       conversationSavedRef.current = true;
 
-      const conversationData: ConversationCreate = {
+      const conversationData: CreateConversationRequest = {
         startTime: new Date(chatStartTime),
         endTime: new Date(),
         endedReason: endReason,

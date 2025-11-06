@@ -1,21 +1,41 @@
 import axios, { AxiosInstance } from 'axios';
 import {
-  AdminUserCustomModelSelection,
-  AppConfig,
-  Conversation, ConversationCreate,
   ConversationRole,
-  Personality, PersonalityCreate,
-  Profile, ProfileExtended,
+  Personality,
   RealtimeModel,
   RealtimeTranscriptionModel,
   ResponseModel,
-  Scenario, ScenarioCreate,
+  Scenario,
   TimestampedTranscriptionModel,
   TtsModel,
 } from '@repo/shared/types/db/entities';
 
 import { UserRole } from '@repo/shared/types/db/enums';
-import { ApiResponse, ConversationWithPersonality, RegisterPayload, AuthResponse } from '@repo/shared/types/api';
+import {
+  AdminSelectionWithModels,
+  ApiResponse,
+  AppConfigWithModels,
+  AuthResponse,
+  AuthTokensResponse,
+  ConversationWithPersonality,
+  CreateConversationRequest,
+  CreatePersonalityRequest,
+  CreateScenarioRequest,
+  RefreshTokenRequest,
+  LoginRequest,
+  LogoutRequest,
+  MessageResponse,
+  ProfileResponse,
+  RegisterPayload,
+  ScenarioWithPersonality,
+  UpdateAdminSelectionRequest,
+  UpdateAppConfigRequest,
+  UpdatePasswordRequest,
+  UpdatePersonalityRequest,
+  UpdateProfileRequest,
+  UpdateScenarioRequest,
+  UpdateUserRoleRequest,
+} from '@repo/shared/types/api';
 
 // Track if we're currently refreshing to prevent multiple refresh requests
 let isRefreshing = false;
@@ -128,7 +148,7 @@ interface InitialData {
     personalities: Personality[];
     scenarios: Scenario[];
     conversationRoles: ConversationRole[];
-    appConfig: AppConfig;
+    appConfig: AppConfigWithModels;
 }
 
 // -------------------- Initial Data Fetch --------------------
@@ -138,7 +158,7 @@ export async function fetchInitialData(): Promise<InitialData> {
       api.get<Personality[]>('/api/personalities'),
       api.get<Scenario[]>('/api/scenarios'),
       api.get<ConversationRole[]>('/api/conversation-roles'),
-      api.get<AppConfig>('/api/app-config'),
+      api.get<AppConfigWithModels>('/api/app-config'),
     ]);
 
 
@@ -217,10 +237,8 @@ export const authApi = {
      */
   signInWithPassword: async (email: string, password: string) => {
     try {
-      const response = await api.post<AuthResponse>('/api/auth/login', {
-        email,
-        password,
-      });
+      const payload: LoginRequest = { email, password };
+      const response = await api.post<AuthResponse>('/api/auth/login', payload);
 
       const { user, accessToken, refreshToken } = response.data;
 
@@ -252,8 +270,8 @@ export const authApi = {
       const refreshToken = localStorage.getItem('refresh_token');
 
       if (refreshToken) {
-        // Call backend to revoke refresh token
-        await api.post('/api/auth/logout', { refreshToken });
+        const payload: LogoutRequest = { refreshToken };
+        await api.post<MessageResponse>('/api/auth/logout', payload);
       }
     } catch (error) {
       console.error('Logout error:', error);
@@ -267,25 +285,6 @@ export const authApi = {
     return { error: null };
   },
 
-  /**
-     * Sign out from all devices
-     */
-  signOutAllDevices: async () => {
-    try {
-      await api.post('/api/auth/logout-all');
-
-      // Clear local storage
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_profile');
-
-      return { error: null };
-    } catch (error: any) {
-      return {
-        error: { message: error.response?.data?.message || 'Failed to logout from all devices' },
-      };
-    }
-  },
 
   /**
      * Manually refresh the access token
@@ -298,10 +297,8 @@ export const authApi = {
         throw new Error('No refresh token available');
       }
 
-      const response = await api.post<{ accessToken: string; refreshToken: string }>(
-        '/api/auth/refresh',
-        { refreshToken },
-      );
+      const payload: RefreshTokenRequest = { refreshToken };
+      const response = await api.post<AuthTokensResponse>('/api/auth/refresh', payload);
 
       const { accessToken, refreshToken: newRefreshToken } = response.data;
 
@@ -323,7 +320,7 @@ export const authApi = {
      */
   getCurrentUser: async () => {
     try {
-      const response = await api.get<Profile>('/api/auth/me');
+      const response = await api.get<ProfileResponse>('/api/auth/me');
       const user = response.data;
 
       // Update stored user profile
@@ -356,10 +353,8 @@ export const authApi = {
      */
   updatePassword: async (currentPassword: string, newPassword: string) => {
     try {
-      await api.put('/api/auth/password', {
-        currentPassword,
-        newPassword,
-      });
+      const payload: UpdatePasswordRequest = { currentPassword, newPassword };
+      await api.put<MessageResponse>('/api/auth/password', payload);
       return { data: null, error: null };
     } catch (error: any) {
       return {
@@ -394,41 +389,49 @@ export const authApi = {
 
 // -------------------- Profile API --------------------
 export const profileApi = {
-  getById: async (id: string): Promise<ApiResponse<Profile>> => {
+  getById: async (id: string): Promise<ApiResponse<ProfileResponse>> => {
     try {
-      const response = await api.get<Profile>(`/api/profiles/${id}`);
+      const response = await api.get<ProfileResponse>(`/api/profiles/${id}`);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to fetch profile' } };
+      return {
+        data: null as unknown as ProfileResponse,
+        error: { message: error.response?.data?.message || 'Failed to fetch profile' },
+      };
     }
   },
 
-  getAll: async (): Promise<ApiResponse<ProfileExtended[]>> => {
+  getAll: async (): Promise<ApiResponse<ProfileResponse[]>> => {
     try {
-      const response = await api.get<ProfileExtended[]>('/api/profiles');
+      const response = await api.get<ProfileResponse[]>('/api/profiles');
       return { data: response.data };
     } catch (error: any) {
       return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch profiles' } };
     }
   },
 
-  upsert: async (payload: Profile): Promise<ApiResponse<Profile>> => {
+  upsert: async (profileId: string, payload: UpdateProfileRequest): Promise<ApiResponse<ProfileResponse>> => {
     try {
-      const response = await api.put<Profile>(`/api/profiles/${payload.id}`, payload);
+      const response = await api.put<ProfileResponse>(`/api/profiles/${profileId}`, payload);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to update profile' } };
+      return {
+        data: null as unknown as ProfileResponse,
+        error: { message: error.response?.data?.message || 'Failed to update profile' },
+      };
     }
   },
 
-  updateRole: async (profileId: string, role: UserRole): Promise<ApiResponse<Profile>> => {
+  updateRole: async (profileId: string, role: UserRole): Promise<ApiResponse<ProfileResponse>> => {
     try {
-      const response = await api.put<Profile>(`/api/profiles/${profileId}/role`, {
-        userRole: role,
-      });
+      const payload: UpdateUserRoleRequest = { userRole: role };
+      const response = await api.put<ProfileResponse>(`/api/profiles/${profileId}/role`, payload);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to update role' } };
+      return {
+        data: null as unknown as ProfileResponse,
+        error: { message: error.response?.data?.message || 'Failed to update role' },
+      };
     }
   },
 };
@@ -436,6 +439,7 @@ export const profileApi = {
 // -------------------- Conversation API --------------------
 export const conversationApi = {
   byUser: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
+    // todo
     try {
       const response = await api.get<ConversationWithPersonality[]>('/api/conversations');
       return { data: response.data };
@@ -444,25 +448,25 @@ export const conversationApi = {
     }
   },
 
-  insert: async (conversation: ConversationCreate): Promise<ApiResponse<Conversation>> => {
+  insert: async (conversation: CreateConversationRequest): Promise<ApiResponse<ConversationWithPersonality>> => {
     try {
-      const response = await api.post<Conversation>('/api/conversations', conversation);
+      const response = await api.post<ConversationWithPersonality>('/api/conversations', conversation);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as any,
+        data: null as unknown as ConversationWithPersonality,
         error: { message: error.response?.data?.message || 'Failed to create conversation' },
       };
     }
   },
 
-  delete: async (id: number): Promise<ApiResponse<{ message: string }>> => {
+  delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
     try {
-      const response = await api.delete<{ message: string }>(`/api/conversations/${id}`);
+      const response = await api.delete<MessageResponse>(`/api/conversations/${id}`);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as any,
+        data: null as unknown as MessageResponse,
         error: { message: error.response?.data?.message || 'Failed to delete conversation' },
       };
     }
@@ -480,37 +484,37 @@ export const personalityApi = {
     }
   },
 
-  insert: async (personality: PersonalityCreate): Promise<ApiResponse<Personality>> => {
+  insert: async (personality: CreatePersonalityRequest): Promise<ApiResponse<Personality>> => {
     try {
       const response = await api.post<Personality>('/api/personalities', personality);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as any,
+        data: null as unknown as Personality,
         error: { message: error.response?.data?.message || 'Failed to create personality' },
       };
     }
   },
 
-  update: async (id: number, personality: Partial<Personality>): Promise<ApiResponse<Personality>> => {
+  update: async (id: number, personality: UpdatePersonalityRequest): Promise<ApiResponse<Personality>> => {
     try {
       const response = await api.put<Personality>(`/api/personalities/${id}`, personality);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as any,
+        data: null as unknown as Personality,
         error: { message: error.response?.data?.message || 'Failed to update personality' },
       };
     }
   },
 
-  delete: async (id: number): Promise<ApiResponse<{ message: string }>> => {
+  delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
     try {
-      const response = await api.delete<{ message: string }>(`/api/personalities/${id}`);
+      const response = await api.delete<MessageResponse>(`/api/personalities/${id}`);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as any,
+        data: null as unknown as MessageResponse,
         error: { message: error.response?.data?.message || 'Failed to delete personality' },
       };
     }
@@ -519,39 +523,48 @@ export const personalityApi = {
 
 // -------------------- Scenario API --------------------
 export const scenarioApi = {
-  all: async (): Promise<ApiResponse<Scenario[]>> => {
+  all: async (): Promise<ApiResponse<ScenarioWithPersonality[]>> => {
     try {
-      const response = await api.get<Scenario[]>('/api/scenarios');
+      const response = await api.get<ScenarioWithPersonality[]>('/api/scenarios');
       return { data: response.data };
     } catch (error: any) {
       return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch scenarios' } };
     }
   },
 
-  insert: async (scenario: ScenarioCreate): Promise<ApiResponse<Scenario>> => {
+  insert: async (scenario: CreateScenarioRequest): Promise<ApiResponse<ScenarioWithPersonality>> => {
     try {
-      const response = await api.post<Scenario>('/api/scenarios', scenario);
+      const response = await api.post<ScenarioWithPersonality>('/api/scenarios', scenario);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to create scenario' } };
+      return {
+        data: null as unknown as ScenarioWithPersonality,
+        error: { message: error.response?.data?.message || 'Failed to create scenario' },
+      };
     }
   },
 
-  update: async (id: number, scenario: Scenario): Promise<ApiResponse<Scenario>> => {
+  update: async (id: number, scenario: UpdateScenarioRequest): Promise<ApiResponse<ScenarioWithPersonality>> => {
     try {
-      const response = await api.put<Scenario>(`/api/scenarios/${id}`, scenario);
+      const response = await api.put<ScenarioWithPersonality>(`/api/scenarios/${id}`, scenario);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to update scenario' } };
+      return {
+        data: null as unknown as ScenarioWithPersonality,
+        error: { message: error.response?.data?.message || 'Failed to update scenario' },
+      };
     }
   },
 
-  delete: async (id: number): Promise<ApiResponse<{ message: string }>> => {
+  delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
     try {
-      const response = await api.delete<{ message: string }>(`/api/scenarios/${id}`);
+      const response = await api.delete<MessageResponse>(`/api/scenarios/${id}`);
       return { data: response.data };
     } catch (error: any) {
-      return { data: null as any, error: { message: error.response?.data?.message || 'Failed to delete scenario' } };
+      return {
+        data: null as unknown as MessageResponse,
+        error: { message: error.response?.data?.message || 'Failed to delete scenario' },
+      };
     }
   },
 };
@@ -609,45 +622,45 @@ export const modelApi = {
     }
   },
 
-  adminUserSelection: async (userId: string): Promise<ApiResponse<AdminUserCustomModelSelection>> => {
+  adminUserSelection: async (userId: string): Promise<ApiResponse<AdminSelectionWithModels | null>> => {
     try {
-      const response = await api.get<AdminUserCustomModelSelection>(`/api/models/admin-selection/${userId}`);
+      const response = await api.get<AdminSelectionWithModels | null>(`/api/models/admin-selection/${userId}`);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as any,
+        data: null,
         error: { message: error.response?.data?.message || 'Failed to fetch admin selection' },
       };
     }
   },
 
-  upsertAdminUserSelection: async (userId: string, payload: Partial<AdminUserCustomModelSelection>): Promise<ApiResponse<AdminUserCustomModelSelection>> => {
+  upsertAdminUserSelection: async (
+    userId: string,
+    payload: UpdateAdminSelectionRequest,
+  ): Promise<ApiResponse<AdminSelectionWithModels>> => {
     try {
-      const response = await api.put<AdminUserCustomModelSelection>(`/api/models/admin-selection/${userId}`, payload);
+      const response = await api.put<AdminSelectionWithModels>(`/api/models/admin-selection/${userId}`, payload);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as any,
+        data: null as unknown as AdminSelectionWithModels,
         error: { message: error.response?.data?.message || 'Failed to update admin selection' },
       };
     }
   },
 
-  updateAppConfigModels: async (payload: Partial<AppConfig>): Promise<ApiResponse<AppConfig>> => {
+  updateAppConfigModels: async (payload: UpdateAppConfigRequest): Promise<ApiResponse<AppConfigWithModels>> => {
     try {
-      const response = await api.put<AppConfig>('/api/app-config', payload);
+      const response = await api.put<AppConfigWithModels>('/api/app-config', payload);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as any,
+        data: null as unknown as AppConfigWithModels,
         error: { message: error.response?.data?.message || 'Failed to update app config' },
       };
     }
   },
 };
-
-// Export types
-export type { RegisterPayload, AuthResponse };
 
 // Export API client for direct use if needed
 export { api };

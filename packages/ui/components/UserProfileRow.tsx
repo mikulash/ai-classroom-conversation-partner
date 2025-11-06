@@ -3,14 +3,14 @@ import { Button } from './ui/button';
 import { TableCell, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { ProfileExtended } from '@repo/shared/types/db/entities';
+import { ProfileResponse } from '@repo/shared/types/api';
 import { UserRole } from '@repo/shared/types/db/enums';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ConversationsList } from './ConversationsList';
 
 interface UserProfileRowProps {
-    profile: ProfileExtended;
+    profile: ProfileResponse;
     currentUserId?: string;
     isExpanded: boolean;
     isProcessing: boolean;

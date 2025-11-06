@@ -4,12 +4,8 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import {
-  authApi,
-  conversationApi,
-  ConversationWithPersonality,
-  profileApi,
-} from '@repo/frontend-utils/src/apiService';
+import { authApi, conversationApi, profileApi } from '@repo/frontend-utils/src/apiService';
+import { ConversationWithPersonality } from '@repo/shared/types/api';
 import { useUserStore } from '../hooks/useUserStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
@@ -17,7 +13,7 @@ import { ConversationTranscriptDialog } from '../components/ConversationTranscri
 import { ConversationsList } from '../components/ConversationsList';
 import { toast } from 'sonner';
 import { MyConversation } from '@repo/shared/types/myConversation';
-import { Profile, ProfileCreate } from '@repo/shared/types/db/entities';
+import { UpdateProfileRequest } from '@repo/shared/types/api';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
@@ -112,15 +108,15 @@ export function UserProfilePage() {
         return;
       }
 
-      const payload: Profile = {
-        ...cachedProfile,
-        fullName: fullName,
-        conversationRole: conversationRole,
+      const payload: UpdateProfileRequest = {
+        fullName,
+        conversationRole,
         gender,
         bio,
       };
 
       const { error: updateError, data: freshData } = await profileApi.upsert(
+        cachedProfile.id,
         payload,
       );
       if (updateError || freshData === null) {

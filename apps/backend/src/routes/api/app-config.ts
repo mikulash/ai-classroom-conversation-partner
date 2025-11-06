@@ -6,7 +6,7 @@ import {
   UpdateAppConfigRequest,
   AppConfigWithModels,
   ErrorResponse,
-} from '@repo/shared/types/apiRoutes';
+} from '@repo/shared/types/api';
 
 const router = Router();
 

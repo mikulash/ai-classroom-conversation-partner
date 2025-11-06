@@ -1,11 +1,10 @@
-import { Profile } from '../types/db/entities';
+import { ProfileResponse } from '../types/api';
 
-
-export const isProfileAdmin = (profile: Profile) => {
+export const isProfileAdmin = (profile: ProfileResponse) => {
   return profile.userRole === 'admin' || profile.userRole === 'owner';
 };
 
-export const isProfileOwner = (profile: Profile) => {
+export const isProfileOwner = (profile: ProfileResponse) => {
   return profile.userRole === 'owner';
 };
 

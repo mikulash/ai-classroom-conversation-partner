@@ -13,7 +13,18 @@ import {
 import { authenticate } from '../../middleware/auth.js';
 import prisma from '../../clients/prisma';
 import { ProfileExtended } from '@repo/shared/types/db/entities';
-import { AuthResponse } from '@supabase/supabase-js';
+import {
+  AuthResponse,
+  AuthTokensResponse,
+  ErrorResponse,
+  LoginRequest,
+  LogoutRequest,
+  MessageResponse,
+  ProfileResponse,
+  RefreshTokenRequest,
+  RegisterRequest,
+  UpdatePasswordRequest,
+} from '@repo/shared/types/api';
 
 const router = Router();
 
@@ -31,8 +42,8 @@ function isValidUniversityEmail(email: string, allowedDomains: string[]): boolea
 router.post(
   '/register',
   async (
-    req: Request<ParamsDictionary, ProfileExtended | ErrorResponse, RegisterRequest>,
-    res: Response<ProfileExtended | ErrorResponse>,
+    req: Request<ParamsDictionary, AuthResponse | ErrorResponse, RegisterRequest>,
+    res: Response<AuthResponse | ErrorResponse>,
   ) => {
     try {
       const { email, password, fullName, gender } = req.body;
@@ -69,7 +80,7 @@ router.post(
       const hashedPassword = await hashPassword(password);
 
       // Create user and profile in a transaction
-      const result = await prisma.$transaction(async (tx) => {
+      const userProfile = await prisma.$transaction(async (tx): Promise<ProfileResponse> => {
         // Create user with credentials
         const user = await tx.user.create({
           data: {
@@ -82,36 +93,42 @@ router.post(
         const profile = await tx.profile.create({
           data: {
             id: user.id,
-            fullName,
-            gender,
+            fullName: fullName ?? null,
+            gender: gender ?? null,
+            conversationRole: '',
+            bio: null,
             userRole: 'basic',
           },
         });
 
-        return {
+        const response: ProfileResponse = {
           id: user.id,
           email: user.email,
           fullName: profile.fullName,
           gender: profile.gender,
+          conversationRole: profile.conversationRole,
+          bio: profile.bio,
           userRole: profile.userRole,
-          createdAt: user.createdAt,
+          createdAt: profile.createdAt,
+          updatedAt: profile.updatedAt,
+          confirmedAt: user.confirmedAt ?? null,
         };
-      });
 
-      const user = result;
+        return response;
+      });
 
       // Generate JWT access token and refresh token
       const accessToken = generateToken({
-        userId: user.id,
-        email: user.email || '',
-        userRole: user.userRole,
+        userId: userProfile.id,
+        email: userProfile.email || '',
+        userRole: userProfile.userRole,
       });
 
       const refreshToken = generateRefreshToken();
-      await storeRefreshToken(user.id, refreshToken);
+      await storeRefreshToken(userProfile.id, refreshToken);
 
       res.status(201).json({
-        user,
+        user: userProfile,
         accessToken,
         refreshToken,
       });
@@ -177,19 +194,21 @@ router.post(
       await storeRefreshToken(user.id, refreshToken);
 
       // Return combined user + profile data (without password)
-      const userWithoutPassword = {
+      const userProfile: ProfileResponse = {
         id: user.id,
         email: user.email,
-        fullName: user.profile?.fullName || null,
-        gender: user.profile?.gender || null,
-        conversationRole: user.profile?.conversationRole || '',
-        bio: user.profile?.bio || null,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        fullName: user.profile.fullName,
+        gender: user.profile.gender,
+        conversationRole: user.profile.conversationRole,
+        bio: user.profile.bio,
+        userRole: user.profile.userRole,
+        createdAt: user.profile.createdAt,
+        updatedAt: user.profile.updatedAt,
+        confirmedAt: user.confirmedAt,
       };
 
       res.status(200).json({
-        user: userWithoutPassword,
+        user: userProfile,
         accessToken,
         refreshToken,
       });
@@ -228,17 +247,23 @@ router.get(
         return;
       }
 
+      if (!user.profile) {
+        res.status(404).json({ message: 'User profile not found' });
+        return;
+      }
+
       // Return combined user + profile data
-      const userData = {
+      const userData: ProfileResponse = {
         id: user.id,
         email: user.email,
-        fullName: user.profile?.fullName || null,
-        gender: user.profile?.gender || null,
-        conversationRole: user.profile?.conversationRole || '',
-        bio: user.profile?.bio || null,
-        userRole: user.profile?.userRole,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        fullName: user.profile.fullName,
+        gender: user.profile.gender,
+        conversationRole: user.profile.conversationRole,
+        bio: user.profile.bio,
+        userRole: user.profile.userRole,
+        createdAt: user.profile.createdAt,
+        updatedAt: user.profile.updatedAt,
+        confirmedAt: user.confirmedAt,
       };
 
       res.status(200).json(userData);
@@ -255,8 +280,8 @@ router.get(
 router.post(
   '/refresh',
   async (
-    req: Request<ParamsDictionary, TokenResponse | ErrorResponse, RefreshTokenRequest>,
-    res: Response<TokenResponse | ErrorResponse>,
+    req: Request<ParamsDictionary, AuthTokensResponse | ErrorResponse, RefreshTokenRequest>,
+    res: Response<AuthTokensResponse | ErrorResponse>,
   ) => {
     try {
       const { refreshToken } = req.body;

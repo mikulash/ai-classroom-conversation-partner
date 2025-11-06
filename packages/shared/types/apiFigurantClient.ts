@@ -129,7 +129,3 @@ export interface TranscriptionSessionCreateResponse {
     expires_at?: number;
 }
 
-export interface TranscriptionSessionCreateRequest {
-    input_audio_format: string;
-    language: string | null;
-}

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { Profile } from '@repo/shared/types/db/entities';
+import { ProfileResponse } from '@repo/shared/types/api';
 
 interface UserSlice {
-    profile: Profile | null
-    setProfile: (u: Profile) => void
+    profile: ProfileResponse | null
+    setProfile: (u: ProfileResponse) => void
     clearProfile: () => void
 }
 
