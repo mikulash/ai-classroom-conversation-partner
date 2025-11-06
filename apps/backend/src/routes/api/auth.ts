@@ -12,18 +12,8 @@ import {
 } from '../../utils/auth.js';
 import { authenticate } from '../../middleware/auth.js';
 import prisma from '../../clients/prisma';
-import {
-  RegisterRequest,
-  LoginRequest,
-  RefreshTokenRequest,
-  LogoutRequest,
-  UpdatePasswordRequest,
-  AuthResponse,
-  TokenResponse,
-  MessageResponse,
-  ErrorResponse,
-  ProfileResponse,
-} from '@repo/shared/types/apiRoutes';
+import { ProfileExtended } from '@repo/shared/types/db/entities';
+import { AuthResponse } from '@supabase/supabase-js';
 
 const router = Router();
 
@@ -41,8 +31,8 @@ function isValidUniversityEmail(email: string, allowedDomains: string[]): boolea
 router.post(
   '/register',
   async (
-    req: Request<ParamsDictionary, AuthResponse | ErrorResponse, RegisterRequest>,
-    res: Response<AuthResponse | ErrorResponse>,
+    req: Request<ParamsDictionary, ProfileExtended | ErrorResponse, RegisterRequest>,
+    res: Response<ProfileExtended | ErrorResponse>,
   ) => {
     try {
       const { email, password, fullName, gender } = req.body;
@@ -85,16 +75,16 @@ router.post(
           data: {
             email,
             password: hashedPassword,
-            userRole: 'basic',
           },
         });
 
         // Create profile with editable information
         const profile = await tx.profile.create({
           data: {
-            userId: user.id,
+            id: user.id,
             fullName,
             gender,
+            userRole: 'basic',
           },
         });
 
@@ -103,7 +93,7 @@ router.post(
           email: user.email,
           fullName: profile.fullName,
           gender: profile.gender,
-          userRole: user.userRole,
+          userRole: profile.userRole,
           createdAt: user.createdAt,
         };
       });
@@ -158,7 +148,7 @@ router.post(
         },
       });
 
-      if (!user) {
+      if (!user || !user.profile) {
         res.status(401).json({ message: 'Invalid credentials' });
         return;
       }
@@ -175,8 +165,13 @@ router.post(
       const accessToken = generateToken({
         userId: user.id,
         email: user.email,
-        userRole: user.userRole,
+        userRole: user.profile.userRole,
       });
+
+      if (!user.confirmedAt) {
+        res.status(403).json({ message: 'Please confirm your email before logging in.' });
+        return;
+      }
 
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(user.id, refreshToken);
@@ -189,7 +184,6 @@ router.post(
         gender: user.profile?.gender || null,
         conversationRole: user.profile?.conversationRole || '',
         bio: user.profile?.bio || null,
-        userRole: user.userRole,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       };
@@ -242,7 +236,7 @@ router.get(
         gender: user.profile?.gender || null,
         conversationRole: user.profile?.conversationRole || '',
         bio: user.profile?.bio || null,
-        userRole: user.userRole,
+        userRole: user.profile?.userRole,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       };
@@ -286,11 +280,11 @@ router.post(
         select: {
           id: true,
           email: true,
-          userRole: true,
+          profile: true,
         },
       });
 
-      if (!user) {
+      if (!user || !user.profile) {
         res.status(404).json({ message: 'User not found' });
         return;
       }
@@ -299,7 +293,7 @@ router.post(
       const accessToken = generateToken({
         userId: user.id,
         email: user.email,
-        userRole: user.userRole,
+        userRole: user.profile.userRole,
       });
 
       // Optionally rotate refresh token (revoke old one and issue new one)

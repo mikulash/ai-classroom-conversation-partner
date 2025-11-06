@@ -15,36 +15,7 @@ import {
 } from '@repo/shared/types/db/entities';
 
 import { UserRole } from '@repo/shared/types/db/enums';
-
-export type ConversationWithPersonality = Pick<
-    Conversation,
-    | 'id'
-    | 'startTime'
-    | 'endTime'
-    | 'endedReason'
-    | 'conversationType'
-    | 'messages'
-    | 'personalityId'
-> & { personality: { name: string } | null };
-
-// API Response types
-interface AuthResponse {
-    user: Profile;
-    accessToken: string;
-    refreshToken: string;
-}
-
-interface ApiResponse<T> {
-    data: T;
-    error?: { message: string };
-}
-
-interface RegisterPayload {
-    email: string;
-    password: string;
-    fullName?: string;
-    gender?: string;
-}
+import { ApiResponse, ConversationWithPersonality, RegisterPayload, AuthResponse } from '@repo/shared/types/api';
 
 // Track if we're currently refreshing to prevent multiple refresh requests
 let isRefreshing = false;
