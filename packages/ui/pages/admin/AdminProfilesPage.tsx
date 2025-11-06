@@ -12,7 +12,7 @@ import { ConversationTranscriptDialog } from '../../components/ConversationTrans
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
 import { Profile } from '@repo/shared/types/db/entities';
-import { type UserRole } from '@repo/shared/generated/prisma/enums';
+import { UserRole } from '@repo/shared/types/db/enums';
 
 
 export function AdminProfilesPage() {

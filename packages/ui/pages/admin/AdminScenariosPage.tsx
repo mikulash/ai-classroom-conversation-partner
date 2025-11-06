@@ -8,8 +8,9 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
-import { ScenarioCreateInput, ScenarioUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Scenario';
+import { ScenarioCreate, Scenario } from '@repo/shared/types/db/entities';
 
+type ScenarioFormData = Scenario | ScenarioCreate;
 
 export function AdminScenariosPage() {
   const { t } = useTypedTranslation();
@@ -22,7 +23,7 @@ export function AdminScenariosPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  const emptyScenario: ScenarioUncheckedCreateInput = {
+  const emptyScenario: ScenarioCreate = {
     settingEn: '',
     settingCs: '',
     situationDescriptionCs: '',
@@ -30,7 +31,7 @@ export function AdminScenariosPage() {
     involvedPersonalityId: null,
   };
 
-  const [currentScenario, setCurrentScenario] = useState<ScenarioUncheckedCreateInput>(emptyScenario);
+  const [currentScenario, setCurrentScenario] = useState<ScenarioFormData>(emptyScenario);
 
   useEffect(() => {
     fetchData();
@@ -60,7 +61,7 @@ export function AdminScenariosPage() {
   }
 
 
-  const handleEdit = (scenario: ScenarioUncheckedCreateInput) => {
+  const handleEdit = (scenario: ScenarioFormData) => {
     setCurrentScenario(scenario);
     setIsEditDialogOpen(true);
   };
@@ -91,21 +92,21 @@ export function AdminScenariosPage() {
 
   const handleSelectChange = (field: string, value: string) => {
     const processedValue =
-            field === 'involved_personality_id' && value === 'none' ? null : field === 'involved_personality_id' ? Number(value) : value;
+            field === 'involvedPersonalityId' && value === 'none' ? null : field === 'involvedPersonalityId' ? Number(value) : value;
 
     setCurrentScenario((prev) => ({ ...prev, [field]: processedValue }));
   };
 
-  const handleEditSubmit = async () => {
-    if (!currentScenario.id) return;
+  const handleEditSubmit = async (scenario: ScenarioFormData) => {
+    if (!('id' in scenario) || !scenario.id) return;
 
     setIsProcessing(true);
 
-    console.log('current scenario to update', currentScenario);
+    console.log('current scenario to update', scenario);
 
     const { error } = await scenarioApi.update(
-      currentScenario.id,
-      currentScenario,
+      scenario.id,
+      scenario,
     );
 
     if (error) {
@@ -191,7 +192,7 @@ export function AdminScenariosPage() {
             <DialogClose asChild>
               <Button variant="outline">{t('admin.scenarios.cancel')}</Button>
             </DialogClose>
-            <Button onClick={handleEditSubmit} disabled={isProcessing}>
+            <Button onClick={() => handleEditSubmit(currentScenario)} disabled={isProcessing}>
               {isProcessing ? t('admin.scenarios.saving') : t('admin.scenarios.saveChanges')}
             </Button>
           </DialogFooter>

@@ -4,10 +4,15 @@ import { conversationApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
 import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { AppConfig, Personality, Profile, Scenario } from '@repo/shared/types/db/entities';
+import {
+  AppConfig,
+  ConversationCreate,
+  Personality,
+  Profile,
+  Scenario,
+} from '@repo/shared/types/db/entities';
 import { ConversationType } from '@repo/shared/types/db/enums';
-import { ConversationUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Conversation';
-import { InputJsonValue } from '@repo/shared/generated/prisma/internal/prismaNamespace';
+
 
 interface ConversationSaverParams {
     userProfile?: Profile | null;
@@ -44,20 +49,20 @@ export const useConversationSaver = ({
       setIsSavingConversation(true);
       conversationSavedRef.current = true;
 
-      const conversationData: ConversationUncheckedCreateInput = {
-        startTime: new Date(chatStartTime).toISOString(),
-        endTime: new Date().toISOString(),
+      const conversationData: ConversationCreate = {
+        startTime: new Date(chatStartTime),
+        endTime: new Date(),
         endedReason: endReason,
         messages: (messagesToSave || []).map((msg) => ({
           content: msg.content,
           role: msg.role,
           timestamp: msg.timestamp?.toISOString() || new Date().toISOString(),
-        })) as InputJsonValue,
+        })),
         personalityId: personality.id,
         scenarioId: scenario?.id || null,
         userId: userProfile.id,
-        logs: (logsToSave || []) as unknown as InputJsonValue,
-        createdAt: new Date().toISOString(),
+        logs: logsToSave || [],
+        createdAt: new Date(),
         conversationType: conversationType,
         usedConfig: appConfig,
       };

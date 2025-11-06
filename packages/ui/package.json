@@ -20,8 +20,6 @@
     "**/*.css"
   ],
   "dependencies": {
-    "@11labs/react": "^0.0.7",
-    "@anthropic-ai/sdk": "^0.39.0",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-avatar": "^1.1.7",
     "@radix-ui/react-collapsible": "^1.1.4",
@@ -50,12 +48,10 @@
     "clsx": "^2.1.1",
     "i18next": "^25.1.2",
     "react-i18next": "^15.5.1",
-    "elevenlabs": "^1.54.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.9.2",
     "lucide-react": "^0.501.0",
     "next-themes": "^0.4.6",
-    "openai": "^4.91.1",
     "path": "^0.12.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

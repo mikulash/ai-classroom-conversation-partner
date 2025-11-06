@@ -3,13 +3,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Button } from '../ui/button';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
-import { Scenario } from '@repo/shared/types/db/entities';
-import { ScenarioUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Scenario';
+import { Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
 
 interface ScenariosTableProps {
     scenarios: Scenario[];
     isProcessing: boolean;
-    onEdit: (scenario: ScenarioUncheckedCreateInput) => void;
+    onEdit: (scenario: ScenarioCreate) => void;
     onDelete: (id: number) => void;
     getPersonalityName: (id: number | null) => string;
 }

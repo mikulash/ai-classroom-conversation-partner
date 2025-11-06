@@ -11,9 +11,10 @@ import { personalityApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { PersonalityUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Personality';
-import { Personality } from '@repo/shared/types/db/entities';
-import { OpenAiVoice } from '@repo/shared/types/db/enums';
+import { OpenAiVoiceName } from '@repo/shared/types/db/enums';
+import { Personality, PersonalityCreate } from '@repo/shared/types/db/entities';
+
+type PersonalityForm = PersonalityCreate | Personality;
 
 export function AdminPersonalitiesPage() {
   const { t } = useTypedTranslation();
@@ -26,7 +27,7 @@ export function AdminPersonalitiesPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   // A clean template for new personalities
-  const emptyPersonality: PersonalityUncheckedCreateInput = {
+  const emptyPersonality: PersonalityCreate = {
     name: '',
     problemSummaryEn: '',
     problemSummaryCs: '',
@@ -37,25 +38,25 @@ export function AdminPersonalitiesPage() {
   };
 
   const [currentPersonality, setCurrentPersonality] =
-        useState<PersonalityUncheckedCreateInput>(emptyPersonality);
+        useState<PersonalityForm>(emptyPersonality);
 
   useEffect(() => {
     fetchPersonalities();
   }, []);
 
-  // Validation function for required fields
-  const validateRequiredFields = (personality: PersonalityUncheckedCreateInput): string | null => {
+  const validateRequiredFields = (personality: PersonalityCreate): string | null => {
+    // 👇 use camelCase keys, not snake_case
     const requiredFields = [
       { field: 'name', label: t('personalities.name') },
-      { field: 'problem_summary_en', label: t('personalities.problemSummaryEn') },
-      { field: 'problem_summary_cs', label: t('personalities.problemSummaryCs') },
-      { field: 'personality_description_en', label: t('personalities.personalityDescriptionEn') },
-      { field: 'personality_description_cs', label: t('personalities.personalityDescriptionCs') },
-    ];
+      { field: 'problemSummaryEn', label: t('personalities.problemSummaryEn') },
+      { field: 'problemSummaryCs', label: t('personalities.problemSummaryCs') },
+      { field: 'personalityDescriptionEn', label: t('personalities.personalityDescriptionEn') },
+      { field: 'personalityDescriptionCs', label: t('personalities.personalityDescriptionCs') },
+    ] as const;
 
     for (const { field, label } of requiredFields) {
-      const value = personality[field as keyof PersonalityUncheckedCreateInput];
-      if (!value || (typeof value === 'string' && value.trim() === '')) {
+      const value = personality[field];
+      if (!value || (value.trim() === '')) {
         return `${label} is required and cannot be empty.`;
       }
     }
@@ -79,6 +80,7 @@ export function AdminPersonalitiesPage() {
   }
 
   const handleEdit = (personality: Personality) => {
+    // 👇 this now fits the union
     setCurrentPersonality(personality);
     setIsEditDialogOpen(true);
   };
@@ -103,22 +105,23 @@ export function AdminPersonalitiesPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setCurrentPersonality((prev) => ({ ...prev, [name]: value }));
+    // 👇 all names must match camelCase in DTO
+    setCurrentPersonality((prev) => ({ ...prev, [name]: value } as PersonalityForm));
   };
 
-  const handleSelectChange = (field: string, value: string) => {
-    setCurrentPersonality((prev) => ({ ...prev, [field]: value }));
+  const handleSelectChange = (field: keyof PersonalityCreate, value: string) => {
+    setCurrentPersonality((prev) => ({ ...prev, [field]: value } as PersonalityForm));
   };
 
   const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const age = e.target.value === '' ? null : Number(e.target.value);
-    setCurrentPersonality((prev) => ({ ...prev, age }));
+    setCurrentPersonality((prev) => ({ ...prev, age } as PersonalityForm));
   };
 
   const handleEditSubmit = async () => {
-    if (!currentPersonality?.id) return;
+    // only edit when we have an id
+    if (!('id' in currentPersonality)) return;
 
-    // Validate required fields
     const validationError = validateRequiredFields(currentPersonality);
     if (validationError) {
       toast.error('Validation Error', { description: validationError });
@@ -127,22 +130,19 @@ export function AdminPersonalitiesPage() {
 
     setIsProcessing(true);
 
-    const { error } = await personalityApi.update(
-      currentPersonality.id,
-      {
-        name: currentPersonality.name,
-        problemSummaryEn: currentPersonality.problemSummaryEn,
-        problemSummaryCs: currentPersonality.problemSummaryCs,
-        personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
-        personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
-        gender: currentPersonality.gender,
-        age: currentPersonality.age,
-        avatarUrl: currentPersonality.avatarUrl,
-        openaiVoiceName: currentPersonality.openaiVoiceName,
-        elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId,
-        voiceInstructions: currentPersonality.voiceInstructions,
-      },
-    );
+    const { error } = await personalityApi.update(currentPersonality.id, {
+      name: currentPersonality.name,
+      problemSummaryEn: currentPersonality.problemSummaryEn,
+      problemSummaryCs: currentPersonality.problemSummaryCs,
+      personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
+      personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
+      gender: currentPersonality.gender,
+      age: currentPersonality.age,
+      avatarUrl: currentPersonality.avatarUrl,
+      openaiVoiceName: currentPersonality.openaiVoiceName,
+      elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId,
+      voiceInstructions: currentPersonality.voiceInstructions,
+    });
 
     if (error) {
       console.error(error.message);
@@ -155,9 +155,10 @@ export function AdminPersonalitiesPage() {
     setIsProcessing(false);
   };
 
+
   const handleAddSubmit = async () => {
-    // Validate required fields
-    const validationError = validateRequiredFields(currentPersonality);
+    // currentPersonality here is of create shape (no id)
+    const validationError = validateRequiredFields(currentPersonality as PersonalityCreate);
     if (validationError) {
       toast.error('Validation Error', { description: validationError });
       return;
@@ -165,7 +166,7 @@ export function AdminPersonalitiesPage() {
 
     setIsProcessing(true);
 
-    const { error } = await personalityApi.insert(currentPersonality);
+    const { error } = await personalityApi.insert(currentPersonality as PersonalityCreate);
 
     if (error) {
       console.error(error.message);
@@ -202,10 +203,8 @@ export function AdminPersonalitiesPage() {
           <Input
             id="name"
             name="name"
-            value={currentPersonality.name}
+            value={currentPersonality.name ?? ''}
             onChange={handleInputChange}
-            placeholder={t('personalities.namePlaceholder')}
-            required
           />
         </div>
         <div className="grid gap-2">
@@ -215,7 +214,6 @@ export function AdminPersonalitiesPage() {
             name="gender"
             value={currentPersonality.gender ?? ''}
             onChange={handleInputChange}
-            placeholder={t('personalities.genderPlaceholder')}
           />
         </div>
       </div>
@@ -229,118 +227,104 @@ export function AdminPersonalitiesPage() {
             type="number"
             value={currentPersonality.age ?? ''}
             onChange={handleAgeChange}
-            placeholder={t('personalities.agePlaceholder')}
           />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="avatar_url">{t('personalities.avatarUrl')}</Label>
+          <Label htmlFor="avatarUrl">{t('personalities.avatarUrl')}</Label>
           <Input
-            id="avatar_url"
-            name="avatar_url"
+            id="avatarUrl"
+            name="avatarUrl"
             value={currentPersonality.avatarUrl ?? ''}
             onChange={handleInputChange}
-            placeholder="https://models.readyplayer.me/6820bbc0e036577fe085562c.glb"
           />
         </div>
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="problem_summary_en" className="flex items-center gap-1">
+        <Label htmlFor="problemSummaryEn" className="flex items-center gap-1">
           {t('personalities.problemSummaryEn')} <span className="text-red-500">*</span>
         </Label>
         <Textarea
-          id="problem_summary_en"
-          name="problem_summary_en"
-          value={currentPersonality.problemSummaryEn}
+          id="problemSummaryEn"
+          name="problemSummaryEn"
+          value={currentPersonality.problemSummaryEn ?? ''}
           onChange={handleInputChange}
-          rows={3}
-          placeholder={t('personalities.problemSummaryEnPlaceholder')}
-          required
         />
       </div>
+
       <div className="grid gap-2">
-        <Label htmlFor="problem_summary_cs" className="flex items-center gap-1">
+        <Label htmlFor="problemSummaryCs" className="flex items-center gap-1">
           {t('personalities.problemSummaryCs')} <span className="text-red-500">*</span>
         </Label>
         <Textarea
-          id="problem_summary_cs"
-          name="problem_summary_cs"
-          value={currentPersonality.problemSummaryCs}
+          id="problemSummaryCs"
+          name="problemSummaryCs"
+          value={currentPersonality.problemSummaryCs ?? ''}
           onChange={handleInputChange}
-          rows={3}
-          placeholder={t('personalities.problemSummaryCsPlaceholder')}
-          required
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="personality_description_en" className="flex items-center gap-1">
+        <Label htmlFor="personalityDescriptionEn" className="flex items-center gap-1">
           {t('personalities.personalityDescriptionEn')} <span className="text-red-500">*</span>
         </Label>
         <Textarea
-          id="personality_description_en"
-          name="personality_description_en"
-          value={currentPersonality.personalityDescriptionEn}
+          id="personalityDescriptionEn"
+          name="personalityDescriptionEn"
+          value={currentPersonality.personalityDescriptionEn ?? ''}
           onChange={handleInputChange}
-          rows={3}
-          placeholder={t('personalities.personalityDescriptionEnPlaceholder')}
-          required
-        />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="personality_description_cs" className="flex items-center gap-1">
-          {t('personalities.personalityDescriptionCs')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="personality_description_cs"
-          name="personality_description_cs"
-          value={currentPersonality.personalityDescriptionCs}
-          onChange={handleInputChange}
-          rows={3}
-          placeholder={t('personalities.personalityDescriptionCsPlaceholder')}
-          required
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="openai_voice_name">{t('personalities.openaiVoice')}</Label>
+        <Label htmlFor="personalityDescriptionCs" className="flex items-center gap-1">
+          {t('personalities.personalityDescriptionCs')} <span className="text-red-500">*</span>
+        </Label>
+        <Textarea
+          id="personalityDescriptionCs"
+          name="personalityDescriptionCs"
+          value={currentPersonality.personalityDescriptionCs ?? ''}
+          onChange={handleInputChange}
+        />
+      </div>
+
+      <div className="grid gap-2">
+        <Label htmlFor="openaiVoiceName">{t('personalities.openaiVoice')}</Label>
         <Select
           value={currentPersonality.openaiVoiceName ?? 'alloy'}
           onValueChange={(value) =>
-            handleSelectChange('openai_voice_name', value as OpenAiVoice)
+            handleSelectChange('openaiVoiceName', value as OpenAiVoiceName)
           }>
           <SelectTrigger>
-            <SelectValue placeholder={t('personalities.selectVoice')}/>
+            <SelectValue placeholder={t('personalities.selectVoice')} />
           </SelectTrigger>
           <SelectContent>
-            {
-              Object.values(OpenAiVoice).map((voice) => (
-                <SelectItem key={voice} value={voice}>
-                  {voice.charAt(0).toUpperCase() + voice.slice(1)}
-                </SelectItem>
-              ))}
+            {Object.values(OpenAiVoiceName).map((voice) => (
+              <SelectItem key={voice} value={voice}>
+                {voice}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
+
       <div className="grid gap-2">
-        <Label htmlFor="elevenlabs_voice_id">{t('personalities.elevenlabsVoiceId')}</Label>
+        <Label htmlFor="elevenlabsVoiceId">{t('personalities.elevenlabsVoiceId')}</Label>
         <Input
-          id="elevenlabs_voice_id"
-          name="elevenlabs_voice_id"
+          id="elevenlabsVoiceId"
+          name="elevenlabsVoiceId"
           value={currentPersonality.elevenlabsVoiceId ?? ''}
           onChange={handleInputChange}
-          placeholder={t('personalities.elevenlabsVoiceIdPlaceholder')}
         />
       </div>
+
       <div className="grid gap-2">
-        <Label htmlFor="voice_instructions">{t('personalities.voiceInstructions')}</Label>
+        <Label htmlFor="voiceInstructions">{t('personalities.voiceInstructions')}</Label>
         <Textarea
-          id="voice_instructions"
-          name="voice_instructions"
+          id="voiceInstructions"
+          name="voiceInstructions"
           value={currentPersonality.voiceInstructions ?? ''}
           onChange={handleInputChange}
-          rows={3}
-          placeholder={t('personalities.voiceInstructionsPlaceholder')}
         />
       </div>
     </div>

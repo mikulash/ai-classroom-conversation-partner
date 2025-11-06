@@ -2,22 +2,18 @@ import axios, { AxiosInstance } from 'axios';
 import {
   AdminUserCustomModelSelection,
   AppConfig,
-  Conversation,
+  Conversation, ConversationCreate,
   ConversationRole,
-  Personality,
+  Personality, PersonalityCreate,
   Profile,
   RealtimeModel,
   RealtimeTranscriptionModel,
   ResponseModel,
-  Scenario,
+  Scenario, ScenarioCreate,
   TimestampedTranscriptionModel,
   TtsModel,
 } from '@repo/shared/types/db/entities';
-import {
-  ConversationUncheckedCreateInput,
-  PersonalityUncheckedCreateInput, ProfileUncheckedCreateInput,
-  ScenarioUncheckedCreateInput,
-} from '@repo/shared/generated/prisma/models';
+
 import { UserRole } from '@repo/shared/types/db/enums';
 
 export type ConversationWithPersonality = Pick<
@@ -445,7 +441,7 @@ export const profileApi = {
     }
   },
 
-  upsert: async (payload: ProfileUncheckedCreateInput): Promise<ApiResponse<Profile>> => {
+  upsert: async (payload: Profile): Promise<ApiResponse<Profile>> => {
     try {
       const response = await api.put<Profile>(`/api/profiles/${payload.id}`, payload);
       return { data: response.data };
@@ -477,7 +473,7 @@ export const conversationApi = {
     }
   },
 
-  insert: async (conversation: ConversationUncheckedCreateInput): Promise<ApiResponse<Conversation>> => {
+  insert: async (conversation: ConversationCreate): Promise<ApiResponse<Conversation>> => {
     try {
       const response = await api.post<Conversation>('/api/conversations', conversation);
       return { data: response.data };
@@ -513,7 +509,7 @@ export const personalityApi = {
     }
   },
 
-  insert: async (personality: PersonalityUncheckedCreateInput): Promise<ApiResponse<Personality>> => {
+  insert: async (personality: PersonalityCreate): Promise<ApiResponse<Personality>> => {
     try {
       const response = await api.post<Personality>('/api/personalities', personality);
       return { data: response.data };
@@ -561,7 +557,7 @@ export const scenarioApi = {
     }
   },
 
-  insert: async (scenario: ScenarioUncheckedCreateInput): Promise<ApiResponse<Scenario>> => {
+  insert: async (scenario: ScenarioCreate): Promise<ApiResponse<Scenario>> => {
     try {
       const response = await api.post<Scenario>('/api/scenarios', scenario);
       return { data: response.data };
@@ -570,7 +566,7 @@ export const scenarioApi = {
     }
   },
 
-  update: async (id: number, scenario: ScenarioUncheckedCreateInput): Promise<ApiResponse<Scenario>> => {
+  update: async (id: number, scenario: Scenario): Promise<ApiResponse<Scenario>> => {
     try {
       const response = await api.put<Scenario>(`/api/scenarios/${id}`, scenario);
       return { data: response.data };
