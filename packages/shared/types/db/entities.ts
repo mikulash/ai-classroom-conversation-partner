@@ -168,13 +168,17 @@ export interface UserCreate {
 
 export interface Profile {
     id: string
-    userId: string
     createdAt: Date
     updatedAt: Date
     fullName: string | null
     gender: string | null
+    userRole: UserRole
     conversationRole: string
     bio: string | null
+}
+export interface ProfileExtended extends Profile {
+    email: string;
+    confirmedAt: Date | null,
 }
 
 export interface ProfileCreate {

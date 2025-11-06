@@ -3,14 +3,14 @@ import { Button } from './ui/button';
 import { TableCell, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { Profile } from '@repo/shared/types/db/entities';
+import { ProfileExtended } from '@repo/shared/types/db/entities';
 import { UserRole } from '@repo/shared/types/db/enums';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ConversationsList } from './ConversationsList';
 
 interface UserProfileRowProps {
-    profile: Profile;
+    profile: ProfileExtended;
     currentUserId?: string;
     isExpanded: boolean;
     isProcessing: boolean;
@@ -19,8 +19,6 @@ interface UserProfileRowProps {
     onToggleExpansion: (userId: string) => void;
     onRoleChange: (profileId: string, newRole: UserRole) => void;
     onConversationClick: (conversation: MyConversation) => void;
-    formatDate: (dateValue: string | Date | null | undefined) => string;
-    formatDateTime: (dateValue: string | Date | null | undefined) => string;
 }
 
 export const UserProfileRow: React.FC<UserProfileRowProps> = ({
@@ -33,11 +31,15 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
   onToggleExpansion,
   onRoleChange,
   onConversationClick,
-  formatDate,
-  formatDateTime,
 }) => {
   const { t } = useTypedTranslation();
   const isCurrentUser = profile.id === currentUserId;
+
+  const formatDate = (dateValue: string | Date | null | undefined) => {
+    if (!dateValue) return '-';
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return Number.isNaN(date.getTime()) ? '-' : date.toLocaleDateString();
+  };
 
   return (
     <React.Fragment key={profile.id}>
@@ -113,7 +115,6 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
                 conversations={conversations}
                 isLoading={isLoadingConversations}
                 onConversationClick={onConversationClick}
-                formatDateTime={formatDateTime}
               />
             </div>
           </TableCell>

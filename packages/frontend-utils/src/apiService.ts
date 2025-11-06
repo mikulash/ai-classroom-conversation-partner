@@ -5,7 +5,7 @@ import {
   Conversation, ConversationCreate,
   ConversationRole,
   Personality, PersonalityCreate,
-  Profile,
+  Profile, ProfileExtended,
   RealtimeModel,
   RealtimeTranscriptionModel,
   ResponseModel,
@@ -432,9 +432,9 @@ export const profileApi = {
     }
   },
 
-  getAll: async (): Promise<ApiResponse<Profile[]>> => {
+  getAll: async (): Promise<ApiResponse<ProfileExtended[]>> => {
     try {
-      const response = await api.get<Profile[]>('/api/profiles');
+      const response = await api.get<ProfileExtended[]>('/api/profiles');
       return { data: response.data };
     } catch (error: any) {
       return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch profiles' } };

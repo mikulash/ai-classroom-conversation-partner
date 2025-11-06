@@ -2,6 +2,7 @@ import React from 'react';
 import { MessageSquare } from 'lucide-react';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { formatIsoStringToLocaleString } from '@repo/shared/utils/timeFormatting';
 
 interface Conversation {
     id: number;
@@ -20,14 +21,12 @@ interface ConversationsListProps {
     conversations: Conversation[];
     isLoading: boolean;
     onConversationClick: (conversation: Conversation) => void;
-    formatDateTime: (dateString: string) => string;
 }
 
 export const ConversationsList: React.FC<ConversationsListProps> = ({
   conversations,
   isLoading,
   onConversationClick,
-  formatDateTime,
 }) => {
   const { t } = useTypedTranslation();
   if (isLoading) {
@@ -83,7 +82,7 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">
-                {formatDateTime(conversation.start_time)} - {formatDateTime(conversation.end_time)}
+                {formatIsoStringToLocaleString(conversation.start_time)} - {formatIsoStringToLocaleString(conversation.end_time)}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
                 {conversation.messages.length} {t('messages', { defaultValue: 'messages' })} • {t('ended', { defaultValue: 'Ended' })}: {conversation.ended_reason}

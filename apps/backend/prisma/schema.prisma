@@ -89,6 +89,26 @@ enum TimestampedTranscriptionModelProvider {
 }
 
 // ============================================
+// USERS (Authentication & Credentials)
+// ============================================
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  email     String   @unique
+  password  String   // hashed password
+  confirmedAt DateTime? @map("confirmed_at")
+
+  // Relations
+  profile       Profile?
+  conversations Conversation[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+// ============================================
 // REFRESH TOKENS
 // ============================================
 
@@ -101,7 +121,7 @@ model RefreshToken {
   revoked   Boolean  @default(false)
 
   // Relations
-  user Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
   @@index([userId])
@@ -109,29 +129,25 @@ model RefreshToken {
 }
 
 // ============================================
-// PROFILES
+// PROFILES (Editable User Information)
 // ============================================
 
 model Profile {
-  id               String    @id @default(uuid())
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
-  email            String?   @unique
-  password         String?
-  fullName         String?   @map("full_name")
+  id               String   @id @map("user_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
+  fullName         String?  @map("full_name")
   gender           String?
-  conversationRole String    @default("") @map("conversation_role")
+  conversationRole String   @default("") @map("conversation_role")
   bio              String?
-  userRole         UserRole  @default(basic) @map("user_role")
+  userRole         UserRole @default(basic) @map("user_role")
 
   // Relations
-  conversations             Conversation[]
+  user                      User                           @relation(fields: [id], references: [id], onDelete: Cascade)
   adminCustomModelSelection AdminUserCustomModelSelection?
-  refreshTokens             RefreshToken[]
 
   @@map("profiles")
 }
-
 // ============================================
 // ADMIN USER CUSTOM MODEL SELECTION
 // ============================================
@@ -170,7 +186,7 @@ model Personality {
   sex                      Sex           @default(M)
   voiceInstructions        String?       @map("voice_instructions")
   elevenlabsVoiceId        String?       @map("elevenlabs_voice_id")
-  openaiVoiceName          OpenAiVoiceName   @map("openai_voice_name")
+  openaiVoiceName          OpenAiVoiceName @default(alloy)  @map("openai_voice_name")
   problemSummaryEn         String        @default("") @map("problem_summary_en")
   personalityDescriptionEn String        @default("") @map("personality_description_en")
   problemSummaryCs         String        @default("") @map("problem_summary_cs")
@@ -236,7 +252,7 @@ model Conversation {
   usedConfig       Json?            @map("used_config")
 
   // Relations
-  user         Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   personality  Personality? @relation(fields: [personalityId], references: [id])
   scenario     Scenario?    @relation(fields: [scenarioId], references: [id])
 

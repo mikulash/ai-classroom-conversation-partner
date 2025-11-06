@@ -17,7 +17,7 @@ import { ConversationTranscriptDialog } from '../components/ConversationTranscri
 import { ConversationsList } from '../components/ConversationsList';
 import { toast } from 'sonner';
 import { MyConversation } from '@repo/shared/types/myConversation';
-import { ProfileUncheckedCreateInput } from '@repo/shared/generated/prisma/models/Profile';
+import { Profile, ProfileCreate } from '@repo/shared/types/db/entities';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
@@ -97,11 +97,9 @@ export function UserProfilePage() {
     setIsConversationDialogVisible(true);
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
 
   const handleSave = async () => {
+    if (!cachedProfile) return;
     setIsSaving(true);
     setIsSuccess(false);
     try {
@@ -114,8 +112,8 @@ export function UserProfilePage() {
         return;
       }
 
-      const payload: ProfileUncheckedCreateInput = {
-        id: session.user.id,
+      const payload: Profile = {
+        ...cachedProfile,
         fullName: fullName,
         conversationRole: conversationRole,
         gender,
@@ -264,7 +262,6 @@ export function UserProfilePage() {
               conversations={conversations}
               isLoading={isLoadingConversations}
               onConversationClick={handleConversationClick}
-              formatDateTime={formatDateTime}
             />
           </CardContent>
         </Card>

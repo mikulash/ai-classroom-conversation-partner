@@ -11,14 +11,14 @@ import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
-import { Profile } from '@repo/shared/types/db/entities';
+import { ProfileExtended } from '@repo/shared/types/db/entities';
 import { UserRole } from '@repo/shared/types/db/enums';
 
 
 export function AdminProfilesPage() {
   const { t } = useTypedTranslation();
 
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<ProfileExtended[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [search, setSearch] = useState('');
@@ -134,18 +134,6 @@ export function AdminProfilesPage() {
     setIsConversationDialogVisible(true);
   };
 
-  const formatDate = (dateValue: string | Date | null | undefined) => {
-    if (!dateValue) return '-';
-    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
-    return Number.isNaN(date.getTime()) ? '-' : date.toLocaleDateString();
-  };
-
-  const formatDateTime = (dateValue: string | Date | null | undefined) => {
-    if (!dateValue) return '-';
-    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
-    return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString();
-  };
-
   const filteredProfiles = useMemo(() => {
     if (!search.trim()) return profiles;
     if (profiles.length === 0) return [];
@@ -244,8 +232,6 @@ export function AdminProfilesPage() {
                     onToggleExpansion={toggleUserExpansion}
                     onRoleChange={handleRoleChange}
                     onConversationClick={handleConversationClick}
-                    formatDate={formatDate}
-                    formatDateTime={formatDateTime}
                   />
                 ))
               )}

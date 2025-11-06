@@ -66,7 +66,7 @@ router.post(
       }
 
       // Check if user already exists
-      const existingUser = await prisma.profile.findUnique({
+      const existingUser = await prisma.user.findUnique({
         where: { email },
       });
 
@@ -78,24 +78,37 @@ router.post(
       // Hash password
       const hashedPassword = await hashPassword(password);
 
-      // Create user
-      const user = await prisma.profile.create({
-        data: {
-          email,
-          password: hashedPassword,
-          fullName,
-          gender,
-          userRole: 'basic',
-        },
-        select: {
-          id: true,
-          email: true,
-          fullName: true,
-          gender: true,
-          userRole: true,
-          createdAt: true,
-        },
+      // Create user and profile in a transaction
+      const result = await prisma.$transaction(async (tx) => {
+        // Create user with credentials
+        const user = await tx.user.create({
+          data: {
+            email,
+            password: hashedPassword,
+            userRole: 'basic',
+          },
+        });
+
+        // Create profile with editable information
+        const profile = await tx.profile.create({
+          data: {
+            userId: user.id,
+            fullName,
+            gender,
+          },
+        });
+
+        return {
+          id: user.id,
+          email: user.email,
+          fullName: profile.fullName,
+          gender: profile.gender,
+          userRole: user.userRole,
+          createdAt: user.createdAt,
+        };
       });
+
+      const user = result;
 
       // Generate JWT access token and refresh token
       const accessToken = generateToken({
@@ -137,9 +150,12 @@ router.post(
         return;
       }
 
-      // Find user
-      const user = await prisma.profile.findUnique({
+      // Find user with their profile
+      const user = await prisma.user.findUnique({
         where: { email },
+        include: {
+          profile: true,
+        },
       });
 
       if (!user) {
@@ -148,11 +164,6 @@ router.post(
       }
 
       // Verify password
-      if (!user.password) {
-        res.status(401).json({ message: 'Invalid credentials' });
-        return;
-      }
-
       const isValidPassword = await comparePassword(password, user.password);
 
       if (!isValidPassword) {
@@ -163,15 +174,25 @@ router.post(
       // Generate JWT access token and refresh token
       const accessToken = generateToken({
         userId: user.id,
-        email: user.email || '',
+        email: user.email,
         userRole: user.userRole,
       });
 
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(user.id, refreshToken);
 
-      // Return user data (without password) and tokens
-      const { password: _, ...userWithoutPassword } = user;
+      // Return combined user + profile data (without password)
+      const userWithoutPassword = {
+        id: user.id,
+        email: user.email,
+        fullName: user.profile?.fullName || null,
+        gender: user.profile?.gender || null,
+        conversationRole: user.profile?.conversationRole || '',
+        bio: user.profile?.bio || null,
+        userRole: user.userRole,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      };
 
       res.status(200).json({
         user: userWithoutPassword,
@@ -201,18 +222,10 @@ router.get(
         return;
       }
 
-      const user = await prisma.profile.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: req.user.userId },
-        select: {
-          id: true,
-          email: true,
-          fullName: true,
-          gender: true,
-          conversationRole: true,
-          bio: true,
-          userRole: true,
-          createdAt: true,
-          updatedAt: true,
+        include: {
+          profile: true,
         },
       });
 
@@ -221,7 +234,20 @@ router.get(
         return;
       }
 
-      res.status(200).json(user);
+      // Return combined user + profile data
+      const userData = {
+        id: user.id,
+        email: user.email,
+        fullName: user.profile?.fullName || null,
+        gender: user.profile?.gender || null,
+        conversationRole: user.profile?.conversationRole || '',
+        bio: user.profile?.bio || null,
+        userRole: user.userRole,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      };
+
+      res.status(200).json(userData);
     } catch (error) {
       console.error('Get profile error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -255,7 +281,7 @@ router.post(
       }
 
       // Get user data
-      const user = await prisma.profile.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -264,7 +290,7 @@ router.post(
         },
       });
 
-      if (!user || !user.email) {
+      if (!user) {
         res.status(404).json({ message: 'User not found' });
         return;
       }
@@ -367,7 +393,7 @@ router.put(
       }
 
       // Get user with password
-      const user = await prisma.profile.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: req.user.userId },
       });
 
@@ -377,11 +403,6 @@ router.put(
       }
 
       // Verify current password
-      if (!user.password) {
-        res.status(401).json({ message: 'Current password is not set' });
-        return;
-      }
-
       const isValidPassword = await comparePassword(currentPassword, user.password);
 
       if (!isValidPassword) {
@@ -393,7 +414,7 @@ router.put(
       const hashedPassword = await hashPassword(newPassword);
 
       // Update password
-      await prisma.profile.update({
+      await prisma.user.update({
         where: { id: req.user.userId },
         data: { password: hashedPassword },
       });
