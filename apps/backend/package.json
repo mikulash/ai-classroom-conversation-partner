@@ -10,10 +10,13 @@
     "lint": "eslint . --max-warnings 0",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate-reset": "prisma migrate reset",
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:studio": "prisma studio",
-    "db:push": "prisma db push --force-reset",
-    "db:seed": "prisma db seed"
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "migrate:supabase": "tsx scripts/migrate-from-supabase.ts",
+    "export:seed": "tsx scripts/export-data-to-seed.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -42,6 +45,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/express-serve-static-core": "^5.0.6",
+    "@supabase/supabase-js": "^2.49.4",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.14.1",
     "esbuild": "^0.20.2",

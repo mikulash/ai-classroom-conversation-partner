@@ -32,7 +32,7 @@ enum ConversationType {
   @@map("conversation_type")
 }
 
-enum OpenAiVoice {
+enum OpenAiVoiceName {
   alloy   @map("alloy")
   ash     @map("ash")
   ballad  @map("ballad")
@@ -48,7 +48,7 @@ enum OpenAiVoice {
   @@map("openai_voice_name")
 }
 
-enum Gender {
+enum Sex {
   F @map("F")
   M @map("M")
 
@@ -167,10 +167,10 @@ model Personality {
   age                      Int?
   avatarUrl                String?       @map("avatar_url")
   gender                   String        @default("")
-  sex                      Gender        @default(M)
+  sex                      Sex           @default(M)
   voiceInstructions        String?       @map("voice_instructions")
   elevenlabsVoiceId        String?       @map("elevenlabs_voice_id")
-  openaiVoiceName          OpenAiVoice   @map("openai_voice_name")
+  openaiVoiceName          OpenAiVoiceName   @map("openai_voice_name")
   problemSummaryEn         String        @default("") @map("problem_summary_en")
   personalityDescriptionEn String        @default("") @map("personality_description_en")
   problemSummaryCs         String        @default("") @map("problem_summary_cs")
