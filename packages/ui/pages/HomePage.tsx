@@ -50,12 +50,12 @@ export const HomePage: React.FC = () => {
                   className="w-full py-4 sm:py-6 text-lg sm:text-xl bg-green-700 hover:bg-green-600 text-white"
                   asChild
                 >
-                  <Link to="/auth" state={{ isSignIn: true }}>
+                  <Link to="/sign-in">
                     {t('signIn')}
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full py-4 sm:py-6 text-lg sm:text-xl" asChild>
-                  <Link to="/auth" state={{ isSignIn: false }}>
+                  <Link to="/register">
                     {t('register')}
                   </Link>
                 </Button>

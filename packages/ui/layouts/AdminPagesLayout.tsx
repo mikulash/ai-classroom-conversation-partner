@@ -9,7 +9,7 @@ export const AdminPagesLayout = () => {
   const navigate = useNavigate();
 
   if (!profile) {
-    navigate('/auth');
+    navigate('/sign-in');
     return null;
   }
 
@@ -24,7 +24,6 @@ export const AdminPagesLayout = () => {
       <AdminNavigation/>
       <Outlet/>
     </>
-
   );
 }
 ;

@@ -17,7 +17,7 @@ export const EmailValidatedPage: React.FC = () => {
           </p>
 
           <Button asChild className="w-full">
-            <Link to="/auth" state={{ isSignIn: true }}>{t('goToSignIn')}</Link>
+            <Link to="/sign-in" >{t('goToSignIn')}</Link>
           </Button>
         </Card>
       </div>

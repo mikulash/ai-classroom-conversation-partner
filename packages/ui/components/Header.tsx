@@ -161,12 +161,12 @@ const AuthButtons: React.FC<{
   return (
     <>
       <Button asChild className={fullWidth ? 'w-full' : undefined} onClick={onAnyClick}>
-        <Link to="/auth" state={{ isSignIn: false }}>
+        <Link to="/register" >
           {t('register')}
         </Link>
       </Button>
       <Button variant="outline" asChild className={fullWidth ? 'w-full' : undefined} onClick={onAnyClick}>
-        <Link to="/auth" state={{ isSignIn: true }}>
+        <Link to="/sign-in" >
           {t('signIn')}
         </Link>
       </Button>

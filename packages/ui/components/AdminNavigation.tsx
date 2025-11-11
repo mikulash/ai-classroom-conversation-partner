@@ -12,7 +12,7 @@ export function AdminNavigation() {
   const { t } = useTypedTranslation();
 
   if (!profile) {
-    void navigate('/auth');
+    void navigate('/sign-in');
     return null;
   }
 
