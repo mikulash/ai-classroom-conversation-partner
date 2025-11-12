@@ -1,13 +1,13 @@
-import {useLocation, useNavigate} from 'react-router';
-import {useTypedTranslation} from '../hooks/useTypedTranslation';
-import {useAuth} from '../hooks/useAuth';
-import {Loading} from '../components/Loading';
-import {Dialog, DialogContent} from '@radix-ui/react-dialog';
-import {DialogHeader, DialogTitle} from '../components/ui/dialog';
-import {ConversationTranscriptDialog} from '../components/ConversationTranscriptDialog';
-import {ChatMessage} from '@repo/shared/types/chatMessage';
+import { useLocation, useNavigate } from 'react-router';
+import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { useAuth } from '../hooks/useAuth';
+import { Loading } from '../components/Loading';
+import { Dialog, DialogContent } from '@radix-ui/react-dialog';
+import { DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
+import { ChatMessage } from '@repo/shared/types/chatMessage';
 import React from 'react';
-import {ChatPageProps} from '../lib/types/ChatPageProps';
+import { ChatPageProps } from '../lib/types/ChatPageProps';
 
 interface ChatLayoutProps {
     children: React.ReactNode;
