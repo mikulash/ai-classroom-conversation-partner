@@ -4,7 +4,7 @@ import cors from 'cors';
 import { PORT, NODE_ENV } from './constants/constants.js';
 
 // Legacy routes
-import replyRoutes from './routes/replies.js';
+import replyRoutes from './routes/replies-router.js';
 
 // New API routes
 import authRoutes from './routes/api/auth-router.js';
