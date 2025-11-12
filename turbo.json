@@ -1,8 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "prisma:generate": {
+      "cache": false
+    },
     "build": {
       "dependsOn": [
+        "^prisma:generate",
         "^build"
       ],
       "inputs": [
@@ -56,15 +60,16 @@
     },
     "lint": {
       "dependsOn": [
+        "^prisma:generate",
         "^lint"
       ]
     },
     "typecheck": {
-      "dependsOn": ["^build", "^typecheck"],
+      "dependsOn": ["^prisma:generate", "^build", "^typecheck"],
       "outputs": []
     },
     "dev": {
-      "dependsOn": ["^dev", "^build"],
+      "dependsOn": ["^prisma:generate", "^dev", "^build"],
       "persistent": true,
       "cache": false,
       "inputs": [
