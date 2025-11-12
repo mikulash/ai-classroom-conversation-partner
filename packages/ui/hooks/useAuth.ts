@@ -1,8 +1,8 @@
 import { useCallback, useEffect } from 'react';
 import { authApi } from '@repo/frontend-utils/src/apiService';
-import { useUserStore } from './useUserStore';
-import { RegisterUserRequest } from '@repo/shared/types/api';
+import { ProfileResponse, RegisterUserRequest } from '@repo/shared/types/api';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 /**
  * Session type compatible with previous Supabase session implementation.
@@ -17,14 +17,29 @@ interface AuthStoreState {
     ready: boolean;
     loading: boolean;
     error: string | null;
+    profile: ProfileResponse | null;
+    setProfile: (profile: ProfileResponse) => void;
+    clearProfile: () => void;
 }
 
-const useAuthStore = create<AuthStoreState>(() => ({
-  session: null,
-  ready: false,
-  loading: false,
-  error: null,
-}));
+const useAuthStore = create<AuthStoreState>()(
+  persist(
+    (set) => ({
+      session: null,
+      ready: false,
+      loading: false,
+      error: null,
+      profile: null,
+      setProfile: (profile) => set({ profile }),
+      clearProfile: () => set({ profile: null }),
+    }),
+    {
+      name: 'user-profile',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({ profile: state.profile }),
+    },
+  ),
+);
 
 const setAuthState = (partial: Partial<AuthStoreState>) => {
   useAuthStore.setState(partial);
@@ -32,7 +47,7 @@ const setAuthState = (partial: Partial<AuthStoreState>) => {
 
 const syncSessionWithStores = (newSession: Session | null) => {
   setAuthState({ session: newSession });
-  const { setProfile, clearProfile } = useUserStore.getState();
+  const { setProfile, clearProfile } = useAuthStore.getState();
 
   if (newSession?.user) {
     setProfile(newSession.user);
@@ -77,11 +92,15 @@ const initializeAuthSync = () => {
 };
 
 export const useAuth = () => {
-  const session = useAuthStore((state) => state.session);
-  const ready = useAuthStore((state) => state.ready);
-  const loading = useAuthStore((state) => state.loading);
-  const error = useAuthStore((state) => state.error);
-  const profile = useUserStore((state) => state.profile);
+  const {
+    session,
+    ready,
+    loading,
+    error,
+    profile,
+    setProfile,
+    clearProfile,
+  } = useAuthStore();
 
   useEffect(() => {
     initializeAuthSync();
@@ -132,6 +151,8 @@ export const useAuth = () => {
     session,
     ready,
     profile,
+    setProfile,
+    clearProfile,
     signIn,
     signUp,
     signOut,

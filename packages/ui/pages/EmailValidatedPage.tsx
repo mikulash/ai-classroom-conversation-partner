@@ -4,7 +4,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { authApi } from '@repo/frontend-utils/src/apiService';
-import { useUserStore } from '../hooks/useUserStore';
+import { useAuth } from '../hooks/useAuth';
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'missingToken';
 
@@ -13,7 +13,7 @@ export const EmailValidatedPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const setProfile = useUserStore((state) => state.setProfile);
+  const { setProfile } = useAuth();
   const [status, setStatus] = useState<VerificationStatus>(token ? 'loading' : 'missingToken');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

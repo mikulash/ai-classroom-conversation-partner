@@ -5,15 +5,14 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../compone
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { authApi, conversationApi, profileApi } from '@repo/frontend-utils/src/apiService';
-import { ConversationWithPersonality } from '@repo/shared/types/api';
-import { useUserStore } from '../hooks/useUserStore';
+import { ConversationWithPersonality, UpdateProfileRequest } from '@repo/shared/types/api';
+import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
 import { ConversationsList } from '../components/ConversationsList';
 import { toast } from 'sonner';
 import { MyConversation } from '@repo/shared/types/myConversation';
-import { UpdateProfileRequest } from '@repo/shared/types/api';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
@@ -30,7 +29,7 @@ export function UserProfilePage() {
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
-  const { setProfile, profile: cachedProfile } = useUserStore();
+  const { setProfile, profile: cachedProfile } = useAuth();
 
   useEffect(() => {
     if (!cachedProfile) return;
