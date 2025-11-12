@@ -85,50 +85,6 @@ router.get(
   },
 );
 
-/**
- * GET /api/profiles/:id
- * Get a specific profile by user ID
- */
-router.get(
-  '/:id',
-  async (
-    req: Request<ProfileIdParams>,
-    res: Response<ProfileResponse | ErrorResponse>,
-  ) => {
-    try {
-      const { id } = req.params;
-
-      // Users can only view their own profile unless they're admin/owner
-      if (
-        req.user?.userId !== id &&
-                req.user?.userRole !== 'admin' &&
-                req.user?.userRole !== 'owner'
-      ) {
-        res.status(403).json({ message: 'Insufficient permissions' });
-        return;
-      }
-
-      const user = await prisma.user.findUnique({
-        where: { id },
-        include: {
-          profile: true,
-        },
-      });
-
-      if (!user) {
-        res.status(404).json({ message: 'Profile not found' });
-        return;
-      }
-
-      const profileExtended = mapUserToProfileExtended(user);
-
-      res.status(200).json(profileExtended);
-    } catch (error) {
-      console.error('Get profile error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  },
-);
 
 /**
  * PUT /api/profiles/:id

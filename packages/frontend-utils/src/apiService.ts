@@ -403,18 +403,6 @@ export const authApi = {
 
 // -------------------- Profile API --------------------
 export const profileApi = {
-  getById: async (id: string): Promise<ApiResponse<ProfileResponse>> => {
-    try {
-      const response = await api.get<ProfileResponse>(`/api/profiles/${id}`);
-      return { data: response.data };
-    } catch (error: any) {
-      return {
-        data: null as unknown as ProfileResponse,
-        error: { message: error.response?.data?.message || 'Failed to fetch profile' },
-      };
-    }
-  },
-
   getAll: async (): Promise<ApiResponse<ProfileResponse[]>> => {
     try {
       const response = await api.get<ProfileResponse[]>('/api/profiles');
