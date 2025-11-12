@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
-    "build": "tsup",
+    "build": "pnpm exec prisma generate && tsup",
     "start": "node dist/index.js",
     "typecheck": "pnpm exec prisma generate && tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
