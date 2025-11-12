@@ -81,6 +81,7 @@ router.post(
       });
 
       if (existingUser) {
+        console.log('User already exists:', existingUser);
         res.status(400).json({ message: 'User with this email already exists' });
         return;
       }
@@ -295,9 +296,12 @@ router.post(
       });
 
       if (!user.confirmedAt) {
+        console.log('User not confirmed:');
         res.status(403).json({ message: 'Please confirm your email before logging in.' });
         return;
       }
+
+      console.log(`USE CONFIRMED at ${user.confirmedAt}`);
 
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(user.id, refreshToken);

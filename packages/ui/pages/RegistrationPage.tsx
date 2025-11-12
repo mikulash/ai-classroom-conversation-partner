@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
-import { useSession } from '../hooks/useSession';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { Button } from '../components/ui/button';
@@ -12,8 +11,7 @@ import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmai
 
 export const RegistrationPage: React.FC = () => {
   const { t } = useTypedTranslation();
-  const { signUp, loading, error } = useAuth();
-  const { session, ready } = useSession();
+  const { signUp, loading, error, session, ready } = useAuth();
   const { appName } = useAppStore((state) => state.appConfig);
   const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowedDomains) || [];
   const navigate = useNavigate();
@@ -97,16 +95,22 @@ export const RegistrationPage: React.FC = () => {
     }
 
     try {
-      await signUp({
+      const signUpSuccess = await signUp({
         email,
         password,
         fullName,
         gender,
       });
-      setIsSuccess(true);
+
+      if (signUpSuccess) {
+        setIsSuccess(true);
+      } else {
+        setIsSuccess(false);
+      }
     } catch (err) {
       // Parent handles displaying the error, we just avoid unhandled rejections.
       console.error('Error during sign-up:', err);
+      setIsSuccess(false);
     }
   };
 

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router';
-import { useSession } from '../hooks/useSession';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { Card } from '../components/ui/card';
@@ -12,8 +11,7 @@ import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmai
 
 export const SignInPage: React.FC = () => {
   const { t } = useTypedTranslation();
-  const { signIn, loading, error } = useAuth();
-  const { session, ready } = useSession();
+  const { signIn, loading, error, session, ready } = useAuth();
   const { appName } = useAppStore((state) => state.appConfig);
   const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowedDomains) || [];
   const navigate = useNavigate();

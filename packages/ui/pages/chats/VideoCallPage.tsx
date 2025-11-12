@@ -8,7 +8,7 @@ import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
-import { useProfile } from '../../hooks/useProfile';
+import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
@@ -64,7 +64,7 @@ export const VideoCallPage: React.FC = () => {
   const { t, language } = useTypedTranslation();
 
   const avatarRef = useRef<AvatarTalkingHeadHandle>(null);
-  const userProfile = useProfile();
+  const { profile: userProfile } = useAuth();
   const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
   const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage, resetConsecutiveSilencePrompts);
 

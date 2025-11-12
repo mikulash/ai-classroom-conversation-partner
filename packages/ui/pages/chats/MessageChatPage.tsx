@@ -11,7 +11,7 @@ import { IoMdSend } from 'react-icons/io';
 import { MdCallEnd } from 'react-icons/md';
 import { TextToSpeechRequest } from '@repo/shared/types/apiFigurantClient';
 import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
-import { useProfile } from '../../hooks/useProfile';
+import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -53,7 +53,7 @@ export const MessageChatPage: React.FC = () => {
   }, [setConsecutiveSilencePrompts]);
   const [isTranscriptDialogVisible, setIsTranscriptDialogVisible] = useState(false);
 
-  const userProfile = useProfile();
+  const { profile: userProfile } = useAuth();
 
   const [inputMessage, setInputMessage] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);

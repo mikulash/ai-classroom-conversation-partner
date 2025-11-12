@@ -2,13 +2,13 @@ import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 import { useLocation, useNavigate } from 'react-router';
 import { isProfileOwner } from '@repo/shared/utils/access';
-import { useProfile } from '../hooks/useProfile';
+import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
 export function AdminNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
-  const profile = useProfile();
+  const { profile } = useAuth();
   const { t } = useTypedTranslation();
 
   if (!profile) {

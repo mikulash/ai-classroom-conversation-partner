@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { Button } from '../components/ui/button';
-import { useSession } from '../hooks/useSession';
+import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
 export const HomePage: React.FC = () => {
   const { t } = useTypedTranslation();
-  const { session, ready } = useSession();
+  const { session, ready } = useAuth();
   const user = session?.user;
   const isAuthenticated = !!user;
   const { appName } = useAppStore((state) => state.appConfig);
