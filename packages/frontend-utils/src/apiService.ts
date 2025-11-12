@@ -26,6 +26,7 @@ import {
   MessageResponse,
   ProfileResponse,
   RefreshTokenRequest,
+  RegisterResponse,
   RegisterUserRequest,
   ResendVerificationRequest,
   ScenarioWithPersonality,
@@ -208,25 +209,20 @@ export const authApi = {
      */
   register: async (payload: RegisterUserRequest) => {
     try {
-      const response = await api.post<AuthResponse>('/api/auth/register', payload);
+      const response = await api.post<RegisterResponse>('/api/auth/register', payload);
 
-      const { user, accessToken, refreshToken } = response.data;
-
-      // Store tokens and user in localStorage
-      localStorage.setItem('access_token', accessToken);
-      localStorage.setItem('refresh_token', refreshToken);
-      localStorage.setItem('user_profile', JSON.stringify(user));
+      const { user, message } = response.data;
 
       return {
         data: {
           user,
-          session: { access_token: accessToken, user },
+          message,
         },
         error: null,
       };
     } catch (error: any) {
       return {
-        data: { user: null, session: null },
+        data: { user: null, message: null },
         error: { message: error.response?.data?.message || 'Registration failed' },
       };
     }

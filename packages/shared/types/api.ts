@@ -49,6 +49,11 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
+export interface RegisterResponse {
+  user: ProfileExtended;
+  message: string;
+}
+
 export interface RefreshTokenRequest {
   refreshToken: string;
 }

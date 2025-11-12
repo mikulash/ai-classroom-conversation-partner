@@ -13,7 +13,7 @@ export const EmailValidatedPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const { setProfile } = useAuth();
+  const { applySession } = useAuth();
   const [status, setStatus] = useState<VerificationStatus>(token ? 'loading' : 'missingToken');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -51,14 +51,14 @@ export const EmailValidatedPage: React.FC = () => {
         return;
       }
 
-      setProfile(data.user);
+      applySession(data.session ?? null);
       setStatus('success');
     })();
 
     return () => {
       isMounted = false;
     };
-  }, [navigate, setProfile, token]);
+  }, [applySession, navigate, token]);
 
   let title = '';
   const descriptionLines: string[] = [];

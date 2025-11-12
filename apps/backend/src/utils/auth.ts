@@ -34,9 +34,7 @@ export async function comparePassword(password: string, hashedPassword: string):
  */
 export function generateToken(payload: JWTPayload): string {
   const options: jwt.SignOptions = { expiresIn: JWT_EXPIRES_IN };
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN,
-  });
+  return jwt.sign(payload, JWT_SECRET, options);
 }
 
 /**

@@ -124,7 +124,7 @@ export const useAuth = () => {
   const signUp = useCallback(async (params: RegisterUserRequest) => {
     setAuthState({ loading: true, error: null });
 
-    const { data, error: authError } = await authApi.register({
+    const { error: authError } = await authApi.register({
       email: params.email,
       password: params.password,
       fullName: params.fullName,
@@ -136,8 +136,8 @@ export const useAuth = () => {
       return false;
     }
 
-    syncSessionWithStores(data.session ?? null);
-    setAuthState({ ready: true, loading: false });
+    // Registration should not automatically sign the user in. They must verify their email first.
+    setAuthState({ loading: false });
     return true;
   }, []);
 
@@ -145,6 +145,11 @@ export const useAuth = () => {
     await authApi.signOut();
     syncSessionWithStores(null);
     setAuthState({ error: null });
+  }, []);
+
+  const applySession = useCallback((newSession: Session | null) => {
+    syncSessionWithStores(newSession);
+    setAuthState({ ready: true, loading: false, error: null });
   }, []);
 
   return {
@@ -156,6 +161,7 @@ export const useAuth = () => {
     signIn,
     signUp,
     signOut,
+    applySession,
     loading,
     error,
   };

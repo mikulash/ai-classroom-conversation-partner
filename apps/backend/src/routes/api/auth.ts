@@ -20,6 +20,7 @@ import {
   MessageResponse,
   ProfileResponse,
   RefreshTokenRequest,
+  RegisterResponse,
   RegisterUserRequest,
   ResendVerificationRequest,
   UpdatePasswordRequest,
@@ -51,8 +52,8 @@ function generateEmailVerificationToken(userId: string, email: string): string {
 router.post(
   '/register',
   async (
-    req: Request<ParamsDictionary, AuthResponse | ErrorResponse, RegisterUserRequest>,
-    res: Response<AuthResponse | ErrorResponse>,
+    req: Request<ParamsDictionary, RegisterResponse | ErrorResponse, RegisterUserRequest>,
+    res: Response<RegisterResponse | ErrorResponse>,
   ) => {
     try {
       const { email, password, fullName, gender } = req.body;
@@ -128,16 +129,6 @@ router.post(
         return response;
       });
 
-      // Generate JWT access token and refresh token (you already had this)
-      const accessToken = generateToken({
-        userId: userProfile.id,
-        email: userProfile.email || '',
-        userRole: userProfile.userRole,
-      });
-
-      const refreshToken = generateRefreshToken();
-      await storeRefreshToken(userProfile.id, refreshToken);
-
       // NEW: generate email verification token
       const emailVerifyToken = generateEmailVerificationToken(userProfile.id, userProfile.email!);
 
@@ -153,8 +144,6 @@ router.post(
 
       res.status(201).json({
         user: userProfile,
-        accessToken,
-        refreshToken,
         // optional: tell the client to check email
         message: 'Registration successful. Please check your email to verify your account.',
       });
