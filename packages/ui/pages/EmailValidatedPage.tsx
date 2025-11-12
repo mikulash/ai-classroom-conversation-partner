@@ -19,7 +19,6 @@ export const EmailValidatedPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    let redirectTimeout: number | undefined;
 
     if (!token) {
       setStatus('missingToken');
@@ -40,24 +39,24 @@ export const EmailValidatedPage: React.FC = () => {
       }
 
       if (error || !data?.user) {
+        const message = error?.message ?? null;
+
+        if (message && message.toLowerCase().includes('expired')) {
+          navigate('/auth/verification-expired', { replace: true });
+          return;
+        }
+
         setStatus('error');
-        setErrorMessage(error?.message ?? null);
+        setErrorMessage(message);
         return;
       }
 
       setProfile(data.user);
       setStatus('success');
-
-      redirectTimeout = window.setTimeout(() => {
-        navigate('/chat');
-      }, 2000);
     })();
 
     return () => {
       isMounted = false;
-      if (redirectTimeout !== undefined) {
-        window.clearTimeout(redirectTimeout);
-      }
     };
   }, [navigate, setProfile, token]);
 

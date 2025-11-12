@@ -21,26 +21,26 @@ import {
   ProfileResponse,
   RefreshTokenRequest,
   RegisterUserRequest,
+  ResendVerificationRequest,
   UpdatePasswordRequest,
 } from '@repo/shared/types/api';
 import jwt from 'jsonwebtoken';
 import { sendVerificationEmail } from '../../utils/email';
+import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
 
 const router = Router();
 
 /**
  * Validate if email belongs to allowed domains
  */
-function isValidUniversityEmail(email: string, allowedDomains: string[]): boolean {
-  return allowedDomains.some((domain) => email.endsWith(domain));
-}
 
 function generateEmailVerificationToken(userId: string, email: string): string {
   const secret = process.env.JWT_SECRET ?? 'change-me';
   return jwt.sign(
     { userId, email },
     secret,
-    { expiresIn: '1d' }, // 24h to verify
+    // { expiresIn: '1d' }, // 24h to verify
+    { expiresIn: '30s' }, // 24h to verify
   );
 }
 
@@ -242,6 +242,48 @@ router.get(
       });
     } catch (error) {
       console.error('Email verification error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
+
+router.post(
+  '/resend-verification',
+  async (
+    req: Request<ParamsDictionary, MessageResponse | ErrorResponse, ResendVerificationRequest>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
+    try {
+      const email = req.body?.email?.trim();
+
+      if (!email) {
+        res.status(400).json({ message: 'Email is required' });
+        return;
+      }
+
+      const genericMessage =
+        'If an account exists for that email, a new verification link has been sent.';
+
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user || user.confirmedAt) {
+        res.status(200).json({ message: genericMessage });
+        return;
+      }
+
+      const emailVerifyToken = generateEmailVerificationToken(user.id, user.email);
+      const frontendBaseUrl = (
+        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
+      ).replace(/\/$/, '');
+      const verifyUrl = `${frontendBaseUrl}/auth/validated?token=${encodeURIComponent(emailVerifyToken)}`;
+
+      await sendVerificationEmail(user.email, verifyUrl);
+
+      res.status(200).json({ message: genericMessage });
+    } catch (error) {
+      console.error('Resend verification email error:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   },

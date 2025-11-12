@@ -27,6 +27,7 @@ import {
   ProfileResponse,
   RefreshTokenRequest,
   RegisterUserRequest,
+  ResendVerificationRequest,
   ScenarioWithPersonality,
   UpdateAdminSelectionRequest,
   UpdateAppConfigRequest,
@@ -257,6 +258,25 @@ export const authApi = {
       return {
         data: { user: null, session: null },
         error: { message: error.response?.data?.message || 'Email verification failed' },
+      };
+    }
+  },
+
+  resendVerificationEmail: async (payload: ResendVerificationRequest) => {
+    try {
+      const response = await api.post<MessageResponse>('/api/auth/resend-verification', payload);
+
+      return {
+        data: response.data,
+        error: null,
+      };
+    } catch (error: any) {
+      return {
+        data: null,
+        error: {
+          message:
+            error.response?.data?.message || 'Unable to resend verification email right now.',
+        },
       };
     }
   },

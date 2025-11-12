@@ -2,6 +2,7 @@ import { RouteObject } from 'react-router';
 import { Layout } from '../layouts/Layout';
 import { HomePage } from '../pages/HomePage';
 import { EmailValidatedPage } from '../pages/EmailValidatedPage';
+import { EmailVerificationExpiredPage } from '../pages/EmailVerificationExpiredPage';
 import { ProtectedRoute } from '../layouts/ProtectedRoute';
 import { PersonalitySelectorPage } from '../pages/chats/PersonalitySelectorPage';
 import { VoiceCallPage } from '../pages/chats/VoiceCallPage';
@@ -31,6 +32,7 @@ export const ROUTES: RouteObject[] = [
       { path: 'sign-in', element: <SignInPage/> },
       { path: 'register', element: <RegistrationPage/> },
       { path: 'auth/validated', element: <EmailValidatedPage/> },
+      { path: 'auth/verification-expired', element: <EmailVerificationExpiredPage/> },
       { path: 'forgot-password', element: <ResetPasswordRequestForm/> },
       { path: 'reset-password', element: <ResetPasswordForm/> },
 

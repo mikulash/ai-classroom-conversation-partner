@@ -69,6 +69,10 @@ export interface UpdatePasswordRequest {
 
 export type ProfileResponse = ProfileExtended;
 
+export interface ResendVerificationRequest {
+  email: string;
+}
+
 // ------------------------------------------------------------
 // Profiles
 // ------------------------------------------------------------
