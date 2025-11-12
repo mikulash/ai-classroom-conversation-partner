@@ -50,7 +50,6 @@ export interface AuthResponse {
 }
 
 export interface RegisterResponse {
-  user: ProfileExtended;
   message: string;
 }
 

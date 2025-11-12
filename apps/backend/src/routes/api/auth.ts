@@ -43,7 +43,6 @@ function generateEmailVerificationToken(userId: string, email: string): string {
     { userId, email },
     secret,
     { expiresIn: '1d' }, // 24h to verify
-    // { expiresIn: '30s' }, // 24h to verify
   );
 }
 
@@ -145,8 +144,6 @@ router.post(
       await sendVerificationEmail(userProfile.email, verifyUrl);
 
       res.status(201).json({
-        user: userProfile,
-        // optional: tell the client to check email
         message: 'Registration successful. Please check your email to verify your account.',
       });
     } catch (error) {
@@ -333,8 +330,6 @@ router.post(
         res.status(403).json({ message: 'Please confirm your email before logging in.' });
         return;
       }
-
-      console.log(`USE CONFIRMED at ${user.confirmedAt}`);
 
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(user.id, refreshToken);

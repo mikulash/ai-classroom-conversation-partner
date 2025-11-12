@@ -213,18 +213,17 @@ export const authApi = {
     try {
       const response = await api.post<RegisterResponse>('/api/auth/register', payload);
 
-      const { user, message } = response.data;
+      const { message } = response.data;
 
       return {
         data: {
-          user,
           message,
         },
         error: null,
       };
     } catch (error: any) {
       return {
-        data: { user: null, message: null },
+        data: { message: null },
         error: { message: error.response?.data?.message || 'Registration failed' },
       };
     }
@@ -428,28 +427,6 @@ export const authApi = {
         error: { message: error.response?.data?.message || 'Password update failed' },
       };
     }
-  },
-
-  /**
-     * Auth state change listener (for compatibility)
-     * In JWT-based auth, we don't have real-time updates, but we can check periodically
-     */
-  onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    // Check initial state
-    authApi.getSession().then(({ data }) => {
-      callback('INITIAL_SESSION', data.session);
-    });
-
-    // Return unsubscribe function
-    return {
-      data: {
-        subscription: {
-          unsubscribe: () => {
-            // No-op for JWT-based auth
-          },
-        },
-      },
-    };
   },
 };
 
