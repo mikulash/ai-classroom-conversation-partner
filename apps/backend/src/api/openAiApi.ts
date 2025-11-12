@@ -1,7 +1,7 @@
 import { ConfigProvider } from '../utils/configProvider';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
-import { getOpenAIClient } from '../clients/clientOpenAi';
+import { getOpenAIClient } from '../clients/openAi';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
 import { getPreciseLipSyncAudio } from '../utils/lipsyncUtils';
 import {

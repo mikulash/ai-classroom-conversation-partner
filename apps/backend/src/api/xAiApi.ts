@@ -1,4 +1,4 @@
-import { getGrokClient } from '../clients/clientGrok';
+import { getGrokClient } from '../clients/grok';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
 import { GetResponseParamsWithModelName } from '../types/api';
 

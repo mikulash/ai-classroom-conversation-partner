@@ -1,4 +1,4 @@
-import { getClaudeClient } from '../clients/clientClaude';
+import { getClaudeClient } from '../clients/claude';
 import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
 import { GetResponseParamsWithModelName } from '../types/api';
 
