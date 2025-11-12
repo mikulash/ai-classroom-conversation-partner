@@ -7,14 +7,14 @@ import { PORT, NODE_ENV } from './constants/constants.js';
 import replyRoutes from './routes/replies.js';
 
 // New API routes
-import authRoutes from './routes/api/auth.js';
-import profilesRoutes from './routes/api/profiles.js';
-import conversationsRoutes from './routes/api/conversations.js';
-import personalitiesRoutes from './routes/api/personalities.js';
-import scenariosRoutes from './routes/api/scenarios.js';
-import modelsRoutes from './routes/api/models.js';
-import appConfigRoutes from './routes/api/app-config.js';
-import conversationRolesRoutes from './routes/api/conversation-roles.js';
+import authRoutes from './routes/api/auth-router.js';
+import profilesRoutes from './routes/api/profiles-router.js';
+import conversationsRoutes from './routes/api/conversations-router.js';
+import personalitiesRoutes from './routes/api/personalities-router.js';
+import scenariosRoutes from './routes/api/scenarios-router.js';
+import modelsRoutes from './routes/api/models-router.js';
+import appConfigRoutes from './routes/api/app-config-router.js';
+import conversationRolesRoutes from './routes/api/conversation-roles-router.js';
 
 const app = express();
 
