@@ -21,12 +21,16 @@ import {
   CreateConversationRequest,
   CreatePersonalityRequest,
   CreateScenarioRequest,
-  RefreshTokenRequest,
   LoginRequest,
   LogoutRequest,
   MessageResponse,
   ProfileResponse,
-  RegisterPayload,
+  RefreshTokenRequest,
+  RegisterResponse,
+  RegisterUserRequest,
+  RequestPasswordResetRequest,
+  ResendVerificationRequest,
+  ResetPasswordRequest,
   ScenarioWithPersonality,
   UpdateAdminSelectionRequest,
   UpdateAppConfigRequest,
@@ -130,7 +134,6 @@ const createApiClient = (): AxiosInstance => {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_profile');
-          window.location.href = '/login';
           return Promise.reject(refreshError);
         }
       }
@@ -206,13 +209,37 @@ export const authApi = {
   /**
      * Register a new user
      */
-  register: async (payload: RegisterPayload) => {
+  register: async (payload: RegisterUserRequest) => {
     try {
-      const response = await api.post<AuthResponse>('/api/auth/register', payload);
+      const response = await api.post<RegisterResponse>('/api/auth/register', payload);
+
+      const { message } = response.data;
+
+      return {
+        data: {
+          message,
+        },
+        error: null,
+      };
+    } catch (error: any) {
+      return {
+        data: { message: null },
+        error: { message: error.response?.data?.message || 'Registration failed' },
+      };
+    }
+  },
+
+  /**
+     * Verify email using token from verification link
+     */
+  verifyEmail: async (token: string) => {
+    try {
+      const response = await api.get<AuthResponse>('/api/auth/verify-email', {
+        params: { token },
+      });
 
       const { user, accessToken, refreshToken } = response.data;
 
-      // Store tokens and user in localStorage
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', refreshToken);
       localStorage.setItem('user_profile', JSON.stringify(user));
@@ -227,7 +254,26 @@ export const authApi = {
     } catch (error: any) {
       return {
         data: { user: null, session: null },
-        error: { message: error.response?.data?.message || 'Registration failed' },
+        error: { message: error.response?.data?.message || 'Email verification failed' },
+      };
+    }
+  },
+
+  resendVerificationEmail: async (payload: ResendVerificationRequest) => {
+    try {
+      const response = await api.post<MessageResponse>('/api/auth/resend-verification', payload);
+
+      return {
+        data: response.data,
+        error: null,
+      };
+    } catch (error: any) {
+      return {
+        data: null,
+        error: {
+          message:
+            error.response?.data?.message || 'Unable to resend verification email right now.',
+        },
       };
     }
   },
@@ -336,16 +382,35 @@ export const authApi = {
   },
 
   /**
-     * Reset password for email
-     * Note: This needs to be implemented on the backend
+     * Request password reset email
      */
-  resetPasswordForEmail: async (email: string, redirectTo?: string) => {
-    // TODO: Implement password reset on backend
-    console.warn('Password reset not implemented yet');
-    return {
-      data: null,
-      error: { message: 'Password reset not implemented yet' },
-    };
+  resetPasswordForEmail: async (email: string) => {
+    try {
+      const payload: RequestPasswordResetRequest = { email };
+      await api.post<MessageResponse>('/api/auth/request-password-reset', payload);
+      return { data: null, error: null };
+    } catch (error: any) {
+      return {
+        data: null,
+        error: { message: error.response?.data?.message || 'Failed to request password reset' },
+      };
+    }
+  },
+
+  /**
+     * Reset password with token
+     */
+  resetPassword: async (token: string, newPassword: string) => {
+    try {
+      const payload: ResetPasswordRequest = { token, newPassword };
+      await api.post<MessageResponse>('/api/auth/reset-password', payload);
+      return { data: null, error: null };
+    } catch (error: any) {
+      return {
+        data: null,
+        error: { message: error.response?.data?.message || 'Failed to reset password' },
+      };
+    }
   },
 
   /**
@@ -362,28 +427,6 @@ export const authApi = {
         error: { message: error.response?.data?.message || 'Password update failed' },
       };
     }
-  },
-
-  /**
-     * Auth state change listener (for compatibility)
-     * In JWT-based auth, we don't have real-time updates, but we can check periodically
-     */
-  onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    // Check initial state
-    authApi.getSession().then(({ data }) => {
-      callback('INITIAL_SESSION', data.session);
-    });
-
-    // Return unsubscribe function
-    return {
-      data: {
-        subscription: {
-          unsubscribe: () => {
-            // No-op for JWT-based auth
-          },
-        },
-      },
-    };
   },
 };
 
@@ -438,13 +481,21 @@ export const profileApi = {
 
 // -------------------- Conversation API --------------------
 export const conversationApi = {
-  byUser: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
-    // todo
+  getCurrent: async (): Promise<ApiResponse<ConversationWithPersonality[]>> => {
     try {
       const response = await api.get<ConversationWithPersonality[]>('/api/conversations');
       return { data: response.data };
     } catch (error: any) {
       return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch conversations' } };
+    }
+  },
+
+  getByUserId: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
+    try {
+      const response = await api.get<ConversationWithPersonality[]>(`/api/conversations/user/${userId}`);
+      return { data: response.data };
+    } catch (error: any) {
+      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch user conversations' } };
     }
   },
 

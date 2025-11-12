@@ -28,9 +28,9 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Starting database seed...');
 
-  // Response Models
+  // Response Models 
   console.log('Seeding Response Models...');
-${data.responseModels.map(model => `  await prisma.responseModel.upsert({
+${data.responseModels.map((model) => `  await prisma.responseModel.upsert({
     where: { id: ${model.id} },
     update: {},
     create: ${JSON.stringify(model, null, 6).replace(/"(\w+)":/g, '$1:')},
@@ -38,7 +38,7 @@ ${data.responseModels.map(model => `  await prisma.responseModel.upsert({
 
   // TTS Models
   console.log('Seeding TTS Models...');
-${data.ttsModels.map(model => `  await prisma.ttsModel.upsert({
+${data.ttsModels.map((model) => `  await prisma.ttsModel.upsert({
     where: { id: ${model.id} },
     update: {},
     create: ${JSON.stringify(model, null, 6).replace(/"(\w+)":/g, '$1:')},
@@ -46,7 +46,7 @@ ${data.ttsModels.map(model => `  await prisma.ttsModel.upsert({
 
   // Realtime Models
   console.log('Seeding Realtime Models...');
-${data.realtimeModels.map(model => `  await prisma.realtimeModel.upsert({
+${data.realtimeModels.map((model) => `  await prisma.realtimeModel.upsert({
     where: { id: ${model.id} },
     update: {},
     create: ${JSON.stringify(model, null, 6).replace(/"(\w+)":/g, '$1:')},
@@ -54,7 +54,7 @@ ${data.realtimeModels.map(model => `  await prisma.realtimeModel.upsert({
 
   // Realtime Transcription Models
   console.log('Seeding Realtime Transcription Models...');
-${data.realtimeTranscriptionModels.map(model => `  await prisma.realtimeTranscriptionModel.upsert({
+${data.realtimeTranscriptionModels.map((model) => `  await prisma.realtimeTranscriptionModel.upsert({
     where: { id: ${model.id} },
     update: {},
     create: ${JSON.stringify(model, null, 6).replace(/"(\w+)":/g, '$1:')},
@@ -62,7 +62,7 @@ ${data.realtimeTranscriptionModels.map(model => `  await prisma.realtimeTranscri
 
   // Timestamped Transcription Models
   console.log('Seeding Timestamped Transcription Models...');
-${data.timestampedTranscriptionModels.map(model => `  await prisma.timestampedTranscriptionModel.upsert({
+${data.timestampedTranscriptionModels.map((model) => `  await prisma.timestampedTranscriptionModel.upsert({
     where: { id: ${model.id} },
     update: {},
     create: ${JSON.stringify(model, null, 6).replace(/"(\w+)":/g, '$1:')},
@@ -70,7 +70,7 @@ ${data.timestampedTranscriptionModels.map(model => `  await prisma.timestampedTr
 
   // Conversation Roles
   console.log('Seeding Conversation Roles...');
-${data.conversationRoles.map(role => `  await prisma.conversationRole.upsert({
+${data.conversationRoles.map((role) => `  await prisma.conversationRole.upsert({
     where: { id: ${role.id} },
     update: {},
     create: ${JSON.stringify(role, null, 6).replace(/"(\w+)":/g, '$1:')},
@@ -78,7 +78,7 @@ ${data.conversationRoles.map(role => `  await prisma.conversationRole.upsert({
 
   // App Config
   console.log('Seeding App Config...');
-${data.appConfig.map(config => `  await prisma.appConfig.upsert({
+${data.appConfig.map((config) => `  await prisma.appConfig.upsert({
     where: { id: ${config.id} },
     update: {},
     create: ${JSON.stringify(config, null, 6).replace(/"(\w+)":/g, '$1:')},
@@ -86,7 +86,7 @@ ${data.appConfig.map(config => `  await prisma.appConfig.upsert({
 
   // Personalities
   console.log('Seeding Personalities...');
-${data.personalities.map(personality => `  await prisma.personality.upsert({
+${data.personalities.map((personality) => `  await prisma.personality.upsert({
     where: { id: ${personality.id} },
     update: {},
     create: ${JSON.stringify(personality, null, 6).replace(/"(\w+)":/g, '$1:')},
@@ -94,7 +94,7 @@ ${data.personalities.map(personality => `  await prisma.personality.upsert({
 
   // Scenarios
   console.log('Seeding Scenarios...');
-${data.scenarios.map(scenario => `  await prisma.scenario.upsert({
+${data.scenarios.map((scenario) => `  await prisma.scenario.upsert({
     where: { id: ${scenario.id} },
     update: {},
     create: ${JSON.stringify(scenario, null, 6).replace(/"(\w+)":/g, '$1:')},

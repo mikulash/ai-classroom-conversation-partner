@@ -31,18 +31,12 @@ export interface ApiResponse<T> {
   error?: { message: string };
 }
 
-// ------------------------------------------------------------
-// Auth
-// ------------------------------------------------------------
-
-export interface RegisterPayload {
-  email: string;
-  password: string;
-  fullName?: string;
-  gender?: string;
+export interface RegisterUserRequest {
+    email: string;
+    password: string;
+    fullName: string;
+    gender: string;
 }
-
-export type RegisterRequest = RegisterPayload;
 
 export interface LoginRequest {
   email: string;
@@ -53,6 +47,10 @@ export interface AuthResponse {
   user: ProfileExtended;
   accessToken: string;
   refreshToken: string;
+}
+
+export interface RegisterResponse {
+  message: string;
 }
 
 export interface RefreshTokenRequest {
@@ -73,7 +71,20 @@ export interface UpdatePasswordRequest {
   newPassword: string;
 }
 
+export interface RequestPasswordResetRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
 export type ProfileResponse = ProfileExtended;
+
+export interface ResendVerificationRequest {
+  email: string;
+}
 
 // ------------------------------------------------------------
 // Profiles

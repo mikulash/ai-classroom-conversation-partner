@@ -1,15 +1,15 @@
 import { AdminNavigation } from '../components/AdminNavigation';
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router';
-import { useProfile } from '../hooks/useProfile';
+import { useAuth } from '../hooks/useAuth';
 import { isProfileAdmin } from '@repo/shared/utils/access';
 
 export const AdminPagesLayout = () => {
-  const profile = useProfile();
+  const { profile } = useAuth();
   const navigate = useNavigate();
 
   if (!profile) {
-    navigate('/auth');
+    navigate('/sign-in');
     return null;
   }
 
@@ -24,7 +24,6 @@ export const AdminPagesLayout = () => {
       <AdminNavigation/>
       <Outlet/>
     </>
-
   );
 }
 ;

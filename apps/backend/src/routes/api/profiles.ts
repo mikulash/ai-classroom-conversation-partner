@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin, requireOwner } from '../../middleware/auth.js';
@@ -6,11 +6,12 @@ import { ProfileExtended } from '@repo/shared/types/db/entities';
 import {
   ErrorResponse,
   MessageResponse,
+  ProfileResponse,
   UpdateProfileRequest,
   UpdateUserRoleRequest,
-  ProfileResponse,
 } from '@repo/shared/types/api';
 import { UserRole } from '@repo/shared/types/db/enums';
+
 // Path parameter types
 interface ProfileIdParams extends ParamsDictionary {
     id: string;
@@ -161,17 +162,17 @@ router.put(
       await prisma.profile.upsert({
         where: { id: id },
         update: {
-          fullName,
-          gender,
+          fullName: fullName ?? '',
+          gender: gender ?? '',
           conversationRole,
           bio,
         },
         create: {
           id: id,
-          fullName: fullName ?? null,
-          gender: gender ?? null,
+          fullName: fullName ?? '',
+          gender: gender ?? '',
           conversationRole: conversationRole ?? '',
-          bio: bio ?? null,
+          bio: bio ?? undefined,
         },
       });
 

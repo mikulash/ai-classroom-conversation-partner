@@ -6,7 +6,7 @@ import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
-import { useProfile } from '../../hooks/useProfile';
+import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
@@ -44,7 +44,7 @@ export const VoiceCallPage: React.FC = () => {
   const isConnectingRef = useRef(false);
 
   const { t, language } = useTypedTranslation();
-  const userProfile = useProfile();
+  const { profile: userProfile } = useAuth();
   const appConfig = useAppStore((state) => state.appConfig);
   const { maxConversationDurationInSeconds } = appConfig;
 

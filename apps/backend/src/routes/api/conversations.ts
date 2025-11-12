@@ -1,10 +1,10 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 import {
-  CreateConversationRequest,
   ConversationWithDetails,
+  CreateConversationRequest,
   ErrorResponse,
   MessageResponse,
 } from '@repo/shared/types/api';
@@ -60,7 +60,15 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      res.status(200).json(conversations);
+      // Transform the response to match ConversationWithDetails[] type
+      const response: ConversationWithDetails[] = conversations.map((conv) => ({
+        ...conv,
+        messages: conv.messages as object | null,
+        logs: conv.logs as object | null,
+        usedConfig: conv.usedConfig as object | null,
+      }));
+
+      res.status(200).json(response);
     } catch (error) {
       console.error('Get conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -94,7 +102,11 @@ router.get(
             select: {
               id: true,
               email: true,
-              fullName: true,
+              profile: {
+                select: {
+                  fullName: true,
+                },
+              },
             },
           },
         },
@@ -115,7 +127,20 @@ router.get(
         return;
       }
 
-      res.status(200).json(conversation);
+      // Transform the response to match ConversationWithDetails type
+      const response: ConversationWithDetails = {
+        ...conversation,
+        messages: conversation.messages as object | null,
+        logs: conversation.logs as object | null,
+        usedConfig: conversation.usedConfig as object | null,
+        user: conversation.user ? {
+          id: conversation.user.id,
+          email: conversation.user.email,
+          fullName: conversation.user.profile?.fullName ?? null,
+        } : null,
+      };
+
+      res.status(200).json(response);
     } catch (error) {
       console.error('Get conversation error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -155,10 +180,10 @@ router.post(
           startTime: new Date(startTime),
           endTime: endTime ? new Date(endTime) : undefined,
           endedReason,
-          messages,
-          logs,
+          messages: messages as any,
+          logs: logs as any,
           conversationType,
-          usedConfig,
+          usedConfig: usedConfig as any,
         },
         include: {
           personality: {
@@ -168,10 +193,25 @@ router.post(
               avatarUrl: true,
             },
           },
+          scenario: {
+            select: {
+              id: true,
+              situationDescriptionEn: true,
+              situationDescriptionCs: true,
+            },
+          },
         },
       });
 
-      res.status(201).json(conversation);
+      // Transform the response to match ConversationWithDetails type
+      const response: ConversationWithDetails = {
+        ...conversation,
+        messages: conversation.messages as object | null,
+        logs: conversation.logs as object | null,
+        usedConfig: conversation.usedConfig as object | null,
+      };
+
+      res.status(201).json(response);
     } catch (error) {
       console.error('Create conversation error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -261,7 +301,15 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      res.status(200).json(conversations);
+      // Transform the response to match ConversationWithDetails[] type
+      const response: ConversationWithDetails[] = conversations.map((conv) => ({
+        ...conv,
+        messages: conv.messages as object | null,
+        logs: conv.logs as object | null,
+        usedConfig: conv.usedConfig as object | null,
+      }));
+
+      res.status(200).json(response);
     } catch (error) {
       console.error('Get user conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });

@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { useProfile } from '../hooks/useProfile';
+import { useAuth } from '../hooks/useAuth';
 import { Loading } from '../components/Loading';
 import { Dialog, DialogContent } from '@radix-ui/react-dialog';
 import { DialogHeader, DialogTitle } from '../components/ui/dialog';
@@ -39,7 +39,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTypedTranslation();
-  const userProfile = useProfile();
+  const { profile: userProfile } = useAuth();
 
   const { personality }: ChatPageProps = location.state ?? {};
 

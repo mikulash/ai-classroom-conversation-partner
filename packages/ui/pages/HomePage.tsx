@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { Button } from '../components/ui/button';
-import { useSession } from '../hooks/useSession';
+import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
 export const HomePage: React.FC = () => {
   const { t } = useTypedTranslation();
-  const { session, ready } = useSession();
+  const { session, ready } = useAuth();
   const user = session?.user;
   const isAuthenticated = !!user;
   const { appName } = useAppStore((state) => state.appConfig);
@@ -50,12 +50,12 @@ export const HomePage: React.FC = () => {
                   className="w-full py-4 sm:py-6 text-lg sm:text-xl bg-green-700 hover:bg-green-600 text-white"
                   asChild
                 >
-                  <Link to="/auth" state={{ isSignIn: true }}>
+                  <Link to="/sign-in">
                     {t('signIn')}
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full py-4 sm:py-6 text-lg sm:text-xl" asChild>
-                  <Link to="/auth" state={{ isSignIn: false }}>
+                  <Link to="/register">
                     {t('register')}
                   </Link>
                 </Button>

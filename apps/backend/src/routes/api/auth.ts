@@ -1,18 +1,16 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import {
-  hashPassword,
   comparePassword,
-  generateToken,
   generateRefreshToken,
+  generateToken,
+  hashPassword,
+  revokeRefreshToken,
   storeRefreshToken,
   verifyRefreshToken,
-  revokeRefreshToken,
-  revokeAllUserRefreshTokens,
 } from '../../utils/auth.js';
 import { authenticate } from '../../middleware/auth.js';
 import prisma from '../../clients/prisma';
-import { ProfileExtended } from '@repo/shared/types/db/entities';
 import {
   AuthResponse,
   AuthTokensResponse,
@@ -22,17 +20,30 @@ import {
   MessageResponse,
   ProfileResponse,
   RefreshTokenRequest,
-  RegisterRequest,
+  RegisterResponse,
+  RegisterUserRequest,
+  RequestPasswordResetRequest,
+  ResendVerificationRequest,
+  ResetPasswordRequest,
   UpdatePasswordRequest,
 } from '@repo/shared/types/api';
+import jwt from 'jsonwebtoken';
+import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
+import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
 
 const router = Router();
 
 /**
  * Validate if email belongs to allowed domains
  */
-function isValidUniversityEmail(email: string, allowedDomains: string[]): boolean {
-  return allowedDomains.some((domain) => email.endsWith(domain));
+
+function generateEmailVerificationToken(userId: string, email: string): string {
+  const secret = process.env.JWT_SECRET ?? 'change-me';
+  return jwt.sign(
+    { userId, email },
+    secret,
+    { expiresIn: '1d' }, // 24h to verify
+  );
 }
 
 /**
@@ -42,8 +53,8 @@ function isValidUniversityEmail(email: string, allowedDomains: string[]): boolea
 router.post(
   '/register',
   async (
-    req: Request<ParamsDictionary, AuthResponse | ErrorResponse, RegisterRequest>,
-    res: Response<AuthResponse | ErrorResponse>,
+    req: Request<ParamsDictionary, RegisterResponse | ErrorResponse, RegisterUserRequest>,
+    res: Response<RegisterResponse | ErrorResponse>,
   ) => {
     try {
       const { email, password, fullName, gender } = req.body;
@@ -72,6 +83,7 @@ router.post(
       });
 
       if (existingUser) {
+        console.log('User already exists:', existingUser);
         res.status(400).json({ message: 'User with this email already exists' });
         return;
       }
@@ -86,6 +98,7 @@ router.post(
           data: {
             email,
             password: hashedPassword,
+            // confirmedAt stays null until email verification
           },
         });
 
@@ -93,8 +106,8 @@ router.post(
         const profile = await tx.profile.create({
           data: {
             id: user.id,
-            fullName: fullName ?? null,
-            gender: gender ?? null,
+            fullName: fullName,
+            gender: gender,
             conversationRole: '',
             bio: null,
             userRole: 'basic',
@@ -117,26 +130,153 @@ router.post(
         return response;
       });
 
-      // Generate JWT access token and refresh token
-      const accessToken = generateToken({
-        userId: userProfile.id,
-        email: userProfile.email || '',
-        userRole: userProfile.userRole,
-      });
+      // NEW: generate email verification token
+      const emailVerifyToken = generateEmailVerificationToken(userProfile.id, userProfile.email!);
 
-      const refreshToken = generateRefreshToken();
-      await storeRefreshToken(userProfile.id, refreshToken);
+      // Construct verification URL that points to the frontend confirmation page
+      const frontendBaseUrl = (
+        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
+      ).replace(/\/$/, '');
+      const verifyUrl = `${frontendBaseUrl}/auth/validated?token=${encodeURIComponent(emailVerifyToken)}`;
+
+      // Send the email
+
+      await sendVerificationEmail(userProfile.email, verifyUrl);
 
       res.status(201).json({
-        user: userProfile,
-        accessToken,
-        refreshToken,
+        message: 'Registration successful. Please check your email to verify your account.',
       });
     } catch (error) {
       console.error('Registration error:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+router.get(
+  '/verify-email',
+  async (
+    req: Request,
+    res: Response<AuthResponse | ErrorResponse>,
+  ) => {
+    try {
+      const token = req.query.token as string | undefined;
+      if (!token) {
+        res.status(400).json({ message: 'Verification token is required' });
+        return;
+      }
+
+      const secret = process.env.JWT_SECRET ?? 'change-me';
+
+      let payload: { userId: string; email: string };
+      try {
+        payload = jwt.verify(token, secret) as { userId: string; email: string };
+      } catch {
+        res.status(400).json({ message: 'Invalid or expired verification token' });
+        return;
+      }
+
+      // Retrieve the user with their profile information
+      const user = await prisma.user.findUnique({
+        where: { id: payload.userId },
+        include: { profile: true },
+      });
+
+      if (!user || !user.profile) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      // Mark user as confirmed (idempotent)
+      const verifiedUser = await prisma.user.update({
+        where: { id: payload.userId },
+        data: {
+          confirmedAt: user.confirmedAt ?? new Date(),
+        },
+        include: { profile: true },
+      });
+
+      if (!verifiedUser.profile) {
+        res.status(500).json({ message: 'Failed to confirm user' });
+        return;
+      }
+
+      // Generate tokens for automatic sign-in
+      const accessToken = generateToken({
+        userId: verifiedUser.id,
+        email: verifiedUser.email,
+        userRole: verifiedUser.profile.userRole,
+      });
+
+      const refreshToken = generateRefreshToken();
+      await storeRefreshToken(verifiedUser.id, refreshToken);
+
+      const userProfile: ProfileResponse = {
+        id: verifiedUser.id,
+        email: verifiedUser.email,
+        fullName: verifiedUser.profile.fullName,
+        gender: verifiedUser.profile.gender,
+        conversationRole: verifiedUser.profile.conversationRole,
+        bio: verifiedUser.profile.bio,
+        userRole: verifiedUser.profile.userRole,
+        createdAt: verifiedUser.profile.createdAt,
+        updatedAt: verifiedUser.profile.updatedAt,
+        confirmedAt: verifiedUser.confirmedAt,
+      };
+
+      res.status(200).json({
+        user: userProfile,
+        accessToken,
+        refreshToken,
+      });
+    } catch (error) {
+      console.error('Email verification error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
+
+router.post(
+  '/resend-verification',
+  async (
+    req: Request<ParamsDictionary, MessageResponse | ErrorResponse, ResendVerificationRequest>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
+    try {
+      const email = req.body?.email?.trim();
+
+      if (!email) {
+        res.status(400).json({ message: 'Email is required' });
+        return;
+      }
+
+      const genericMessage =
+        'If an account exists for that email, a new verification link has been sent.';
+
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user || user.confirmedAt) {
+        res.status(200).json({ message: genericMessage });
+        return;
+      }
+
+      const emailVerifyToken = generateEmailVerificationToken(user.id, user.email);
+      const frontendBaseUrl = (
+        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
+      ).replace(/\/$/, '');
+      const verifyUrl = `${frontendBaseUrl}/auth/validated?token=${encodeURIComponent(emailVerifyToken)}`;
+
+      await sendVerificationEmail(user.email, verifyUrl);
+
+      res.status(200).json({ message: genericMessage });
+    } catch (error) {
+      console.error('Resend verification email error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
+
 
 /**
  * POST /api/auth/login
@@ -186,6 +326,7 @@ router.post(
       });
 
       if (!user.confirmedAt) {
+        console.log('User not confirmed:');
         res.status(403).json({ message: 'Please confirm your email before logging in.' });
         return;
       }
@@ -337,6 +478,7 @@ router.post(
     }
   });
 
+
 /**
  * POST /api/auth/logout
  * Logout user and revoke refresh token
@@ -361,31 +503,6 @@ router.post(
     }
   });
 
-/**
- * POST /api/auth/logout-all
- * Logout user from all devices (revoke all refresh tokens)
- */
-router.post(
-  '/logout-all',
-  authenticate,
-  async (
-    req: Request,
-    res: Response<MessageResponse | ErrorResponse>,
-  ) => {
-    try {
-      if (!req.user) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
-      await revokeAllUserRefreshTokens(req.user.userId);
-
-      res.status(200).json({ message: 'Logged out from all devices successfully' });
-    } catch (error) {
-      console.error('Logout all error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
 
 /**
  * PUT /api/auth/password
@@ -444,5 +561,123 @@ router.put(
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+/**
+ * POST /api/auth/request-password-reset
+ * Request a password reset email
+ */
+router.post(
+  '/request-password-reset',
+  async (
+    req: Request<ParamsDictionary, MessageResponse | ErrorResponse, RequestPasswordResetRequest>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
+    try {
+      const email = req.body?.email?.trim();
+
+      if (!email) {
+        res.status(400).json({ message: 'Email is required' });
+        return;
+      }
+
+      // Use generic message for security (don't reveal if email exists)
+      const genericMessage =
+        'If an account exists for that email, a password reset link has been sent.';
+
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      // Send generic response even if user doesn't exist (security)
+      if (!user) {
+        res.status(200).json({ message: genericMessage });
+        return;
+      }
+
+      // Generate password reset token (expires in 1 hour)
+      const secret = process.env.JWT_SECRET ?? 'change-me';
+      const resetToken = jwt.sign(
+        { userId: user.id, email: user.email, type: 'password-reset' },
+        secret,
+        { expiresIn: '1h' },
+      );
+
+      // Construct reset URL that points to the frontend reset page
+      const frontendBaseUrl = (
+        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
+      ).replace(/\/$/, '');
+      const resetUrl = `${frontendBaseUrl}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
+
+      // Send the email
+      await sendPasswordResetEmail(user.email, resetUrl);
+
+      res.status(200).json({ message: genericMessage });
+    } catch (error) {
+      console.error('Request password reset error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
+
+/**
+ * POST /api/auth/reset-password
+ * Reset password using a reset token
+ */
+router.post(
+  '/reset-password',
+  async (
+    req: Request<ParamsDictionary, MessageResponse | ErrorResponse, ResetPasswordRequest>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
+    try {
+      const { token, newPassword } = req.body;
+
+      if (!token || !newPassword) {
+        res.status(400).json({ message: 'Token and new password are required' });
+        return;
+      }
+
+      // Verify the reset token
+      const secret = process.env.JWT_SECRET ?? 'change-me';
+      let payload: { userId: string; email: string; type: string };
+      try {
+        payload = jwt.verify(token, secret) as { userId: string; email: string; type: string };
+      } catch {
+        res.status(400).json({ message: 'Invalid or expired reset token' });
+        return;
+      }
+
+      // Verify it's a password reset token
+      if (payload.type !== 'password-reset') {
+        res.status(400).json({ message: 'Invalid token type' });
+        return;
+      }
+
+      // Get the user
+      const user = await prisma.user.findUnique({
+        where: { id: payload.userId },
+      });
+
+      if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      // Hash the new password
+      const hashedPassword = await hashPassword(newPassword);
+
+      // Update password
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      });
+
+      res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
 
 export default router;

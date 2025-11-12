@@ -4,15 +4,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { conversationApi, profileApi } from '@repo/frontend-utils/src/apiService';
-import { ConversationWithPersonality } from '@repo/shared/types/api';
+import { ConversationWithPersonality, ProfileResponse } from '@repo/shared/types/api';
 import { toast } from 'sonner';
-import { useProfile } from '../../hooks/useProfile';
+import { useAuth } from '../../hooks/useAuth';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
-import { ProfileResponse } from '@repo/shared/types/api';
 import { UserRole } from '@repo/shared/types/db/enums';
 
 
@@ -29,7 +28,7 @@ export function AdminProfilesPage() {
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
-  const profile = useProfile();
+  const { profile } = useAuth();
 
   useEffect(() => {
     fetchData();
@@ -70,7 +69,7 @@ export function AdminProfilesPage() {
     try {
       setLoadingConversations((prev) => new Set(prev).add(userId));
 
-      const { data, error } = await conversationApi.byUser(userId);
+      const { data, error } = await conversationApi.getByUserId(userId);
 
       if (error) throw error;
 

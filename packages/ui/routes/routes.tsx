@@ -1,8 +1,8 @@
 import { RouteObject } from 'react-router';
 import { Layout } from '../layouts/Layout';
 import { HomePage } from '../pages/HomePage';
-import { AuthPage } from '../pages/AuthPage';
 import { EmailValidatedPage } from '../pages/EmailValidatedPage';
+import { EmailVerificationExpiredPage } from '../pages/EmailVerificationExpiredPage';
 import { ProtectedRoute } from '../layouts/ProtectedRoute';
 import { PersonalitySelectorPage } from '../pages/chats/PersonalitySelectorPage';
 import { VoiceCallPage } from '../pages/chats/VoiceCallPage';
@@ -19,6 +19,8 @@ import { AdminCustomModelSelectionPage } from '../pages/admin/AdminCustomModelSe
 import { ResetPasswordRequestForm } from '../components/ResetPasswordRequestForm';
 import { ResetPasswordForm } from '../components/ResetPasswordForm';
 import { AdminProfilesPage } from '../pages/admin/AdminProfilesPage';
+import { SignInPage } from '../pages/SignInPage';
+import { RegistrationPage } from '../pages/RegistrationPage';
 
 export const ROUTES: RouteObject[] = [
   {
@@ -27,8 +29,10 @@ export const ROUTES: RouteObject[] = [
     children: [
       /* ----------  PUBLIC  ---------- */
       { index: true, element: <HomePage/> },
-      { path: 'auth', element: <AuthPage/> },
+      { path: 'sign-in', element: <SignInPage/> },
+      { path: 'register', element: <RegistrationPage/> },
       { path: 'auth/validated', element: <EmailValidatedPage/> },
+      { path: 'auth/verification-expired', element: <EmailVerificationExpiredPage/> },
       { path: 'forgot-password', element: <ResetPasswordRequestForm/> },
       { path: 'reset-password', element: <ResetPasswordForm/> },
 

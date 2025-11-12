@@ -6,7 +6,7 @@ import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
-import { useSession } from '../../hooks/useSession';
+import { useAuth } from '../../hooks/useAuth';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
@@ -20,7 +20,7 @@ import {
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
-  const { session, ready } = useSession();
+  const { session, ready } = useAuth();
 
   const [models, setModels] = useState<ModelOptionsWithAvailability>({
     responseModels: [],

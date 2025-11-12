@@ -1,74 +1,168 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { authApi } from '@repo/frontend-utils/src/apiService';
-import { useUserStore } from './useUserStore';
-import { RegisterUserRequest } from '@repo/shared/types/apiFigurantClient';
+import { ProfileResponse, RegisterUserRequest } from '@repo/shared/types/api';
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+
+/**
+ * Session type compatible with previous Supabase session implementation.
+ */
+export interface Session {
+  access_token: string;
+  user: any;
+}
+
+interface AuthStoreState {
+    session: Session | null;
+    ready: boolean;
+    loading: boolean;
+    error: string | null;
+    profile: ProfileResponse | null;
+    setProfile: (profile: ProfileResponse) => void;
+    clearProfile: () => void;
+}
+
+const useAuthStore = create<AuthStoreState>()(
+  persist(
+    (set) => ({
+      session: null,
+      ready: false,
+      loading: false,
+      error: null,
+      profile: null,
+      setProfile: (profile) => set({ profile }),
+      clearProfile: () => set({ profile: null }),
+    }),
+    {
+      name: 'user-profile',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({ profile: state.profile }),
+    },
+  ),
+);
+
+const setAuthState = (partial: Partial<AuthStoreState>) => {
+  useAuthStore.setState(partial);
+};
+
+const syncSessionWithStores = (newSession: Session | null) => {
+  setAuthState({ session: newSession });
+  const { setProfile, clearProfile } = useAuthStore.getState();
+
+  if (newSession?.user) {
+    setProfile(newSession.user);
+  } else {
+    clearProfile();
+  }
+};
+
+const shouldSyncForKey = (key: string | null) =>
+  key === 'access_token' || key === 'refresh_token' || key === 'user_profile';
+
+const fetchSessionFromStorage = async () => {
+  try {
+    const { data } = await authApi.getSession();
+    syncSessionWithStores(data.session);
+  } catch {
+    syncSessionWithStores(null);
+  } finally {
+    setAuthState({ ready: true });
+  }
+};
+
+let hasInitializedAuth = false;
+
+const initializeAuthSync = () => {
+  if (hasInitializedAuth || typeof window === 'undefined') {
+    return;
+  }
+
+  hasInitializedAuth = true;
+  void fetchSessionFromStorage();
+
+  const handleStorageChange = (event: StorageEvent) => {
+    if (!shouldSyncForKey(event.key)) {
+      return;
+    }
+
+    void fetchSessionFromStorage();
+  };
+
+  window.addEventListener('storage', handleStorageChange);
+};
 
 export const useAuth = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { setProfile, clearProfile } = useUserStore();
+  const {
+    session,
+    ready,
+    loading,
+    error,
+    profile,
+    setProfile,
+    clearProfile,
+  } = useAuthStore();
 
-  const signIn = useCallback(
-    async (email: string, password: string): Promise<boolean> => {
-      setLoading(true);
-      setError(null);
+  useEffect(() => {
+    initializeAuthSync();
+  }, []);
 
-      const { data, error: authError } =
-                await authApi.signInWithPassword(email, password);
+  const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
+    setAuthState({ loading: true, error: null });
 
-      if (authError) {
-        setError(authError.message);
-        setLoading(false);
-        return false;
-      }
+    const { data, error: authError } = await authApi.signInWithPassword(email, password);
 
-      console.log('[signIn] user:', data.user);
+    if (authError) {
+      setAuthState({ error: authError.message, loading: false });
+      return false;
+    }
 
-      // User profile is already included in the auth response
-      // Tokens are automatically stored in localStorage by authApi
-      setProfile(data.user);
+    syncSessionWithStores(data.session ?? null);
+    setAuthState({ ready: true, loading: false });
+    return !!data.session;
+  }, []);
 
-      setLoading(false);
-      return !!data.session;
-    },
-    [setProfile],
-  );
+  const signUp = useCallback(async (params: RegisterUserRequest) => {
+    setAuthState({ loading: true, error: null });
 
-  const signUp = useCallback(
-    async (params: RegisterUserRequest) => {
-      setLoading(true);
-      setError(null);
+    const { error: authError } = await authApi.register({
+      email: params.email,
+      password: params.password,
+      fullName: params.fullName,
+      gender: params.gender,
+    });
 
-      // Map RegisterUserRequest to RegisterPayload
-      const { data, error: authError } = await authApi.register({
-        email: params.email,
-        password: params.password,
-        fullName: params.full_name,
-        gender: params.gender,
-      });
+    if (authError) {
+      setAuthState({ error: authError.message, loading: false });
+      return false;
+    }
 
-      if (authError) {
-        setError(authError.message);
-        setLoading(false);
-        return false;
-      }
-
-      console.log('[signUp] user:', data.user);
-
-      // User profile is already included in the auth response
-      // Tokens are automatically stored in localStorage by authApi
-      setProfile(data.user);
-
-      setLoading(false);
-      return true;
-    },
-    [setProfile],
-  );
+    // Registration should not automatically sign the user in. They must verify their email first.
+    setAuthState({ loading: false });
+    return true;
+  }, []);
 
   const signOut = useCallback(async () => {
     await authApi.signOut();
-    clearProfile();
-  }, [clearProfile]);
+    syncSessionWithStores(null);
+    setAuthState({ error: null });
+  }, []);
 
-  return { signIn, signUp, signOut, loading, error };
+  const applySession = useCallback((newSession: Session | null) => {
+    syncSessionWithStores(newSession);
+    setAuthState({ ready: true, loading: false, error: null });
+  }, []);
+
+  return {
+    session,
+    ready,
+    profile,
+    setProfile,
+    clearProfile,
+    signIn,
+    signUp,
+    signOut,
+    applySession,
+    loading,
+    error,
+  };
 };
