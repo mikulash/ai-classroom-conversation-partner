@@ -20,10 +20,7 @@ export const ResetPasswordRequestForm: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    const { error } = await authApi.resetPasswordForEmail(
-      email,
-      `${window.location.origin}/reset-password`,
-    );
+    const { error } = await authApi.resetPasswordForEmail(email);
 
     if (error) {
       setError(error.message);

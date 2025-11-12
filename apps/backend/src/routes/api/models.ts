@@ -1,19 +1,19 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 import {
-  ResponseModel,
-  TtsModel,
   RealtimeModel,
   RealtimeTranscriptionModel,
+  ResponseModel,
   TimestampedTranscriptionModel,
+  TtsModel,
 } from '@repo/shared/types/db/entities';
 import {
-  UpdateAdminSelectionRequest,
   AdminSelectionWithModels,
   ErrorResponse,
   MessageResponse,
+  UpdateAdminSelectionRequest,
 } from '@repo/shared/types/api';
 
 // Path parameter types
@@ -37,17 +37,17 @@ router.get(
     req: Request,
     res: Response<ResponseModel[] | ErrorResponse>,
   ) => {
-  try {
-    const models = await prisma.responseModel.findMany({
-      where: { isEnabled: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    res.status(200).json(models);
-  } catch (error) {
-    console.error('Get response models error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+    try {
+      const models = await prisma.responseModel.findMany({
+        where: { isEnabled: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      res.status(200).json(models);
+    } catch (error) {
+      console.error('Get response models error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 // ============================================
 // TTS Models
@@ -63,17 +63,17 @@ router.get(
     req: Request,
     res: Response<TtsModel[] | ErrorResponse>,
   ) => {
-  try {
-    const models = await prisma.ttsModel.findMany({
-      where: { isEnabled: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    res.status(200).json(models);
-  } catch (error) {
-    console.error('Get TTS models error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+    try {
+      const models = await prisma.ttsModel.findMany({
+        where: { isEnabled: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      res.status(200).json(models);
+    } catch (error) {
+      console.error('Get TTS models error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 // ============================================
 // Realtime Models
@@ -89,17 +89,17 @@ router.get(
     req: Request,
     res: Response<RealtimeModel[] | ErrorResponse>,
   ) => {
-  try {
-    const models = await prisma.realtimeModel.findMany({
-      where: { isEnabled: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    res.status(200).json(models);
-  } catch (error) {
-    console.error('Get realtime models error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+    try {
+      const models = await prisma.realtimeModel.findMany({
+        where: { isEnabled: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      res.status(200).json(models);
+    } catch (error) {
+      console.error('Get realtime models error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 // ============================================
 // Realtime Transcription Models
@@ -115,17 +115,17 @@ router.get(
     req: Request,
     res: Response<RealtimeTranscriptionModel[] | ErrorResponse>,
   ) => {
-  try {
-    const models = await prisma.realtimeTranscriptionModel.findMany({
-      where: { isEnabled: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    res.status(200).json(models);
-  } catch (error) {
-    console.error('Get realtime transcription models error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+    try {
+      const models = await prisma.realtimeTranscriptionModel.findMany({
+        where: { isEnabled: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      res.status(200).json(models);
+    } catch (error) {
+      console.error('Get realtime transcription models error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 // ============================================
 // Timestamped Transcription Models
@@ -141,17 +141,17 @@ router.get(
     req: Request,
     res: Response<TimestampedTranscriptionModel[] | ErrorResponse>,
   ) => {
-  try {
-    const models = await prisma.timestampedTranscriptionModel.findMany({
-      where: { isEnabled: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    res.status(200).json(models);
-  } catch (error) {
-    console.error('Get timestamped transcription models error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+    try {
+      const models = await prisma.timestampedTranscriptionModel.findMany({
+        where: { isEnabled: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      res.status(200).json(models);
+    } catch (error) {
+      console.error('Get timestamped transcription models error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 // ============================================
 // Admin Custom Model Selection
@@ -169,26 +169,26 @@ router.get(
     req: Request<UserIdParams>,
     res: Response<AdminSelectionWithModels | null | ErrorResponse>,
   ) => {
-  try {
-    const { userId } = req.params;
+    try {
+      const { userId } = req.params;
 
-    const selection = await prisma.adminUserCustomModelSelection.findUnique({
-      where: { userId },
-      include: {
-        responseModel: true,
-        ttsModel: true,
-        realtimeModel: true,
-        realtimeTranscriptionModel: true,
-        timestampedTranscriptionModel: true,
-      },
-    });
+      const selection = await prisma.adminUserCustomModelSelection.findUnique({
+        where: { userId },
+        include: {
+          responseModel: true,
+          ttsModel: true,
+          realtimeModel: true,
+          realtimeTranscriptionModel: true,
+          timestampedTranscriptionModel: true,
+        },
+      });
 
-    res.status(200).json(selection);
-  } catch (error) {
-    console.error('Get admin model selection error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+      res.status(200).json(selection);
+    } catch (error) {
+      console.error('Get admin model selection error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 /**
  * PUT /api/models/admin-selection/:userId
@@ -202,58 +202,58 @@ router.put(
     req: Request<UserIdParams, AdminSelectionWithModels | ErrorResponse, UpdateAdminSelectionRequest>,
     res: Response<AdminSelectionWithModels | ErrorResponse>,
   ) => {
-  try {
-    const { userId } = req.params;
-    const {
-      responseModelId,
-      ttsModelId,
-      realtimeModelId,
-      realtimeTranscriptionModelId,
-      timestampedTranscriptionModelId,
-    } = req.body;
+    try {
+      const { userId } = req.params;
+      const {
+        responseModelId,
+        ttsModelId,
+        realtimeModelId,
+        realtimeTranscriptionModelId,
+        timestampedTranscriptionModelId,
+      } = req.body;
 
-    // Check if user exists
-    const user = await prisma.profile.findUnique({
-      where: { id: userId },
-    });
+      // Check if user exists
+      const user = await prisma.profile.findUnique({
+        where: { id: userId },
+      });
 
-    if (!user) {
-      res.status(404).json({ message: 'User not found' });
-      return;
+      if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      const selection = await prisma.adminUserCustomModelSelection.upsert({
+        where: { userId },
+        create: {
+          userId,
+          responseModelId,
+          ttsModelId,
+          realtimeModelId,
+          realtimeTranscriptionModelId,
+          timestampedTranscriptionModelId,
+        },
+        update: {
+          responseModelId,
+          ttsModelId,
+          realtimeModelId,
+          realtimeTranscriptionModelId,
+          timestampedTranscriptionModelId,
+        },
+        include: {
+          responseModel: true,
+          ttsModel: true,
+          realtimeModel: true,
+          realtimeTranscriptionModel: true,
+          timestampedTranscriptionModel: true,
+        },
+      });
+
+      res.status(200).json(selection);
+    } catch (error) {
+      console.error('Update admin model selection error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-
-    const selection = await prisma.adminUserCustomModelSelection.upsert({
-      where: { userId },
-      create: {
-        userId,
-        responseModelId,
-        ttsModelId,
-        realtimeModelId,
-        realtimeTranscriptionModelId,
-        timestampedTranscriptionModelId,
-      },
-      update: {
-        responseModelId,
-        ttsModelId,
-        realtimeModelId,
-        realtimeTranscriptionModelId,
-        timestampedTranscriptionModelId,
-      },
-      include: {
-        responseModel: true,
-        ttsModel: true,
-        realtimeModel: true,
-        realtimeTranscriptionModel: true,
-        timestampedTranscriptionModel: true,
-      },
-    });
-
-    res.status(200).json(selection);
-  } catch (error) {
-    console.error('Update admin model selection error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+  });
 
 /**
  * DELETE /api/models/admin-selection/:userId
@@ -267,18 +267,18 @@ router.delete(
     req: Request<UserIdParams>,
     res: Response<MessageResponse | ErrorResponse>,
   ) => {
-  try {
-    const { userId } = req.params;
+    try {
+      const { userId } = req.params;
 
-    await prisma.adminUserCustomModelSelection.delete({
-      where: { userId },
-    });
+      await prisma.adminUserCustomModelSelection.delete({
+        where: { userId },
+      });
 
-    res.status(200).json({ message: 'Admin model selection deleted successfully' });
-  } catch (error) {
-    console.error('Delete admin model selection error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+      res.status(200).json({ message: 'Admin model selection deleted successfully' });
+    } catch (error) {
+      console.error('Delete admin model selection error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 export default router;

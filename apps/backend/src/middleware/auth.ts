@@ -1,8 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
-import { extractTokenFromHeader, verifyToken, JWTPayload } from '../utils/auth.js';
+import { NextFunction, Request, Response } from 'express';
+import { extractTokenFromHeader, JWTPayload, verifyToken } from '../utils/auth.js';
 
 // Extend Express Request to include user info
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: JWTPayload;
@@ -27,6 +28,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     req.user = decoded;
     next();
   } catch (error) {
+    console.error('Authentication error:', error);
     res.status(401).json({ message: 'Invalid or expired token' });
   }
 };

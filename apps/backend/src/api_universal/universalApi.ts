@@ -83,13 +83,13 @@ const getTextToSpeech = async (
       return openAiApi.getTextToSpeech({
         ...params,
         model_api_name: apiName,
-        sample_rate: sampleRate
+        sample_rate: sampleRate,
       });
     case 'ElevenLabs':
       return elevenLabsApi.textToSpeech({
         ...params,
         model_api_name: apiName,
-        sample_rate: sampleRate
+        sample_rate: sampleRate,
       });
   }
 };
@@ -114,7 +114,7 @@ const getTextToSpeechTimestamped = async (
       return elevenLabsApi.getTextToSpeechTimestamped({
         ...params,
         model_api_name: apiName,
-          sample_rate: sampleRate,
+        sample_rate: sampleRate,
       });
   }
 };

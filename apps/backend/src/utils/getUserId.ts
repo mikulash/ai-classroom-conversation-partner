@@ -20,6 +20,7 @@ export async function getUserId(req: Request): Promise<string> {
     const decoded = verifyToken(token);
     return decoded.userId;
   } catch (error) {
+    console.error('Error verifying token:', error);
     throw new Error('Invalid or expired token');
   }
 }

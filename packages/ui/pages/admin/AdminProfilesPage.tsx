@@ -69,7 +69,7 @@ export function AdminProfilesPage() {
     try {
       setLoadingConversations((prev) => new Set(prev).add(userId));
 
-      const { data, error } = await conversationApi.byUser(userId);
+      const { data, error } = await conversationApi.getByUserId(userId);
 
       if (error) throw error;
 

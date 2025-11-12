@@ -53,7 +53,7 @@ export function UserProfilePage() {
     try {
       setIsLoadingConversations(true);
 
-      const { data, error } = await conversationApi.byUser(session.user.id);
+      const { data, error } = await conversationApi.getCurrent();
 
       if (error) throw error;
 

@@ -22,11 +22,13 @@ import {
   RefreshTokenRequest,
   RegisterResponse,
   RegisterUserRequest,
+  RequestPasswordResetRequest,
   ResendVerificationRequest,
+  ResetPasswordRequest,
   UpdatePasswordRequest,
 } from '@repo/shared/types/api';
 import jwt from 'jsonwebtoken';
-import { sendVerificationEmail } from '../../utils/email';
+import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
 
 const router = Router();
@@ -564,5 +566,123 @@ router.put(
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+/**
+ * POST /api/auth/request-password-reset
+ * Request a password reset email
+ */
+router.post(
+  '/request-password-reset',
+  async (
+    req: Request<ParamsDictionary, MessageResponse | ErrorResponse, RequestPasswordResetRequest>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
+    try {
+      const email = req.body?.email?.trim();
+
+      if (!email) {
+        res.status(400).json({ message: 'Email is required' });
+        return;
+      }
+
+      // Use generic message for security (don't reveal if email exists)
+      const genericMessage =
+        'If an account exists for that email, a password reset link has been sent.';
+
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      // Send generic response even if user doesn't exist (security)
+      if (!user) {
+        res.status(200).json({ message: genericMessage });
+        return;
+      }
+
+      // Generate password reset token (expires in 1 hour)
+      const secret = process.env.JWT_SECRET ?? 'change-me';
+      const resetToken = jwt.sign(
+        { userId: user.id, email: user.email, type: 'password-reset' },
+        secret,
+        { expiresIn: '1h' },
+      );
+
+      // Construct reset URL that points to the frontend reset page
+      const frontendBaseUrl = (
+        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
+      ).replace(/\/$/, '');
+      const resetUrl = `${frontendBaseUrl}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
+
+      // Send the email
+      await sendPasswordResetEmail(user.email, resetUrl);
+
+      res.status(200).json({ message: genericMessage });
+    } catch (error) {
+      console.error('Request password reset error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
+
+/**
+ * POST /api/auth/reset-password
+ * Reset password using a reset token
+ */
+router.post(
+  '/reset-password',
+  async (
+    req: Request<ParamsDictionary, MessageResponse | ErrorResponse, ResetPasswordRequest>,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
+    try {
+      const { token, newPassword } = req.body;
+
+      if (!token || !newPassword) {
+        res.status(400).json({ message: 'Token and new password are required' });
+        return;
+      }
+
+      // Verify the reset token
+      const secret = process.env.JWT_SECRET ?? 'change-me';
+      let payload: { userId: string; email: string; type: string };
+      try {
+        payload = jwt.verify(token, secret) as { userId: string; email: string; type: string };
+      } catch {
+        res.status(400).json({ message: 'Invalid or expired reset token' });
+        return;
+      }
+
+      // Verify it's a password reset token
+      if (payload.type !== 'password-reset') {
+        res.status(400).json({ message: 'Invalid token type' });
+        return;
+      }
+
+      // Get the user
+      const user = await prisma.user.findUnique({
+        where: { id: payload.userId },
+      });
+
+      if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      // Hash the new password
+      const hashedPassword = await hashPassword(newPassword);
+
+      // Update password
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      });
+
+      res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
 
 export default router;

@@ -45,6 +45,7 @@ export function verifyToken(token: string): JWTPayload {
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     return decoded;
   } catch (error) {
+    console.error('JWT verification error:', error);
     throw new Error('Invalid or expired token');
   }
 }
@@ -117,29 +118,5 @@ export async function revokeRefreshToken(token: string): Promise<void> {
   await prisma.refreshToken.updateMany({
     where: { token },
     data: { revoked: true },
-  });
-}
-
-/**
- * Revoke all refresh tokens for a user
- */
-export async function revokeAllUserRefreshTokens(userId: string): Promise<void> {
-  await prisma.refreshToken.updateMany({
-    where: { userId },
-    data: { revoked: true },
-  });
-}
-
-/**
- * Clean up expired and revoked refresh tokens
- */
-export async function cleanupRefreshTokens(): Promise<void> {
-  await prisma.refreshToken.deleteMany({
-    where: {
-      OR: [
-        { expiresAt: { lt: new Date() } },
-        { revoked: true },
-      ],
-    },
   });
 }

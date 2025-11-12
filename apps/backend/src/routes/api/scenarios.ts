@@ -1,13 +1,13 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 import {
   CreateScenarioRequest,
-  UpdateScenarioRequest,
-  ScenarioWithPersonality,
   ErrorResponse,
   MessageResponse,
+  ScenarioWithPersonality,
+  UpdateScenarioRequest,
 } from '@repo/shared/types/api';
 
 // Path parameter types
@@ -27,26 +27,26 @@ router.get(
     req: Request,
     res: Response<ScenarioWithPersonality[] | ErrorResponse>,
   ) => {
-  try {
-    const scenarios = await prisma.scenario.findMany({
-      include: {
-        personality: {
-          select: {
-            id: true,
-            name: true,
-            avatarUrl: true,
+    try {
+      const scenarios = await prisma.scenario.findMany({
+        include: {
+          personality: {
+            select: {
+              id: true,
+              name: true,
+              avatarUrl: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+      });
 
-    res.status(200).json(scenarios);
-  } catch (error) {
-    console.error('Get scenarios error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+      res.status(200).json(scenarios);
+    } catch (error) {
+      console.error('Get scenarios error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 /**
  * GET /api/scenarios/:id
@@ -58,27 +58,27 @@ router.get(
     req: Request<ScenarioIdParams>,
     res: Response<ScenarioWithPersonality | ErrorResponse>,
   ) => {
-  try {
-    const { id } = req.params;
+    try {
+      const { id } = req.params;
 
-    const scenario = await prisma.scenario.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        personality: true,
-      },
-    });
+      const scenario = await prisma.scenario.findUnique({
+        where: { id: parseInt(id) },
+        include: {
+          personality: true,
+        },
+      });
 
-    if (!scenario) {
-      res.status(404).json({ message: 'Scenario not found' });
-      return;
+      if (!scenario) {
+        res.status(404).json({ message: 'Scenario not found' });
+        return;
+      }
+
+      res.status(200).json(scenario);
+    } catch (error) {
+      console.error('Get scenario error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-
-    res.status(200).json(scenario);
-  } catch (error) {
-    console.error('Get scenario error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+  });
 
 /**
  * POST /api/scenarios
@@ -92,50 +92,50 @@ router.post(
     req: Request<ParamsDictionary, ScenarioWithPersonality | ErrorResponse, CreateScenarioRequest>,
     res: Response<ScenarioWithPersonality | ErrorResponse>,
   ) => {
-  try {
-    const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
+    try {
+      const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
 
-    // Validate required fields
-    if (!involvedPersonalityId) {
-      res.status(400).json({ message: 'involvedPersonalityId is required' });
-      return;
-    }
+      // Validate required fields
+      if (!involvedPersonalityId) {
+        res.status(400).json({ message: 'involvedPersonalityId is required' });
+        return;
+      }
 
-    // Check if personality exists
-    const personality = await prisma.personality.findUnique({
-      where: { id: involvedPersonalityId },
-    });
+      // Check if personality exists
+      const personality = await prisma.personality.findUnique({
+        where: { id: involvedPersonalityId },
+      });
 
-    if (!personality) {
-      res.status(404).json({ message: 'Personality not found' });
-      return;
-    }
+      if (!personality) {
+        res.status(404).json({ message: 'Personality not found' });
+        return;
+      }
 
-    const scenario = await prisma.scenario.create({
-      data: {
-        involvedPersonalityId,
-        situationDescriptionEn,
-        settingEn,
-        situationDescriptionCs,
-        settingCs,
-      },
-      include: {
-        personality: {
-          select: {
-            id: true,
-            name: true,
-            avatarUrl: true,
+      const scenario = await prisma.scenario.create({
+        data: {
+          involvedPersonalityId,
+          situationDescriptionEn,
+          settingEn,
+          situationDescriptionCs,
+          settingCs,
+        },
+        include: {
+          personality: {
+            select: {
+              id: true,
+              name: true,
+              avatarUrl: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    res.status(201).json(scenario);
-  } catch (error) {
-    console.error('Create scenario error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+      res.status(201).json(scenario);
+    } catch (error) {
+      console.error('Create scenario error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 /**
  * PUT /api/scenarios/:id
@@ -149,48 +149,48 @@ router.put(
     req: Request<ScenarioIdParams, ScenarioWithPersonality | ErrorResponse, UpdateScenarioRequest>,
     res: Response<ScenarioWithPersonality | ErrorResponse>,
   ) => {
-  try {
-    const { id } = req.params;
-    const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
+    try {
+      const { id } = req.params;
+      const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
 
-    // If personality is being updated, check if it exists
-    if (involvedPersonalityId) {
-      const personality = await prisma.personality.findUnique({
-        where: { id: involvedPersonalityId },
-      });
+      // If personality is being updated, check if it exists
+      if (involvedPersonalityId) {
+        const personality = await prisma.personality.findUnique({
+          where: { id: involvedPersonalityId },
+        });
 
-      if (!personality) {
-        res.status(404).json({ message: 'Personality not found' });
-        return;
+        if (!personality) {
+          res.status(404).json({ message: 'Personality not found' });
+          return;
+        }
       }
-    }
 
-    const scenario = await prisma.scenario.update({
-      where: { id: parseInt(id) },
-      data: {
-        involvedPersonalityId,
-        situationDescriptionEn,
-        settingEn,
-        situationDescriptionCs,
-        settingCs,
-      },
-      include: {
-        personality: {
-          select: {
-            id: true,
-            name: true,
-            avatarUrl: true,
+      const scenario = await prisma.scenario.update({
+        where: { id: parseInt(id) },
+        data: {
+          involvedPersonalityId,
+          situationDescriptionEn,
+          settingEn,
+          situationDescriptionCs,
+          settingCs,
+        },
+        include: {
+          personality: {
+            select: {
+              id: true,
+              name: true,
+              avatarUrl: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    res.status(200).json(scenario);
-  } catch (error) {
-    console.error('Update scenario error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+      res.status(200).json(scenario);
+    } catch (error) {
+      console.error('Update scenario error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 /**
  * DELETE /api/scenarios/:id
@@ -204,18 +204,18 @@ router.delete(
     req: Request<ScenarioIdParams>,
     res: Response<MessageResponse | ErrorResponse>,
   ) => {
-  try {
-    const { id } = req.params;
+    try {
+      const { id } = req.params;
 
-    await prisma.scenario.delete({
-      where: { id: parseInt(id) },
-    });
+      await prisma.scenario.delete({
+        where: { id: parseInt(id) },
+      });
 
-    res.status(200).json({ message: 'Scenario deleted successfully' });
-  } catch (error) {
-    console.error('Delete scenario error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
+      res.status(200).json({ message: 'Scenario deleted successfully' });
+    } catch (error) {
+      console.error('Delete scenario error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 export default router;

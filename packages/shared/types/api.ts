@@ -72,6 +72,15 @@ export interface UpdatePasswordRequest {
   newPassword: string;
 }
 
+export interface RequestPasswordResetRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
 export type ProfileResponse = ProfileExtended;
 
 export interface ResendVerificationRequest {

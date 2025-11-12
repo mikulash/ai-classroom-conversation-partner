@@ -28,7 +28,9 @@ import {
   RefreshTokenRequest,
   RegisterResponse,
   RegisterUserRequest,
+  RequestPasswordResetRequest,
   ResendVerificationRequest,
+  ResetPasswordRequest,
   ScenarioWithPersonality,
   UpdateAdminSelectionRequest,
   UpdateAppConfigRequest,
@@ -381,16 +383,35 @@ export const authApi = {
   },
 
   /**
-     * Reset password for email
-     * Note: This needs to be implemented on the backend
+     * Request password reset email
      */
-  resetPasswordForEmail: async (email: string, redirectTo?: string) => {
-    // TODO: Implement password reset on backend
-    console.warn('Password reset not implemented yet');
-    return {
-      data: null,
-      error: { message: 'Password reset not implemented yet' },
-    };
+  resetPasswordForEmail: async (email: string) => {
+    try {
+      const payload: RequestPasswordResetRequest = { email };
+      await api.post<MessageResponse>('/api/auth/request-password-reset', payload);
+      return { data: null, error: null };
+    } catch (error: any) {
+      return {
+        data: null,
+        error: { message: error.response?.data?.message || 'Failed to request password reset' },
+      };
+    }
+  },
+
+  /**
+     * Reset password with token
+     */
+  resetPassword: async (token: string, newPassword: string) => {
+    try {
+      const payload: ResetPasswordRequest = { token, newPassword };
+      await api.post<MessageResponse>('/api/auth/reset-password', payload);
+      return { data: null, error: null };
+    } catch (error: any) {
+      return {
+        data: null,
+        error: { message: error.response?.data?.message || 'Failed to reset password' },
+      };
+    }
   },
 
   /**
@@ -483,13 +504,21 @@ export const profileApi = {
 
 // -------------------- Conversation API --------------------
 export const conversationApi = {
-  byUser: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
-    // todo
+  getCurrent: async (): Promise<ApiResponse<ConversationWithPersonality[]>> => {
     try {
       const response = await api.get<ConversationWithPersonality[]>('/api/conversations');
       return { data: response.data };
     } catch (error: any) {
       return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch conversations' } };
+    }
+  },
+
+  getByUserId: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
+    try {
+      const response = await api.get<ConversationWithPersonality[]>(`/api/conversations/user/${userId}`);
+      return { data: response.data };
+    } catch (error: any) {
+      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch user conversations' } };
     }
   },
 
