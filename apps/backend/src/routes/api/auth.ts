@@ -40,8 +40,8 @@ function generateEmailVerificationToken(userId: string, email: string): string {
   return jwt.sign(
     { userId, email },
     secret,
-    // { expiresIn: '1d' }, // 24h to verify
-    { expiresIn: '30s' }, // 24h to verify
+    { expiresIn: '1d' }, // 24h to verify
+    // { expiresIn: '30s' }, // 24h to verify
   );
 }
 
