@@ -140,10 +140,6 @@ export class ConfigProvider {
   public getTimestampedTranscriptionModelById(id: number): TimestampedTranscriptionModel | undefined {
     return this.modelOptions.timestampedTranscriptionModels.find((model) => model.id === id);
   }
-
-  public getAppConfig(): AppConfig {
-    return this.appConfig;
-  }
 }
 
 

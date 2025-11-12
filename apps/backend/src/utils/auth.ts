@@ -39,7 +39,7 @@ export function generateToken(payload: JWTPayload): string {
 /**
  * Verify and decode a JWT token
  */
-export function verifyToken(token: string): JWTPayload {
+export function verifyAndDecodeToken(token: string): JWTPayload {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     return decoded;

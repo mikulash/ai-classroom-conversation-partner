@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { extractTokenFromHeader, verifyToken } from './auth.js';
+import { extractTokenFromHeader, verifyAndDecodeToken } from './auth.js';
 
 /**
  * Extracts the user ID from a request's Bearer token using JWT authentication.
@@ -17,7 +17,7 @@ export async function getUserId(req: Request): Promise<string> {
   }
 
   try {
-    const decoded = verifyToken(token);
+    const decoded = verifyAndDecodeToken(token);
     return decoded.userId;
   } catch (error) {
     console.error('Error verifying token:', error);

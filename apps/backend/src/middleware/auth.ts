@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { extractTokenFromHeader, JWTPayload, verifyToken } from '../utils/auth.js';
+import { extractTokenFromHeader, JWTPayload, verifyAndDecodeToken } from '../utils/auth.js';
 
 // Extend Express Request to include user info
 declare global {
@@ -13,7 +13,6 @@ declare global {
 
 /**
  * Middleware to verify JWT authentication
- * Replaces verifySupabaseAuth middleware
  */
 export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -24,8 +23,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    const decoded = verifyToken(token);
-    req.user = decoded;
+    req.user = verifyAndDecodeToken(token);
     next();
   } catch (error) {
     console.error('Authentication error:', error);
