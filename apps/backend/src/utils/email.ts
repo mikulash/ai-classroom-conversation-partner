@@ -1,19 +1,20 @@
 import nodemailer from 'nodemailer';
+import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_FROM } from '../constants/constants';
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT ?? 587),
+  host: SMTP_HOST,
+  port: SMTP_PORT,
   secure: false,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: SMTP_USER,
+    pass: SMTP_PASS,
   },
 });
 
 export async function sendVerificationEmail(to: string, verifyUrl: string) {
   console.log('Sending verification email to:', to);
   const result = await transporter.sendMail({
-    from: process.env.MAIL_FROM ?? 'no-reply@example.com',
+    from: MAIL_FROM,
     to,
     subject: 'Verify your email',
     html: `
@@ -30,7 +31,7 @@ export async function sendVerificationEmail(to: string, verifyUrl: string) {
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
   console.log('Sending password reset email to:', to);
   const result = await transporter.sendMail({
-    from: process.env.MAIL_FROM ?? 'no-reply@example.com',
+    from: MAIL_FROM,
     to,
     subject: 'Reset your password',
     html: `

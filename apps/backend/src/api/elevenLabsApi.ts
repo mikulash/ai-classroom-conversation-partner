@@ -4,6 +4,7 @@ import { ElevenLabsTimestampedResponse, GetTTSAudioResponse } from '@repo/shared
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
 import { GetTimestampedAudioParamsWithModelName, GetTTSAudioParamsWithModelName } from '../types/api';
+import { ELEVENLABS_FALLBACK_VOICE_ID_FEMALE, ELEVENLABS_FALLBACK_VOICE_ID_MALE } from '../constants/constants.js';
 
 const getTextToSpeech = async (
   params: GetTTSAudioParamsWithModelName,
@@ -26,9 +27,9 @@ const getTextToSpeech = async (
     let voice_id = personality.elevenlabsVoiceId;
     if (!voice_id) {
       if (personality.sex == 'F') {
-        voice_id = process.env.ELEVENLABS_FALLBACK_VOICE_ID_FEMALE || '';
+        voice_id = ELEVENLABS_FALLBACK_VOICE_ID_FEMALE;
       } else {
-        voice_id = process.env.ELEVENLABS_FALLBACK_VOICE_ID_MALE || '';
+        voice_id = ELEVENLABS_FALLBACK_VOICE_ID_MALE;
       }
     }
 
@@ -100,9 +101,9 @@ const getTextToSpeechTimestamped = async (
     if (!voice_id) {
       // female and male fallback voice ids
       if (personality.sex == 'F') {
-        voice_id = process.env.ELEVENLABS_FALLBACK_VOICE_ID_FEMALE || '';
+        voice_id = ELEVENLABS_FALLBACK_VOICE_ID_FEMALE;
       } else {
-        voice_id = process.env.ELEVENLABS_FALLBACK_VOICE_ID_MALE || '';
+        voice_id = ELEVENLABS_FALLBACK_VOICE_ID_MALE;
       }
     }
     const response = await fetch(

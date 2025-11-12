@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { PORT, NODE_ENV } from './constants/constants.js';
 
 // Legacy routes
 import replyRoutes from './routes/replies.js';
@@ -16,7 +17,6 @@ import appConfigRoutes from './routes/api/app-config.js';
 import conversationRolesRoutes from './routes/api/conversation-roles.js';
 
 const app = express();
-const port = +process.env.PORT! || 4000;
 
 // Middleware
 app.use(express.json());
@@ -44,7 +44,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(port, () => {
-  console.log(`Backend server listening on port ${port}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+app.listen(PORT, () => {
+  console.log(`Backend server listening on port ${PORT}`);
+  console.log(`Environment: ${NODE_ENV}`);
 });

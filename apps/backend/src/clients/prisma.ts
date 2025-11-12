@@ -1,4 +1,5 @@
 import { PrismaClient } from '../generated/prisma/client';
+import { NODE_ENV } from '../constants/constants.js';
 
 // Create a singleton Prisma client instance
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -6,9 +7,9 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 export const prisma =
     globalForPrisma.prisma ||
     new PrismaClient({
-      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      log: NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma;

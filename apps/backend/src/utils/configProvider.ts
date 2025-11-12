@@ -6,6 +6,7 @@ import type { AppConfig, RealtimeModel,
   ResponseModel,
   TimestampedTranscriptionModel,
   TtsModel } from '../generated/prisma/client';
+import { OPENAI_API_KEY, ELEVENLABS_API_KEY, CLAUDE_API_KEY, GROK_API_KEY } from '../constants/constants.js';
 
 /**
  * Fetches all secrets once and caches them for the lifetime of the process.
@@ -42,10 +43,10 @@ export class ConfigProvider {
   public static async getInstance(): Promise<ConfigProvider> {
     if (!ConfigProvider.instance) {
       const secrets: Secrets = {
-        [API_KEY.OPENAI]: process.env.OPENAI_API_KEY,
-        [API_KEY.ELEVENLABS]: process.env.ELEVENLABS_API_KEY,
-        [API_KEY.CLAUDE]: process.env.CLAUDE_API_KEY,
-        [API_KEY.GROK]: process.env.GROK_API_KEY,
+        [API_KEY.OPENAI]: OPENAI_API_KEY,
+        [API_KEY.ELEVENLABS]: ELEVENLABS_API_KEY,
+        [API_KEY.CLAUDE]: CLAUDE_API_KEY,
+        [API_KEY.GROK]: GROK_API_KEY,
       };
 
       const complete_configuration = await ConfigProvider.loadCompleteConfig();

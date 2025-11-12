@@ -3,9 +3,8 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import type { StringValue } from 'ms';
 import prisma from '../clients/prisma.js';
+import { JWT_SECRET, JWT_EXPIRES_IN } from '../constants/constants.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key-change-in-production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN as StringValue || '15m'; // Short-lived access tokens
 const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 const BCRYPT_ROUNDS = 10;
 
@@ -33,7 +32,7 @@ export async function comparePassword(password: string, hashedPassword: string):
  * Generate a JWT token for a user
  */
 export function generateToken(payload: JWTPayload): string {
-  const options: jwt.SignOptions = { expiresIn: JWT_EXPIRES_IN };
+  const options: jwt.SignOptions = { expiresIn: JWT_EXPIRES_IN as StringValue };
   return jwt.sign(payload, JWT_SECRET, options);
 }
 

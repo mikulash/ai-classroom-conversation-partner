@@ -30,18 +30,17 @@ import {
 import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
+import { APP_FRONTEND_URL, JWT_SECRET } from '../../constants/constants';
 
 const router = Router();
 
 /**
  * Validate if email belongs to allowed domains
  */
-
 function generateEmailVerificationToken(userId: string, email: string): string {
-  const secret = process.env.JWT_SECRET ?? 'change-me';
   return jwt.sign(
     { userId, email },
-    secret,
+    JWT_SECRET,
     { expiresIn: '1d' }, // 24h to verify
   );
 }
@@ -134,9 +133,7 @@ router.post(
       const emailVerifyToken = generateEmailVerificationToken(userProfile.id, userProfile.email!);
 
       // Construct verification URL that points to the frontend confirmation page
-      const frontendBaseUrl = (
-        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
-      ).replace(/\/$/, '');
+      const frontendBaseUrl = APP_FRONTEND_URL.replace(/\/$/, '');
       const verifyUrl = `${frontendBaseUrl}/email-validated?token=${encodeURIComponent(emailVerifyToken)}`;
 
       // Send the email
@@ -165,11 +162,9 @@ router.get(
         return;
       }
 
-      const secret = process.env.JWT_SECRET ?? 'change-me';
-
       let payload: { userId: string; email: string };
       try {
-        payload = jwt.verify(token, secret) as { userId: string; email: string };
+        payload = jwt.verify(token, JWT_SECRET) as { userId: string; email: string };
       } catch {
         res.status(400).json({ message: 'Invalid or expired verification token' });
         return;
@@ -262,10 +257,8 @@ router.post(
       }
 
       const emailVerifyToken = generateEmailVerificationToken(user.id, user.email);
-      const frontendBaseUrl = (
-        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
-      ).replace(/\/$/, '');
-      const verifyUrl = `${frontendBaseUrl}/email-validated?token=${encodeURIComponent(emailVerifyToken)}`;
+
+      const verifyUrl = `${APP_FRONTEND_URL.replace(/\/$/, '')}/email-validated?token=${encodeURIComponent(emailVerifyToken)}`;
 
       await sendVerificationEmail(user.email, verifyUrl);
 
@@ -595,17 +588,14 @@ router.post(
       }
 
       // Generate password reset token (expires in 1 hour)
-      const secret = process.env.JWT_SECRET ?? 'change-me';
       const resetToken = jwt.sign(
         { userId: user.id, email: user.email, type: 'password-reset' },
-        secret,
+        JWT_SECRET,
         { expiresIn: '1h' },
       );
 
       // Construct reset URL that points to the frontend reset page
-      const frontendBaseUrl = (
-        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
-      ).replace(/\/$/, '');
+      const frontendBaseUrl = APP_FRONTEND_URL.replace(/\/$/, '');
       const resetUrl = `${frontendBaseUrl}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
 
       // Send the email
@@ -638,10 +628,9 @@ router.post(
       }
 
       // Verify the reset token
-      const secret = process.env.JWT_SECRET ?? 'change-me';
       let payload: { userId: string; email: string; type: string };
       try {
-        payload = jwt.verify(token, secret) as { userId: string; email: string; type: string };
+        payload = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; type: string };
       } catch {
         res.status(400).json({ message: 'Invalid or expired reset token' });
         return;
