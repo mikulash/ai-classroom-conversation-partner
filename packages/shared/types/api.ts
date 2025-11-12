@@ -31,18 +31,12 @@ export interface ApiResponse<T> {
   error?: { message: string };
 }
 
-// ------------------------------------------------------------
-// Auth
-// ------------------------------------------------------------
-
-export interface RegisterPayload {
-  email: string;
-  password: string;
-  fullName?: string;
-  gender?: string;
+export interface RegisterUserRequest {
+    email: string;
+    password: string;
+    fullName: string;
+    gender: string;
 }
-
-export type RegisterRequest = RegisterPayload;
 
 export interface LoginRequest {
   email: string;

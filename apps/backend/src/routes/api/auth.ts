@@ -1,18 +1,17 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import {
-  hashPassword,
   comparePassword,
-  generateToken,
   generateRefreshToken,
+  generateToken,
+  hashPassword,
+  revokeAllUserRefreshTokens,
+  revokeRefreshToken,
   storeRefreshToken,
   verifyRefreshToken,
-  revokeRefreshToken,
-  revokeAllUserRefreshTokens,
 } from '../../utils/auth.js';
 import { authenticate } from '../../middleware/auth.js';
 import prisma from '../../clients/prisma';
-import { ProfileExtended } from '@repo/shared/types/db/entities';
 import {
   AuthResponse,
   AuthTokensResponse,
@@ -22,7 +21,7 @@ import {
   MessageResponse,
   ProfileResponse,
   RefreshTokenRequest,
-  RegisterRequest,
+  RegisterUserRequest,
   UpdatePasswordRequest,
 } from '@repo/shared/types/api';
 
@@ -42,7 +41,7 @@ function isValidUniversityEmail(email: string, allowedDomains: string[]): boolea
 router.post(
   '/register',
   async (
-    req: Request<ParamsDictionary, AuthResponse | ErrorResponse, RegisterRequest>,
+    req: Request<ParamsDictionary, AuthResponse | ErrorResponse, RegisterUserRequest>,
     res: Response<AuthResponse | ErrorResponse>,
   ) => {
     try {
@@ -93,8 +92,8 @@ router.post(
         const profile = await tx.profile.create({
           data: {
             id: user.id,
-            fullName: fullName ?? null,
-            gender: gender ?? null,
+            fullName: fullName,
+            gender: gender,
             conversationRole: '',
             bio: null,
             userRole: 'basic',

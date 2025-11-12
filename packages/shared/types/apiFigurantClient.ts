@@ -89,12 +89,6 @@ export interface ErrorResponse {
     [key: string]: any; // additional properties
 }
 
-export interface RegisterUserRequest {
-    email: string;
-    password: string;
-    full_name: string;
-    gender: string;
-}
 
 export interface WebRtcAnswerResponse {
     sdp: string; // raw SDP ‘answer’

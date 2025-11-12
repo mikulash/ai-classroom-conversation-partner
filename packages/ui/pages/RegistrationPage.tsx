@@ -100,7 +100,7 @@ export const RegistrationPage: React.FC = () => {
       await signUp({
         email,
         password,
-        full_name: fullName,
+        fullName,
         gender,
       });
       setIsSuccess(true);

@@ -21,12 +21,12 @@ import {
   CreateConversationRequest,
   CreatePersonalityRequest,
   CreateScenarioRequest,
-  RefreshTokenRequest,
   LoginRequest,
   LogoutRequest,
   MessageResponse,
   ProfileResponse,
-  RegisterPayload,
+  RefreshTokenRequest,
+  RegisterUserRequest,
   ScenarioWithPersonality,
   UpdateAdminSelectionRequest,
   UpdateAppConfigRequest,
@@ -206,7 +206,7 @@ export const authApi = {
   /**
      * Register a new user
      */
-  register: async (payload: RegisterPayload) => {
+  register: async (payload: RegisterUserRequest) => {
     try {
       const response = await api.post<AuthResponse>('/api/auth/register', payload);
 

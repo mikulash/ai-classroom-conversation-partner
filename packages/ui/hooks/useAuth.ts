@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { authApi } from '@repo/frontend-utils/src/apiService';
 import { useUserStore } from './useUserStore';
-import { RegisterUserRequest } from '@repo/shared/types/apiFigurantClient';
+import { RegisterUserRequest } from '@repo/shared/types/api';
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export const useAuth = () => {
       const { data, error: authError } = await authApi.register({
         email: params.email,
         password: params.password,
-        fullName: params.full_name,
+        fullName: params.fullName,
         gender: params.gender,
       });
 
