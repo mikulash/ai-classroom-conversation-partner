@@ -20,7 +20,7 @@ export const fetchModelOptions = async () => {
               prisma.realtimeTranscriptionModel.findMany(),
             ]);
 
-    const model_options: ModelOptions = {
+    const modelOptions: ModelOptions = {
       responseModels,
       ttsModels,
       realtimeModels,
@@ -28,7 +28,7 @@ export const fetchModelOptions = async () => {
       realtimeTranscriptionModels,
     };
 
-    return model_options;
+    return modelOptions;
   } catch (error) {
     throw new Error(`Failed to fetch model options: ${error}`);
   }

@@ -24,16 +24,16 @@ export interface ModelOptions {
 export class ConfigProvider {
   private static instance: ConfigProvider;
   private readonly secrets: Secrets;
-  private app_config: AppConfig;
-  private readonly model_options: ModelOptions;
+  private readonly appConfig: AppConfig;
+  private readonly modelOptions: ModelOptions;
 
   /**
      * Private constructor; use getInstance() instead.
      */
   private constructor(secrets: Secrets, app_config: AppConfig, model_options: ModelOptions) {
     this.secrets = secrets;
-    this.app_config = app_config;
-    this.model_options = model_options;
+    this.appConfig = app_config;
+    this.modelOptions = model_options;
   }
 
   /**
@@ -80,11 +80,11 @@ export class ConfigProvider {
 
   public getSelectedModels() {
     return {
-      responseModel: this.model_options.responseModels.find((model) => model.id === this.app_config.responseModelId)!,
-      ttsModel: this.model_options.ttsModels.find((model) => model.id === this.app_config.ttsModelId)!,
-      realtimeModel: this.model_options.realtimeModels.find((model) => model.id === this.app_config.realtimeModelId)!,
-      timestampedTranscriptionModel: this.model_options.timestampedTranscriptionModels.find((model) => model.id === this.app_config.timestampedTranscriptionModelId)!,
-      realtimeTranscriptionModel: this.model_options.realtimeTranscriptionModels.find((model) => model.id === this.app_config.realtimeTranscriptionModelId)!,
+      responseModel: this.modelOptions.responseModels.find((model) => model.id === this.appConfig.responseModelId)!,
+      ttsModel: this.modelOptions.ttsModels.find((model) => model.id === this.appConfig.ttsModelId)!,
+      realtimeModel: this.modelOptions.realtimeModels.find((model) => model.id === this.appConfig.realtimeModelId)!,
+      timestampedTranscriptionModel: this.modelOptions.timestampedTranscriptionModels.find((model) => model.id === this.appConfig.timestampedTranscriptionModelId)!,
+      realtimeTranscriptionModel: this.modelOptions.realtimeTranscriptionModels.find((model) => model.id === this.appConfig.realtimeTranscriptionModelId)!,
     };
   }
 
@@ -121,27 +121,27 @@ export class ConfigProvider {
   }
 
   public getResponseModelById(id: number): ResponseModel | undefined {
-    return this.model_options.responseModels.find((model) => model.id === id);
+    return this.modelOptions.responseModels.find((model) => model.id === id);
   }
 
   public getTtsModelById(id: number): TtsModel | undefined {
-    return this.model_options.ttsModels.find((model) => model.id === id);
+    return this.modelOptions.ttsModels.find((model) => model.id === id);
   }
 
   public getRealtimeModelById(id: number): RealtimeModel | undefined {
-    return this.model_options.realtimeModels.find((model) => model.id === id);
+    return this.modelOptions.realtimeModels.find((model) => model.id === id);
   }
 
   public getRealtimeTranscriptionModelById(id: number): RealtimeTranscriptionModel | undefined {
-    return this.model_options.realtimeTranscriptionModels.find((model) => model.id === id);
+    return this.modelOptions.realtimeTranscriptionModels.find((model) => model.id === id);
   }
 
   public getTimestampedTranscriptionModelById(id: number): TimestampedTranscriptionModel | undefined {
-    return this.model_options.timestampedTranscriptionModels.find((model) => model.id === id);
+    return this.modelOptions.timestampedTranscriptionModels.find((model) => model.id === id);
   }
 
   public getAppConfig(): AppConfig {
-    return this.app_config;
+    return this.appConfig;
   }
 }
 
