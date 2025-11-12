@@ -59,12 +59,33 @@ const syncSessionWithStores = (newSession: Session | null) => {
 const shouldSyncForKey = (key: string | null) =>
   key === 'access_token' || key === 'refresh_token' || key === 'user_profile';
 
+const readSessionFromStorage = (): Session | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const accessToken = window.localStorage.getItem('access_token');
+    const userStr = window.localStorage.getItem('user_profile');
+
+    if (!accessToken || !userStr) {
+      return null;
+    }
+
+    const user = JSON.parse(userStr);
+    return {
+      access_token: accessToken,
+      user,
+    };
+  } catch {
+    return null;
+  }
+};
+
 const fetchSessionFromStorage = async () => {
   try {
-    const { data } = await authApi.getSession();
-    syncSessionWithStores(data.session);
-  } catch {
-    syncSessionWithStores(null);
+    const session = readSessionFromStorage();
+    syncSessionWithStores(session);
   } finally {
     setAuthState({ ready: true });
   }

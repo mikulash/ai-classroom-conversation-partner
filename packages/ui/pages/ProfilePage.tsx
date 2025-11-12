@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
@@ -29,7 +29,7 @@ export function UserProfilePage() {
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
-  const { setProfile, profile: cachedProfile } = useAuth();
+  const { setProfile, profile: cachedProfile, session, ready } = useAuth();
 
   useEffect(() => {
     if (!cachedProfile) return;
@@ -39,14 +39,9 @@ export function UserProfilePage() {
     setBio(cachedProfile.bio ?? '');
   }, [cachedProfile]);
 
-  const fetchConversations = async () => {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await authApi.getSession();
-
-    if (sessionError || !session) {
-      console.error('Unable to retrieve session:', sessionError);
+  const fetchConversations = useCallback(async () => {
+    if (!session) {
+      console.error('Unable to retrieve session: not authenticated');
       return;
     }
 
@@ -85,7 +80,7 @@ export function UserProfilePage() {
     } finally {
       setIsLoadingConversations(false);
     }
-  };
+  }, [session]);
 
   const handleConversationClick = (conversation: MyConversation) => {
     setSelectedConversation(conversation);
@@ -98,15 +93,6 @@ export function UserProfilePage() {
     setIsSaving(true);
     setIsSuccess(false);
     try {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await authApi.getSession();
-      if (sessionError || !session) {
-        console.error('Unable to retrieve session:', sessionError);
-        return;
-      }
-
       const payload: UpdateProfileRequest = {
         fullName,
         conversationRole,
@@ -139,42 +125,37 @@ export function UserProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const {
-        data: { session },
-        error: fetchError,
-      } = await authApi.getSession();
-      if (fetchError) {
-        console.error('Error fetching session:', fetchError);
+      if (!session) {
         return;
       }
-      if (session) {
-        const userId = session.user.id;
-        const { data, error: profileError } = await profileApi.getById(
-          userId,
-        );
-        if (profileError) {
-          console.error('Error fetching user profile:', profileError);
-          return;
-        }
-        if (data) {
-          setFullName(data.fullName ?? '');
-          setConversationRole(data.conversationRole ?? '');
-          setGender(data.gender ?? '');
-          setBio(data.bio ?? '');
-        }
 
-        await fetchConversations();
+      const { data, error: profileError } = await authApi.getCurrentUser();
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError);
+        return;
       }
+
+      if (data) {
+        setFullName(data.fullName ?? '');
+        setConversationRole(data.conversationRole ?? '');
+        setGender(data.gender ?? '');
+        setBio(data.bio ?? '');
+        setProfile(data);
+      }
+
+      await fetchConversations();
     };
 
-    fetchProfile().catch((error: unknown) => {
-      if (error instanceof Error) {
-        console.error('Error fetching profile:', error.message);
-      } else {
-        console.error('Error fetching profile:', error);
-      }
-    });
-  }, []);
+    if (ready) {
+      fetchProfile().catch((error: unknown) => {
+        if (error instanceof Error) {
+          console.error('Error fetching profile:', error.message);
+        } else {
+          console.error('Error fetching profile:', error);
+        }
+      });
+    }
+  }, [fetchConversations, ready, session, setProfile]);
 
   return (
     <>

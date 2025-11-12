@@ -178,33 +178,6 @@ export async function fetchInitialData(): Promise<InitialData> {
 // -------------------- Auth API --------------------
 export const authApi = {
   /**
-     * Get current session from localStorage
-     */
-  getSession: async () => {
-    const accessToken = localStorage.getItem('access_token');
-    const userStr = localStorage.getItem('user_profile');
-
-    if (!accessToken || !userStr) {
-      return { data: { session: null }, error: null };
-    }
-
-    try {
-      const user = JSON.parse(userStr);
-      return {
-        data: {
-          session: {
-            access_token: accessToken,
-            user,
-          },
-        },
-        error: null,
-      };
-    } catch {
-      return { data: { session: null }, error: null };
-    }
-  },
-
-  /**
      * Register a new user
      */
   register: async (payload: RegisterUserRequest) => {

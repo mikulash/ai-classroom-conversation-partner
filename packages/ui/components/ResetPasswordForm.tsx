@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Link, useNavigate } from 'react-router';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { useAuth } from '../hooks/useAuth';
 
 export const ResetPasswordForm: React.FC = () => {
   const { t } = useTypedTranslation();
@@ -18,15 +19,17 @@ export const ResetPasswordForm: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { session, ready } = useAuth();
+
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await authApi.getSession();
-      if (!data.session) {
-        navigate('/', { replace: true });
-      }
-    };
-    void checkSession();
-  }, [navigate]);
+    if (!ready) {
+      return;
+    }
+
+    if (!session) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate, ready, session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
