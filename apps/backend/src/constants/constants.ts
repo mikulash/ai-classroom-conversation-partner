@@ -22,7 +22,6 @@ export const MAIL_FROM = process.env.MAIL_FROM ?? 'no-reply@aifigurant.local';
 // ============================================
 // Application URLs
 // ============================================
-export const APP_BASE_URL = (process.env.APP_BASE_URL ?? 'http://localhost:4000').replace(/\/$/, ''); ;
 export const APP_FRONTEND_URL = (process.env.APP_FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
 
 // ============================================
