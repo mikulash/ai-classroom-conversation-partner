@@ -42,7 +42,7 @@ export const EmailValidatedPage: React.FC = () => {
         const message = error?.message ?? null;
 
         if (message && message.toLowerCase().includes('expired')) {
-          navigate('/auth/verification-expired', { replace: true });
+          navigate('/verification-expired', { replace: true });
           return;
         }
 

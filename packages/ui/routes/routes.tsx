@@ -31,8 +31,8 @@ export const ROUTES: RouteObject[] = [
       { index: true, element: <HomePage/> },
       { path: 'sign-in', element: <SignInPage/> },
       { path: 'register', element: <RegistrationPage/> },
-      { path: 'auth/validated', element: <EmailValidatedPage/> },
-      { path: 'auth/verification-expired', element: <EmailVerificationExpiredPage/> },
+      { path: 'email-validated', element: <EmailValidatedPage/> },
+      { path: 'verification-expired', element: <EmailVerificationExpiredPage/> },
       { path: 'forgot-password', element: <ResetPasswordRequestForm/> },
       { path: 'reset-password', element: <ResetPasswordForm/> },
 

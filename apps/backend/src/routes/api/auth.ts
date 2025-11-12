@@ -137,7 +137,7 @@ router.post(
       const frontendBaseUrl = (
         process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
       ).replace(/\/$/, '');
-      const verifyUrl = `${frontendBaseUrl}/auth/validated?token=${encodeURIComponent(emailVerifyToken)}`;
+      const verifyUrl = `${frontendBaseUrl}/email-validated?token=${encodeURIComponent(emailVerifyToken)}`;
 
       // Send the email
 
@@ -265,7 +265,7 @@ router.post(
       const frontendBaseUrl = (
         process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
       ).replace(/\/$/, '');
-      const verifyUrl = `${frontendBaseUrl}/auth/validated?token=${encodeURIComponent(emailVerifyToken)}`;
+      const verifyUrl = `${frontendBaseUrl}/email-validated?token=${encodeURIComponent(emailVerifyToken)}`;
 
       await sendVerificationEmail(user.email, verifyUrl);
 

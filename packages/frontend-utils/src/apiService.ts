@@ -9,7 +9,6 @@ import {
   TimestampedTranscriptionModel,
   TtsModel,
 } from '@repo/shared/types/db/entities';
-
 import { UserRole } from '@repo/shared/types/db/enums';
 import {
   AdminSelectionWithModels,
@@ -163,7 +162,6 @@ export async function fetchInitialData(): Promise<InitialData> {
       api.get<ConversationRole[]>('/api/conversation-roles'),
       api.get<AppConfigWithModels>('/api/app-config'),
     ]);
-
 
     return {
       personalities: personalities.data,
