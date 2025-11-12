@@ -5,8 +5,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { authApi } from '@repo/frontend-utils/src/apiService';
 import { useAuth } from '../hooks/useAuth';
+import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
 
 export const EmailVerificationExpiredPage: React.FC = () => {
   const { t } = useTypedTranslation();

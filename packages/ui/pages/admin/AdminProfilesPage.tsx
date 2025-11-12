@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { conversationApi, profileApi } from '@repo/frontend-utils/src/apiService';
 import { ConversationWithPersonality, ProfileResponse } from '@repo/shared/types/api';
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
@@ -13,6 +12,8 @@ import { ConversationTranscriptDialog } from '../../components/ConversationTrans
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
 import { UserRole } from '@repo/shared/types/db/enums';
+import { profileApi } from '@repo/frontend-utils/src/clients/db/profile';
+import { conversationApi } from '@repo/frontend-utils/src/clients/db/conversation';
 
 
 export function AdminProfilesPage() {

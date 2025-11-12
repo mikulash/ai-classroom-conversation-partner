@@ -5,7 +5,7 @@ import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
@@ -157,7 +157,7 @@ export const VoiceCallPage: React.FC = () => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      const response = await apiClient.getWebRtcAnswer({
+      const response = await figurantClient.getWebRtcAnswer({
         openai_voice_name: personality.openaiVoiceName,
         personality,
         language,

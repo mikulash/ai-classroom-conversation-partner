@@ -1,11 +1,11 @@
 import { Label } from '@radix-ui/react-label';
-import { authApi } from '@repo/frontend-utils/src/apiService';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
 
 export const ResetPasswordRequestForm: React.FC = () => {
   const { t } = useTypedTranslation();

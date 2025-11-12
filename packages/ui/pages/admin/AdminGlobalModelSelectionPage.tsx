@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { modelApi } from '@repo/frontend-utils/src/apiService';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
@@ -17,6 +16,7 @@ import {
   getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
+import { modelApi } from '@repo/frontend-utils/src/clients/db/model';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -58,7 +58,7 @@ export function AdminGlobalModelSelectionPage() {
         modelApi.realtimeModels(),
         modelApi.timestampedTranscriptionModels(),
         modelApi.realtimeTranscriptionModels(),
-        apiClient.getAiProvidersAvailability(),
+        figurantClient.getAiProvidersAvailability(),
       ]);
 
 

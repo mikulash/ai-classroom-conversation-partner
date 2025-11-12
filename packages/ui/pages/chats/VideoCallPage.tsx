@@ -7,7 +7,7 @@ import { AvatarTalkingHead, AvatarTalkingHeadHandle } from '../../components/Ava
 import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -208,7 +208,7 @@ export const VideoCallPage: React.FC = () => {
 
     setIsAiProcessing(true);
     try {
-      const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
+      const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
         input_text: 'The user has been silent for too long. Respond with a short goodbye.',
         previousMessages: messages,
         personality,
@@ -257,7 +257,7 @@ export const VideoCallPage: React.FC = () => {
     try {
       const silenceSystemPrompt = t('chat.silencePrompt');
 
-      const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
+      const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
         input_text: silenceSystemPrompt,
         previousMessages: messages,
         personality,
@@ -290,7 +290,7 @@ export const VideoCallPage: React.FC = () => {
     if (!userProfile) return;
 
     try {
-      const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
+      const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
         input_text: messageToSend,
         previousMessages: messages,
         personality,

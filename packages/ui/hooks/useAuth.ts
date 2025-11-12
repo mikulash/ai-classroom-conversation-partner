@@ -1,12 +1,10 @@
 import { useCallback, useEffect } from 'react';
-import { authApi } from '@repo/frontend-utils/src/apiService';
 import { ProfileResponse, RegisterUserRequest } from '@repo/shared/types/api';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
 
-/**
- * Session type compatible with previous Supabase session implementation.
- */
+
 export interface Session {
   access_token: string;
   user: any;

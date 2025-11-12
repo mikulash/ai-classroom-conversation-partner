@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Button } from '../../components/ui/button';
-import { scenarioApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
 import { ScenarioCreate, Scenario } from '@repo/shared/types/db/entities';
+import { scenarioApi } from '@repo/frontend-utils/src/clients/db/scenario';
 
 type ScenarioFormData = Scenario | ScenarioCreate;
 

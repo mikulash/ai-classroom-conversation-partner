@@ -1,9 +1,9 @@
 import { Outlet } from 'react-router';
 import { Header } from '../components/Header';
 import { useEffect } from 'react';
-import { fetchInitialData } from '@repo/frontend-utils/src/apiService';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
+import { fetchInitialData } from '@repo/frontend-utils/src/clients/db/appConfig';
 
 export const Layout = () => {
   const setConversationOptions = useAppStore(

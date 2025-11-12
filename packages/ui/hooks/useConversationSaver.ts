@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
 import { useTypedTranslation } from './useTypedTranslation';
-import { conversationApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
 import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
@@ -11,6 +10,7 @@ import {
 } from '@repo/shared/types/db/entities';
 import { ConversationType } from '@repo/shared/types/db/enums';
 import { CreateConversationRequest, ProfileResponse } from '@repo/shared/types/api';
+import { conversationApi } from '@repo/frontend-utils/src/clients/db/conversation';
 
 
 interface ConversationSaverParams {

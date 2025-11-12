@@ -15,7 +15,7 @@ import {
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { Language } from '@repo/shared/enums/Language';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
-import { api } from '../apiService';
+import { api } from './api';
 
 
 /**
@@ -124,4 +124,4 @@ export class FigurantApiClient {
 }
 
 // Export a singleton instance for convenience
-export const apiClient = new FigurantApiClient();
+export const figurantClient = new FigurantApiClient();

@@ -4,7 +4,6 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { authApi, conversationApi, profileApi } from '@repo/frontend-utils/src/apiService';
 import { ConversationWithPersonality, UpdateProfileRequest } from '@repo/shared/types/api';
 import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
@@ -13,6 +12,9 @@ import { ConversationTranscriptDialog } from '../components/ConversationTranscri
 import { ConversationsList } from '../components/ConversationsList';
 import { toast } from 'sonner';
 import { MyConversation } from '@repo/shared/types/myConversation';
+import { conversationApi } from '@repo/frontend-utils/src/clients/db/conversation';
+import { profileApi } from '@repo/frontend-utils/src/clients/db/profile';
+import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();

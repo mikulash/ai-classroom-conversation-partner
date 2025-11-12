@@ -7,12 +7,12 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
-import { personalityApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { OpenAiVoiceName } from '@repo/shared/types/db/enums';
 import { Personality, PersonalityCreate } from '@repo/shared/types/db/entities';
+import { personalityApi } from '@repo/frontend-utils/src/clients/db/personality';
 
 type PersonalityForm = PersonalityCreate | Personality;
 

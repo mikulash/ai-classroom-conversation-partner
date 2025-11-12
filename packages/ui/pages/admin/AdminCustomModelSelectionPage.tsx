@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { modelApi } from '@repo/frontend-utils/src/apiService';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
@@ -17,6 +16,7 @@ import {
   getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
+import { modelApi } from '@repo/frontend-utils/src/clients/db/model';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -64,7 +64,7 @@ export function AdminCustomModelSelectionPage() {
         modelApi.timestampedTranscriptionModels(),
         modelApi.realtimeTranscriptionModels(),
         modelApi.adminUserSelection(session?.user.id),
-        apiClient.getAiProvidersAvailability(),
+        figurantClient.getAiProvidersAvailability(),
       ]);
 
       if (responseError || ttsError || realtimeError || timestampedError || realtimeTransError) {

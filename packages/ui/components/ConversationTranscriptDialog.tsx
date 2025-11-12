@@ -4,10 +4,10 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { conversationApi } from '@repo/frontend-utils/src/apiService';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import { formatMessageTime, getLocalizedDateTimeString } from '../lib/timeFormatters';
+import { conversationApi } from '@repo/frontend-utils/src/clients/db/conversation';
 
 interface ConversationTranscriptDialogProps {
     isOpen: boolean;
