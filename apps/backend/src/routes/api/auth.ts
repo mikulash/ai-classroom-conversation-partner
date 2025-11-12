@@ -5,7 +5,6 @@ import {
   generateRefreshToken,
   generateToken,
   hashPassword,
-  revokeAllUserRefreshTokens,
   revokeRefreshToken,
   storeRefreshToken,
   verifyRefreshToken,
@@ -24,6 +23,8 @@ import {
   RegisterUserRequest,
   UpdatePasswordRequest,
 } from '@repo/shared/types/api';
+import jwt from 'jsonwebtoken';
+import { sendVerificationEmail } from '../../utils/email';
 
 const router = Router();
 
@@ -32,6 +33,15 @@ const router = Router();
  */
 function isValidUniversityEmail(email: string, allowedDomains: string[]): boolean {
   return allowedDomains.some((domain) => email.endsWith(domain));
+}
+
+function generateEmailVerificationToken(userId: string, email: string): string {
+  const secret = process.env.JWT_SECRET ?? 'change-me';
+  return jwt.sign(
+    { userId, email },
+    secret,
+    { expiresIn: '1d' }, // 24h to verify
+  );
 }
 
 /**
@@ -85,6 +95,7 @@ router.post(
           data: {
             email,
             password: hashedPassword,
+            // confirmedAt stays null until email verification
           },
         });
 
@@ -116,7 +127,7 @@ router.post(
         return response;
       });
 
-      // Generate JWT access token and refresh token
+      // Generate JWT access token and refresh token (you already had this)
       const accessToken = generateToken({
         userId: userProfile.id,
         email: userProfile.email || '',
@@ -126,16 +137,69 @@ router.post(
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(userProfile.id, refreshToken);
 
+      // NEW: generate email verification token
+      const emailVerifyToken = generateEmailVerificationToken(userProfile.id, userProfile.email!);
+
+      // Construct verification URL (frontend or backend route)
+      const baseUrl = process.env.APP_BASE_URL ?? 'http://localhost:4000';
+      const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${emailVerifyToken}`;
+
+      // Send the email
+
+      await sendVerificationEmail(userProfile.email, verifyUrl);
+
       res.status(201).json({
         user: userProfile,
         accessToken,
         refreshToken,
+        // optional: tell the client to check email
+        message: 'Registration successful. Please check your email to verify your account.',
       });
     } catch (error) {
       console.error('Registration error:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+router.get(
+  '/verify-email',
+  async (
+    req: Request,
+    res: Response<MessageResponse | ErrorResponse>,
+  ) => {
+    try {
+      const token = req.query.token as string | undefined;
+      if (!token) {
+        res.status(400).json({ message: 'Verification token is required' });
+        return;
+      }
+
+      const secret = process.env.JWT_SECRET ?? 'change-me';
+
+      let payload: { userId: string; email: string };
+      try {
+        payload = jwt.verify(token, secret) as { userId: string; email: string };
+      } catch (err) {
+        res.status(400).json({ message: 'Invalid or expired verification token' });
+        return;
+      }
+
+      // mark user as confirmed
+      await prisma.user.update({
+        where: { id: payload.userId },
+        data: {
+          confirmedAt: new Date(),
+        },
+      });
+
+      res.status(200).json({ message: 'Email verified successfully.' });
+    } catch (error) {
+      console.error('Email verification error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
+
 
 /**
  * POST /api/auth/login
@@ -336,6 +400,7 @@ router.post(
     }
   });
 
+
 /**
  * POST /api/auth/logout
  * Logout user and revoke refresh token
@@ -360,31 +425,6 @@ router.post(
     }
   });
 
-/**
- * POST /api/auth/logout-all
- * Logout user from all devices (revoke all refresh tokens)
- */
-router.post(
-  '/logout-all',
-  authenticate,
-  async (
-    req: Request,
-    res: Response<MessageResponse | ErrorResponse>,
-  ) => {
-    try {
-      if (!req.user) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
-      await revokeAllUserRefreshTokens(req.user.userId);
-
-      res.status(200).json({ message: 'Logged out from all devices successfully' });
-    } catch (error) {
-      console.error('Logout all error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
 
 /**
  * PUT /api/auth/password
