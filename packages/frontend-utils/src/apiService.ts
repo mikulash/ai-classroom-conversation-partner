@@ -233,6 +233,36 @@ export const authApi = {
   },
 
   /**
+     * Verify email using token from verification link
+     */
+  verifyEmail: async (token: string) => {
+    try {
+      const response = await api.get<AuthResponse>('/api/auth/verify-email', {
+        params: { token },
+      });
+
+      const { user, accessToken, refreshToken } = response.data;
+
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', refreshToken);
+      localStorage.setItem('user_profile', JSON.stringify(user));
+
+      return {
+        data: {
+          user,
+          session: { access_token: accessToken, user },
+        },
+        error: null,
+      };
+    } catch (error: any) {
+      return {
+        data: { user: null, session: null },
+        error: { message: error.response?.data?.message || 'Email verification failed' },
+      };
+    }
+  },
+
+  /**
      * Sign in with email and password
      */
   signInWithPassword: async (email: string, password: string) => {

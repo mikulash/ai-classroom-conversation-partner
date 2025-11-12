@@ -140,9 +140,11 @@ router.post(
       // NEW: generate email verification token
       const emailVerifyToken = generateEmailVerificationToken(userProfile.id, userProfile.email!);
 
-      // Construct verification URL (frontend or backend route)
-      const baseUrl = process.env.APP_BASE_URL ?? 'http://localhost:4000';
-      const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${emailVerifyToken}`;
+      // Construct verification URL that points to the frontend confirmation page
+      const frontendBaseUrl = (
+        process.env.APP_FRONTEND_URL ?? 'http://localhost:5173'
+      ).replace(/\/$/, '');
+      const verifyUrl = `${frontendBaseUrl}/auth/validated?token=${encodeURIComponent(emailVerifyToken)}`;
 
       // Send the email
 
@@ -165,7 +167,7 @@ router.get(
   '/verify-email',
   async (
     req: Request,
-    res: Response<MessageResponse | ErrorResponse>,
+    res: Response<AuthResponse | ErrorResponse>,
   ) => {
     try {
       const token = req.query.token as string | undefined;
@@ -179,20 +181,64 @@ router.get(
       let payload: { userId: string; email: string };
       try {
         payload = jwt.verify(token, secret) as { userId: string; email: string };
-      } catch (err) {
+      } catch {
         res.status(400).json({ message: 'Invalid or expired verification token' });
         return;
       }
 
-      // mark user as confirmed
-      await prisma.user.update({
+      // Retrieve the user with their profile information
+      const user = await prisma.user.findUnique({
         where: { id: payload.userId },
-        data: {
-          confirmedAt: new Date(),
-        },
+        include: { profile: true },
       });
 
-      res.status(200).json({ message: 'Email verified successfully.' });
+      if (!user || !user.profile) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      // Mark user as confirmed (idempotent)
+      const verifiedUser = await prisma.user.update({
+        where: { id: payload.userId },
+        data: {
+          confirmedAt: user.confirmedAt ?? new Date(),
+        },
+        include: { profile: true },
+      });
+
+      if (!verifiedUser.profile) {
+        res.status(500).json({ message: 'Failed to confirm user' });
+        return;
+      }
+
+      // Generate tokens for automatic sign-in
+      const accessToken = generateToken({
+        userId: verifiedUser.id,
+        email: verifiedUser.email,
+        userRole: verifiedUser.profile.userRole,
+      });
+
+      const refreshToken = generateRefreshToken();
+      await storeRefreshToken(verifiedUser.id, refreshToken);
+
+      const userProfile: ProfileResponse = {
+        id: verifiedUser.id,
+        email: verifiedUser.email,
+        fullName: verifiedUser.profile.fullName,
+        gender: verifiedUser.profile.gender,
+        conversationRole: verifiedUser.profile.conversationRole,
+        bio: verifiedUser.profile.bio,
+        userRole: verifiedUser.profile.userRole,
+        createdAt: verifiedUser.profile.createdAt,
+        updatedAt: verifiedUser.profile.updatedAt,
+        confirmedAt: verifiedUser.confirmedAt,
+      };
+
+      res.status(200).json({
+        user: userProfile,
+        accessToken,
+        refreshToken,
+      });
     } catch (error) {
       console.error('Email verification error:', error);
       res.status(500).json({ message: 'Internal server error' });
