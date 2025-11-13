@@ -3,7 +3,7 @@ import { ConfigProvider } from '../utils/configProvider';
 import { ElevenLabsTimestampedResponse, GetTTSAudioResponse } from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
-import { GetTimestampedAudioParamsWithModelName, GetTTSAudioParamsWithModelName } from '../types/api';
+import { GetTimestampedAudioParamsWithModelName, GetTTSAudioParamsWithModelName } from '../types/universalApi.types';
 import { ELEVENLABS_FALLBACK_VOICE_ID_FEMALE, ELEVENLABS_FALLBACK_VOICE_ID_MALE } from '../constants/constants.js';
 
 const getTextToSpeech = async (

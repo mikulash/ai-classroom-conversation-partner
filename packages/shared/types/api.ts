@@ -141,10 +141,6 @@ export type PersonalityWithScenarios = Personality & {
   scenarios: Scenario[];
 };
 
-// ------------------------------------------------------------
-// Scenarios
-// ------------------------------------------------------------
-
 export type CreateScenarioRequest = ScenarioCreate;
 
 export type UpdateScenarioRequest = Partial<Omit<Scenario, 'id' | 'createdAt'>>;

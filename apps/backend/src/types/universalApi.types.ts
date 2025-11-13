@@ -3,7 +3,7 @@ import {
   RealtimeVoiceRequest,
   TextToSpeechRequest,
   TextToSpeechTimestampedRequest,
-} from 'packages/shared/types/figurantClient.types';
+} from '@repo/shared/types/figurantClient.types';
 import { Language } from '@repo/shared/enums/Language';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { Personality, Scenario } from '../generated/prisma/client';
@@ -26,8 +26,7 @@ export interface GetTimestampedTranscriptionParams {
     language: Language;
 }
 
-export type GetTTSAudioParamsWithModelName =
-    WithModelName<TextToSpeechRequest, { sample_rate: number }>;
+export type GetTTSAudioParamsWithModelName = WithModelName<TextToSpeechRequest, { sample_rate: number }>;
 
 export type GetResponseParamsWithModelName = WithModelName<GetResponseParams>;
 
@@ -37,6 +36,4 @@ export type GetRealtimeTranscriptionParamsWithModelName = WithModelName<Realtime
 
 export type GetRealtimeVoiceParamsWithModelName = WithModelName<RealtimeVoiceRequest>;
 
-export type GetTimestampedAudioParamsWithModelName = WithModelName<TextToSpeechTimestampedRequest, {
-    sample_rate: number
-}>;
+export type GetTimestampedAudioParamsWithModelName = WithModelName<TextToSpeechTimestampedRequest, { sample_rate: number}>;

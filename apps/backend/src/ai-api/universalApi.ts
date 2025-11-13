@@ -9,7 +9,7 @@ import {
   WebRtcAnswerResponse,
 } from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
-import { GetResponseParams, GetTimestampedTranscriptionParams } from '../types/api';
+import { GetResponseParams, GetTimestampedTranscriptionParams } from '../types/universalApi.types';
 import { openAiApi } from './openAiApi';
 import { anthropicApi } from './anthropicApi';
 import { xAiApi } from './xAiApi';

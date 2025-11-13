@@ -6,7 +6,6 @@ export const UserRole = {
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
-
 export const ConversationType = {
   VoiceOnly: 'VoiceOnly',
   Video: 'Video',
@@ -32,7 +31,6 @@ export const OpenAiVoiceName = {
 } as const;
 
 export type OpenAiVoiceName = (typeof OpenAiVoiceName)[keyof typeof OpenAiVoiceName]
-
 
 export const Sex = {
   F: 'F',

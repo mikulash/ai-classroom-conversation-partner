@@ -11,7 +11,7 @@ import {
   GetTimestampedAudioParamsWithModelName,
   GetTimestampedTranscriptionParamsWithModelName,
   GetTTSAudioParamsWithModelName,
-} from '../types/api';
+} from '../types/universalApi.types';
 import {
   EphemeralTokenResponse,
   GetTTSAudioResponse,
