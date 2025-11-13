@@ -10,11 +10,11 @@ import {
 } from '@repo/shared/types/apiFigurantClient';
 
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
-import { openAiApi } from '../api/openAiApi';
-import { anthropicApi } from '../api/anthropicApi';
-import { xAiApi } from '../api/xAiApi';
-import { elevenLabsApi } from '../api/elevenLabsApi';
 import { GetResponseParams, GetTimestampedTranscriptionParams } from '../types/api';
+import { openAiApi } from './openAiApi';
+import { anthropicApi } from './anthropicApi';
+import { xAiApi } from './xAiApi';
+import { elevenLabsApi } from './elevenLabsApi';
 
 const getRealtimeTranscription = async (
   params: RealtimeTranscriptionRequest,

@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { universalApi } from '../api_universal/universalApi.js';
+import { universalApi } from '../ai-api/universalApi.js';
 import {
   ErrorResponse,
   FullReplyPlainResponse,
