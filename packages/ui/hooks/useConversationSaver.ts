@@ -10,7 +10,7 @@ import {
 } from '@repo/shared/types/db/entities';
 import { ConversationType } from '@repo/shared/types/db/enums';
 import { CreateConversationRequest, ProfileResponse } from '@repo/shared/types/api';
-import { conversationApi } from '@repo/frontend-utils/src/clients/db/conversation';
+import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 
 
 interface ConversationSaverParams {
@@ -66,7 +66,7 @@ export const useConversationSaver = ({
         usedConfig: appConfig,
       };
 
-      const { error } = await conversationApi.insert(conversationData);
+      const { error } = await conversationClient.insert(conversationData);
 
       if (error) {
         throw new Error(`Failed to save conversation: ${error.message}`);

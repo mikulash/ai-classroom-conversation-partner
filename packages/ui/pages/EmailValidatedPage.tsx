@@ -4,7 +4,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { useAuth } from '../hooks/useAuth';
-import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'missingToken';
 
@@ -32,7 +32,7 @@ export const EmailValidatedPage: React.FC = () => {
     setErrorMessage(null);
 
     void (async () => {
-      const { data, error } = await authApi.verifyEmail(token);
+      const { data, error } = await authClient.verifyEmail(token);
 
       if (!isMounted) {
         return;

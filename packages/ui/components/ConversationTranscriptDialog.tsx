@@ -7,7 +7,7 @@ import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import { formatMessageTime, getLocalizedDateTimeString } from '../lib/timeFormatters';
-import { conversationApi } from '@repo/frontend-utils/src/clients/db/conversation';
+import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 
 interface ConversationTranscriptDialogProps {
     isOpen: boolean;
@@ -62,7 +62,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
 
     try {
       setIsDeleting(true);
-      const { error } = await conversationApi.delete(conversationId);
+      const { error } = await conversationClient.delete(conversationId);
 
       if (error) throw error;
 

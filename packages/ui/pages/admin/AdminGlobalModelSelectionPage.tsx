@@ -16,7 +16,7 @@ import {
   getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
-import { modelApi } from '@repo/frontend-utils/src/clients/db/model';
+import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -53,11 +53,11 @@ export function AdminGlobalModelSelectionPage() {
         { data: realtimeTranscriptionModels, error: realtimeTranscriptionError },
         aiProvidersAvailability,
       ] = await Promise.all([
-        modelApi.responseModels(),
-        modelApi.ttsModels(),
-        modelApi.realtimeModels(),
-        modelApi.timestampedTranscriptionModels(),
-        modelApi.realtimeTranscriptionModels(),
+        modelClient.responseModels(),
+        modelClient.ttsModels(),
+        modelClient.realtimeModels(),
+        modelClient.timestampedTranscriptionModels(),
+        modelClient.realtimeTranscriptionModels(),
         figurantClient.getAiProvidersAvailability(),
       ]);
 
@@ -138,7 +138,7 @@ export function AdminGlobalModelSelectionPage() {
     }
 
     setIsSaving(true);
-    const { data, error } = await modelApi.updateAppConfigModels({
+    const { data, error } = await modelClient.updateAppConfigModels({
       responseModelId: modelSelectionState.responseModel?.id,
       ttsModelId: modelSelectionState.ttsModel?.id,
       realtimeModelId: modelSelectionState.realtimeModel?.id,

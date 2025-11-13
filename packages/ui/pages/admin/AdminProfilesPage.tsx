@@ -12,8 +12,8 @@ import { ConversationTranscriptDialog } from '../../components/ConversationTrans
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
 import { UserRole } from '@repo/shared/types/db/enums';
-import { profileApi } from '@repo/frontend-utils/src/clients/db/profile';
-import { conversationApi } from '@repo/frontend-utils/src/clients/db/conversation';
+import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
+import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 
 
 export function AdminProfilesPage() {
@@ -41,7 +41,7 @@ export function AdminProfilesPage() {
       setIsLoading(true);
 
       // Load profile rows
-      const { data, error: profileError } = await profileApi.getAll();
+      const { data, error: profileError } = await profileClient.getAll();
 
       if (profileError) {
         throw profileError;
@@ -70,7 +70,7 @@ export function AdminProfilesPage() {
     try {
       setLoadingConversations((prev) => new Set(prev).add(userId));
 
-      const { data, error } = await conversationApi.getByUserId(userId);
+      const { data, error } = await conversationClient.getByUserId(userId);
 
       if (error) throw error;
 
@@ -147,7 +147,7 @@ export function AdminProfilesPage() {
   const handleRoleChange = async (profileId: string, newRole: UserRole) => {
     try {
       setIsProcessing(true);
-      const { error } = await profileApi.updateRole(profileId, newRole);
+      const { error } = await profileClient.updateRole(profileId, newRole);
 
       if (error) throw error;
 

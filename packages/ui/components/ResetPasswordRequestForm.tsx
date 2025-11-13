@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 export const ResetPasswordRequestForm: React.FC = () => {
   const { t } = useTypedTranslation();
@@ -20,7 +20,7 @@ export const ResetPasswordRequestForm: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    const { error } = await authApi.resetPasswordForEmail(email);
+    const { error } = await authClient.resetPasswordForEmail(email);
 
     if (error) {
       setError(error.message);

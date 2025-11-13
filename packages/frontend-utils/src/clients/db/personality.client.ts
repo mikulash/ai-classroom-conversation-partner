@@ -2,7 +2,7 @@ import { ApiResponse, CreatePersonalityRequest, MessageResponse, UpdatePersonali
 import { Personality } from '@repo/shared/types/db/entities';
 import { api } from '../api';
 
-export const personalityApi = {
+export const personalityClient = {
   all: async (): Promise<ApiResponse<Personality[]>> => {
     try {
       const response = await api.get<Personality[]>('/api/personalities');

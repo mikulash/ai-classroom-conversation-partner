@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { Link, useNavigate } from 'react-router';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { useAuth } from '../hooks/useAuth';
-import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 export const ResetPasswordForm: React.FC = () => {
   const { t } = useTypedTranslation();
@@ -47,7 +47,7 @@ export const ResetPasswordForm: React.FC = () => {
 
     setIsLoading(true);
 
-    const { error } = await authApi.updatePassword(currentPassword, newPassword);
+    const { error } = await authClient.updatePassword(currentPassword, newPassword);
     if (error) {
       setError(error.message);
     } else {

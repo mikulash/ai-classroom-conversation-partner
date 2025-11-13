@@ -1,4 +1,4 @@
-// -------------------- Auth API --------------------
+// -------------------- Auth Client --------------------
 import {
   AuthTokensResponse, LoginRequest, LogoutRequest,
   MessageResponse, ProfileResponse, RefreshTokenRequest, RegisterResponse, RegisterUserRequest,
@@ -9,7 +9,7 @@ import {
 } from '@repo/shared/types/api';
 import { api } from '../api';
 
-export const authApi = {
+export const authClient = {
   /**
      * Register a new user
      */

@@ -3,7 +3,7 @@ import { Header } from '../components/Header';
 import { useEffect } from 'react';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
-import { fetchInitialData } from '@repo/frontend-utils/src/clients/db/appConfig';
+import { fetchInitialData } from '@repo/frontend-utils/src/clients/db/appConfig.client';
 
 export const Layout = () => {
   const setConversationOptions = useAppStore(

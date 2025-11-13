@@ -6,7 +6,7 @@ import {
 } from '@repo/shared/types/api';
 import { api } from '../api';
 
-export const scenarioApi = {
+export const scenarioClient = {
   all: async (): Promise<ApiResponse<ScenarioWithPersonality[]>> => {
     try {
       const response = await api.get<ScenarioWithPersonality[]>('/api/scenarios');

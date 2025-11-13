@@ -4,17 +4,17 @@ import cors from 'cors';
 import { PORT, NODE_ENV } from './constants/constants.js';
 
 // Legacy routes
-import replyRoutes from './routes/replies-router.js';
+import replyRoutes from './routes/replies.router.js';
 
 // New API routes
-import authRoutes from './routes/api/auth-router.js';
-import profilesRoutes from './routes/api/profiles-router.js';
-import conversationsRoutes from './routes/api/conversations-router.js';
-import personalitiesRoutes from './routes/api/personalities-router.js';
-import scenariosRoutes from './routes/api/scenarios-router.js';
-import modelsRoutes from './routes/api/models-router.js';
-import appConfigRoutes from './routes/api/app-config-router.js';
-import conversationRolesRoutes from './routes/api/conversation-roles-router.js';
+import authRoutes from './routes/db/auth.router.js';
+import profilesRoutes from './routes/db/profiles.router.js';
+import conversationsRoutes from './routes/db/conversations.router.js';
+import personalitiesRoutes from './routes/db/personalities.router.js';
+import scenariosRoutes from './routes/db/scenarios.router.js';
+import modelsRoutes from './routes/db/models.router.js';
+import appConfigRoutes from './routes/db/app-config.router.js';
+import conversationRolesRoutes from './routes/db/conversation-roles.router.js';
 
 const app = express();
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { ProfileResponse, RegisterUserRequest } from '@repo/shared/types/api';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 
 export interface Session {
@@ -128,7 +128,7 @@ export const useAuth = () => {
   const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
     setAuthState({ loading: true, error: null });
 
-    const { data, error: authError } = await authApi.signInWithPassword(email, password);
+    const { data, error: authError } = await authClient.signInWithPassword(email, password);
 
     if (authError) {
       setAuthState({ error: authError.message, loading: false });
@@ -143,7 +143,7 @@ export const useAuth = () => {
   const signUp = useCallback(async (params: RegisterUserRequest) => {
     setAuthState({ loading: true, error: null });
 
-    const { error: authError } = await authApi.register({
+    const { error: authError } = await authClient.register({
       email: params.email,
       password: params.password,
       fullName: params.fullName,
@@ -161,7 +161,7 @@ export const useAuth = () => {
   }, []);
 
   const signOut = useCallback(async () => {
-    await authApi.signOut();
+    await authClient.signOut();
     syncSessionWithStores(null);
     setAuthState({ error: null });
   }, []);

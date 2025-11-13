@@ -8,7 +8,7 @@ import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
 import { ScenarioCreate, Scenario } from '@repo/shared/types/db/entities';
-import { scenarioApi } from '@repo/frontend-utils/src/clients/db/scenario';
+import { scenarioClient } from '@repo/frontend-utils/src/clients/db/scenario.client';
 
 type ScenarioFormData = Scenario | ScenarioCreate;
 
@@ -41,7 +41,7 @@ export function AdminScenariosPage() {
     setIsLoading(true);
 
     const [scenariosRes] = await Promise.all([
-      scenarioApi.all(),
+      scenarioClient.all(),
     ]);
 
     console.log('scenariosRes', scenariosRes);
@@ -70,7 +70,7 @@ export function AdminScenariosPage() {
     if (!window.confirm(t('admin.scenarios.deleteConfirm'))) return;
 
     setIsProcessing(true);
-    const { error } = await scenarioApi.delete(id);
+    const { error } = await scenarioClient.delete(id);
 
     if (error) {
       console.error(error.message);
@@ -104,7 +104,7 @@ export function AdminScenariosPage() {
 
     console.log('current scenario to update', scenario);
 
-    const { error } = await scenarioApi.update(
+    const { error } = await scenarioClient.update(
       scenario.id,
       scenario,
     );
@@ -123,7 +123,7 @@ export function AdminScenariosPage() {
   const handleAddSubmit = async () => {
     setIsProcessing(true);
 
-    const { error } = await scenarioApi.insert(currentScenario);
+    const { error } = await scenarioClient.insert(currentScenario);
 
     if (error) {
       console.error(error.message);

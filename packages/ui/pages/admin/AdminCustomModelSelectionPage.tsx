@@ -16,7 +16,7 @@ import {
   getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
-import { modelApi } from '@repo/frontend-utils/src/clients/db/model';
+import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -58,12 +58,12 @@ export function AdminCustomModelSelectionPage() {
         { data: userCustomSettings },
         aiProvidersAvailability,
       ] = await Promise.all([
-        modelApi.responseModels(),
-        modelApi.ttsModels(),
-        modelApi.realtimeModels(),
-        modelApi.timestampedTranscriptionModels(),
-        modelApi.realtimeTranscriptionModels(),
-        modelApi.adminUserSelection(session?.user.id),
+        modelClient.responseModels(),
+        modelClient.ttsModels(),
+        modelClient.realtimeModels(),
+        modelClient.timestampedTranscriptionModels(),
+        modelClient.realtimeTranscriptionModels(),
+        modelClient.adminUserSelection(session?.user.id),
         figurantClient.getAiProvidersAvailability(),
       ]);
 
@@ -159,7 +159,7 @@ export function AdminCustomModelSelectionPage() {
 
     setIsSaving(true);
 
-    const { error, data } = await modelApi.upsertAdminUserSelection(session?.user.id, {
+    const { error, data } = await modelClient.upsertAdminUserSelection(session?.user.id, {
       responseModelId: selection.responseModel?.id ?? null,
       ttsModelId: selection.ttsModel?.id ?? null,
       realtimeModelId: selection.realtimeModel?.id ?? null,

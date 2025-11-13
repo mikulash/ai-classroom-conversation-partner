@@ -13,7 +13,7 @@ import {
 } from '@repo/shared/types/db/entities';
 import { api } from '../api';
 
-export const modelApi = {
+export const modelClient = {
   responseModels: async (): Promise<ApiResponse<ResponseModel[]>> => {
     try {
       const response = await api.get<ResponseModel[]>('/api/models/response');

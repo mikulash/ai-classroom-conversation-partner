@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { useAuth } from '../hooks/useAuth';
-import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 export const EmailVerificationExpiredPage: React.FC = () => {
   const { t } = useTypedTranslation();
@@ -33,7 +33,7 @@ export const EmailVerificationExpiredPage: React.FC = () => {
     setIsSubmitting(true);
     setError(null);
 
-    const { error: resendError } = await authApi.resendVerificationEmail({ email: email.trim() });
+    const { error: resendError } = await authClient.resendVerificationEmail({ email: email.trim() });
 
     setIsSubmitting(false);
 

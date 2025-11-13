@@ -12,7 +12,7 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { OpenAiVoiceName } from '@repo/shared/types/db/enums';
 import { Personality, PersonalityCreate } from '@repo/shared/types/db/entities';
-import { personalityApi } from '@repo/frontend-utils/src/clients/db/personality';
+import { personalityClient } from '@repo/frontend-utils/src/clients/db/personality.client';
 
 type PersonalityForm = PersonalityCreate | Personality;
 
@@ -65,7 +65,7 @@ export function AdminPersonalitiesPage() {
 
   async function fetchPersonalities() {
     setIsLoading(true);
-    const { data, error } = await personalityApi.all();
+    const { data, error } = await personalityClient.all();
 
     if (error) {
       console.error(error.message);
@@ -88,7 +88,7 @@ export function AdminPersonalitiesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm(t('personalities.confirmDelete'))) {
       setIsProcessing(true);
-      const { error } = await personalityApi.delete(id);
+      const { error } = await personalityClient.delete(id);
 
       if (error) {
         console.error(error.message);
@@ -130,7 +130,7 @@ export function AdminPersonalitiesPage() {
 
     setIsProcessing(true);
 
-    const { error } = await personalityApi.update(currentPersonality.id, {
+    const { error } = await personalityClient.update(currentPersonality.id, {
       name: currentPersonality.name,
       problemSummaryEn: currentPersonality.problemSummaryEn,
       problemSummaryCs: currentPersonality.problemSummaryCs,
@@ -166,7 +166,7 @@ export function AdminPersonalitiesPage() {
 
     setIsProcessing(true);
 
-    const { error } = await personalityApi.insert(currentPersonality as PersonalityCreate);
+    const { error } = await personalityClient.insert(currentPersonality as PersonalityCreate);
 
     if (error) {
       console.error(error.message);

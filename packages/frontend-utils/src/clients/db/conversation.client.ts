@@ -6,7 +6,7 @@ import {
 } from '@repo/shared/types/api';
 import { api } from '../api';
 
-export const conversationApi = {
+export const conversationClient = {
   getCurrent: async (): Promise<ApiResponse<ConversationWithPersonality[]>> => {
     try {
       const response = await api.get<ConversationWithPersonality[]>('/api/conversations');

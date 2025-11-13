@@ -12,9 +12,9 @@ import { ConversationTranscriptDialog } from '../components/ConversationTranscri
 import { ConversationsList } from '../components/ConversationsList';
 import { toast } from 'sonner';
 import { MyConversation } from '@repo/shared/types/myConversation';
-import { conversationApi } from '@repo/frontend-utils/src/clients/db/conversation';
-import { profileApi } from '@repo/frontend-utils/src/clients/db/profile';
-import { authApi } from '@repo/frontend-utils/src/clients/db/auth';
+import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
+import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
@@ -50,7 +50,7 @@ export function UserProfilePage() {
     try {
       setIsLoadingConversations(true);
 
-      const { data, error } = await conversationApi.getCurrent();
+      const { data, error } = await conversationClient.getCurrent();
 
       if (error) throw error;
 
@@ -102,7 +102,7 @@ export function UserProfilePage() {
         bio,
       };
 
-      const { error: updateError, data: freshData } = await profileApi.upsert(
+      const { error: updateError, data: freshData } = await profileClient.upsert(
         cachedProfile.id,
         payload,
       );
@@ -131,7 +131,7 @@ export function UserProfilePage() {
         return;
       }
 
-      const { data, error: profileError } = await authApi.getCurrentUser();
+      const { data, error: profileError } = await authClient.getCurrentUser();
       if (profileError) {
         console.error('Error fetching user profile:', profileError);
         return;

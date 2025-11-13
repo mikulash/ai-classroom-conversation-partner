@@ -2,7 +2,7 @@ import { ApiResponse, ProfileResponse, UpdateProfileRequest, UpdateUserRoleReque
 import { api } from '../api';
 import { UserRole } from '@repo/shared/types/db/enums';
 
-export const profileApi = {
+export const profileClient = {
   getAll: async (): Promise<ApiResponse<ProfileResponse[]>> => {
     try {
       const response = await api.get<ProfileResponse[]>('/api/profiles');
