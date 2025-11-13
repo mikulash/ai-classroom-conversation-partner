@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import { authenticate, requireOwner } from '../../middleware/auth.js';
 import prisma from '../../clients/prisma';
 import { AppConfigWithModels, ErrorResponse, UpdateAppConfigRequest } from '@repo/shared/types/api';
 
@@ -41,12 +41,12 @@ router.get(
 
 /**
  * PUT /api/app-config
- * Update app configuration (admin only)
+ * Update app configuration (owner only)
  */
 router.put(
   '/',
   authenticate,
-  requireAdmin,
+  requireOwner,
   async (
     req: Request<ParamsDictionary, AppConfigWithModels | ErrorResponse, UpdateAppConfigRequest>,
     res: Response<AppConfigWithModels | ErrorResponse>,
