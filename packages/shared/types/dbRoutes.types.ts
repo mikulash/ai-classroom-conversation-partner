@@ -126,15 +126,6 @@ export type ConversationWithPersonality = Conversation & {
   scenario?: ConversationScenario | null;
 };
 
-export type ConversationWithDetails = Conversation & {
-  personality: ConversationPersonality | null;
-  scenario: ConversationScenario | null;
-  user?: {
-    id: string;
-    email: string;
-    fullName: string | null;
-  } | null;
-};
 
 // ------------------------------------------------------------
 // Personalities

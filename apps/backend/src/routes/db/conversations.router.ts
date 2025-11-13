@@ -3,7 +3,7 @@ import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 import {
-  ConversationWithDetails,
+  ConversationWithPersonality,
   CreateConversationRequest,
   ErrorResponse,
   MessageResponse,
@@ -31,7 +31,7 @@ router.get(
   '/',
   async (
     req: Request,
-    res: Response<ConversationWithDetails[] | ErrorResponse>,
+    res: Response<ConversationWithPersonality[] | ErrorResponse>,
   ) => {
     try {
       if (!req.user) {
@@ -60,8 +60,8 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      // Transform the response to match ConversationWithDetails[] type
-      const response: ConversationWithDetails[] = conversations.map((conv) => ({
+      // Transform the response to match ConversationWithPersonality[] type
+      const response: ConversationWithPersonality[] = conversations.map((conv) => ({
         ...conv,
         messages: conv.messages as object | null,
         logs: conv.logs as object | null,
@@ -76,86 +76,14 @@ router.get(
   });
 
 /**
- * GET /api/conversations/:id
- * Get a specific conversation by ID
- */
-router.get(
-  '/:id',
-  async (
-    req: Request<ConversationIdParams>,
-    res: Response<ConversationWithDetails | ErrorResponse>,
-  ) => {
-    try {
-      const { id } = req.params;
-
-      if (!req.user) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
-      const conversation = await prisma.conversation.findUnique({
-        where: { id: parseInt(id) },
-        include: {
-          personality: true,
-          scenario: true,
-          user: {
-            select: {
-              id: true,
-              email: true,
-              profile: {
-                select: {
-                  fullName: true,
-                },
-              },
-            },
-          },
-        },
-      });
-
-      if (!conversation) {
-        res.status(404).json({ message: 'Conversation not found' });
-        return;
-      }
-
-      // Users can only view their own conversations unless they're admin/owner
-      if (
-        conversation.userId !== req.user.userId &&
-      req.user.userRole !== 'admin' &&
-      req.user.userRole !== 'owner'
-      ) {
-        res.status(403).json({ message: 'Insufficient permissions' });
-        return;
-      }
-
-      // Transform the response to match ConversationWithDetails type
-      const response: ConversationWithDetails = {
-        ...conversation,
-        messages: conversation.messages as object | null,
-        logs: conversation.logs as object | null,
-        usedConfig: conversation.usedConfig as object | null,
-        user: conversation.user ? {
-          id: conversation.user.id,
-          email: conversation.user.email,
-          fullName: conversation.user.profile?.fullName ?? null,
-        } : null,
-      };
-
-      res.status(200).json(response);
-    } catch (error) {
-      console.error('Get conversation error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-/**
  * POST /api/conversations
  * Create a new conversation
  */
 router.post(
   '/',
   async (
-    req: Request<ParamsDictionary, ConversationWithDetails | ErrorResponse, CreateConversationRequest>,
-    res: Response<ConversationWithDetails | ErrorResponse>,
+    req: Request<ParamsDictionary, ConversationWithPersonality | ErrorResponse, CreateConversationRequest>,
+    res: Response<ConversationWithPersonality | ErrorResponse>,
   ) => {
     try {
       const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType, usedConfig } =
@@ -203,8 +131,8 @@ router.post(
         },
       });
 
-      // Transform the response to match ConversationWithDetails type
-      const response: ConversationWithDetails = {
+      // Transform the response to match ConversationWithPersonality type
+      const response: ConversationWithPersonality = {
         ...conversation,
         messages: conversation.messages as object | null,
         logs: conversation.logs as object | null,
@@ -275,7 +203,7 @@ router.get(
   requireAdmin,
   async (
     req: Request<UserIdParams>,
-    res: Response<ConversationWithDetails[] | ErrorResponse>,
+    res: Response<ConversationWithPersonality[] | ErrorResponse>,
   ) => {
     try {
       const { userId } = req.params;
@@ -301,8 +229,8 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      // Transform the response to match ConversationWithDetails[] type
-      const response: ConversationWithDetails[] = conversations.map((conv) => ({
+      // Transform the response to match ConversationWithPersonality[] type
+      const response: ConversationWithPersonality[] = conversations.map((conv) => ({
         ...conv,
         messages: conv.messages as object | null,
         logs: conv.logs as object | null,

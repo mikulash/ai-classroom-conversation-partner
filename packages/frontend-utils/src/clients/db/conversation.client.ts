@@ -7,7 +7,11 @@ import {
 import { api } from '../api';
 
 export const conversationClient = {
-  getCurrent: async (): Promise<ApiResponse<ConversationWithPersonality[]>> => {
+  /**
+     * User profile page
+     * for viewing previous conversations of the signed in user
+     */
+  getCurrentUserConversations: async (): Promise<ApiResponse<ConversationWithPersonality[]>> => {
     try {
       const response = await api.get<ConversationWithPersonality[]>('/api/conversations');
       return { data: response.data };
@@ -15,7 +19,11 @@ export const conversationClient = {
       return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch conversations' } };
     }
   },
-
+  /**
+     * Fetches all conversations for the selected user.
+     * Used in admin/user-profiles page.
+     * @param userId
+     */
   getByUserId: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
     try {
       const response = await api.get<ConversationWithPersonality[]>(`/api/conversations/user/${userId}`);
@@ -24,7 +32,10 @@ export const conversationClient = {
       return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch user conversations' } };
     }
   },
-
+  /**
+     * Saving conversation after it has ended.
+     * @param conversation
+     */
   insert: async (conversation: CreateConversationRequest): Promise<ApiResponse<ConversationWithPersonality>> => {
     try {
       const response = await api.post<ConversationWithPersonality>('/api/conversations', conversation);
@@ -36,7 +47,10 @@ export const conversationClient = {
       };
     }
   },
-
+  /**
+     * Delete conversation by id
+     * @param id
+     */
   delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
     try {
       const response = await api.delete<MessageResponse>(`/api/conversations/${id}`);

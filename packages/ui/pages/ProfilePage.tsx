@@ -50,7 +50,7 @@ export function UserProfilePage() {
     try {
       setIsLoadingConversations(true);
 
-      const { data, error } = await conversationClient.getCurrent();
+      const { data, error } = await conversationClient.getCurrentUserConversations();
 
       if (error) throw error;
 
