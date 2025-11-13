@@ -13,7 +13,7 @@ import {
   TextToSpeechTimestampedResponse,
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,
-} from '@repo/shared/types/apiFigurantClient';
+} from 'packages/shared/types/figurantClient.types';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { authenticate } from '../middleware/auth.js';
 import { getUserId } from '../utils/getUserId.js';

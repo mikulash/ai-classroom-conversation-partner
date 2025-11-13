@@ -13,7 +13,7 @@ export const RegistrationPage: React.FC = () => {
   const { t } = useTypedTranslation();
   const { signUp, loading, error, session, ready } = useAuth();
   const { appName } = useAppStore((state) => state.appConfig);
-  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowedDomains) || [];
+  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig.allowedDomains) || [];
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');

@@ -17,7 +17,7 @@ import {
   GetTTSAudioResponse,
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,
-} from '@repo/shared/types/apiFigurantClient';
+} from '@repo/shared/types/figurantClient.types';
 
 const realtimeBaseUrl = 'https://api.openai.com/v1/realtime';
 

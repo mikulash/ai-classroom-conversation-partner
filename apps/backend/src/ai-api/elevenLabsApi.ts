@@ -1,6 +1,6 @@
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { ConfigProvider } from '../utils/configProvider';
-import { ElevenLabsTimestampedResponse, GetTTSAudioResponse } from '@repo/shared/types/apiFigurantClient';
+import { ElevenLabsTimestampedResponse, GetTTSAudioResponse } from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
 import { GetTimestampedAudioParamsWithModelName, GetTTSAudioParamsWithModelName } from '../types/api';

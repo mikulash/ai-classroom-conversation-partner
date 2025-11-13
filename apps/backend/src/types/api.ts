@@ -3,7 +3,7 @@ import {
   RealtimeVoiceRequest,
   TextToSpeechRequest,
   TextToSpeechTimestampedRequest,
-} from '@repo/shared/types/apiFigurantClient';
+} from 'packages/shared/types/figurantClient.types';
 import { Language } from '@repo/shared/enums/Language';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { Personality, Scenario } from '../generated/prisma/client';

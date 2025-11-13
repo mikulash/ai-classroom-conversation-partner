@@ -7,8 +7,7 @@ import {
   TextToSpeechTimestampedRequest,
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,
-} from '@repo/shared/types/apiFigurantClient';
-
+} from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { GetResponseParams, GetTimestampedTranscriptionParams } from '../types/api';
 import { openAiApi } from './openAiApi';

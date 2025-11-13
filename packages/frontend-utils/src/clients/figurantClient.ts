@@ -11,7 +11,7 @@ import {
   TextToSpeechTimestampedResponse,
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,
-} from '@repo/shared/types/apiFigurantClient';
+} from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { Language } from '@repo/shared/enums/Language';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
