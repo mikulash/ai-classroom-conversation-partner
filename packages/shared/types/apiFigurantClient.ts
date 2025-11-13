@@ -1,6 +1,6 @@
 import { Language } from '../enums/Language';
-import { Personality, Profile, Scenario } from './supabase/supabaseTypeHelpers';
 import { ChatMessage } from './chatMessage';
+import { Personality, Profile, Scenario } from './db/entities';
 
 export interface TextToSpeechRequest {
     inputMessage: string;
@@ -89,12 +89,6 @@ export interface ErrorResponse {
     [key: string]: any; // additional properties
 }
 
-export interface RegisterUserRequest {
-    email: string;
-    password: string;
-    full_name: string;
-    gender: string;
-}
 
 export interface WebRtcAnswerResponse {
     sdp: string; // raw SDP ‘answer’
@@ -129,7 +123,3 @@ export interface TranscriptionSessionCreateResponse {
     expires_at?: number;
 }
 
-export interface TranscriptionSessionCreateRequest {
-    input_audio_format: string;
-    language: string | null;
-}

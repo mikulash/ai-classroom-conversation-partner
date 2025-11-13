@@ -4,10 +4,10 @@ import { Label } from '@radix-ui/react-label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { LANGUAGE } from '@repo/shared/enums/Language';
-import { Personality, ScenarioInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import { Personality, Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
 
 interface ScenarioFormProps {
-    scenario: ScenarioInsert;
+    scenario: Scenario | ScenarioCreate;
     personalities: Personality[];
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onSelectChange: (field: string, value: string) => void;
@@ -24,58 +24,58 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <Label htmlFor="setting_en">{t('admin.scenarios.form.settingEn')}</Label>
+        <Label htmlFor="settingEn">{t('admin.scenarios.form.settingEn')}</Label>
         <Textarea
-          id="setting_en"
-          name="setting_en"
-          value={scenario.setting_en ?? ''}
+          id="settingEn"
+          name="settingEn"
+          value={scenario.settingEn ?? ''}
           onChange={onInputChange}
           rows={3}
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="setting_cs">{t('admin.scenarios.form.settingCs')}</Label>
+        <Label htmlFor="settingCs">{t('admin.scenarios.form.settingCs')}</Label>
         <Textarea
-          id="setting_cs"
-          name="setting_cs"
-          value={scenario.setting_cs ?? ''}
+          id="settingCs"
+          name="settingCs"
+          value={scenario.settingCs ?? ''}
           onChange={onInputChange}
           rows={3}
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="situation_description_en">{t('admin.scenarios.form.descriptionEn')}</Label>
+        <Label htmlFor="situationDescriptionEn">{t('admin.scenarios.form.descriptionEn')}</Label>
         <Textarea
-          id="situation_description_en"
-          name="situation_description_en"
-          value={scenario.situation_description_en ?? ''}
+          id="situationDescriptionEn"
+          name="situationDescriptionEn"
+          value={scenario.situationDescriptionEn ?? ''}
           onChange={onInputChange}
           rows={4}
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="situation_description_cs">{t('admin.scenarios.form.descriptionCs')}</Label>
+        <Label htmlFor="situationDescriptionCs">{t('admin.scenarios.form.descriptionCs')}</Label>
         <Textarea
-          id="situation_description_cs"
-          name="situation_description_cs"
-          value={scenario.situation_description_cs ?? ''}
+          id="situationDescriptionCs"
+          name="situationDescriptionCs"
+          value={scenario.situationDescriptionCs ?? ''}
           onChange={onInputChange}
           rows={4}
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="involved_personality_id">{t('admin.scenarios.form.personality')}</Label>
+        <Label htmlFor="involvedPersonalityId">{t('admin.scenarios.form.personality')}</Label>
         <Select
           value={
-            scenario.involved_personality_id !== null ?
-              String(scenario.involved_personality_id) :
+            scenario.involvedPersonalityId !== null ?
+              String(scenario.involvedPersonalityId) :
               'none'
           }
-          onValueChange={(value) => onSelectChange('involved_personality_id', value)}
+          onValueChange={(value) => onSelectChange('involvedPersonalityId', value)}
         >
           <SelectTrigger>
             <SelectValue placeholder={t('admin.scenarios.form.selectPersonality')}/>
@@ -83,7 +83,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
           <SelectContent>
             <SelectItem value="none">{t('admin.scenarios.form.none')}</SelectItem>
             {personalities.map((p) => {
-              const problemSummary = language == LANGUAGE.EN ? p.problem_summary_en : p.problem_summary_cs;
+              const problemSummary = language == LANGUAGE.EN ? p.problemSummaryEn : p.problemSummaryCs;
               return (
                 <SelectItem key={p.id} value={String(p.id)}>
                   {p.name} – {problemSummary}

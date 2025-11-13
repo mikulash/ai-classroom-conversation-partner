@@ -1,16 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { Button } from '../components/ui/button';
-import { useSession } from '../hooks/useSession';
+import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
 export const HomePage: React.FC = () => {
   const { t } = useTypedTranslation();
-  const { session, ready } = useSession();
+  const { session, ready } = useAuth();
   const user = session?.user;
   const isAuthenticated = !!user;
-  const { app_name } = useAppStore((state) => state.appConfig);
+  const { appName } = useAppStore((state) => state.appConfig);
 
   if (!ready) {
     return null;
@@ -21,7 +21,7 @@ export const HomePage: React.FC = () => {
       <div className="w-full max-w-md space-y-6 sm:space-y-8 text-center">
         <header>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            {t('welcomeTo', { appName: app_name })}
+            {t('welcomeTo', { appName: appName })}
           </h1>
           <p className="mt-2 sm:mt-4 text-lg sm:text-xl text-gray-600">
             {t('aiConversationPartner')}
@@ -43,19 +43,19 @@ export const HomePage: React.FC = () => {
           ) : (
             <div className="space-y-4">
               <p className="text-lg text-gray-700">
-                {t('pleaseSignInMessage', { appName: app_name })}
+                {t('pleaseSignInMessage', { appName: appName })}
               </p>
               <div className="flex flex-col space-y-4">
                 <Button
                   className="w-full py-4 sm:py-6 text-lg sm:text-xl bg-green-700 hover:bg-green-600 text-white"
                   asChild
                 >
-                  <Link to="/auth" state={{ isSignIn: true }}>
+                  <Link to="/sign-in">
                     {t('signIn')}
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full py-4 sm:py-6 text-lg sm:text-xl" asChild>
-                  <Link to="/auth" state={{ isSignIn: false }}>
+                  <Link to="/register">
                     {t('register')}
                   </Link>
                 </Button>

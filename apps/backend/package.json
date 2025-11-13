@@ -4,10 +4,22 @@
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
-    "build": "tsup",
+    "build": "pnpm exec prisma generate && tsup",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint . --max-warnings 0"
+    "typecheck": "pnpm exec prisma generate && tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate-reset": "prisma migrate reset",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "migrate:supabase": "tsx scripts/migrate-from-supabase.ts",
+    "export:seed": "tsx scripts/export-data-to-seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,21 +28,30 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@repo/shared": "workspace:*",
-    "@supabase/supabase-js": "^2.49.4",
+    "@types/ms": "^2.1.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "elevenlabs": "^1.54.0",
     "express": "^5.1.0",
-    "openai": "^4.91.1"
+    "jsonwebtoken": "^9.0.2",
+    "@prisma/client": "^6.18.0",
+    "openai": "^4.91.1",
+    "nodemailer": "^7.0.10"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/express-serve-static-core": "^5.0.6",
+    "@supabase/supabase-js": "^2.49.4",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.14.1",
+    "@types/nodemailer": "^7.0.3",
     "esbuild": "^0.20.2",
+    "prisma": "^6.18.0",
     "esbuild-register": "^3.5.0",
     "eslint": "^9.25.0",
     "nodemon": "^3.1.9",

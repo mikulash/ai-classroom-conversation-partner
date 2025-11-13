@@ -1,11 +1,11 @@
 import { Label } from '@radix-ui/react-label';
-import { authApi } from '@repo/frontend-utils/src/supabaseService';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 export const ResetPasswordRequestForm: React.FC = () => {
   const { t } = useTypedTranslation();
@@ -13,17 +13,14 @@ export const ResetPasswordRequestForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowed_domains) || [];
+  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowedDomains) || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const { error } = await authApi.resetPasswordForEmail(
-      email,
-      `${window.location.origin}/reset-password`,
-    );
+    const { error } = await authClient.resetPasswordForEmail(email);
 
     if (error) {
       setError(error.message);

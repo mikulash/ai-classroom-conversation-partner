@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AppConfig, ConversationRole, Personality, Scenario } from '@repo/shared/types/supabase/supabaseTypeHelpers';
+import { AppConfig, ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
 
 interface AppState {
     personalities: Personality[];
@@ -23,17 +23,17 @@ export const useAppStore = create<AppState>((set) => ({
   scenarios: [],
   conversationRoles: [],
   appConfig: {
-    allowed_domains: [],
-    app_name: 'AI Figurant',
-    edited_at: '',
+    allowedDomains: [],
+    appName: 'AI Figurant',
+    editedAt: new Date(),
     id: 0,
-    realtime_model_id: null,
-    response_model_id: null,
-    silence_timeout_in_seconds: 20,
-    max_conversation_duration_in_seconds: 300,
-    tts_model_id: null,
-    realtime_transcription_model_id: null,
-    timestamped_transcription_model_id: null,
+    realtimeModelId: null,
+    responseModelId: null,
+    silenceTimeoutInSeconds: 20,
+    maxConversationDurationInSeconds: 300,
+    ttsModelId: null,
+    realtimeTranscriptionModelId: null,
+    timestampedTranscriptionModelId: null,
   },
   setAppConfig: (appConfig) => set({ appConfig }),
 

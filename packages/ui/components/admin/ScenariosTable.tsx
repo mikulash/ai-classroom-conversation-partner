@@ -2,13 +2,13 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { Scenario, ScenarioInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
+import { Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
 
 interface ScenariosTableProps {
     scenarios: Scenario[];
     isProcessing: boolean;
-    onEdit: (scenario: ScenarioInsert) => void;
+    onEdit: (scenario: ScenarioCreate) => void;
     onDelete: (id: number) => void;
     getPersonalityName: (id: number | null) => string;
 }
@@ -47,7 +47,7 @@ export const ScenariosTable: React.FC<ScenariosTableProps> = ({
               <TableRow key={s.id}>
                 <TableCell className="max-w-xs truncate">{setting}</TableCell>
                 <TableCell className="max-w-xs truncate">{situationDescription}</TableCell>
-                <TableCell>{getPersonalityName(s.involved_personality_id)}</TableCell>
+                <TableCell>{getPersonalityName(s.involvedPersonalityId)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="outline" size="sm" onClick={() => onEdit(s)}>

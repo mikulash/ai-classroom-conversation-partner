@@ -1,8 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "prisma:generate": {
+      "cache": false
+    },
     "build": {
       "dependsOn": [
+        "^prisma:generate",
         "^build"
       ],
       "inputs": [
@@ -28,7 +32,18 @@
         "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
         "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
         "VITE_SUPABASE_ANON_KEY",
-        "MODE"
+        "MODE",
+        "NODE_ENV",
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "JWT_EXPIRES_IN",
+        "APP_BASE_URL",
+        "APP_FRONTEND_URL",
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_USER",
+        "SMTP_PASS",
+        "MAIL_FROM"
 
       ]
     },
@@ -45,15 +60,16 @@
     },
     "lint": {
       "dependsOn": [
+        "^prisma:generate",
         "^lint"
       ]
     },
     "typecheck": {
-      "dependsOn": ["^build", "^typecheck"],
+      "dependsOn": ["^prisma:generate", "^build", "^typecheck"],
       "outputs": []
     },
     "dev": {
-      "dependsOn": ["^dev", "^build"],
+      "dependsOn": ["^prisma:generate", "^dev", "^build"],
       "persistent": true,
       "cache": false,
       "inputs": [
@@ -76,7 +92,19 @@
         "VITE_SUPABASE_ANON_KEY",
         "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
         "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
-        "MODE"
+        "MODE",
+        "NODE_ENV",
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "JWT_EXPIRES_IN",
+        "APP_BASE_URL",
+        "APP_FRONTEND_URL",
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_USER",
+        "SMTP_PASS",
+        "MAIL_FROM"
+
       ]
     }
   }

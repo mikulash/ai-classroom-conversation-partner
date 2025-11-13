@@ -1,20 +1,20 @@
 import { useCallback, useRef, useState } from 'react';
 import { useTypedTranslation } from './useTypedTranslation';
-import { conversationApi } from '@repo/frontend-utils/src/supabaseService';
 import { toast } from 'sonner';
-import {
-  AppConfig,
-  ConversationInsert,
-  Personality,
-  Profile,
-  Scenario,
-} from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { Enums, Json } from '@repo/shared/types/supabase/database.types';
+import {
+  AppConfig,
+  Personality,
+  Scenario,
+} from '@repo/shared/types/db/entities';
+import { ConversationType } from '@repo/shared/types/db/enums';
+import { CreateConversationRequest, ProfileResponse } from '@repo/shared/types/api';
+import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
+
 
 interface ConversationSaverParams {
-    userProfile?: Profile | null;
+    userProfile?: ProfileResponse | null;
     personality: Personality;
     scenario?: Scenario | null;
     chatStartTime: number;
@@ -36,7 +36,7 @@ export const useConversationSaver = ({
 
   const saveConversationToDatabase = useCallback(async (
     endReason: 'timeLimit' | 'silence' | 'manual',
-    conversationType: Enums<'conversation_type'>,
+    conversationType:ConversationType,
     messagesToSave?: ChatMessage[],
     logsToSave?: ConversationLog[],
   ) => {
@@ -48,25 +48,25 @@ export const useConversationSaver = ({
       setIsSavingConversation(true);
       conversationSavedRef.current = true;
 
-      const conversationData: ConversationInsert = {
-        start_time: new Date(chatStartTime).toISOString(),
-        end_time: new Date().toISOString(),
-        ended_reason: endReason,
+      const conversationData: CreateConversationRequest = {
+        startTime: new Date(chatStartTime),
+        endTime: new Date(),
+        endedReason: endReason,
         messages: (messagesToSave || []).map((msg) => ({
           content: msg.content,
           role: msg.role,
           timestamp: msg.timestamp?.toISOString() || new Date().toISOString(),
-        })) as Json,
-        personality_id: personality.id,
-        scenario_id: scenario?.id || null,
-        user_id: userProfile.id,
-        logs: (logsToSave || []) as unknown as Json,
-        created_at: new Date().toISOString(),
-        conversation_type: conversationType,
-        used_config: appConfig,
+        })),
+        personalityId: personality.id,
+        scenarioId: scenario?.id || null,
+        userId: userProfile.id,
+        logs: logsToSave || [],
+        createdAt: new Date(),
+        conversationType: conversationType,
+        usedConfig: appConfig,
       };
 
-      const { error } = await conversationApi.insert(conversationData);
+      const { error } = await conversationClient.insert(conversationData);
 
       if (error) {
         throw new Error(`Failed to save conversation: ${error.message}`);

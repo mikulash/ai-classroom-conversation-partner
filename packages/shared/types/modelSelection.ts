@@ -4,7 +4,7 @@ import {
   ResponseModel,
   TimestampedTranscriptionModel,
   TtsModel,
-} from './supabase/supabaseTypeHelpers';
+} from './db/entities';
 import { WithAvailability } from '../utils/filterModelsByApiKeyStatus';
 
 export interface ModelOptions {

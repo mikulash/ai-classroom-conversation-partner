@@ -10,9 +10,8 @@ import { FaMicrophone, FaStop } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { MdCallEnd } from 'react-icons/md';
 import { TextToSpeechRequest } from '@repo/shared/types/apiFigurantClient';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
-import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { useProfile } from '../../hooks/useProfile';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -26,6 +25,7 @@ import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
+import { Personality } from '@repo/shared/types/db/entities';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
@@ -43,7 +43,7 @@ export const MessageChatPage: React.FC = () => {
     scenario,
   }: ChatPageProps = location.state ?? {};
   const appConfig = useAppStore((state) => state.appConfig);
-  const { silence_timeout_in_seconds, max_conversation_duration_in_seconds } = appConfig;
+  const { silenceTimeoutInSeconds, maxConversationDurationInSeconds } = appConfig;
   const [isLoading, setIsLoading] = useState(true);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pendingAiMessage, setPendingAiMessage] = useState<ChatMessage | null>(null);
@@ -53,7 +53,7 @@ export const MessageChatPage: React.FC = () => {
   }, [setConsecutiveSilencePrompts]);
   const [isTranscriptDialogVisible, setIsTranscriptDialogVisible] = useState(false);
 
-  const userProfile = useProfile();
+  const { profile: userProfile } = useAuth();
 
   const [inputMessage, setInputMessage] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
@@ -179,7 +179,7 @@ export const MessageChatPage: React.FC = () => {
         language,
         response_format: 'mp3',
       };
-      const audio = await apiClient.getSpeechAudio(ttsParams);
+      const audio = await figurantClient.getSpeechAudio(ttsParams);
       return audio.objectUrl;
     } catch (error) {
       logMessage('error', 'Error generating audio:', error);
@@ -295,7 +295,7 @@ export const MessageChatPage: React.FC = () => {
 
       const now = Date.now();
       const elapsed = now - lastActivityRef.current;
-      if (elapsed > silence_timeout_in_seconds * 1000 && !silenceTriggeredRef.current) {
+      if (elapsed > silenceTimeoutInSeconds * 1000 && !silenceTriggeredRef.current) {
         silenceTriggeredRef.current = true;
         void sendSilencePrompt();
       }
@@ -327,7 +327,7 @@ export const MessageChatPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const timeLimit = max_conversation_duration_in_seconds * 1000;
+    const timeLimit = maxConversationDurationInSeconds * 1000;
     const interval = setInterval(() => {
       // Skip if chat has already ended
       if (chatEndedRef.current) return;
@@ -359,7 +359,7 @@ export const MessageChatPage: React.FC = () => {
     if (consecutiveSilencePrompts >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
       const silenceSystemPrompt = t('chat.silencePromptGoodbye');
       // 'The user has been silent for too long. Respond with a short goodbye.';
-      const aiText = await apiClient.getResponse({
+      const aiText = await figurantClient.getResponse({
         input_text: silenceSystemPrompt,
         previousMessages: messages,
         personality,
@@ -395,7 +395,7 @@ export const MessageChatPage: React.FC = () => {
     try {
       const silenceSystemPrompt = t('chat.silencePrompt');
       // 'The user has been silent for a few seconds. Respond with a short follow‑up.';
-      const aiText = await apiClient.getResponse({
+      const aiText = await figurantClient.getResponse({
         input_text: silenceSystemPrompt,
         previousMessages: messages,
         personality,
@@ -452,7 +452,7 @@ export const MessageChatPage: React.FC = () => {
     if (messages.length > 0) return;
     setIsAiTyping(true);
     try {
-      const aiText = await apiClient.getResponse({
+      const aiText = await figurantClient.getResponse({
         input_text: 'Just say hi',
         previousMessages: [],
         personality,
@@ -503,7 +503,7 @@ export const MessageChatPage: React.FC = () => {
         userProfile,
       };
 
-      const aiText = await apiClient.getResponse(requestMessage);
+      const aiText = await figurantClient.getResponse(requestMessage);
       if (aiText) await processAiResponse(aiText);
       else throw new Error('Empty response from AI');
     } catch (error) {

@@ -1,9 +1,10 @@
-import { Profile } from '../types/supabase/supabaseTypeHelpers';
+import { ProfileResponse } from '../types/api';
 
-export const isProfileAdmin = (profile: Profile) => {
-  return profile.user_role === 'admin' || profile.user_role === 'owner';
+export const isProfileAdmin = (profile: ProfileResponse) => {
+  return profile.userRole === 'admin' || profile.userRole === 'owner';
 };
 
-export const isProfileOwner = (profile: Profile) => {
-  return profile.user_role === 'owner';
+export const isProfileOwner = (profile: ProfileResponse) => {
+  return profile.userRole === 'owner';
 };
+

@@ -1,35 +1,44 @@
 import { Label } from '@radix-ui/react-label';
-import { authApi } from '@repo/frontend-utils/src/supabaseService';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Link, useNavigate } from 'react-router';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { useAuth } from '../hooks/useAuth';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 export const ResetPasswordForm: React.FC = () => {
   const { t } = useTypedTranslation();
   const navigate = useNavigate();
 
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { session, ready } = useAuth();
+
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await authApi.getSession();
-      if (!data.session) {
-        navigate('/', { replace: true });
-      }
-    };
-    void checkSession();
-  }, [navigate]);
+    if (!ready) {
+      return;
+    }
+
+    if (!session) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate, ready, session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!currentPassword) {
+      setError(t('currentPasswordRequired', 'Current password is required'));
+      return;
+    }
 
     if (newPassword !== confirmPassword) {
       setError(t('passwordsDontMatch', 'Passwords do not match'));
@@ -38,7 +47,7 @@ export const ResetPasswordForm: React.FC = () => {
 
     setIsLoading(true);
 
-    const { error } = await authApi.updatePassword(newPassword);
+    const { error } = await authClient.updatePassword(currentPassword, newPassword);
     if (error) {
       setError(error.message);
     } else {
@@ -65,6 +74,20 @@ export const ResetPasswordForm: React.FC = () => {
             {t('setNewPassword', 'Choose a new password')}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword">
+                {t('currentPassword', 'Current password')}
+              </Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder={t('currentPasswordPlaceholder', 'Enter current password')}
+                required
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="newPassword">{t('newPassword', 'New password')}</Label>
               <Input

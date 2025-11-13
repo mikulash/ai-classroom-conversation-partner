@@ -5,9 +5,8 @@ import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
-import { Personality } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { useProfile } from '../../hooks/useProfile';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
@@ -16,6 +15,7 @@ import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
+import { Personality } from '@repo/shared/types/db/entities';
 
 export const VoiceCallPage: React.FC = () => {
   const navigate = useNavigate();
@@ -44,9 +44,9 @@ export const VoiceCallPage: React.FC = () => {
   const isConnectingRef = useRef(false);
 
   const { t, language } = useTypedTranslation();
-  const userProfile = useProfile();
+  const { profile: userProfile } = useAuth();
   const appConfig = useAppStore((state) => state.appConfig);
-  const { max_conversation_duration_in_seconds } = appConfig;
+  const { maxConversationDurationInSeconds } = appConfig;
 
   const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
 
@@ -157,8 +157,8 @@ export const VoiceCallPage: React.FC = () => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      const response = await apiClient.getWebRtcAnswer({
-        openai_voice_name: personality.openai_voice_name,
+      const response = await figurantClient.getWebRtcAnswer({
+        openai_voice_name: personality.openaiVoiceName,
         personality,
         language,
         conversationRole: conversationRoleName,
@@ -228,7 +228,7 @@ export const VoiceCallPage: React.FC = () => {
   useEffect(() => {
     if (!chatStartTime) return;
 
-    const timeLimit = max_conversation_duration_in_seconds * 1000;
+    const timeLimit = maxConversationDurationInSeconds * 1000;
     const interval = setInterval(() => {
       // Skip if chat has already ended
       if (hasChatEndedRef.current) {
@@ -254,7 +254,7 @@ export const VoiceCallPage: React.FC = () => {
     }, 10000); // Check every 10 seconds
 
     return () => clearInterval(interval);
-  }, [chatStartTime, max_conversation_duration_in_seconds, hasChatEndedRef, logMessage, handleEndCallWithReason]);
+  }, [chatStartTime, maxConversationDurationInSeconds, hasChatEndedRef, logMessage, handleEndCallWithReason]);
 
   const connectionStatusMessage = isConnecting ?
     'Connecting...' :

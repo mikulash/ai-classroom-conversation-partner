@@ -15,6 +15,14 @@
       "import": "./dist/utils/*.js",
       "types": "./dist/utils/*.d.ts"
     },
+    "./generated/*": {
+      "import": "./dist/generated/*.js",
+      "types": "./dist/generated/*.d.ts"
+    },
+    "./prisma/*": {
+      "import": "./dist/prisma/*.js",
+      "types": "./dist/prisma/*.d.ts"
+    },
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"

@@ -3,21 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { conversationApi, ConversationWithPersonality, profileApi } from '@repo/frontend-utils/src/supabaseService';
+import { ConversationWithPersonality, ProfileResponse } from '@repo/shared/types/api';
 import { toast } from 'sonner';
-import { Profile, UserRole } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { useProfile } from '../../hooks/useProfile';
+import { useAuth } from '../../hooks/useAuth';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
+import { UserRole } from '@repo/shared/types/db/enums';
+import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
+import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 
 
 export function AdminProfilesPage() {
   const { t } = useTypedTranslation();
 
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<ProfileResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [search, setSearch] = useState('');
@@ -27,7 +29,7 @@ export function AdminProfilesPage() {
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
-  const profile = useProfile();
+  const { profile } = useAuth();
 
   useEffect(() => {
     fetchData();
@@ -39,7 +41,7 @@ export function AdminProfilesPage() {
       setIsLoading(true);
 
       // Load profile rows
-      const { data, error: profileError } = await profileApi.getAll();
+      const { data, error: profileError } = await profileClient.getAll();
 
       if (profileError) {
         throw profileError;
@@ -68,19 +70,25 @@ export function AdminProfilesPage() {
     try {
       setLoadingConversations((prev) => new Set(prev).add(userId));
 
-      const { data, error } = await conversationApi.byUser(userId);
+      const { data, error } = await conversationClient.getByUserId(userId);
 
       if (error) throw error;
 
+      const toIsoString = (value: Date | string | null | undefined): string => {
+        if (!value) return '';
+        const date = value instanceof Date ? value : new Date(value);
+        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+      };
+
       const conversations: MyConversation[] = data.map((conv: ConversationWithPersonality) => ({
         id: conv.id,
-        start_time: conv.start_time,
-        end_time: conv.end_time,
-        ended_reason: conv.ended_reason,
-        conversation_type: conv.conversation_type,
-        messages: Array.isArray(conv.messages) ? conv.messages as unknown as ChatMessage[] : [],
-        personality_id: conv.personality_id,
-        personality: conv.personalities ? { name: conv.personalities.name } : null,
+        start_time: toIsoString(conv.startTime),
+        end_time: toIsoString(conv.endTime),
+        ended_reason: conv.endedReason ?? '',
+        conversation_type: conv.conversationType,
+        messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
+        personality_id: conv.personalityId ?? null,
+        personality: conv.personality ? { name: conv.personality.name } : null,
       }));
 
       setUserConversations((prev) => ({
@@ -127,33 +135,25 @@ export function AdminProfilesPage() {
     setIsConversationDialogVisible(true);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-
   const filteredProfiles = useMemo(() => {
     if (!search.trim()) return profiles;
     if (profiles.length === 0) return [];
     return profiles.filter((p) =>
       p.email?.toLowerCase().includes(search.toLowerCase().trim()) ||
-            p.full_name?.toLowerCase().includes(search.toLowerCase().trim()),
+            p.fullName?.toLowerCase().includes(search.toLowerCase().trim()),
     );
   }, [profiles, search]);
 
   const handleRoleChange = async (profileId: string, newRole: UserRole) => {
     try {
       setIsProcessing(true);
-      const { error } = await profileApi.updateRole(profileId, newRole);
+      const { error } = await profileClient.updateRole(profileId, newRole);
 
       if (error) throw error;
 
       toast.success(t('admin.profiles.notifications.updateSuccess'));
       setProfiles((prev) =>
-        prev.map((p) => (p.id === profileId ? { ...p, user_role: newRole } : p)),
+        prev.map((p) => (p.id === profileId ? { ...p, userRole: newRole } : p)),
       );
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -233,8 +233,6 @@ export function AdminProfilesPage() {
                     onToggleExpansion={toggleUserExpansion}
                     onRoleChange={handleRoleChange}
                     onConversationClick={handleConversationClick}
-                    formatDate={formatDate}
-                    formatDateTime={formatDateTime}
                   />
                 ))
               )}

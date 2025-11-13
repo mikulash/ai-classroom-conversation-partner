@@ -1,9 +1,9 @@
 import { Outlet } from 'react-router';
 import { Header } from '../components/Header';
 import { useEffect } from 'react';
-import { fetchInitialData } from '@repo/frontend-utils/src/supabaseService';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
+import { fetchInitialData } from '@repo/frontend-utils/src/clients/db/appConfig.client';
 
 export const Layout = () => {
   const setConversationOptions = useAppStore(
@@ -13,23 +13,18 @@ export const Layout = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [pRes, sRes, rRes, aRes] = await fetchInitialData();
-
-      if (pRes.error || sRes.error || rRes.error || aRes.error) {
-        console.error('Supabase fetch error', pRes.error, sRes.error, rRes.error, aRes.error);
-        return;
-      }
+      const initialData = await fetchInitialData();
 
       setConversationOptions({
-        personalities: pRes.data,
-        scenarios: sRes.data,
-        conversationRoles: rRes.data,
+        personalities: initialData.personalities,
+        scenarios: initialData.scenarios,
+        conversationRoles: initialData.conversationRoles,
       });
-      setAppConfig(aRes.data);
+      setAppConfig(initialData.appConfig);
     };
 
     fetchData().catch((err) =>
-      console.error('Error fetching data from Supabase:', err),
+      console.error('Error fetching initial data:', err),
     );
   }, [setConversationOptions]);
 

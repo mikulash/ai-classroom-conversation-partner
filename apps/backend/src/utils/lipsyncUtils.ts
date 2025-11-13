@@ -1,7 +1,7 @@
 ﻿import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { encodeWAV } from '@repo/shared/utils/encodeWav';
 import { Language } from '@repo/shared/enums/Language';
-import { universalApi } from '../api_universal/universalApi';
+import { universalApi } from '../ai-api/universalApi';
 
 /**
  * Converts a raw PCM ArrayBuffer into a WAV file format.

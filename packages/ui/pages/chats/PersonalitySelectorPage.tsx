@@ -9,7 +9,6 @@ import { Card, CardContent, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Button } from '../../components/ui/button';
-import { ConversationRole, Personality, Scenario } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { ConversationRoleSelector } from '../../components/ConversationRoleSelector';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
@@ -26,6 +25,7 @@ import {
   universalDescriptionForPersonality,
   universalDescriptionForScenario,
 } from '@repo/shared/utils/universalDescriptionMoreLanguages';
+import { ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
 
 
 export const PersonalitySelectorPage: React.FC = () => {
@@ -45,14 +45,14 @@ export const PersonalitySelectorPage: React.FC = () => {
   const [customScenario, setCustomScenario] = useState<Partial<Scenario>>({});
   const [selectedScenario, setSelectedScenario] = useState<Scenario>();
   const [activeScenarioTab, setActiveScenarioTab] = useState<ScenarioTabKey>('none');
-  const isVoiceCallEnabled = appConfig.realtime_model_id !== null;
-  const isVideoCallEnabled = appConfig.realtime_transcription_model_id !== null && appConfig.response_model_id !== null && appConfig.tts_model_id !== null && appConfig.timestamped_transcription_model_id !== null;
-  const isMessageChatEnabled = appConfig.response_model_id !== null;
+  const isVoiceCallEnabled = appConfig.realtimeModelId !== null;
+  const isVideoCallEnabled = appConfig.realtimeTranscriptionModelId !== null && appConfig.responseModelId !== null && appConfig.ttsModelId !== null && appConfig.timestampedTranscriptionModelId !== null;
+  const isMessageChatEnabled = appConfig.responseModelId !== null;
 
   const scenariosForPersonality = useMemo(() => {
     if (!selectedPersonality) return [];
     return predefinedScenarios.filter(
-      (sc) => sc.involved_personality_id === selectedPersonality.id,
+      (sc) => sc.involvedPersonalityId === selectedPersonality.id,
     );
   }, [selectedPersonality, predefinedScenarios]);
 
@@ -74,7 +74,7 @@ export const PersonalitySelectorPage: React.FC = () => {
 
   const handleRoleChange = (roleName: string) => {
     const found = predefinedConversationRoles.find((r) => {
-      const translated = language === LANGUAGE.EN ? r.name_en : r.name_cs;
+      const translated = language === LANGUAGE.EN ? r.nameEn : r.nameCs;
       return translated === roleName;
     });
 
@@ -90,7 +90,7 @@ export const PersonalitySelectorPage: React.FC = () => {
   const selectPersonality = (p: Personality) => {
     setSelectedPersonality(p);
     setSelectedScenario(undefined);
-    setCustomScenario({ ...customScenario, involved_personality_id: p.id });
+    setCustomScenario({ ...customScenario, involvedPersonalityId: p.id });
   };
 
 
@@ -238,7 +238,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                         setCustomPersonality({
                           ...customPersonality,
                           gender: 'M',
-                          openai_voice_name: 'onyx',
+                          openaiVoiceName: 'onyx',
                         })
                       }
                     >
@@ -250,7 +250,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                         setCustomPersonality({
                           ...customPersonality,
                           gender: 'F',
-                          openai_voice_name: 'alloy',
+                          openaiVoiceName: 'alloy',
                         })
                       }
                     >
@@ -266,12 +266,12 @@ export const PersonalitySelectorPage: React.FC = () => {
                 </label>
                 <Input
                   id="custom-problem"
-                  value={customPersonality.problem_summary_cs ?? ''}
+                  value={customPersonality.problemSummaryCs ?? ''}
                   onChange={(e) =>
                     setCustomPersonality({
                       ...customPersonality,
-                      problem_summary_cs: e.target.value,
-                      problem_summary_en: e.target.value,
+                      problemSummaryCs: e.target.value,
+                      problemSummaryEn: e.target.value,
                     })
                   }
                   placeholder={t('personalityForm.placeholder.problem')}
@@ -285,12 +285,12 @@ export const PersonalitySelectorPage: React.FC = () => {
                 </label>
                 <Textarea
                   id="custom-description"
-                  value={customPersonality.personality_description_cs ?? ''}
+                  value={customPersonality.personalityDescriptionCs ?? ''}
                   onChange={(e) =>
                     setCustomPersonality({
                       ...customPersonality,
-                      personality_description_cs: e.target.value,
-                      personality_description_en: e.target.value,
+                      personalityDescriptionCs: e.target.value,
+                      personalityDescriptionEn: e.target.value,
                     })
                   }
                   placeholder={t('personalityForm.placeholder.description')}
@@ -357,12 +357,12 @@ export const PersonalitySelectorPage: React.FC = () => {
                 </label>
                 <Input
                   id="custom-scenario-setting"
-                  value={customScenario.setting_cs ?? ''}
+                  value={customScenario.settingCs ?? ''}
                   onChange={(e) =>
                     setCustomScenario({
                       ...customScenario,
-                      setting_cs: e.target.value,
-                      setting_en: e.target.value,
+                      settingCs: e.target.value,
+                      settingEn: e.target.value,
                     })
                   }
                   className="bg-transparent border-2 border-gray-400"
@@ -375,12 +375,12 @@ export const PersonalitySelectorPage: React.FC = () => {
                 </label>
                 <Textarea
                   id="custom-scenario-description"
-                  value={customScenario.situation_description_cs ?? ''}
+                  value={customScenario.situationDescriptionCs ?? ''}
                   onChange={(e) =>
                     setCustomScenario({
                       ...customScenario,
-                      situation_description_cs: e.target.value,
-                      situation_description_en: e.target.value,
+                      situationDescriptionCs: e.target.value,
+                      situationDescriptionEn: e.target.value,
                     })
                   }
                   className="bg-transparent border-2 border-gray-400 h-40"
@@ -399,7 +399,7 @@ export const PersonalitySelectorPage: React.FC = () => {
         <h2 className="text-2xl mt-10">{t('roleHeading')}</h2>
         <ConversationRoleSelector
           predefinedRoles={predefinedConversationRoles}
-          value={selectedUserRole ? (language === LANGUAGE.EN ? selectedUserRole.name_en : selectedUserRole.name_cs) : customUserRoleName}
+          value={selectedUserRole ? (language === LANGUAGE.EN ? selectedUserRole.nameEn : selectedUserRole.nameCs) : customUserRoleName}
           onChange={handleRoleChange}
         />
 

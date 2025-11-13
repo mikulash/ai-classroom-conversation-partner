@@ -7,8 +7,8 @@ import { AvatarTalkingHead, AvatarTalkingHeadHandle } from '../../components/Ava
 import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
-import { useProfile } from '../../hooks/useProfile';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
@@ -59,12 +59,12 @@ export const VideoCallPage: React.FC = () => {
   }, [setConsecutiveSilencePromptsCount]);
 
   const appConfig = useAppStore((state) => state.appConfig);
-  const { silence_timeout_in_seconds, max_conversation_duration_in_seconds } = appConfig;
+  const { silenceTimeoutInSeconds, maxConversationDurationInSeconds } = appConfig;
 
   const { t, language } = useTypedTranslation();
 
   const avatarRef = useRef<AvatarTalkingHeadHandle>(null);
-  const userProfile = useProfile();
+  const { profile: userProfile } = useAuth();
   const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
   const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage, resetConsecutiveSilencePrompts);
 
@@ -118,7 +118,7 @@ export const VideoCallPage: React.FC = () => {
   useEffect(() => () => connection?.close(), [connection]);
 
   useEffect(() => {
-    const timeLimit = max_conversation_duration_in_seconds * 1000;
+    const timeLimit = maxConversationDurationInSeconds * 1000;
     const interval = setInterval(() => {
       if (hasChatEndedRef.current) {
         clearInterval(interval);
@@ -157,7 +157,7 @@ export const VideoCallPage: React.FC = () => {
 
       const now = Date.now();
       const elapsed = now - lastActivityRef.current;
-      if (elapsed > silence_timeout_in_seconds * 1000 && !silenceTriggeredRef.current) {
+      if (elapsed > silenceTimeoutInSeconds * 1000 && !silenceTriggeredRef.current) {
         silenceTriggeredRef.current = true;
 
         logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
@@ -173,7 +173,7 @@ export const VideoCallPage: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [hasConversationStarted, isAiProcessing, silence_timeout_in_seconds]);
+  }, [hasConversationStarted, isAiProcessing, silenceTimeoutInSeconds]);
 
   const startConversation = async () => {
     logMessage('log', 'startConversation: Starting conversation with personality', {
@@ -208,7 +208,7 @@ export const VideoCallPage: React.FC = () => {
 
     setIsAiProcessing(true);
     try {
-      const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
+      const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
         input_text: 'The user has been silent for too long. Respond with a short goodbye.',
         previousMessages: messages,
         personality,
@@ -257,7 +257,7 @@ export const VideoCallPage: React.FC = () => {
     try {
       const silenceSystemPrompt = t('chat.silencePrompt');
 
-      const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
+      const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
         input_text: silenceSystemPrompt,
         previousMessages: messages,
         personality,
@@ -290,7 +290,7 @@ export const VideoCallPage: React.FC = () => {
     if (!userProfile) return;
 
     try {
-      const { text: reply, speech } = await apiClient.getFullReplyTimestamped({
+      const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
         input_text: messageToSend,
         previousMessages: messages,
         personality,

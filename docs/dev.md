@@ -53,7 +53,7 @@ if you want to add a new provider, you need to do the following steps:
 1. you need to add this new provider to the postgres enum for which the models will be added, for example, adding provider `Google` to the `tts_models` table. You need to add Google value to the `providers_tts_model enum` in supabase dashboard [here](https://supabase.com/dashboard/project/_/database/types)
 2. now we can use this provider when adding new models to the `tts_models` table
 3. you need to implement the provider client in the backend project (see `packages/backend/src/lib/ai/` folder for existing providers) and implement specific api calls that follows existing interfaces.
-4. every place you need to update when added the new provider can be highlighted by TypeScript's typechecking. First, you need to generate the types for supabase as in a section above. Now the TypeScript will highlight the uncovered switch case branch you need to implement. This highlighted error will probably be in [the universalApi](../apps/backend/src/api_universal/universalApi.ts) file where the api calls are made based on the provider and model selected.
+4. every place you need to update when added the new provider can be highlighted by TypeScript's typechecking. First, you need to generate the types for supabase as in a section above. Now the TypeScript will highlight the uncovered switch case branch you need to implement. This highlighted error will probably be in [the universalApi](../apps/backend/src/ai-api/universalApi.ts) file where the api calls are made based on the provider and model selected.
 
 
 ## Problem solving

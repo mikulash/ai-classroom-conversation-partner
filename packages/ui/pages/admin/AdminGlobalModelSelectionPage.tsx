@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { modelApi } from '@repo/frontend-utils/src/supabaseService';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
@@ -17,6 +16,7 @@ import {
   getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
+import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -53,12 +53,12 @@ export function AdminGlobalModelSelectionPage() {
         { data: realtimeTranscriptionModels, error: realtimeTranscriptionError },
         aiProvidersAvailability,
       ] = await Promise.all([
-        modelApi.responseModels(),
-        modelApi.ttsModels(),
-        modelApi.realtimeModels(),
-        modelApi.timestampedTranscriptionModels(),
-        modelApi.realtimeTranscriptionModels(),
-        apiClient.getAiProvidersAvailability(),
+        modelClient.responseModels(),
+        modelClient.ttsModels(),
+        modelClient.realtimeModels(),
+        modelClient.timestampedTranscriptionModels(),
+        modelClient.realtimeTranscriptionModels(),
+        figurantClient.getAiProvidersAvailability(),
       ]);
 
 
@@ -98,18 +98,18 @@ export function AdminGlobalModelSelectionPage() {
 
       // Find selected models based on app_config
       const selectedResponseModel =
-                filteredResponseModels.find((m) => m.id === app_config.response_model_id) || null;
+                filteredResponseModels.find((m) => m.id === app_config.responseModelId) || null;
       const selectedTtsModel =
-                filteredTtsModels.find((m) => m.id === app_config.tts_model_id) || null;
+                filteredTtsModels.find((m) => m.id === app_config.ttsModelId) || null;
       const selectedRealtimeModel =
-                filteredRealtimeModels.find((m) => m.id === app_config.realtime_model_id) || null;
+                filteredRealtimeModels.find((m) => m.id === app_config.realtimeModelId) || null;
       const selectedTimestampedTranscriptionModel =
                 filteredTimestampedTranscriptionModels.find(
-                  (m) => m.id === app_config.timestamped_transcription_model_id,
+                  (m) => m.id === app_config.timestampedTranscriptionModelId,
                 ) || null;
       const selectedRealtimeTranscriptionModel =
                 filteredRealtimeTranscriptionModels.find(
-                  (m) => m.id === app_config.realtime_transcription_model_id,
+                  (m) => m.id === app_config.realtimeTranscriptionModelId,
                 ) || null;
 
       setModelSelectionState({
@@ -138,13 +138,13 @@ export function AdminGlobalModelSelectionPage() {
     }
 
     setIsSaving(true);
-    const { data, error } = await modelApi.updateAppConfigModels({
-      response_model_id: modelSelectionState.responseModel?.id,
-      tts_model_id: modelSelectionState.ttsModel?.id,
-      realtime_model_id: modelSelectionState.realtimeModel?.id,
-      timestamped_transcription_model_id: modelSelectionState.timestampedTranscriptionModel?.id,
-      realtime_transcription_model_id: modelSelectionState.realtimeTranscriptionModel?.id,
-      edited_at: new Date().toISOString(),
+    const { data, error } = await modelClient.updateAppConfigModels({
+      responseModelId: modelSelectionState.responseModel?.id,
+      ttsModelId: modelSelectionState.ttsModel?.id,
+      realtimeModelId: modelSelectionState.realtimeModel?.id,
+      timestampedTranscriptionModelId: modelSelectionState.timestampedTranscriptionModel?.id,
+      realtimeTranscriptionModelId: modelSelectionState.realtimeTranscriptionModel?.id,
+      editedAt: new Date(),
     });
 
 

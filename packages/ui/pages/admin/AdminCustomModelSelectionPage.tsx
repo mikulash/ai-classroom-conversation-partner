@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { modelApi } from '@repo/frontend-utils/src/supabaseService';
-import { apiClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
-import { useSession } from '../../hooks/useSession';
+import { useAuth } from '../../hooks/useAuth';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
@@ -17,10 +16,11 @@ import {
   getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
+import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
-  const { session, ready } = useSession();
+  const { session, ready } = useAuth();
 
   const [models, setModels] = useState<ModelOptionsWithAvailability>({
     responseModels: [],
@@ -58,13 +58,13 @@ export function AdminCustomModelSelectionPage() {
         { data: userCustomSettings },
         aiProvidersAvailability,
       ] = await Promise.all([
-        modelApi.responseModels(),
-        modelApi.ttsModels(),
-        modelApi.realtimeModels(),
-        modelApi.timestampedTranscriptionModels(),
-        modelApi.realtimeTranscriptionModels(),
-        modelApi.adminUserSelection(session?.user.id),
-        apiClient.getAiProvidersAvailability(),
+        modelClient.responseModels(),
+        modelClient.ttsModels(),
+        modelClient.realtimeModels(),
+        modelClient.timestampedTranscriptionModels(),
+        modelClient.realtimeTranscriptionModels(),
+        modelClient.adminUserSelection(session?.user.id),
+        figurantClient.getAiProvidersAvailability(),
       ]);
 
       if (responseError || ttsError || realtimeError || timestampedError || realtimeTransError) {
@@ -122,28 +122,28 @@ export function AdminCustomModelSelectionPage() {
       setSelection({
         responseModel: findSelectedModel(
           filteredResponseModels,
-          userSelection?.response_model_id,
-          app_config?.response_model_id,
+          userSelection?.responseModelId,
+          app_config?.responseModelId,
         ),
         ttsModel: findSelectedModel(
           filteredTtsModels,
-          userSelection?.tts_model_id,
-          app_config?.tts_model_id,
+          userSelection?.ttsModelId,
+          app_config?.ttsModelId,
         ),
         realtimeModel: findSelectedModel(
           filteredRealtimeModels,
-          userSelection?.realtime_model_id,
-          app_config?.realtime_model_id,
+          userSelection?.realtimeModelId,
+          app_config?.realtimeModelId,
         ),
         timestampedTranscriptionModel: findSelectedModel(
           filteredTimestampedTranscriptionModels,
-          userSelection?.timestamped_transcription_model_id,
-          app_config?.timestamped_transcription_model_id,
+          userSelection?.timestampedTranscriptionModelId,
+          app_config?.timestampedTranscriptionModelId,
         ),
         realtimeTranscriptionModel: findSelectedModel(
           filteredRealtimeTranscriptionModels,
-          userSelection?.realtime_transcription_model_id,
-          app_config?.realtime_transcription_model_id,
+          userSelection?.realtimeTranscriptionModelId,
+          app_config?.realtimeTranscriptionModelId,
         ),
       });
 
@@ -159,14 +159,13 @@ export function AdminCustomModelSelectionPage() {
 
     setIsSaving(true);
 
-    const { error, data } = await modelApi.upsertAdminUserSelection({
-      user_id: session?.user.id,
-      response_model_id: selection.responseModel?.id ?? null,
-      tts_model_id: selection.ttsModel?.id ?? null,
-      realtime_model_id: selection.realtimeModel?.id ?? null,
-      timestamped_transcription_model_id:
+    const { error, data } = await modelClient.upsertAdminUserSelection(session?.user.id, {
+      responseModelId: selection.responseModel?.id ?? null,
+      ttsModelId: selection.ttsModel?.id ?? null,
+      realtimeModelId: selection.realtimeModel?.id ?? null,
+      timestampedTranscriptionModelId:
                 selection.timestampedTranscriptionModel?.id ?? null,
-      realtime_transcription_model_id:
+      realtimeTranscriptionModelId:
                 selection.realtimeTranscriptionModel?.id ?? null,
     });
 
@@ -184,23 +183,23 @@ export function AdminCustomModelSelectionPage() {
     // Update selection with data returned from the server
     const updatedSelection = { ...selection };
 
-    if (data.response_model_id && models.responseModels) {
-      updatedSelection.responseModel = models.responseModels.find((m) => m.id === data.response_model_id);
+    if (data.responseModelId && models.responseModels) {
+      updatedSelection.responseModel = models.responseModels.find((m) => m.id === data.responseModelId);
     }
-    if (data.tts_model_id && models.ttsModels) {
-      updatedSelection.ttsModel = models.ttsModels.find((m) => m.id === data.tts_model_id);
+    if (data.ttsModelId && models.ttsModels) {
+      updatedSelection.ttsModel = models.ttsModels.find((m) => m.id === data.ttsModelId);
     }
-    if (data.realtime_model_id && models.realtimeModels) {
-      updatedSelection.realtimeModel = models.realtimeModels.find((m) => m.id === data.realtime_model_id);
+    if (data.realtimeModelId && models.realtimeModels) {
+      updatedSelection.realtimeModel = models.realtimeModels.find((m) => m.id === data.realtimeModelId);
     }
-    if (data.timestamped_transcription_model_id && models.timestampedTranscriptionModels) {
+    if (data.timestampedTranscriptionModelId && models.timestampedTranscriptionModels) {
       updatedSelection.timestampedTranscriptionModel = models.timestampedTranscriptionModels.find(
-        (m) => m.id === data.timestamped_transcription_model_id,
+        (m) => m.id === data.timestampedTranscriptionModelId,
       );
     }
-    if (data.realtime_transcription_model_id && models.realtimeTranscriptionModels) {
+    if (data.realtimeTranscriptionModelId && models.realtimeTranscriptionModels) {
       updatedSelection.realtimeTranscriptionModel = models.realtimeTranscriptionModels.find(
-        (m) => m.id === data.realtime_transcription_model_id,
+        (m) => m.id === data.realtimeTranscriptionModelId,
       );
     }
 

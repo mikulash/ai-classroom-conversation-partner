@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Button } from '../../components/ui/button';
-import { scenarioApi } from '@repo/frontend-utils/src/supabaseService';
 import { toast } from 'sonner';
-import { ScenarioInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
+import { ScenarioCreate, Scenario } from '@repo/shared/types/db/entities';
+import { scenarioClient } from '@repo/frontend-utils/src/clients/db/scenario.client';
 
+type ScenarioFormData = Scenario | ScenarioCreate;
 
 export function AdminScenariosPage() {
   const { t } = useTypedTranslation();
@@ -22,15 +23,15 @@ export function AdminScenariosPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  const emptyScenario: ScenarioInsert = {
-    setting_en: '',
-    setting_cs: '',
-    situation_description_en: '',
-    situation_description_cs: '',
-    involved_personality_id: null,
+  const emptyScenario: ScenarioCreate = {
+    settingEn: '',
+    settingCs: '',
+    situationDescriptionCs: '',
+    situationDescriptionEn: '',
+    involvedPersonalityId: null,
   };
 
-  const [currentScenario, setCurrentScenario] = useState<ScenarioInsert>(emptyScenario);
+  const [currentScenario, setCurrentScenario] = useState<ScenarioFormData>(emptyScenario);
 
   useEffect(() => {
     fetchData();
@@ -40,7 +41,7 @@ export function AdminScenariosPage() {
     setIsLoading(true);
 
     const [scenariosRes] = await Promise.all([
-      scenarioApi.all(),
+      scenarioClient.all(),
     ]);
 
     console.log('scenariosRes', scenariosRes);
@@ -60,7 +61,7 @@ export function AdminScenariosPage() {
   }
 
 
-  const handleEdit = (scenario: ScenarioInsert) => {
+  const handleEdit = (scenario: ScenarioFormData) => {
     setCurrentScenario(scenario);
     setIsEditDialogOpen(true);
   };
@@ -69,7 +70,7 @@ export function AdminScenariosPage() {
     if (!window.confirm(t('admin.scenarios.deleteConfirm'))) return;
 
     setIsProcessing(true);
-    const { error } = await scenarioApi.delete(id);
+    const { error } = await scenarioClient.delete(id);
 
     if (error) {
       console.error(error.message);
@@ -91,21 +92,21 @@ export function AdminScenariosPage() {
 
   const handleSelectChange = (field: string, value: string) => {
     const processedValue =
-            field === 'involved_personality_id' && value === 'none' ? null : field === 'involved_personality_id' ? Number(value) : value;
+            field === 'involvedPersonalityId' && value === 'none' ? null : field === 'involvedPersonalityId' ? Number(value) : value;
 
     setCurrentScenario((prev) => ({ ...prev, [field]: processedValue }));
   };
 
-  const handleEditSubmit = async () => {
-    if (!currentScenario.id) return;
+  const handleEditSubmit = async (scenario: ScenarioFormData) => {
+    if (!('id' in scenario) || !scenario.id) return;
 
     setIsProcessing(true);
 
-    console.log('current scenario to update', currentScenario);
+    console.log('current scenario to update', scenario);
 
-    const { error } = await scenarioApi.update(
-      currentScenario.id,
-      currentScenario,
+    const { error } = await scenarioClient.update(
+      scenario.id,
+      scenario,
     );
 
     if (error) {
@@ -122,7 +123,7 @@ export function AdminScenariosPage() {
   const handleAddSubmit = async () => {
     setIsProcessing(true);
 
-    const { error } = await scenarioApi.insert(currentScenario);
+    const { error } = await scenarioClient.insert(currentScenario);
 
     if (error) {
       console.error(error.message);
@@ -191,7 +192,7 @@ export function AdminScenariosPage() {
             <DialogClose asChild>
               <Button variant="outline">{t('admin.scenarios.cancel')}</Button>
             </DialogClose>
-            <Button onClick={handleEditSubmit} disabled={isProcessing}>
+            <Button onClick={() => handleEditSubmit(currentScenario)} disabled={isProcessing}>
               {isProcessing ? t('admin.scenarios.saving') : t('admin.scenarios.saveChanges')}
             </Button>
           </DialogFooter>

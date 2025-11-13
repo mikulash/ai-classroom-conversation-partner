@@ -1,23 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import {
-  authApi,
-  conversationApi,
-  ConversationWithPersonality,
-  profileApi,
-} from '@repo/frontend-utils/src/supabaseService';
-import { ProfileInsert } from '@repo/shared/types/supabase/supabaseTypeHelpers';
-import { useUserStore } from '../hooks/useUserStore';
+import { ConversationWithPersonality, UpdateProfileRequest } from '@repo/shared/types/api';
+import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
 import { ConversationsList } from '../components/ConversationsList';
 import { toast } from 'sonner';
 import { MyConversation } from '@repo/shared/types/myConversation';
+import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
+import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
+import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
@@ -34,43 +31,44 @@ export function UserProfilePage() {
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
-  const { setProfile, profile: cachedProfile } = useUserStore();
+  const { setProfile, profile: cachedProfile, session, ready } = useAuth();
 
   useEffect(() => {
     if (!cachedProfile) return;
-    setFullName(cachedProfile.full_name ?? '');
-    setConversationRole(cachedProfile.conversation_role);
+    setFullName(cachedProfile.fullName ?? '');
+    setConversationRole(cachedProfile.conversationRole);
     setGender(cachedProfile.gender ?? '');
     setBio(cachedProfile.bio ?? '');
   }, [cachedProfile]);
 
-  const fetchConversations = async () => {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await authApi.getSession();
-
-    if (sessionError || !session) {
-      console.error('Unable to retrieve session:', sessionError);
+  const fetchConversations = useCallback(async () => {
+    if (!session) {
+      console.error('Unable to retrieve session: not authenticated');
       return;
     }
 
     try {
       setIsLoadingConversations(true);
 
-      const { data, error } = await conversationApi.byUser(session.user.id);
+      const { data, error } = await conversationClient.getCurrent();
 
       if (error) throw error;
 
+      const toIsoString = (value: Date | string | null | undefined): string => {
+        if (!value) return '';
+        const date = value instanceof Date ? value : new Date(value);
+        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+      };
+
       const conversationsData: MyConversation[] = data.map((conv: ConversationWithPersonality) => ({
         id: conv.id,
-        start_time: conv.start_time,
-        end_time: conv.end_time,
-        ended_reason: conv.ended_reason,
-        conversation_type: conv.conversation_type,
-        messages: Array.isArray(conv.messages) ? conv.messages as unknown as ChatMessage[] : [],
-        personality_id: conv.personality_id,
-        personality: conv.personalities ? { name: conv.personalities.name } : null,
+        start_time: toIsoString(conv.startTime),
+        end_time: toIsoString(conv.endTime),
+        ended_reason: conv.endedReason ?? '',
+        conversation_type: conv.conversationType,
+        messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
+        personality_id: conv.personalityId ?? null,
+        personality: conv.personality ? { name: conv.personality.name } : null,
       }));
 
       setConversations(conversationsData);
@@ -84,46 +82,35 @@ export function UserProfilePage() {
     } finally {
       setIsLoadingConversations(false);
     }
-  };
+  }, [session]);
 
   const handleConversationClick = (conversation: MyConversation) => {
     setSelectedConversation(conversation);
     setIsConversationDialogVisible(true);
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
 
   const handleSave = async () => {
+    if (!cachedProfile) return;
     setIsSaving(true);
     setIsSuccess(false);
     try {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await authApi.getSession();
-      if (sessionError || !session) {
-        console.error('Unable to retrieve session:', sessionError);
-        return;
-      }
-
-      const payload: ProfileInsert = {
-        id: session.user.id,
-        full_name: fullName,
-        conversation_role: conversationRole,
+      const payload: UpdateProfileRequest = {
+        fullName,
+        conversationRole,
         gender,
         bio,
       };
 
-      const { error: updateError, data: freshData } = await profileApi.upsert(
+      const { error: updateError, data: freshData } = await profileClient.upsert(
+        cachedProfile.id,
         payload,
       );
-      if (updateError || freshData[0] === null) {
+      if (updateError || freshData === null) {
         console.error('Error saving profile:', updateError);
       } else {
         console.log('Profile saved successfully');
-        setProfile(freshData[0]);
+        setProfile(freshData);
         setIsSuccess(true);
         setTimeout(() => setIsSuccess(false), 3000);
       }
@@ -140,43 +127,37 @@ export function UserProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const {
-        data: { session },
-        error: fetchError,
-      } = await authApi.getSession();
-      if (fetchError) {
-        console.error('Error fetching session:', fetchError);
+      if (!session) {
         return;
       }
-      if (session) {
-        const userId = session.user.id;
-        const { data, error: profileError } = await profileApi.getById(
-          userId,
-          'full_name, conversation_role, gender, bio',
-        );
-        if (profileError) {
-          console.error('Error fetching user profile:', profileError);
-          return;
-        }
-        if (data) {
-          setFullName(data.full_name ?? '');
-          setConversationRole(data.conversation_role ?? '');
-          setGender(data.gender ?? '');
-          setBio(data.bio ?? '');
-        }
 
-        await fetchConversations();
+      const { data, error: profileError } = await authClient.getCurrentUser();
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError);
+        return;
       }
+
+      if (data) {
+        setFullName(data.fullName ?? '');
+        setConversationRole(data.conversationRole ?? '');
+        setGender(data.gender ?? '');
+        setBio(data.bio ?? '');
+        setProfile(data);
+      }
+
+      await fetchConversations();
     };
 
-    fetchProfile().catch((error: unknown) => {
-      if (error instanceof Error) {
-        console.error('Error fetching profile:', error.message);
-      } else {
-        console.error('Error fetching profile:', error);
-      }
-    });
-  }, []);
+    if (ready) {
+      fetchProfile().catch((error: unknown) => {
+        if (error instanceof Error) {
+          console.error('Error fetching profile:', error.message);
+        } else {
+          console.error('Error fetching profile:', error);
+        }
+      });
+    }
+  }, [fetchConversations, ready, session, setProfile]);
 
   return (
     <>
@@ -259,7 +240,6 @@ export function UserProfilePage() {
               conversations={conversations}
               isLoading={isLoadingConversations}
               onConversationClick={handleConversationClick}
-              formatDateTime={formatDateTime}
             />
           </CardContent>
         </Card>

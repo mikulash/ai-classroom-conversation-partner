@@ -3,9 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
 import { LANGUAGE, Language } from '@repo/shared/enums/Language';
-import { useSession } from '../hooks/useSession';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { useProfile } from '../hooks/useProfile';
 import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../hooks/useAppStore';
 import { isProfileAdmin } from '@repo/shared/utils/access';
@@ -14,12 +12,10 @@ import { createInitials } from '@repo/shared/utils/usernameUtils';
 
 export function Header() {
   const { i18n } = useTypedTranslation();
-  const { session, ready } = useSession();
-  const { signOut } = useAuth();
+  const { session, ready, profile, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { app_name } = useAppStore((state) => state.appConfig);
-  const profile = useProfile();
+  const { appName } = useAppStore((state) => state.appConfig);
   const isSignedIn = ready && !!session?.user;
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -31,7 +27,7 @@ export function Header() {
   const currentLang = availableLangs.find((l) => l.ISO639 === i18n.language) || LANGUAGE.EN;
 
   const isAdmin = !!profile && isProfileAdmin(profile);
-  const initials = createInitials(profile?.full_name);
+  const initials = createInitials(profile?.fullName);
 
   const handleLanguageChange = (newIso: string) => {
     if (isLanguageChangeDisabled) return;
@@ -42,7 +38,7 @@ export function Header() {
     <header className="py-4 px-4 sm:px-6 shadow-md mb-4">
       <div className="container mx-auto flex justify-between items-center">
         <h1 className="text-2xl font-bold">
-          <Link to="/">{app_name}</Link>
+          <Link to="/">{appName}</Link>
         </h1>
 
         <BurgerButton open={menuOpen} onToggle={() => setMenuOpen((o) => !o)}/>
@@ -161,12 +157,12 @@ const AuthButtons: React.FC<{
   return (
     <>
       <Button asChild className={fullWidth ? 'w-full' : undefined} onClick={onAnyClick}>
-        <Link to="/auth" state={{ isSignIn: false }}>
+        <Link to="/register" >
           {t('register')}
         </Link>
       </Button>
       <Button variant="outline" asChild className={fullWidth ? 'w-full' : undefined} onClick={onAnyClick}>
-        <Link to="/auth" state={{ isSignIn: true }}>
+        <Link to="/sign-in" >
           {t('signIn')}
         </Link>
       </Button>

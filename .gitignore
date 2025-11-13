@@ -12,6 +12,7 @@ out
 .output
 .turbo
 .next
+.claude
 
 
 # Testing
@@ -42,6 +43,8 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+**/generated/**
 
 # Tauri specific
 **/target/
