@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { AppConfig, ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
+import { InitialConversationOptions } from '@repo/shared/types/dbRoutes.types';
 
 interface AppState {
     personalities: Personality[];
@@ -15,6 +16,7 @@ interface AppState {
         conversationRoles: ConversationRole[];
     }) => void;
     setAppConfig: (appConfig: AppConfig) => void;
+    setInitialConversationOptions: (options: InitialConversationOptions) => void;
 }
 
 
@@ -50,6 +52,12 @@ export const useAppStore = create<AppState>((set) => ({
     conversationRoles: options.conversationRoles,
   }
   )),
+  setInitialConversationOptions: (options: InitialConversationOptions) => set(() => ({
+    personalities: options.personalities,
+    scenarios: options.scenarios,
+    conversationRoles: options.conversationRoles,
+    appConfig: options.appConfig,
+  })),
 }));
 
 

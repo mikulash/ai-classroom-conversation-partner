@@ -3,24 +3,18 @@ import { Header } from '../components/Header';
 import { useEffect } from 'react';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
-import { fetchInitialData } from '@repo/frontend-utils/src/clients/db/appConfig.client';
+import { fetchInitialConversationOptions } from '@repo/frontend-utils/src/clients/db/appConfig.client';
 
 export const Layout = () => {
   const setConversationOptions = useAppStore(
     (state) => state.setConversationOptions,
   );
-  const setAppConfig = useAppStore((state) => state.setAppConfig);
+  const setInitialConversationOptions = useAppStore((state) => state.setInitialConversationOptions);
 
   useEffect(() => {
     const fetchData = async () => {
-      const initialData = await fetchInitialData();
-
-      setConversationOptions({
-        personalities: initialData.personalities,
-        scenarios: initialData.scenarios,
-        conversationRoles: initialData.conversationRoles,
-      });
-      setAppConfig(initialData.appConfig);
+      const initialOptions = await fetchInitialConversationOptions();
+      setInitialConversationOptions(initialOptions);
     };
 
     fetchData().catch((err) =>

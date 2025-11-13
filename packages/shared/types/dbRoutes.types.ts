@@ -18,6 +18,13 @@ import {
 } from './db/entities';
 import { UserRole } from './db/enums';
 
+export interface InitialConversationOptions {
+    personalities: Personality[];
+    scenarios: Scenario[];
+    conversationRoles: ConversationRole[];
+    appConfig: AppConfigWithModels;
+}
+
 export interface ErrorResponse {
   message: string;
 }
