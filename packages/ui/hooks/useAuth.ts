@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { ProfileResponse, RegisterUserRequest } from '@repo/shared/types/api';
+import { ProfileResponse, RegisterUserRequest } from '@repo/shared/types/dbRoutes.types';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';

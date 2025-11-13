@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { ConversationWithPersonality, ProfileResponse } from '@repo/shared/types/api';
+import { ConversationWithPersonality, ProfileResponse } from '@repo/shared/types/dbRoutes.types';
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';

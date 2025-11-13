@@ -6,7 +6,7 @@ import {
   ResetPasswordRequest,
   UpdatePasswordRequest,
   AuthResponse,
-} from '@repo/shared/types/api';
+} from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
 
 export const authClient = {

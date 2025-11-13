@@ -1,4 +1,4 @@
-import { ProfileResponse } from '../types/api';
+import { ProfileResponse } from '../types/dbRoutes.types';
 
 export const isProfileAdmin = (profile: ProfileResponse) => {
   return profile.userRole === 'admin' || profile.userRole === 'owner';

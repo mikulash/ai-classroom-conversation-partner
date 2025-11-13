@@ -3,7 +3,7 @@ import {
   ConversationWithPersonality,
   CreateConversationRequest,
   MessageResponse,
-} from '@repo/shared/types/api';
+} from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
 
 export const conversationClient = {

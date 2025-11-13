@@ -9,7 +9,7 @@ import {
   MessageResponse,
   PersonalityWithScenarios,
   UpdatePersonalityRequest,
-} from '@repo/shared/types/api';
+} from '@repo/shared/types/dbRoutes.types';
 
 // Path parameter types
 interface PersonalityIdParams extends ParamsDictionary {

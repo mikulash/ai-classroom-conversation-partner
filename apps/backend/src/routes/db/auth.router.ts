@@ -26,7 +26,7 @@ import {
   ResendVerificationRequest,
   ResetPasswordRequest,
   UpdatePasswordRequest,
-} from '@repo/shared/types/api';
+} from '@repo/shared/types/dbRoutes.types';
 import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';

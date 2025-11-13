@@ -9,7 +9,7 @@ import {
   ProfileResponse,
   UpdateProfileRequest,
   UpdateUserRoleRequest,
-} from '@repo/shared/types/api';
+} from '@repo/shared/types/dbRoutes.types';
 import { UserRole } from '@repo/shared/types/db/enums';
 
 // Path parameter types

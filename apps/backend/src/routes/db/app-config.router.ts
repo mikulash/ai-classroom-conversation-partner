@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { authenticate, requireOwner } from '../../middleware/auth.js';
 import prisma from '../../clients/prisma';
-import { AppConfigWithModels, ErrorResponse, UpdateAppConfigRequest } from '@repo/shared/types/api';
+import { AppConfigWithModels, ErrorResponse, UpdateAppConfigRequest } from '@repo/shared/types/dbRoutes.types';
 
 const router = Router();
 

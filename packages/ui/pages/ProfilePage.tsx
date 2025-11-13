@@ -4,7 +4,7 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { ConversationWithPersonality, UpdateProfileRequest } from '@repo/shared/types/api';
+import { ConversationWithPersonality, UpdateProfileRequest } from '@repo/shared/types/dbRoutes.types';
 import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';

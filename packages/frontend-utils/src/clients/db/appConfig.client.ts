@@ -3,7 +3,7 @@ import {
   Personality,
   Scenario,
 } from '@repo/shared/types/db/entities';
-import { AppConfigWithModels } from '@repo/shared/types/api';
+import { AppConfigWithModels } from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
 interface InitialData {
     personalities: Personality[];

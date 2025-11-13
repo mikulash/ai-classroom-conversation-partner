@@ -1,4 +1,4 @@
-import { ApiResponse, CreatePersonalityRequest, MessageResponse, UpdatePersonalityRequest } from '@repo/shared/types/api';
+import { ApiResponse, CreatePersonalityRequest, MessageResponse, UpdatePersonalityRequest } from '@repo/shared/types/dbRoutes.types';
 import { Personality } from '@repo/shared/types/db/entities';
 import { api } from '../api';
 

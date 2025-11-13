@@ -7,7 +7,7 @@ import {
   CreateConversationRequest,
   ErrorResponse,
   MessageResponse,
-} from '@repo/shared/types/api';
+} from '@repo/shared/types/dbRoutes.types';
 
 // Path parameter types
 interface ConversationIdParams extends ParamsDictionary {

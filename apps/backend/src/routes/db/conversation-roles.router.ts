@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
-import { ConversationRoleResponse, ErrorResponse } from '@repo/shared/types/api';
+import { ConversationRoleResponse, ErrorResponse } from '@repo/shared/types/dbRoutes.types';
 
 // Path parameter types
 interface ConversationRoleIdParams extends ParamsDictionary {

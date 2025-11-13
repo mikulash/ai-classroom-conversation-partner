@@ -3,7 +3,7 @@ import {
   ApiResponse, AppConfigWithModels,
   UpdateAdminSelectionRequest,
   UpdateAppConfigRequest,
-} from '@repo/shared/types/api';
+} from '@repo/shared/types/dbRoutes.types';
 import {
   RealtimeModel,
   RealtimeTranscriptionModel,

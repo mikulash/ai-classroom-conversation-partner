@@ -1,4 +1,4 @@
-import { ApiResponse, ProfileResponse, UpdateProfileRequest, UpdateUserRoleRequest } from '@repo/shared/types/api';
+import { ApiResponse, ProfileResponse, UpdateProfileRequest, UpdateUserRoleRequest } from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
 import { UserRole } from '@repo/shared/types/db/enums';
 
