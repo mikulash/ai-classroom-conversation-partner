@@ -43,8 +43,8 @@
         "SMTP_PORT",
         "SMTP_USER",
         "SMTP_PASS",
-        "MAIL_FROM"
-
+        "MAIL_FROM",
+        "TOKEN_CLEANUP_SCHEDULE"
       ]
     },
     "start": {
@@ -103,7 +103,8 @@
         "SMTP_PORT",
         "SMTP_USER",
         "SMTP_PASS",
-        "MAIL_FROM"
+        "MAIL_FROM",
+        "TOKEN_CLEANUP_SCHEDULE"
 
       ]
     }
