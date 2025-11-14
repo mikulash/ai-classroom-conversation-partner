@@ -1,8 +1,8 @@
 import {
-  AdminSelectionWithModels,
-  ApiResponse, AppConfigWithModels,
-  UpdateAdminSelectionRequest,
-  UpdateAppConfigRequest,
+  CustomSelectionWithModels,
+  ApiResponse,
+  UpdateCustomModelSelectionRequest,
+  MessageResponse,
 } from '@repo/shared/types/dbRoutes.types';
 import {
   RealtimeModel,
@@ -41,18 +41,6 @@ export const modelClient = {
     }
   },
 
-  timestampedTranscriptionModels: async (): Promise<ApiResponse<TimestampedTranscriptionModel[]>> => {
-    try {
-      const response = await api.get<TimestampedTranscriptionModel[]>('/api/models/timestamped-transcription');
-      return { data: response.data };
-    } catch (error: any) {
-      return {
-        data: [],
-        error: { message: error.response?.data?.message || 'Failed to fetch transcription models' },
-      };
-    }
-  },
-
   realtimeTranscriptionModels: async (): Promise<ApiResponse<RealtimeTranscriptionModel[]>> => {
     try {
       const response = await api.get<RealtimeTranscriptionModel[]>('/api/models/realtime-transcription');
@@ -65,9 +53,21 @@ export const modelClient = {
     }
   },
 
-  adminUserSelection: async (userId: string): Promise<ApiResponse<AdminSelectionWithModels | null>> => {
+  timestampedTranscriptionModels: async (): Promise<ApiResponse<TimestampedTranscriptionModel[]>> => {
     try {
-      const response = await api.get<AdminSelectionWithModels | null>(`/api/models/admin-selection/${userId}`);
+      const response = await api.get<TimestampedTranscriptionModel[]>('/api/models/timestamped-transcription');
+      return { data: response.data };
+    } catch (error: any) {
+      return {
+        data: [],
+        error: { message: error.response?.data?.message || 'Failed to fetch transcription models' },
+      };
+    }
+  },
+
+  customModelSelection: async (userId: string): Promise<ApiResponse<CustomSelectionWithModels | null>> => {
+    try {
+      const response = await api.get<CustomSelectionWithModels | null>(`/api/models/custom-selection/${userId}`);
       return { data: response.data };
     } catch (error: any) {
       return {
@@ -77,17 +77,29 @@ export const modelClient = {
     }
   },
 
-  upsertAdminUserSelection: async (
+  upsertCustomModelSelection: async (
     userId: string,
-    payload: UpdateAdminSelectionRequest,
-  ): Promise<ApiResponse<AdminSelectionWithModels>> => {
+    payload: UpdateCustomModelSelectionRequest,
+  ): Promise<ApiResponse<CustomSelectionWithModels>> => {
     try {
-      const response = await api.put<AdminSelectionWithModels>(`/api/models/admin-selection/${userId}`, payload);
+      const response = await api.put<CustomSelectionWithModels>(`/api/models/custom-selection/${userId}`, payload);
       return { data: response.data };
     } catch (error: any) {
       return {
-        data: null as unknown as AdminSelectionWithModels,
+        data: null as unknown as CustomSelectionWithModels,
         error: { message: error.response?.data?.message || 'Failed to update admin selection' },
+      };
+    }
+  },
+
+  deleteCustomModelSelection: async (userId: string): Promise<ApiResponse<MessageResponse>> => {
+    try {
+      const response = await api.delete<MessageResponse>(`/api/models/custom-selection/${userId}`);
+      return { data: response.data };
+    } catch (error: any) {
+      return {
+        data: { message: '' },
+        error: { message: error.response?.data?.message || 'Failed to delete admin selection' },
       };
     }
   },

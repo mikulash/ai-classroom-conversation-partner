@@ -63,7 +63,7 @@ export function AdminCustomModelSelectionPage() {
         modelClient.realtimeModels(),
         modelClient.timestampedTranscriptionModels(),
         modelClient.realtimeTranscriptionModels(),
-        modelClient.adminUserSelection(session?.user.id),
+        modelClient.customModelSelection(session?.user.id),
         figurantClient.getAiProvidersAvailability(),
       ]);
 
@@ -159,7 +159,7 @@ export function AdminCustomModelSelectionPage() {
 
     setIsSaving(true);
 
-    const { error, data } = await modelClient.upsertAdminUserSelection(session?.user.id, {
+    const { error, data } = await modelClient.upsertCustomModelSelection(session?.user.id, {
       responseModelId: selection.responseModel?.id ?? null,
       ttsModelId: selection.ttsModel?.id ?? null,
       realtimeModelId: selection.realtimeModel?.id ?? null,

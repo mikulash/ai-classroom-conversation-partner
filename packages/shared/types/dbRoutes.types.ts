@@ -164,7 +164,7 @@ export type AppConfigWithModels = AppConfig & {
   timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
 };
 
-export type AdminSelectionWithModels = AdminUserCustomModelSelection & {
+export type CustomSelectionWithModels = AdminUserCustomModelSelection & {
   responseModel: ResponseModel | null;
   ttsModel: TtsModel | null;
   realtimeModel: RealtimeModel | null;
@@ -172,7 +172,7 @@ export type AdminSelectionWithModels = AdminUserCustomModelSelection & {
   timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
 };
 
-export type UpdateAdminSelectionRequest = Partial<
+export type UpdateCustomModelSelectionRequest = Partial<
   Pick<
     AdminUserCustomModelSelection,
     | 'responseModelId'
