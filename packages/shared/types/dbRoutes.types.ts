@@ -149,11 +149,6 @@ export type ScenarioWithPersonality = Scenario & {
   personality: Pick<Personality, 'id' | 'name' | 'avatarUrl'> | null;
 };
 
-// ------------------------------------------------------------
-// Conversation Roles
-// ------------------------------------------------------------
-
-export type ConversationRoleResponse = ConversationRole;
 
 // ------------------------------------------------------------
 // Models & App Config
