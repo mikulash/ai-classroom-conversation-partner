@@ -3,7 +3,7 @@ import { Header } from '../components/Header';
 import { useEffect } from 'react';
 import { Toaster } from '../components/ui/toast';
 import { useAppStore } from '../hooks/useAppStore';
-import { fetchInitialConversationOptions } from '@repo/frontend-utils/src/clients/db/appConfig.client';
+import { appConfigClient } from '@repo/frontend-utils/src/clients/db/appConfig.client';
 
 export const Layout = () => {
   const setConversationOptions = useAppStore(
@@ -13,7 +13,7 @@ export const Layout = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const initialOptions = await fetchInitialConversationOptions();
+      const initialOptions = await appConfigClient.fetchInitialConversationOptions();
       setInitialConversationOptions(initialOptions);
     };
 

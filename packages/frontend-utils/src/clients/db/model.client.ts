@@ -91,16 +91,4 @@ export const modelClient = {
       };
     }
   },
-
-  updateAppConfigModels: async (payload: UpdateAppConfigRequest): Promise<ApiResponse<AppConfigWithModels>> => {
-    try {
-      const response = await api.put<AppConfigWithModels>('/api/app-config', payload);
-      return { data: response.data };
-    } catch (error: any) {
-      return {
-        data: null as unknown as AppConfigWithModels,
-        error: { message: error.response?.data?.message || 'Failed to update app config' },
-      };
-    }
-  },
 };

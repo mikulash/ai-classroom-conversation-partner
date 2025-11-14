@@ -17,6 +17,7 @@ import {
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
 import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
+import { appConfigClient } from '@repo/frontend-utils/src/clients/db/appConfig.client';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -138,7 +139,7 @@ export function AdminGlobalModelSelectionPage() {
     }
 
     setIsSaving(true);
-    const { data, error } = await modelClient.updateAppConfigModels({
+    const { data, error } = await appConfigClient.updateAppConfigModels({
       responseModelId: modelSelectionState.responseModel?.id,
       ttsModelId: modelSelectionState.ttsModel?.id,
       realtimeModelId: modelSelectionState.realtimeModel?.id,

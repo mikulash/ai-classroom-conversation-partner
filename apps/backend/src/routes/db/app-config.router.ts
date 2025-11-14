@@ -13,11 +13,11 @@ const router = Router();
 router.get(
   '/',
   async (
-    req: Request,
+    _req: Request<ParamsDictionary, AppConfigWithModels | ErrorResponse>,
     res: Response<AppConfigWithModels | ErrorResponse>,
   ) => {
     try {
-      const config = await prisma.appConfig.findFirst({
+      const config : AppConfigWithModels | null = await prisma.appConfig.findFirst({
         include: {
           responseModel: true,
           ttsModel: true,
