@@ -128,7 +128,7 @@ export const useAuth = () => {
   const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
     setAuthState({ loading: true, error: null });
 
-    const { data, error: authError } = await authClient.signInWithPassword(email, password);
+    const { data, error: authError } = await authClient.login(email, password);
 
     if (authError) {
       setAuthState({ error: authError.message, loading: false });

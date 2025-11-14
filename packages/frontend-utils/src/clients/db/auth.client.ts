@@ -1,4 +1,3 @@
-// -------------------- Auth Client --------------------
 import {
   AuthTokensResponse, LoginRequest, LogoutRequest,
   MessageResponse, ProfileResponse, RefreshTokenRequest, RegisterResponse, RegisterUserRequest,
@@ -85,7 +84,7 @@ export const authClient = {
   /**
      * Sign in with email and password
      */
-  signInWithPassword: async (email: string, password: string) => {
+  login: async (email: string, password: string) => {
     try {
       const payload: LoginRequest = { email, password };
       const response = await api.post<AuthResponse>('/api/auth/login', payload);
@@ -113,28 +112,24 @@ export const authClient = {
   },
 
   /**
-     * Sign out from current device
+     * Get current user profile from backend
      */
-  signOut: async () => {
+  getCurrentUser: async () => {
     try {
-      const refreshToken = localStorage.getItem('refresh_token');
+      const response = await api.get<ProfileResponse>('/api/auth/me');
+      const user = response.data;
 
-      if (refreshToken) {
-        const payload: LogoutRequest = { refreshToken };
-        await api.post<MessageResponse>('/api/auth/logout', payload);
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      // Always clear local storage
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_profile');
+      // Update stored user profile
+      localStorage.setItem('user_profile', JSON.stringify(user));
+
+      return { data: user, error: null };
+    } catch (error: any) {
+      return {
+        data: null,
+        error: { message: error.response?.data?.message || 'Failed to fetch user profile' },
+      };
     }
-
-    return { error: null };
   },
-
 
   /**
      * Manually refresh the access token
@@ -166,23 +161,26 @@ export const authClient = {
   },
 
   /**
-     * Get current user profile from backend
+     * Sign out from current device
      */
-  getCurrentUser: async () => {
+  signOut: async () => {
     try {
-      const response = await api.get<ProfileResponse>('/api/auth/me');
-      const user = response.data;
+      const refreshToken = localStorage.getItem('refresh_token');
 
-      // Update stored user profile
-      localStorage.setItem('user_profile', JSON.stringify(user));
-
-      return { data: user, error: null };
-    } catch (error: any) {
-      return {
-        data: null,
-        error: { message: error.response?.data?.message || 'Failed to fetch user profile' },
-      };
+      if (refreshToken) {
+        const payload: LogoutRequest = { refreshToken };
+        await api.post<MessageResponse>('/api/auth/logout', payload);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Always clear local storage
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_profile');
     }
+
+    return { error: null };
   },
 
   /**
