@@ -6,8 +6,7 @@ import {
   ConversationCreate,
   ConversationRole,
   Personality,
-  PersonalityCreate,
-  ProfileExtended,
+  PersonalityCreate, Profile,
   RealtimeModel,
   RealtimeTranscriptionModel,
   ResponseModel,
@@ -51,7 +50,7 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
-  user: ProfileExtended;
+  user: ProfileResponse;
   accessToken: string;
   refreshToken: string;
 }
@@ -87,7 +86,10 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
-export type ProfileResponse = ProfileExtended;
+export interface ProfileResponse extends Profile {
+    email: string;
+    confirmedAt: Date | null;
+}
 
 export interface ResendVerificationRequest {
   email: string;

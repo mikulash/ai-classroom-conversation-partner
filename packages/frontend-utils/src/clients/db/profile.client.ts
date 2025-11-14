@@ -2,6 +2,10 @@ import { ApiResponse, ProfileResponse, UpdateProfileRequest, UpdateUserRoleReque
 import { api } from '../api';
 import { UserRole } from '@repo/shared/types/db/enums';
 
+/**
+ * methods to access user profiles.
+ * method to create profile is missing as profiles are created directly when users register.
+ */
 export const profileClient = {
   getAll: async (): Promise<ApiResponse<ProfileResponse[]>> => {
     try {

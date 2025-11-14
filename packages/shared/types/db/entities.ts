@@ -176,10 +176,6 @@ export interface Profile {
     conversationRole: string
     bio: string | null
 }
-export interface ProfileExtended extends Profile {
-    email: string;
-    confirmedAt: Date | null,
-}
 
 export interface ProfileCreate {
     id?: string
