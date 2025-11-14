@@ -8,7 +8,7 @@ import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types
 import { useAuth } from '../../hooks/useAuth';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
+import { ModelSelectionForm, ModelSelectionSection } from '../../components/admin/ModelSelectionForm';
 import {
   getAvailableRealtimeModels,
   getAvailableRealtimeTranscriptionModels,
@@ -208,33 +208,57 @@ export function AdminCustomModelSelectionPage() {
   };
 
   if (!ready || !session) return <Loading/>;
-  const sections: ModelSectionConfig[] = [
-    {
-      label: t('responseModel'),
-      modelKey: 'responseModel',
-      models: models.responseModels,
-    },
-    {
-      label: t('ttsModel'),
-      modelKey: 'ttsModel',
-      models: models.ttsModels,
-    },
-    {
-      label: t('realtimeModel'),
-      modelKey: 'realtimeModel',
-      models: models.realtimeModels,
-    },
-    {
-      label: t('models.timestampedTranscriptionModel'),
-      modelKey: 'timestampedTranscriptionModel',
-      models: models.timestampedTranscriptionModels,
-    },
-    {
-      label: t('models.realtimeTranscriptionModel'),
-      modelKey: 'realtimeTranscriptionModel',
-      models: models.realtimeTranscriptionModels,
-    },
+  const overridesDefaultLabel = t('models.overridesDefault');
+  const usesGlobalDefaultLabel = t('models.usesGlobalDefault');
+  const clearSectionLabel = t('models.clearCustomSelection');
+  const clearAllLabel = t('models.clearAllCustomSelections');
+  const globalOptionStatus = (modelId?: number | null) =>
+    (model: { id: number }, _currentModel?: { id: number }) => {
+      void _currentModel;
+      return modelId != null && model.id === modelId ? t('models.currentlyUsedGlobally') : null;
+    };
+
+  const modelKeys: (keyof ModelSelection)[] = [
+    'responseModel',
+    'ttsModel',
+    'realtimeModel',
+    'timestampedTranscriptionModel',
+    'realtimeTranscriptionModel',
   ];
+
+  const globalModelIds: Record<keyof ModelSelection, number | null> = {
+    responseModel: app_config?.responseModelId ?? null,
+    ttsModel: app_config?.ttsModelId ?? null,
+    realtimeModel: app_config?.realtimeModelId ?? null,
+    timestampedTranscriptionModel: app_config?.timestampedTranscriptionModelId ?? null,
+    realtimeTranscriptionModel: app_config?.realtimeTranscriptionModelId ?? null,
+  };
+
+  const hasAnySelection = modelKeys.some((key) => selection[key] != null);
+
+  const titleStatusForKey = (modelKey: keyof ModelSelection) => {
+    const selectedModel = selection[modelKey] as { id?: number } | undefined;
+    const selectedId = selectedModel?.id ?? null;
+    const globalId = globalModelIds[modelKey];
+    const isOverriding = selectedId != null && selectedId !== globalId;
+    const statusLabel = isOverriding ? overridesDefaultLabel : usesGlobalDefaultLabel;
+    const statusColor = isOverriding ? 'text-yellow-600' : 'text-blue-600';
+
+    return <span className={`text-xs font-medium ${statusColor}`}>{statusLabel}</span>;
+  };
+
+  const clearSelectionForKey = (modelKey: keyof ModelSelection) => {
+    setSelection((prev) => ({
+      ...prev,
+      [modelKey]: undefined,
+    }));
+  };
+
+  const clearAllSelections = () => {
+    setSelection(
+      Object.fromEntries(modelKeys.map((key) => [key, undefined])) as Partial<ModelSelection>,
+    );
+  };
 
   if (loading) {
     return (
@@ -246,17 +270,86 @@ export function AdminCustomModelSelectionPage() {
 
   return (
     <Card className='max-w-3xl mx-auto p-6'>
-      <CardHeader>
+      <CardHeader className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
         <CardTitle>{t('customModelPreferences')}</CardTitle>
+        <Button
+          type='button'
+          variant='outline'
+          size='sm'
+          onClick={clearAllSelections}
+          disabled={!hasAnySelection}
+        >
+          {clearAllLabel}
+        </Button>
       </CardHeader>
       <CardContent className='grid gap-8'>
-        <ModelSelectionForm
-          sections={sections}
-          modelSelection={selection}
-          setModelSelection={setSelection}
-          selectProviderLabel={t('selectProvider')}
-          selectModelLabel={t('selectModel')}
-        />
+        <ModelSelectionForm>
+          <ModelSelectionSection
+            label={t('responseModel')}
+            modelKey='responseModel'
+            models={models.responseModels}
+            modelSelection={selection}
+            setModelSelection={setSelection}
+            selectProviderLabel={t('selectProvider')}
+            selectModelLabel={t('selectModel')}
+            titleStatus={titleStatusForKey('responseModel')}
+            optionStatus={globalOptionStatus(app_config?.responseModelId)}
+            clearSelectionLabel={clearSectionLabel}
+            onClearSelection={() => clearSelectionForKey('responseModel')}
+          />
+          <ModelSelectionSection
+            label={t('ttsModel')}
+            modelKey='ttsModel'
+            models={models.ttsModels}
+            modelSelection={selection}
+            setModelSelection={setSelection}
+            selectProviderLabel={t('selectProvider')}
+            selectModelLabel={t('selectModel')}
+            titleStatus={titleStatusForKey('ttsModel')}
+            optionStatus={globalOptionStatus(app_config?.ttsModelId)}
+            clearSelectionLabel={clearSectionLabel}
+            onClearSelection={() => clearSelectionForKey('ttsModel')}
+          />
+          <ModelSelectionSection
+            label={t('realtimeModel')}
+            modelKey='realtimeModel'
+            models={models.realtimeModels}
+            modelSelection={selection}
+            setModelSelection={setSelection}
+            selectProviderLabel={t('selectProvider')}
+            selectModelLabel={t('selectModel')}
+            titleStatus={titleStatusForKey('realtimeModel')}
+            optionStatus={globalOptionStatus(app_config?.realtimeModelId)}
+            clearSelectionLabel={clearSectionLabel}
+            onClearSelection={() => clearSelectionForKey('realtimeModel')}
+          />
+          <ModelSelectionSection
+            label={t('models.timestampedTranscriptionModel')}
+            modelKey='timestampedTranscriptionModel'
+            models={models.timestampedTranscriptionModels}
+            modelSelection={selection}
+            setModelSelection={setSelection}
+            selectProviderLabel={t('selectProvider')}
+            selectModelLabel={t('selectModel')}
+            titleStatus={titleStatusForKey('timestampedTranscriptionModel')}
+            optionStatus={globalOptionStatus(app_config?.timestampedTranscriptionModelId)}
+            clearSelectionLabel={clearSectionLabel}
+            onClearSelection={() => clearSelectionForKey('timestampedTranscriptionModel')}
+          />
+          <ModelSelectionSection
+            label={t('models.realtimeTranscriptionModel')}
+            modelKey='realtimeTranscriptionModel'
+            models={models.realtimeTranscriptionModels}
+            modelSelection={selection}
+            setModelSelection={setSelection}
+            selectProviderLabel={t('selectProvider')}
+            selectModelLabel={t('selectModel')}
+            titleStatus={titleStatusForKey('realtimeTranscriptionModel')}
+            optionStatus={globalOptionStatus(app_config?.realtimeTranscriptionModelId)}
+            clearSelectionLabel={clearSectionLabel}
+            onClearSelection={() => clearSelectionForKey('realtimeTranscriptionModel')}
+          />
+        </ModelSelectionForm>
       </CardContent>
 
       <CardFooter className="flex gap-4">

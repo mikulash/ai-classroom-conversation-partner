@@ -225,6 +225,12 @@
     "timestampedTranscriptionModel": "Model pro přepis s časovými značkami",
     "title": "Nastavení AI modelů",
     "ttsModel": "Model TTS",
+    "currentlyApplied": "Aktuálně používané",
+    "overridesDefault": "Přepisuje výchozí nastavení",
+    "usesGlobalDefault": "Používá globální výchozí nastavení",
+    "currentlyUsedGlobally": "Aktuálně používané globálně",
+    "clearCustomSelection": "Odebrat vlastní výběr",
+    "clearAllCustomSelections": "Odebrat všechny vlastní výběry",
     "warningDescription": "Vaše změny ovlivní VŠECHNY uživatele systému. Vybrané modely se stanou výchozími pro každého, kdo používá aplikaci.",
     "warningTitle": "Upozornění"
   },

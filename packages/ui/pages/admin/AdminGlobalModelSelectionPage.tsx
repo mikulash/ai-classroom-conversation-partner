@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
+import { ModelSelectionForm, ModelSelectionSection } from '../../components/admin/ModelSelectionForm';
 import {
   getAvailableRealtimeModels,
   getAvailableRealtimeTranscriptionModels,
@@ -163,33 +163,12 @@ export function AdminGlobalModelSelectionPage() {
     setIsSaving(false);
   };
 
-  const sections: ModelSectionConfig[] = [
-    {
-      label: t('models.responseModel'),
-      modelKey: 'responseModel',
-      models: modelOptions.responseModels,
-    },
-    {
-      label: t('models.ttsModel'),
-      modelKey: 'ttsModel',
-      models: modelOptions.ttsModels,
-    },
-    {
-      label: t('models.realtimeModel'),
-      modelKey: 'realtimeModel',
-      models: modelOptions.realtimeModels,
-    },
-    {
-      label: t('models.timestampedTranscriptionModel'),
-      modelKey: 'timestampedTranscriptionModel',
-      models: modelOptions.timestampedTranscriptionModels,
-    },
-    {
-      label: t('models.realtimeTranscriptionModel'),
-      modelKey: 'realtimeTranscriptionModel',
-      models: modelOptions.realtimeTranscriptionModels,
-    },
-  ];
+  const getOptionStatus = (configValue?: number | null) =>
+    (model: { id: number }, currentModel?: { id: number }) => {
+      if (configValue == null) return null;
+      if (!currentModel) return null;
+      return currentModel.id === configValue && model.id === currentModel.id ? t('models.currentlyApplied') : null;
+    };
 
   if (isLoading) {
     return (
@@ -205,13 +184,58 @@ export function AdminGlobalModelSelectionPage() {
         <CardTitle>{t('models.title')}</CardTitle>
       </CardHeader>
       <CardContent className='grid gap-8'>
-        <ModelSelectionForm
-          sections={sections}
-          modelSelection={modelSelectionState}
-          setModelSelection={setModelSelectionState}
-          selectProviderLabel={t('models.selectProvider')}
-          selectModelLabel={t('models.selectModel')}
-        />
+        <ModelSelectionForm>
+          <ModelSelectionSection
+            label={t('models.responseModel')}
+            modelKey='responseModel'
+            models={modelOptions.responseModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(app_config.responseModelId)}
+          />
+          <ModelSelectionSection
+            label={t('models.ttsModel')}
+            modelKey='ttsModel'
+            models={modelOptions.ttsModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(app_config.ttsModelId)}
+          />
+          <ModelSelectionSection
+            label={t('models.realtimeModel')}
+            modelKey='realtimeModel'
+            models={modelOptions.realtimeModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(app_config.realtimeModelId)}
+          />
+          <ModelSelectionSection
+            label={t('models.timestampedTranscriptionModel')}
+            modelKey='timestampedTranscriptionModel'
+            models={modelOptions.timestampedTranscriptionModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(app_config.timestampedTranscriptionModelId)}
+          />
+          <ModelSelectionSection
+            label={t('models.realtimeTranscriptionModel')}
+            modelKey='realtimeTranscriptionModel'
+            models={modelOptions.realtimeTranscriptionModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(app_config.realtimeTranscriptionModelId)}
+          />
+        </ModelSelectionForm>
         <Alert variant="default">
           <AlertCircle className="h-4 w-4"/>
           <AlertTitle>{t('models.warningTitle')}</AlertTitle>

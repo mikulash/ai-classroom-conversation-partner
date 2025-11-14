@@ -224,6 +224,12 @@
     "timestampedTranscriptionModel": "Model for timestamped transcription",
     "title": "AI Model Preferences",
     "ttsModel": "TTS Model",
+    "currentlyApplied": "Currently applied",
+    "overridesDefault": "Overrides global default",
+    "usesGlobalDefault": "Using global default",
+    "currentlyUsedGlobally": "Currently used globally",
+    "clearCustomSelection": "Remove custom selection",
+    "clearAllCustomSelections": "Remove all custom selections",
     "warningDescription": "Your changes will affect ALL users of the system. The selected models will become the default for everyone using the application.",
     "warningTitle": "Warning"
   },
