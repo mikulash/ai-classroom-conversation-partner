@@ -7,7 +7,6 @@ import {
   CreatePersonalityRequest,
   ErrorResponse,
   MessageResponse,
-  PersonalityWithScenarios,
   UpdatePersonalityRequest,
 } from '@repo/shared/types/dbRoutes.types';
 
@@ -44,37 +43,6 @@ router.get(
     }
   });
 
-/**
- * GET /api/personalities/:id
- * Get a specific personality by ID
- */
-router.get(
-  '/:id',
-  async (
-    req: Request<PersonalityIdParams>,
-    res: Response<PersonalityWithScenarios | ErrorResponse>,
-  ) => {
-    try {
-      const { id } = req.params;
-
-      const personality = await prisma.personality.findUnique({
-        where: { id: parseInt(id) },
-        include: {
-          scenarios: true,
-        },
-      });
-
-      if (!personality) {
-        res.status(404).json({ message: 'Personality not found' });
-        return;
-      }
-
-      res.status(200).json(personality);
-    } catch (error) {
-      console.error('Get personality error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
 
 /**
  * POST /api/personalities
