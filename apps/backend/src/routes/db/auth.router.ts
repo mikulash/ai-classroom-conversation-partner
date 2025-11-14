@@ -596,7 +596,7 @@ router.post(
 
       // Construct reset URL that points to the frontend reset page
       const frontendBaseUrl = APP_FRONTEND_URL.replace(/\/$/, '');
-      const resetUrl = `${frontendBaseUrl}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
+      const resetUrl = `${frontendBaseUrl}/reset-password?token=${encodeURIComponent(resetToken)}`;
 
       // Send the email
       await sendPasswordResetEmail(user.email, resetUrl);
