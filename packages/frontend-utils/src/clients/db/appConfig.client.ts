@@ -1,12 +1,11 @@
 import {
   ConversationRole,
   Personality,
-  Scenario,
 } from '@repo/shared/types/db/entities';
 import {
   ApiResponse,
   AppConfigWithModels,
-  InitialConversationOptions,
+  InitialConversationOptions, ScenarioWithPersonality,
   UpdateAppConfigRequest,
 } from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
@@ -28,7 +27,7 @@ export const appConfigClient = {
     try {
       const [personalities, scenarios, conversationRoles, appConfig] = await Promise.all([
         api.get<Personality[]>('/api/personalities'),
-        api.get<Scenario[]>('/api/scenarios'),
+        api.get<ScenarioWithPersonality[]>('/api/scenarios'),
         api.get<ConversationRole[]>('/api/conversation-roles'),
         api.get<AppConfigWithModels>('/api/app-config'),
       ]);

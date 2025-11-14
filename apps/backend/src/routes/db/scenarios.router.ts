@@ -28,7 +28,7 @@ router.get(
     res: Response<ScenarioWithPersonality[] | ErrorResponse>,
   ) => {
     try {
-      const scenarios = await prisma.scenario.findMany({
+      const scenarios : ScenarioWithPersonality[] = await prisma.scenario.findMany({
         include: {
           personality: {
             select: {
@@ -44,38 +44,6 @@ router.get(
       res.status(200).json(scenarios);
     } catch (error) {
       console.error('Get scenarios error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-/**
- * GET /api/scenarios/:id
- * Get a specific scenario by ID
- */
-router.get(
-  '/:id',
-  async (
-    req: Request<ScenarioIdParams>,
-    res: Response<ScenarioWithPersonality | ErrorResponse>,
-  ) => {
-    try {
-      const { id } = req.params;
-
-      const scenario = await prisma.scenario.findUnique({
-        where: { id: parseInt(id) },
-        include: {
-          personality: true,
-        },
-      });
-
-      if (!scenario) {
-        res.status(404).json({ message: 'Scenario not found' });
-        return;
-      }
-
-      res.status(200).json(scenario);
-    } catch (error) {
-      console.error('Get scenario error:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   });
