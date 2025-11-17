@@ -36,7 +36,6 @@ export const config = [
       'max-len': 'off',
       'require-jsdoc': 'off',
       'valid-jsdoc': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true, allowNullish: true }],
       'linebreak-style': 'off',
       'new-cap': 'off',

@@ -90,9 +90,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
 
   // Init SpeechRecognition
   useEffect(() => {
-    if (!srSupported) return;
+    if (!srSupported || !SpeechRecognitionClass) return;
 
-    const recognition = new SpeechRecognitionClass!();
+    const recognition = new SpeechRecognitionClass();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = language.BCP47;

@@ -81,11 +81,11 @@ export class ConfigProvider {
 
   public getSelectedModels() {
     return {
-      responseModel: this.modelOptions.responseModels.find((model) => model.id === this.appConfig.responseModelId)!,
-      ttsModel: this.modelOptions.ttsModels.find((model) => model.id === this.appConfig.ttsModelId)!,
-      realtimeModel: this.modelOptions.realtimeModels.find((model) => model.id === this.appConfig.realtimeModelId)!,
-      timestampedTranscriptionModel: this.modelOptions.timestampedTranscriptionModels.find((model) => model.id === this.appConfig.timestampedTranscriptionModelId)!,
-      realtimeTranscriptionModel: this.modelOptions.realtimeTranscriptionModels.find((model) => model.id === this.appConfig.realtimeTranscriptionModelId)!,
+      responseModel: this.modelOptions.responseModels.find((model) => model.id === this.appConfig.responseModelId),
+      ttsModel: this.modelOptions.ttsModels.find((model) => model.id === this.appConfig.ttsModelId),
+      realtimeModel: this.modelOptions.realtimeModels.find((model) => model.id === this.appConfig.realtimeModelId),
+      timestampedTranscriptionModel: this.modelOptions.timestampedTranscriptionModels.find((model) => model.id === this.appConfig.timestampedTranscriptionModelId),
+      realtimeTranscriptionModel: this.modelOptions.realtimeTranscriptionModels.find((model) => model.id === this.appConfig.realtimeTranscriptionModelId),
     };
   }
 

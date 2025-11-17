@@ -41,14 +41,14 @@ export const processRealtimeTranscriptionEvent = (
 
     case 'conversation.item.input_audio_transcription.delta':
       // For gpt-4o-transcribe or GPT-4o mini Transcribe, this will be incremental
-      setCurrentTranscript((p) => p + String(event.delta ?? ''));
+      setCurrentTranscript((p) => p + (typeof event.delta === 'string' ? event.delta : ''));
       setIsTranscribing(true);
       onUserActivity();
       break;
 
     case 'conversation.item.input_audio_transcription.completed':
       setIsTranscribing(false);
-      handleTranscriptionCompleted(String(event.transcript ?? ''));
+      handleTranscriptionCompleted(typeof event.transcript === 'string' ? event.transcript : '');
       break;
 
     case 'input_audio_buffer.committed':

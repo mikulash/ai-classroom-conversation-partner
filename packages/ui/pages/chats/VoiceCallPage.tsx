@@ -166,6 +166,8 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
+      if (!offer.sdp) throw new Error('No SDP offer received from server.');
+
       const response = await figurantClient.getWebRtcAnswer({
         openai_voice_name: personality.openaiVoiceName,
         personality,
@@ -173,7 +175,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
         conversationRole: conversationRoleName,
         scenario,
         userProfile,
-        sdp_offer: offer.sdp!,
+        sdp_offer: offer.sdp,
       });
       await pc.setRemoteDescription({ type: 'answer', sdp: response.sdp });
     } catch (err) {

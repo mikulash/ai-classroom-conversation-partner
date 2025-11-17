@@ -64,7 +64,10 @@ export const AvatarTalkingHead = forwardRef<
           );
           setLoadingMessage(`${loadingPrefix} ${percent}%`);
         }
-        return headRef.current!;
+        if (!headRef.current) {
+          throw new Error('Head reference is null during avatar loading');
+        }
+        return headRef.current;
       },
     );
   };
