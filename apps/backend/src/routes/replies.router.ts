@@ -276,13 +276,12 @@ router.post(
       res.json(transcriptionSessionCreateResponse);
     } catch (err: unknown) {
       console.error(err);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      const status = typeof (err as any).status === 'number' ? (err as any).status : 500;
-      const msg =
-                status === 500 ?
-                  'Internal server error' :
-                  'OpenAI transcription session creation failed';
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
+      let status = 500;
+      if (typeof err === 'object' && err !== null && 'status' in err && typeof (err as { status: unknown }).status === 'number') {
+        status = (err as { status: number }).status;
+      }
+      const msg = status === 500 ? 'Internal server error' : 'OpenAI transcription session creation failed';
+
       res.status(status).json({ message: msg, statusCode: status });
     }
   },

@@ -86,7 +86,7 @@ export interface ErrorResponse {
     message: string;
     statusCode?: number;
 
-    [key: string]: any; // additional properties
+    [key: string]: unknown; // additional properties
 }
 
 
