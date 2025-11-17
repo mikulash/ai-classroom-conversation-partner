@@ -80,7 +80,7 @@ export interface ConversationCreate {
     messages?: ConversationMessage[] | null
     logs?: ConversationLog[] | null
     conversationType: ConversationType
-    usedConfig?: AppConfig | null
+    usedConfig: AppConfig
 }
 
 export interface ConversationRole {

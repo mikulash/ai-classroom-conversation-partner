@@ -6,6 +6,12 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+  namespace = "PrismaJson"
+  clientOutput = "../src/generated/prisma"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -246,9 +252,12 @@ model Conversation {
   startTime        DateTime         @map("start_time")
   endTime          DateTime         @default(now()) @map("end_time")
   endedReason      String           @default("") @map("ended_reason")
+  /// [ConversationMessages]
   messages         Json?
+  /// [ConversationLogs]
   logs             Json?
   conversationType ConversationType @map("conversation_type")
+  /// [UsedConfig]
   usedConfig       Json?            @map("used_config")
 
   // Relations

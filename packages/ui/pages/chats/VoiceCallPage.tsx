@@ -85,7 +85,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       switch (ev.type) {
         case 'error': {
           const errorData = ev.error as { message?: string } | undefined;
-          logMessage('error', 'Server error:', ev.error);
+          logMessage('error', 'Server error', { error: ev.error });
           setError(`Server error: ${errorData?.message ?? 'Unknown'}`);
           break;
         }
@@ -121,7 +121,9 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
           break;
       }
     } catch (err) {
-      logMessage('error', 'Error parsing server event', err);
+      logMessage('error', 'Error parsing server event', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }, [logMessage]);
 
@@ -175,7 +177,9 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       });
       await pc.setRemoteDescription({ type: 'answer', sdp: response.sdp });
     } catch (err) {
-      logMessage('error', 'Connection error:', err);
+      logMessage('error', 'Connection error', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       setError(err instanceof Error ? err.message : 'Unknown connection error');
       setIsConnecting(false);
       disconnect();

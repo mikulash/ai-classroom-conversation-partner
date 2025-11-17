@@ -19,7 +19,7 @@ interface ConversationSaverParams {
     scenario?: Scenario | null;
     chatStartTime: number;
     appConfig: AppConfig;
-    logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: unknown) => void;
+    logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: Record<string, unknown>) => void;
 }
 
 export const useConversationSaver = ({
@@ -74,7 +74,9 @@ export const useConversationSaver = ({
 
       logMessage('log', 'Conversation saved successfully');
     } catch (error) {
-      logMessage('error', 'Failed to save conversation:', error);
+      logMessage('error', 'Failed to save conversation', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       toast.error(t('chat.errors.saveConversationError', { defaultValue: 'Failed to save conversation' }));
     } finally {
       setIsSavingConversation(false);

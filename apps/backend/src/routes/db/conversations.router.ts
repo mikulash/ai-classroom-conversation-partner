@@ -8,7 +8,6 @@ import {
   ErrorResponse,
   MessageResponse,
 } from '@repo/shared/types/dbRoutes.types';
-import { Prisma } from '../../generated/prisma/client';
 
 // Path parameter types
 interface ConversationIdParams extends ParamsDictionary {
@@ -61,15 +60,7 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      // Transform the response to match ConversationWithPersonality[] type
-      const response: ConversationWithPersonality[] = conversations.map((conv) => ({
-        ...conv,
-        messages: conv.messages as object | null,
-        logs: conv.logs as object | null,
-        usedConfig: conv.usedConfig as object | null,
-      }));
-
-      res.status(200).json(response);
+      res.status(200).json(conversations as ConversationWithPersonality[]);
     } catch (error) {
       console.error('Get conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -110,10 +101,10 @@ router.post(
           startTime: new Date(startTime),
           endTime: endTime ? new Date(endTime) : undefined,
           endedReason,
-          messages: messages as any,
-          logs: logs as any,
+          messages: messages ?? [],
+          logs: logs ?? [],
           conversationType,
-          usedConfig: usedConfig as any,
+          usedConfig: usedConfig,
         },
         include: {
           personality: {
@@ -226,15 +217,7 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      // Transform the response to match ConversationWithPersonality[] type
-      const response: ConversationWithPersonality[] = conversations.map((conv) => ({
-        ...conv,
-        messages: conv.messages as object | null,
-        logs: conv.logs as object | null,
-        usedConfig: conv.usedConfig as object | null,
-      }));
-
-      res.status(200).json(response);
+      res.status(200).json(conversations as ConversationWithPersonality[]);
     } catch (error) {
       console.error('Get user conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });

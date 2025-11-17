@@ -189,7 +189,9 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       );
       setConnection(conn);
     } catch (e) {
-      logMessage('error', 'Failed to start conversation', e);
+      logMessage('error', 'Failed to start conversation', {
+        error: e instanceof Error ? e.message : String(e),
+      });
       setError((e as Error).message);
     } finally {
       setIsConnecting(false);
@@ -237,7 +239,9 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       // Wait a moment before ending the chat, then pass the final messages and logs
       setTimeout(() => handleEndChatWithReason('silence', finalMessages, finalLogs), 2000);
     } catch (err) {
-      logMessage('error', 'Error during final silence prompt:', err);
+      logMessage('error', 'Error during final silence prompt', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     } finally {
       setIsAiProcessing(false);
     }
@@ -269,7 +273,9 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       setMessages((prev) => [...prev, { content: reply, role: 'assistant', timestamp: new Date() }]);
       avatarRef.current?.speakAudio(speech);
     } catch (err) {
-      logMessage('error', 'Error during silence prompt:', err);
+      logMessage('error', 'Error during silence prompt', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     } finally {
       setIsAiProcessing(false);
       markActivity();
@@ -307,7 +313,9 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
 
       avatarRef.current?.speakAudio(speech);
     } catch (err) {
-      logMessage('error', 'Error generating full reply:', err);
+      logMessage('error', 'Error generating full reply', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       const fallback = t('aiResponseError');
       setMessages((m) => [...m, { content: fallback, role: 'assistant', timestamp: new Date() }]);
     } finally {

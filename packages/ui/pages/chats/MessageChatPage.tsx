@@ -107,7 +107,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     };
 
     recognition.onerror = (ev: SpeechRecognitionErrorEvent) => {
-      logMessage('error', 'Speech recognition error', ev.error);
+      logMessage('error', 'Speech recognition error', { error: ev.error });
       toast.error('Speech recognition failed; returning to chat list…');
       if (ev.error === 'network') {
         setIsBrowserDialogVisible(true);
@@ -131,7 +131,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       recognitionRef.current.start();
       setIsRecording(true);
     } catch (err) {
-      logMessage('error', 'Failed to start recognition', err);
+      logMessage('error', 'Failed to start recognition', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   };
 
@@ -142,7 +144,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
   };
 
   const handleAiError = (error: unknown, fallbackMessage: string) => {
-    logMessage('error', 'Error generating message:', error);
+    logMessage('error', 'Error generating message', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return fallbackMessage;
   };
 
@@ -153,7 +157,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
   };
 
   const handleAudioError = (error: Event) => {
-    logMessage('warn', 'Audio playback error (non-critical):', error);
+    logMessage('warn', 'Audio playback error (non-critical)', {
+      error: error.type,
+    });
     setIsAudioPlaying(false);
     audioRef.current = null;
   };
@@ -166,7 +172,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
         audioRef.current.removeEventListener('ended', handleAudioEnded);
         audioRef.current.removeEventListener('error', handleAudioError);
       } catch (error) {
-        logMessage('warn', 'Error stopping audio:', error);
+        logMessage('warn', 'Error stopping audio', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
       audioRef.current = null;
       setIsAudioPlaying(false);
@@ -184,7 +192,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       const audio = await figurantClient.getSpeechAudio(ttsParams);
       return audio.objectUrl;
     } catch (error) {
-      logMessage('error', 'Error generating audio:', error);
+      logMessage('error', 'Error generating audio', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return null;
     }
   };
@@ -207,7 +217,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       if (error instanceof Error && error.name === 'AbortError') {
         logMessage('log', 'Audio playback was interrupted (normal behavior)');
       } else {
-        logMessage('warn', 'Audio playback failed:', error);
+        logMessage('warn', 'Audio playback failed', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
       setIsAudioPlaying(false);
       audioRef.current = null;
@@ -235,7 +247,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
           });
         }
       } catch (error) {
-        logMessage('warn', 'Failed to generate audio for message:', error);
+        logMessage('warn', 'Failed to generate audio for message', {
+          error: error instanceof Error ? error.message : String(error),
+        });
         setIsAudioPlaying(false);
         return;
       }
@@ -276,7 +290,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
           return withAudio;
         }
       } catch (error) {
-        logMessage('warn', 'Audio generation failed, continuing with text only:', error);
+        logMessage('warn', 'Audio generation failed, continuing with text only', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
@@ -413,7 +429,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       if (aiText) await processAiResponse(aiText);
       else throw new Error('Empty response from AI');
     } catch (err) {
-      logMessage('error', 'Error during silence prompt:', err);
+      logMessage('error', 'Error during silence prompt', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       const fallback = t('chat.silencePromptFallback');
       setMessages((prev) => [
         ...prev,
