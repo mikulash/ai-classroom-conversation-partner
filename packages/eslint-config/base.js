@@ -36,7 +36,6 @@ export const config = [
       'max-len': 'off',
       'require-jsdoc': 'off',
       'valid-jsdoc': 'off',
-      'no-unused-vars': 'off',
       'no-explicit-any': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
