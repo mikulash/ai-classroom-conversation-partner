@@ -10,7 +10,7 @@ import {
 } from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { GetResponseParams, GetTimestampedTranscriptionParams } from '../types/universalApi.types';
-import { openAiApi } from './openaiApi';
+import { openAiApi } from './openAiApi';
 import { anthropicApi } from './anthropicApi';
 import { xAiApi } from './xAiApi';
 import { elevenLabsApi } from './elevenLabsApi';
