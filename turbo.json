@@ -60,13 +60,15 @@
     },
     "lint": {
       "dependsOn": [
-        "^prisma:generate",
-        "^build",
+        "build",
         "^lint"
       ]
     },
     "typecheck": {
-      "dependsOn": ["^prisma:generate", "^build", "^typecheck"],
+      "dependsOn": [
+        "build",
+        "^typecheck"
+      ],
       "outputs": []
     },
     "dev": {
