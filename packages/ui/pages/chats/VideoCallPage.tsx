@@ -209,7 +209,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     setIsAiProcessing(true);
     try {
       const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
-        input_text: 'The user has been silent for too long. Respond with a short goodbye.',
+        inputText: 'The user has been silent for too long. Respond with a short goodbye.',
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -261,7 +261,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       const silenceSystemPrompt = t('chat.silencePrompt');
 
       const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
-        input_text: silenceSystemPrompt,
+        inputText: silenceSystemPrompt,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -297,7 +297,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
 
     try {
       const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
-        input_text: messageToSend,
+        inputText: messageToSend,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,

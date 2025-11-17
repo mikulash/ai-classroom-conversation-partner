@@ -187,7 +187,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
         inputMessage: text,
         personality,
         language,
-        response_format: 'mp3',
+        responseFormat: 'mp3',
       };
       const audio = await figurantClient.getSpeechAudio(ttsParams);
       return audio.objectUrl;
@@ -381,7 +381,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       const silenceSystemPrompt = t('chat.silencePromptGoodbye');
       // 'The user has been silent for too long. Respond with a short goodbye.';
       const aiText = await figurantClient.getResponse({
-        input_text: silenceSystemPrompt,
+        inputText: silenceSystemPrompt,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -417,7 +417,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       const silenceSystemPrompt = t('chat.silencePrompt');
       // 'The user has been silent for a few seconds. Respond with a short follow‑up.';
       const aiText = await figurantClient.getResponse({
-        input_text: silenceSystemPrompt,
+        inputText: silenceSystemPrompt,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -476,7 +476,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     setIsAiTyping(true);
     try {
       const aiText = await figurantClient.getResponse({
-        input_text: 'Just say hi',
+        inputText: 'Just say hi',
         previousMessages: [],
         personality,
         conversationRole,
@@ -517,7 +517,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
 
     try {
       const requestMessage = {
-        input_text: userMsg.content,
+        inputText: userMsg.content,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,

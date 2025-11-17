@@ -42,7 +42,6 @@ export const config = [
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true, allowNullish: true }],
       'linebreak-style': 'off',
-      'camelcase': 'off',
       'new-cap': 'off',
     },
   },

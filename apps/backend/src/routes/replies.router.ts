@@ -49,13 +49,13 @@ router.post(
     res: Response<string | ErrorResponse>,
   ) => {
     try {
-      const { input_text, previousMessages, personality, conversationRole, language, scenario, userProfile } =
+      const { inputText, previousMessages, personality, conversationRole, language, scenario, userProfile } =
                 req.body;
 
       const userId = getUserId(req);
 
       const response = await universalApi.getResponse({
-        input_text,
+        inputText: inputText,
         previousMessages,
         personality,
         conversationRole,
@@ -86,14 +86,14 @@ router.post(
     res: Response<TextToSpeechResponse | ErrorResponse>,
   ) => {
     try {
-      const { inputMessage, personality, language, response_format } = req.body;
+      const { inputMessage, personality, language, responseFormat } = req.body;
       const userId = getUserId(req);
 
       const result = await universalApi.getSpeechAudio({
         inputMessage,
         personality,
         language,
-        response_format,
+        responseFormat: responseFormat,
       }, userId);
 
       const audioBase64 = Buffer
@@ -174,7 +174,7 @@ router.post(
         inputMessage: text,
         personality: req.body.personality,
         language: req.body.language,
-        response_format: 'pcm',
+        responseFormat: 'pcm',
       }, userId);
 
       const speech: TextToSpeechResponse = {

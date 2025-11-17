@@ -2,11 +2,11 @@ import { ModelOptions } from './configProvider';
 import prisma from '../clients/prisma';
 
 export const fetchAppConfig = async () => {
-  const app_config = await prisma.appConfig.findFirst();
-  if (!app_config) {
+  const appConfig = await prisma.appConfig.findFirst();
+  if (!appConfig) {
     throw new Error('App Config not found');
   }
-  return app_config;
+  return appConfig;
 };
 
 export const fetchModelOptions = async () => {

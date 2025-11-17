@@ -145,7 +145,7 @@ model Profile {
   fullName         String   @default("") @map("full_name")
   gender           String   @default("")
   conversationRole String   @default("") @map("conversation_role")
-  bio              String?
+  bio              String   @default("")
   userRole         UserRole @default(basic) @map("user_role")
 
   // Relations

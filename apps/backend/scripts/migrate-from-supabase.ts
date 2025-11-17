@@ -69,7 +69,7 @@ async function migrateData() {
           createdAt: new Date(model.created_at),
           friendlyName: model.friendly_name,
           apiName: model.api_name,
-          sampleRate: model.sample_rate,
+          sampleRate: model.sampleRate,
           docsUrl: model.docs_url,
           isEnabled: model.is_enabled,
           provider: model.provider as any,
@@ -78,7 +78,7 @@ async function migrateData() {
         update: {
           friendlyName: model.friendly_name,
           apiName: model.api_name,
-          sampleRate: model.sample_rate,
+          sampleRate: model.sampleRate,
           docsUrl: model.docs_url,
           isEnabled: model.is_enabled,
           provider: model.provider as any,

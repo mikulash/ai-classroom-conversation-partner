@@ -3,13 +3,13 @@ import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPro
 import { GetResponseParamsWithModelName } from '../types/universalApi.types';
 
 const getResponse = async ({
-  input_text,
+  inputText,
   previousMessages,
   personality,
   conversationRole,
   language,
   scenario,
-  model_api_name,
+  modelApiName,
   userProfile,
 }: GetResponseParamsWithModelName): Promise<string> => {
   const claude = await getClaudeClient();
@@ -18,7 +18,7 @@ const getResponse = async ({
     content: message.content,
   }));
   const message = await claude.messages.create({
-    model: model_api_name,
+    model: modelApiName,
     max_tokens: 1024,
     system: createPersonalityPrompt({
       personality,
@@ -29,7 +29,7 @@ const getResponse = async ({
     }),
     messages: [
       ...strippedMessages,
-      { role: 'user', content: input_text },
+      { role: 'user', content: inputText },
     ],
   });
 

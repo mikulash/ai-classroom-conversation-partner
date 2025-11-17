@@ -3,19 +3,19 @@ import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPro
 import { GetResponseParamsWithModelName } from '../types/universalApi.types';
 
 const getResponse = async ({
-  input_text,
+  inputText,
   previousMessages,
   personality,
   conversationRole,
   language,
   scenario,
-  model_api_name,
+  modelApiName,
   userProfile,
 }: GetResponseParamsWithModelName): Promise<string> => {
   const grok = await getGrokClient();
 
   const completion = await grok.chat.completions.create({
-    model: model_api_name,
+    model: modelApiName,
     messages: [
       {
         role: 'system',
@@ -28,7 +28,7 @@ const getResponse = async ({
         }),
       },
       ...previousMessages,
-      { role: 'user', content: input_text },
+      { role: 'user', content: inputText },
     ],
   });
 

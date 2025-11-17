@@ -31,10 +31,10 @@ export class ConfigProvider {
   /**
      * Private constructor; use getInstance() instead.
      */
-  private constructor(secrets: Secrets, app_config: AppConfig, model_options: ModelOptions) {
+  private constructor(secrets: Secrets, appConfig: AppConfig, modelOptions: ModelOptions) {
     this.secrets = secrets;
-    this.appConfig = app_config;
-    this.modelOptions = model_options;
+    this.appConfig = appConfig;
+    this.modelOptions = modelOptions;
   }
 
   /**
@@ -49,24 +49,24 @@ export class ConfigProvider {
         [API_KEY.GROK]: GROK_API_KEY,
       };
 
-      const complete_configuration = await ConfigProvider.loadCompleteConfig();
+      const completeConfiguration = await ConfigProvider.loadCompleteConfig();
 
-      ConfigProvider.instance = new ConfigProvider(secrets, complete_configuration.app_config, complete_configuration.model_options);
+      ConfigProvider.instance = new ConfigProvider(secrets, completeConfiguration.appConfig, completeConfiguration.modelOptions);
     }
 
     return ConfigProvider.instance;
   }
 
   private static async loadCompleteConfig(): Promise<{
-        app_config: AppConfig;
-        model_options: ModelOptions;
+        appConfig: AppConfig;
+        modelOptions: ModelOptions;
     }> {
-    const app_config = await fetchAppConfig();
-    const model_options = await fetchModelOptions();
+    const appConfig = await fetchAppConfig();
+    const modelOptions = await fetchModelOptions();
 
     return {
-      app_config,
-      model_options,
+      appConfig,
+      modelOptions,
     };
   }
 

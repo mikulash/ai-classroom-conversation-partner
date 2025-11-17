@@ -9,10 +9,10 @@ import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { Personality, Scenario } from '../generated/prisma/client';
 import { Profile } from '@repo/shared/types/db/entities';
 
-type WithModelName<T, Extra extends object = object> = T & { model_api_name: string } & Extra;
+type WithModelName<T, Extra extends object = object> = T & { modelApiName: string } & Extra;
 
 export interface GetResponseParams {
-    input_text: string;
+    inputText: string;
     previousMessages: ChatMessage[];
     personality: Personality;
     conversationRole: string;
@@ -26,7 +26,7 @@ export interface GetTimestampedTranscriptionParams {
     language: Language;
 }
 
-export type GetTTSAudioParamsWithModelName = WithModelName<TextToSpeechRequest, { sample_rate: number }>;
+export type GetTTSAudioParamsWithModelName = WithModelName<TextToSpeechRequest, { sampleRate: number }>;
 
 export type GetResponseParamsWithModelName = WithModelName<GetResponseParams>;
 
@@ -36,4 +36,4 @@ export type GetRealtimeTranscriptionParamsWithModelName = WithModelName<Realtime
 
 export type GetRealtimeVoiceParamsWithModelName = WithModelName<RealtimeVoiceRequest>;
 
-export type GetTimestampedAudioParamsWithModelName = WithModelName<TextToSpeechTimestampedRequest, { sample_rate: number}>;
+export type GetTimestampedAudioParamsWithModelName = WithModelName<TextToSpeechTimestampedRequest, { sampleRate: number}>;

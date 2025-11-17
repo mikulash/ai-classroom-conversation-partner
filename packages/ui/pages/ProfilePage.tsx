@@ -35,10 +35,10 @@ export function UserProfilePage() {
 
   useEffect(() => {
     if (!cachedProfile) return;
-    setFullName(cachedProfile.fullName ?? '');
+    setFullName(cachedProfile.fullName);
     setConversationRole(cachedProfile.conversationRole);
-    setGender(cachedProfile.gender ?? '');
-    setBio(cachedProfile.bio ?? '');
+    setGender(cachedProfile.gender);
+    setBio(cachedProfile.bio);
   }, [cachedProfile]);
 
   const fetchConversations = useCallback(async () => {
@@ -138,10 +138,10 @@ export function UserProfilePage() {
         console.error('Error fetching user profile:', profileError);
         return;
       }
-      setFullName(data.fullName ?? '');
+      setFullName(data.fullName);
       setConversationRole(data.conversationRole);
-      setGender(data.gender ?? '');
-      setBio(data.bio ?? '');
+      setGender(data.gender);
+      setBio(data.bio);
       setProfile(data);
 
       await fetchConversations();

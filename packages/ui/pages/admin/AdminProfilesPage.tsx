@@ -143,7 +143,7 @@ export function AdminProfilesPage() {
     if (profiles.length === 0) return [];
     return profiles.filter((p) =>
       p.email.toLowerCase().includes(search.toLowerCase().trim()) ||
-            p.fullName?.toLowerCase().includes(search.toLowerCase().trim()),
+            p.fullName.toLowerCase().includes(search.toLowerCase().trim()),
     );
   }, [profiles, search]);
 

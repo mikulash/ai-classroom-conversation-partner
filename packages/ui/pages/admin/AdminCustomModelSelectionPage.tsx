@@ -30,7 +30,7 @@ export function AdminCustomModelSelectionPage() {
     realtimeTranscriptionModels: [],
   });
 
-  const app_config = useAppStore((state) => state.appConfig);
+  const appConfig = useAppStore((state) => state.appConfig);
 
   // Use Partial<ModelSelection> since models might be undefined initially
   const [selection, setSelection] = useState<Partial<ModelSelection>>({
@@ -123,27 +123,27 @@ export function AdminCustomModelSelectionPage() {
         responseModel: findSelectedModel(
           filteredResponseModels,
           userSelection?.responseModelId,
-          app_config.responseModelId,
+          appConfig.responseModelId,
         ),
         ttsModel: findSelectedModel(
           filteredTtsModels,
           userSelection?.ttsModelId,
-          app_config.ttsModelId,
+          appConfig.ttsModelId,
         ),
         realtimeModel: findSelectedModel(
           filteredRealtimeModels,
           userSelection?.realtimeModelId,
-          app_config.realtimeModelId,
+          appConfig.realtimeModelId,
         ),
         timestampedTranscriptionModel: findSelectedModel(
           filteredTimestampedTranscriptionModels,
           userSelection?.timestampedTranscriptionModelId,
-          app_config.timestampedTranscriptionModelId,
+          appConfig.timestampedTranscriptionModelId,
         ),
         realtimeTranscriptionModel: findSelectedModel(
           filteredRealtimeTranscriptionModels,
           userSelection?.realtimeTranscriptionModelId,
-          app_config.realtimeTranscriptionModelId,
+          appConfig.realtimeTranscriptionModelId,
         ),
       });
 
@@ -227,11 +227,11 @@ export function AdminCustomModelSelectionPage() {
   ];
 
   const globalModelIds: Record<keyof ModelSelection, number | null> = {
-    responseModel: app_config.responseModelId ?? null,
-    ttsModel: app_config.ttsModelId ?? null,
-    realtimeModel: app_config.realtimeModelId ?? null,
-    timestampedTranscriptionModel: app_config.timestampedTranscriptionModelId ?? null,
-    realtimeTranscriptionModel: app_config.realtimeTranscriptionModelId ?? null,
+    responseModel: appConfig.responseModelId ?? null,
+    ttsModel: appConfig.ttsModelId ?? null,
+    realtimeModel: appConfig.realtimeModelId ?? null,
+    timestampedTranscriptionModel: appConfig.timestampedTranscriptionModelId ?? null,
+    realtimeTranscriptionModel: appConfig.realtimeTranscriptionModelId ?? null,
   };
 
   const hasAnySelection = modelKeys.some((key) => selection[key] != null);
@@ -293,7 +293,7 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('responseModel')}
-            optionStatus={globalOptionStatus(app_config.responseModelId)}
+            optionStatus={globalOptionStatus(appConfig.responseModelId)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('responseModel');
@@ -308,7 +308,7 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('ttsModel')}
-            optionStatus={globalOptionStatus(app_config.ttsModelId)}
+            optionStatus={globalOptionStatus(appConfig.ttsModelId)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('ttsModel');
@@ -323,7 +323,7 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('realtimeModel')}
-            optionStatus={globalOptionStatus(app_config.realtimeModelId)}
+            optionStatus={globalOptionStatus(appConfig.realtimeModelId)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('realtimeModel');
@@ -338,7 +338,7 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('timestampedTranscriptionModel')}
-            optionStatus={globalOptionStatus(app_config.timestampedTranscriptionModelId)}
+            optionStatus={globalOptionStatus(appConfig.timestampedTranscriptionModelId)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('timestampedTranscriptionModel');
@@ -353,7 +353,7 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('realtimeTranscriptionModel')}
-            optionStatus={globalOptionStatus(app_config.realtimeTranscriptionModelId)}
+            optionStatus={globalOptionStatus(appConfig.realtimeTranscriptionModelId)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('realtimeTranscriptionModel');

@@ -108,7 +108,7 @@ router.post(
             fullName: fullName,
             gender: gender,
             conversationRole: '',
-            bio: null,
+            bio: '',
             userRole: 'basic',
           },
         });

@@ -79,7 +79,7 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
             onToggleExpansion(profile.id);
           }}
         >
-          {profile.fullName ?? '-'}
+          {profile.fullName.trim() || '-'}
         </TableCell>
         <TableCell>
           <Select

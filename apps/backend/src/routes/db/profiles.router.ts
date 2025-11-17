@@ -83,14 +83,14 @@ router.put(
           fullName: fullName ?? '',
           gender: gender ?? '',
           conversationRole,
-          bio,
+          bio: bio ?? '',
         },
         create: {
           id: id,
           fullName: fullName ?? '',
           gender: gender ?? '',
           conversationRole: conversationRole ?? '',
-          bio: bio ?? undefined,
+          bio: bio ?? '',
         },
       });
 

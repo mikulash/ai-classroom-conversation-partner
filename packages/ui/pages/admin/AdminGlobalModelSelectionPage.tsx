@@ -30,7 +30,7 @@ export function AdminGlobalModelSelectionPage() {
     realtimeTranscriptionModels: [],
   });
 
-  const app_config = useAppStore((state) => state.appConfig);
+  const appConfig = useAppStore((state) => state.appConfig);
 
   const [modelSelectionState, setModelSelectionState] = useState<Partial<ModelSelection>>({
     responseModel: undefined,
@@ -99,18 +99,18 @@ export function AdminGlobalModelSelectionPage() {
 
       // Find selected models based on app_config
       const selectedResponseModel =
-                filteredResponseModels.find((m) => m.id === app_config.responseModelId) ?? null;
+                filteredResponseModels.find((m) => m.id === appConfig.responseModelId) ?? null;
       const selectedTtsModel =
-                filteredTtsModels.find((m) => m.id === app_config.ttsModelId) ?? null;
+                filteredTtsModels.find((m) => m.id === appConfig.ttsModelId) ?? null;
       const selectedRealtimeModel =
-                filteredRealtimeModels.find((m) => m.id === app_config.realtimeModelId) ?? null;
+                filteredRealtimeModels.find((m) => m.id === appConfig.realtimeModelId) ?? null;
       const selectedTimestampedTranscriptionModel =
                 filteredTimestampedTranscriptionModels.find(
-                  (m) => m.id === app_config.timestampedTranscriptionModelId,
+                  (m) => m.id === appConfig.timestampedTranscriptionModelId,
                 ) ?? null;
       const selectedRealtimeTranscriptionModel =
                 filteredRealtimeTranscriptionModels.find(
-                  (m) => m.id === app_config.realtimeTranscriptionModelId,
+                  (m) => m.id === appConfig.realtimeTranscriptionModelId,
                 ) ?? null;
 
       setModelSelectionState({
@@ -125,7 +125,7 @@ export function AdminGlobalModelSelectionPage() {
 
       setIsLoading(false);
     })();
-  }, [app_config]);
+  }, [appConfig]);
 
   const handleSave = async () => {
     // Show confirmation dialog
@@ -193,7 +193,7 @@ export function AdminGlobalModelSelectionPage() {
             setModelSelection={setModelSelectionState}
             selectProviderLabel={t('models.selectProvider')}
             selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(app_config.responseModelId)}
+            optionStatus={getOptionStatus(appConfig.responseModelId)}
           />
           <ModelSelectionSection
             label={t('models.ttsModel')}
@@ -203,7 +203,7 @@ export function AdminGlobalModelSelectionPage() {
             setModelSelection={setModelSelectionState}
             selectProviderLabel={t('models.selectProvider')}
             selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(app_config.ttsModelId)}
+            optionStatus={getOptionStatus(appConfig.ttsModelId)}
           />
           <ModelSelectionSection
             label={t('models.realtimeModel')}
@@ -213,7 +213,7 @@ export function AdminGlobalModelSelectionPage() {
             setModelSelection={setModelSelectionState}
             selectProviderLabel={t('models.selectProvider')}
             selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(app_config.realtimeModelId)}
+            optionStatus={getOptionStatus(appConfig.realtimeModelId)}
           />
           <ModelSelectionSection
             label={t('models.timestampedTranscriptionModel')}
@@ -223,7 +223,7 @@ export function AdminGlobalModelSelectionPage() {
             setModelSelection={setModelSelectionState}
             selectProviderLabel={t('models.selectProvider')}
             selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(app_config.timestampedTranscriptionModelId)}
+            optionStatus={getOptionStatus(appConfig.timestampedTranscriptionModelId)}
           />
           <ModelSelectionSection
             label={t('models.realtimeTranscriptionModel')}
@@ -233,7 +233,7 @@ export function AdminGlobalModelSelectionPage() {
             setModelSelection={setModelSelectionState}
             selectProviderLabel={t('models.selectProvider')}
             selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(app_config.realtimeTranscriptionModelId)}
+            optionStatus={getOptionStatus(appConfig.realtimeTranscriptionModelId)}
           />
         </ModelSelectionForm>
         <Alert variant="default">
