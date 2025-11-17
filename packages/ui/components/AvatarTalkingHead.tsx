@@ -91,7 +91,7 @@ export const AvatarTalkingHead = forwardRef<
 
           try {
             // First attempt: try custom avatar URL if it exists, otherwise use default
-            const primaryAvatarUrl = customAvatarUrl || defaultAvatarUrl;
+            const primaryAvatarUrl = customAvatarUrl ?? defaultAvatarUrl;
             await loadAvatar(primaryAvatarUrl, language, false);
             setIsAvatarLoaded(true);
           } catch (primaryError) {
@@ -106,7 +106,7 @@ export const AvatarTalkingHead = forwardRef<
                 setIsAvatarLoaded(true);
               } catch (fallbackError) {
                 console.error('Failed to load fallback avatar:', fallbackError);
-                throw new Error(`Failed to load both custom and default avatars. Primary: ${primaryError}. Fallback: ${fallbackError}`);
+                throw new Error(`Failed to load both custom and default avatars. Primary: ${String(primaryError)}. Fallback: ${String(fallbackError)}`);
               }
             } else {
               // If we already tried the default avatar and it failed, throw the error
@@ -115,7 +115,7 @@ export const AvatarTalkingHead = forwardRef<
           }
         } catch (error) {
           console.error('Error initializing avatar:', error);
-          setLoadingMessage(`Failed to load avatar: ${error}`);
+          setLoadingMessage(`Failed to load avatar: ${String(error)}`);
         }
       }
     };

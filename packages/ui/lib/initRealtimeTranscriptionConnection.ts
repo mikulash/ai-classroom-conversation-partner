@@ -24,11 +24,13 @@ export async function initRealtimeTranscriptionConnection(
   audioStream.getTracks().forEach((track) => pc.addTrack(track, audioStream));
 
   const dc = pc.createDataChannel('oai-events');
-  dc.addEventListener('open', () => console.log('[Realtime] Data channel open'));
+  dc.addEventListener('open', () => {
+    console.log('[Realtime] Data channel open');
+  });
   dc.addEventListener('message', (e) => {
     try {
-      const ev = JSON.parse(e.data);
-      onEvent(ev);
+      const ev = JSON.parse(String(e.data)) as unknown;
+      onEvent(ev as RealtimeEvent);
     } catch {
       console.log('[Realtime] Non‑JSON message', e.data);
     }
@@ -40,12 +42,12 @@ export async function initRealtimeTranscriptionConnection(
     method: 'POST',
     body: pc.localDescription?.sdp ?? '',
     headers: {
-      'Authorization': `Bearer ${response.client_secret?.value}`,
+      'Authorization': `Bearer ${response.client_secret?.value ?? ''}`,
       'Content-Type': 'application/sdp',
     },
   });
   if (!sdpResp.ok) {
-    throw new Error(`Realtime API error ${sdpResp.status}: ${await sdpResp.text()}`);
+    throw new Error(`Realtime API error ${sdpResp.status.toString()}: ${await sdpResp.text()}`);
   }
   const answerSdp = await sdpResp.text();
   await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
@@ -58,7 +60,9 @@ export async function initRealtimeTranscriptionConnection(
     close: () => {
       dc.close();
       pc.close();
-      audioStream.getTracks().forEach((t) => t.stop());
+      audioStream.getTracks().forEach((t) => {
+        t.stop();
+      });
     },
   };
 }

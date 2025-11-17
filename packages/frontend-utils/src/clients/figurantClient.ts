@@ -32,7 +32,7 @@ export class FigurantApiClient {
     const { data } = await api.post<TextToSpeechResponse>(`/replies/speech`, params);
 
     const buffer = this.b64ToArrayBuffer(data.audioBase64);
-    const blob = this.pcmArrayBufferToBlob(buffer, params.response_format ?? 'pcm');
+    const blob = this.pcmArrayBufferToBlob(buffer, params.response_format);
 
     return {
       blob,

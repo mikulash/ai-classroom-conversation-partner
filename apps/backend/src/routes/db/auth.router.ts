@@ -66,7 +66,7 @@ router.post(
 
       // Get allowed domains from app config
       const appConfig = await prisma.appConfig.findFirst();
-      const allowedDomains = appConfig?.allowedDomains || [];
+      const allowedDomains = appConfig?.allowedDomains ?? [];
 
       // Validate university email
       if (allowedDomains.length > 0 && !isValidUniversityEmail(email, allowedDomains)) {
@@ -130,7 +130,7 @@ router.post(
       });
 
       // NEW: generate email verification token
-      const emailVerifyToken = generateEmailVerificationToken(userProfile.id, userProfile.email!);
+      const emailVerifyToken = generateEmailVerificationToken(userProfile.id, userProfile.email);
 
       // Construct verification URL that points to the frontend confirmation page
       const frontendBaseUrl = APP_FRONTEND_URL.replace(/\/$/, '');
@@ -237,7 +237,7 @@ router.post(
     res: Response<MessageResponse | ErrorResponse>,
   ) => {
     try {
-      const email = req.body?.email?.trim();
+      const email = req.body.email.trim();
 
       if (!email) {
         res.status(400).json({ message: 'Email is required' });
@@ -443,7 +443,7 @@ router.post(
         },
       });
 
-      if (!user || !user.profile) {
+      if (!user?.profile) {
         res.status(404).json({ message: 'User not found' });
         return;
       }
@@ -566,7 +566,7 @@ router.post(
     res: Response<MessageResponse | ErrorResponse>,
   ) => {
     try {
-      const email = req.body?.email?.trim();
+      const email = req.body.email.trim();
 
       if (!email) {
         res.status(400).json({ message: 'Email is required' });

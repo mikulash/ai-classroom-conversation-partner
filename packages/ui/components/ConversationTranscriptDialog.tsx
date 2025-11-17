@@ -64,7 +64,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
       setIsDeleting(true);
       const { error } = await conversationClient.delete(conversationId);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       toast.success(t('admin.conversations.deleteSuccess', {
         defaultValue: 'Conversation deleted successfully',
@@ -121,7 +121,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>{title || defaultTitle}</DialogTitle>
+          <DialogTitle>{title ?? defaultTitle}</DialogTitle>
 
           {mode === 'admin' && conversationMetadata && (
             <div className="text-sm text-muted-foreground space-y-1">
@@ -132,9 +132,9 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
             </div>
           )}
 
-          {mode === 'chat' && (description || defaultDescription) && (
+          {mode === 'chat' && (description ?? defaultDescription) && (
             <p className="text-sm text-gray-500">
-              {description || defaultDescription}
+              {description ?? defaultDescription}
             </p>
           )}
         </DialogHeader>
@@ -156,7 +156,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
         )}
 
         <ScrollArea className="flex-1 max-h-[60vh] p-4 border rounded-lg">
-          {messages && messages.length > 0 ? (
+          {messages.length > 0 ? (
             messages.map((msg, index) => (
               <div key={index} className={`mb-4 ${msg.role === 'assistant' ? 'pr-4' : 'pl-4'}`}>
                 <div className="flex items-center gap-2 mb-1">
@@ -192,7 +192,9 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
             {isDeleteAllowed && conversationId && (
               <Button
                 variant="destructive"
-                onClick={() => setShowDeleteConfirmation(true)}
+                onClick={() => {
+                  setShowDeleteConfirmation(true);
+                }}
                 disabled={isDeleting || isSavingConversation}
                 className="flex items-center gap-2"
               >
@@ -236,14 +238,18 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowDeleteConfirmation(false)}
+              onClick={() => {
+                setShowDeleteConfirmation(false);
+              }}
               disabled={isDeleting}
             >
               {t('common.cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               variant="destructive"
-              onClick={handleDeleteConversation}
+              onClick={() => {
+                void handleDeleteConversation();
+              }}
               disabled={isDeleting}
             >
               {isDeleting ?

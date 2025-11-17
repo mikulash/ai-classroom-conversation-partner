@@ -50,13 +50,17 @@ export const ScenariosTable: React.FC<ScenariosTableProps> = ({
                 <TableCell>{getPersonalityName(s.involvedPersonalityId)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={() => onEdit(s)}>
+                    <Button variant="outline" size="sm" onClick={() => {
+                      onEdit(s);
+                    }}>
                       {t('admin.scenarios.edit')}
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => onDelete(s.id)}
+                      onClick={() => {
+                        onDelete(s.id);
+                      }}
                       disabled={isProcessing}
                     >
                       {t('admin.scenarios.delete')}

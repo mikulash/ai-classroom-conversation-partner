@@ -5,6 +5,8 @@ import {
   TranscriptionModelProvider, TtsModelProvider,
   UserRole,
 } from './enums';
+import { ConversationLog } from '../conversationLog';
+import { ConversationMessage } from '../conversationMessage';
 
 export interface AppConfig {
     id: number
@@ -61,10 +63,10 @@ export interface Conversation {
     startTime: Date
     endTime: Date
     endedReason: string
-    messages: object | null
-    logs: object | null
+    messages: ConversationMessage[] | null
+    logs: ConversationLog[] | null
     conversationType: ConversationType
-    usedConfig: object | null
+    usedConfig: AppConfig | null
 }
 
 export interface ConversationCreate {
@@ -75,10 +77,10 @@ export interface ConversationCreate {
     startTime: Date | string
     endTime?: Date | string
     endedReason?: string
-    messages?: object | null
-    logs?: object | null
+    messages?: ConversationMessage[] | null
+    logs?: ConversationLog[] | null
     conversationType: ConversationType
-    usedConfig?: object | null
+    usedConfig?: AppConfig | null
 }
 
 export interface ConversationRole {
@@ -141,7 +143,7 @@ export interface Scenario {
 
 export interface ScenarioCreate {
     createdAt?: Date | string
-    involvedPersonalityId?: number | null
+    involvedPersonalityId: number | null
     situationDescriptionEn?: string
     settingEn?: string
     situationDescriptionCs?: string

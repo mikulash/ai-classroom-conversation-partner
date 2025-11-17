@@ -32,7 +32,7 @@ export function AdminProfilesPage() {
   const { profile } = useAuth();
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
   }, []);
 
   const fetchData = async () => {
@@ -44,11 +44,14 @@ export function AdminProfilesPage() {
       const { data, error: profileError } = await profileClient.getAll();
 
       if (profileError) {
-        throw profileError;
+        if (profileError instanceof Error) {
+          throw profileError;
+        }
+        throw new Error(profileError.message);
       }
 
       // Show all profiles including the current admin's profile
-      setProfiles(data || []);
+      setProfiles(data);
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error(error.message);
@@ -62,7 +65,7 @@ export function AdminProfilesPage() {
   };
 
   const fetchUserConversations = async (userId: string) => {
-    if (userConversations[userId]) {
+    if (userId in userConversations) {
       // Already loaded
       return;
     }
@@ -72,7 +75,7 @@ export function AdminProfilesPage() {
 
       const { data, error } = await conversationClient.getByUserId(userId);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       const toIsoString = (value: Date | string | null | undefined): string => {
         if (!value) return '';
@@ -84,10 +87,10 @@ export function AdminProfilesPage() {
         id: conv.id,
         start_time: toIsoString(conv.startTime),
         end_time: toIsoString(conv.endTime),
-        ended_reason: conv.endedReason ?? '',
+        ended_reason: conv.endedReason,
         conversation_type: conv.conversationType,
         messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
-        personality_id: conv.personalityId ?? null,
+        personality_id: conv.personalityId,
         personality: conv.personality ? { name: conv.personality.name } : null,
       }));
 
@@ -139,7 +142,7 @@ export function AdminProfilesPage() {
     if (!search.trim()) return profiles;
     if (profiles.length === 0) return [];
     return profiles.filter((p) =>
-      p.email?.toLowerCase().includes(search.toLowerCase().trim()) ||
+      p.email.toLowerCase().includes(search.toLowerCase().trim()) ||
             p.fullName?.toLowerCase().includes(search.toLowerCase().trim()),
     );
   }, [profiles, search]);
@@ -149,7 +152,7 @@ export function AdminProfilesPage() {
       setIsProcessing(true);
       const { error } = await profileClient.updateRole(profileId, newRole);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       toast.success(t('admin.profiles.notifications.updateSuccess'));
       setProfiles((prev) =>
@@ -190,10 +193,14 @@ export function AdminProfilesPage() {
           <div className="flex w-full max-w-md items-center gap-2 sm:w-auto">
             <Input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
               placeholder={t('admin.profiles.searchPlaceholder')}
             />
-            <Button variant="outline" onClick={fetchData} disabled={isLoading}>
+            <Button variant="outline" onClick={() => {
+              void fetchData();
+            }} disabled={isLoading}>
               {t('admin.profiles.refresh')}
             </Button>
           </div>
@@ -225,13 +232,17 @@ export function AdminProfilesPage() {
                   <UserProfileRow
                     key={p.id}
                     profile={p}
-                    currentUserId={profile?.id}
+                    currentUserId={profile.id}
                     isExpanded={expandedUsers.has(p.id)}
                     isProcessing={isProcessing}
-                    conversations={userConversations[p.id] || []}
+                    conversations={userConversations[p.id] ?? []}
                     isLoadingConversations={loadingConversations.has(p.id)}
-                    onToggleExpansion={toggleUserExpansion}
-                    onRoleChange={handleRoleChange}
+                    onToggleExpansion={(userId) => {
+                      void toggleUserExpansion(userId);
+                    }}
+                    onRoleChange={(profileId, role) => {
+                      void handleRoleChange(profileId, role);
+                    }}
                     onConversationClick={handleConversationClick}
                   />
                 ))
@@ -244,8 +255,8 @@ export function AdminProfilesPage() {
       <ConversationTranscriptDialog
         isOpen={isConversationDialogVisible}
         onOpenChange={setIsConversationDialogVisible}
-        messages={selectedConversation?.messages || []}
-        personalityName={selectedConversation?.personality?.name || 'Unknown'}
+        messages={selectedConversation?.messages ?? []}
+        personalityName={selectedConversation?.personality?.name ?? 'Unknown'}
         mode="admin"
         conversationMetadata={selectedConversation ? {
           conversationType: selectedConversation.conversation_type,

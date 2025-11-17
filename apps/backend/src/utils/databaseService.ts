@@ -30,6 +30,7 @@ export const fetchModelOptions = async () => {
 
     return modelOptions;
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     throw new Error(`Failed to fetch model options: ${error}`);
   }
 };

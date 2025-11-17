@@ -9,12 +9,12 @@ export const AdminPagesLayout = () => {
   const navigate = useNavigate();
 
   if (!profile) {
-    navigate('/sign-in');
+    void navigate('/sign-in');
     return null;
   }
 
   if (!isProfileAdmin(profile)) {
-    navigate('/');
+    void navigate('/');
     return null;
   }
 

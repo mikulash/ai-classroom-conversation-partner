@@ -49,12 +49,10 @@ export const PersonalitySelectorPage: React.FC = () => {
   const isVideoCallEnabled = appConfig.realtimeTranscriptionModelId !== null && appConfig.responseModelId !== null && appConfig.ttsModelId !== null && appConfig.timestampedTranscriptionModelId !== null;
   const isMessageChatEnabled = appConfig.responseModelId !== null;
 
-  const scenariosForPersonality = useMemo(() => {
-    if (!selectedPersonality) return [];
-    return predefinedScenarios.filter(
+  const scenariosForPersonality = useMemo(() =>
+    predefinedScenarios.filter(
       (sc) => sc.involvedPersonalityId === selectedPersonality.id,
-    );
-  }, [selectedPersonality, predefinedScenarios]);
+    ), [selectedPersonality, predefinedScenarios]);
 
   const switchPersonalityTab = (value: string): void => {
     const tab = value as PersonalityTabKey;
@@ -108,14 +106,14 @@ export const PersonalitySelectorPage: React.FC = () => {
       scenario: finalScenario,
     };
 
-    navigate('/chat' + path, { state: chatPageProps });
+    void navigate('/chat' + path, { state: chatPageProps });
   };
 
 
   const isStartButtonDisabled = () => {
     const hasPersonality =
-            (activePersonalityTab === 'predefined' && !!selectedPersonality) ||
-            (activePersonalityTab === 'custom' && !!customPersonality.name);
+            activePersonalityTab === 'predefined' ||
+            !!customPersonality.name;
 
     const hasUserRole = !!selectedUserRole || customUserRoleName.trim() !== '';
 
@@ -162,11 +160,13 @@ export const PersonalitySelectorPage: React.FC = () => {
                       >
                         <Card
                           className={`border-2 cursor-pointer transition-colors ${
-                            selectedPersonality?.id === p.id ?
+                            selectedPersonality.id === p.id ?
                               'border-black' :
                               'border-gray-300 hover:border-gray-600'
                           }`}
-                          onClick={() => selectPersonality(p)}
+                          onClick={() => {
+                            selectPersonality(p);
+                          }}
                         >
                           <CardContent className="text-center p-4">
                             <CardTitle className="text-2xl mb-2">
@@ -200,8 +200,9 @@ export const PersonalitySelectorPage: React.FC = () => {
                 <Input
                   id="custom-personality-name"
                   value={customPersonality.name}
-                  onChange={(e) =>
-                    setCustomPersonality({ ...customPersonality, name: e.target.value })
+                  onChange={(e) => {
+                    setCustomPersonality({ ...customPersonality, name: e.target.value });
+                  }
                   }
                   placeholder={t('personalityForm.placeholder.name')}
                 />
@@ -216,11 +217,12 @@ export const PersonalitySelectorPage: React.FC = () => {
                     id="custom-age"
                     type="number"
                     value={customPersonality.age ?? ''}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setCustomPersonality({
                         ...customPersonality,
                         age: Number(e.target.value),
-                      })
+                      });
+                    }
                     }
                     className="bg-transparent border-2 border-gray-400"
                     placeholder={t('personalityForm.placeholder.age')}
@@ -234,24 +236,26 @@ export const PersonalitySelectorPage: React.FC = () => {
                   <div className="flex gap-2">
                     <Button
                       variant={customPersonality.gender === 'M' ? 'default' : 'outline'}
-                      onClick={() =>
+                      onClick={() => {
                         setCustomPersonality({
                           ...customPersonality,
                           gender: 'M',
                           openaiVoiceName: 'onyx',
-                        })
+                        });
+                      }
                       }
                     >
                       {t('personalityForm.genderMale')}
                     </Button>
                     <Button
                       variant={customPersonality.gender === 'F' ? 'default' : 'outline'}
-                      onClick={() =>
+                      onClick={() => {
                         setCustomPersonality({
                           ...customPersonality,
                           gender: 'F',
                           openaiVoiceName: 'alloy',
-                        })
+                        });
+                      }
                       }
                     >
                       {t('personalityForm.genderFemale')}
@@ -267,12 +271,13 @@ export const PersonalitySelectorPage: React.FC = () => {
                 <Input
                   id="custom-problem"
                   value={customPersonality.problemSummaryCs ?? ''}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setCustomPersonality({
                       ...customPersonality,
                       problemSummaryCs: e.target.value,
                       problemSummaryEn: e.target.value,
-                    })
+                    });
+                  }
                   }
                   placeholder={t('personalityForm.placeholder.problem')}
                   className="bg-transparent border-2 border-gray-400"
@@ -286,12 +291,13 @@ export const PersonalitySelectorPage: React.FC = () => {
                 <Textarea
                   id="custom-description"
                   value={customPersonality.personalityDescriptionCs ?? ''}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setCustomPersonality({
                       ...customPersonality,
                       personalityDescriptionCs: e.target.value,
                       personalityDescriptionEn: e.target.value,
-                    })
+                    });
+                  }
                   }
                   placeholder={t('personalityForm.placeholder.description')}
                   className="bg-transparent border-2 border-gray-400 h-40"
@@ -303,7 +309,9 @@ export const PersonalitySelectorPage: React.FC = () => {
 
         <h2 className="text-2xl mb-8">{t('selectScenario')}</h2>
 
-        <Tabs defaultValue={activeScenarioTab} onValueChange={(v) => setActiveScenarioTab(v as any)}>
+        <Tabs defaultValue={activeScenarioTab} onValueChange={(v) => {
+          setActiveScenarioTab(v as ScenarioTabKey);
+        }}>
           <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
             <TabsTrigger value="none">{t('scenarios.none')}</TabsTrigger>
             <TabsTrigger value="predefined">{t('scenarios.predefined')}</TabsTrigger>
@@ -330,7 +338,9 @@ export const PersonalitySelectorPage: React.FC = () => {
                               'border-black' :
                               'border-gray-300 hover:border-gray-600'
                           }`}
-                          onClick={() => setSelectedScenario(s)}
+                          onClick={() => {
+                            setSelectedScenario(s);
+                          }}
                         >
                           <CardContent className="p-4">
                             <div className="text-sm mb-1 italic">{setting}</div>
@@ -358,12 +368,13 @@ export const PersonalitySelectorPage: React.FC = () => {
                 <Input
                   id="custom-scenario-setting"
                   value={customScenario.settingCs ?? ''}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setCustomScenario({
                       ...customScenario,
                       settingCs: e.target.value,
                       settingEn: e.target.value,
-                    })
+                    });
+                  }
                   }
                   className="bg-transparent border-2 border-gray-400"
                   placeholder={t('scenarioForm.placeholder.setting')}
@@ -376,12 +387,13 @@ export const PersonalitySelectorPage: React.FC = () => {
                 <Textarea
                   id="custom-scenario-description"
                   value={customScenario.situationDescriptionCs ?? ''}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setCustomScenario({
                       ...customScenario,
                       situationDescriptionCs: e.target.value,
                       situationDescriptionEn: e.target.value,
-                    })
+                    });
+                  }
                   }
                   className="bg-transparent border-2 border-gray-400 h-40"
                   placeholder={t('scenarioForm.placeholder.description')}
@@ -407,7 +419,9 @@ export const PersonalitySelectorPage: React.FC = () => {
         <div className="flex gap-4 flex-wrap">
           {
             isVoiceCallEnabled && (<Button
-              onClick={() => storeAndNavigate('/voice-call')}
+              onClick={() => {
+                storeAndNavigate('/voice-call');
+              }}
               disabled={isStartButtonDisabled()}
               className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
             >
@@ -418,7 +432,9 @@ export const PersonalitySelectorPage: React.FC = () => {
           }
           {
             isVideoCallEnabled && (<Button
-              onClick={() => storeAndNavigate('/video-call')}
+              onClick={() => {
+                storeAndNavigate('/video-call');
+              }}
               disabled={isStartButtonDisabled()}
               className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
             >
@@ -428,7 +444,9 @@ export const PersonalitySelectorPage: React.FC = () => {
           }
           {
             isMessageChatEnabled && <Button
-              onClick={() => storeAndNavigate('/message-chat')}
+              onClick={() => {
+                storeAndNavigate('/message-chat');
+              }}
               disabled={isStartButtonDisabled()}
               className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
             >

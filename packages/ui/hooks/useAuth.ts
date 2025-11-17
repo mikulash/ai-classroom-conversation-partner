@@ -7,7 +7,7 @@ import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
 export interface Session {
   access_token: string;
-  user: any;
+  user: ProfileResponse;
 }
 
 interface AuthStoreState {
@@ -28,8 +28,12 @@ const useAuthStore = create<AuthStoreState>()(
       loading: false,
       error: null,
       profile: null,
-      setProfile: (profile) => set({ profile }),
-      clearProfile: () => set({ profile: null }),
+      setProfile: (profile) => {
+        set({ profile });
+      },
+      clearProfile: () => {
+        set({ profile: null });
+      },
     }),
     {
       name: 'user-profile',
@@ -70,7 +74,7 @@ const readSessionFromStorage = (): Session | null => {
       return null;
     }
 
-    const user = JSON.parse(userStr);
+    const user = JSON.parse(userStr) as ProfileResponse;
     return {
       access_token: accessToken,
       user,
@@ -80,7 +84,7 @@ const readSessionFromStorage = (): Session | null => {
   }
 };
 
-const fetchSessionFromStorage = async () => {
+const fetchSessionFromStorage = () => {
   try {
     const session = readSessionFromStorage();
     syncSessionWithStores(session);
@@ -97,14 +101,14 @@ const initializeAuthSync = () => {
   }
 
   hasInitializedAuth = true;
-  void fetchSessionFromStorage();
+  fetchSessionFromStorage();
 
   const handleStorageChange = (event: StorageEvent) => {
     if (!shouldSyncForKey(event.key)) {
       return;
     }
 
-    void fetchSessionFromStorage();
+    fetchSessionFromStorage();
   };
 
   window.addEventListener('storage', handleStorageChange);
@@ -135,7 +139,8 @@ export const useAuth = () => {
       return false;
     }
 
-    syncSessionWithStores(data.session ?? null);
+
+    syncSessionWithStores(data.session);
     setAuthState({ ready: true, loading: false });
     return !!data.session;
   }, []);

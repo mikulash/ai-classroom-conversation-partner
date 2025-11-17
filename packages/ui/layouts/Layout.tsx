@@ -17,9 +17,9 @@ export const Layout = () => {
       setInitialConversationOptions(initialOptions);
     };
 
-    fetchData().catch((err) =>
-      console.error('Error fetching initial data:', err),
-    );
+    fetchData().catch((err: unknown) => {
+      console.error('Error fetching initial data:', err);
+    });
   }, [setConversationOptions]);
 
   return (

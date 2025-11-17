@@ -23,7 +23,7 @@ export interface ModelOptions {
 }
 
 export class ConfigProvider {
-  private static instance: ConfigProvider;
+  private static instance?: ConfigProvider;
   private readonly secrets: Secrets;
   private readonly appConfig: AppConfig;
   private readonly modelOptions: ModelOptions;

@@ -6,10 +6,10 @@ import { extractTokenFromHeader, verifyAndDecodeToken } from './auth.js';
  * Throws an error if the token is missing, invalid, or expired.
  *
  * @param {Request} req - The Express request object containing the authorization header.
- * @returns {Promise<string>} The authenticated user's ID.
+ * @returns {string} The authenticated user's ID.
  * @throws {Error} If the bearer token is missing, invalid, or expired.
  */
-export async function getUserId(req: Request): Promise<string> {
+export function getUserId(req: Request): string {
   const token = extractTokenFromHeader(req.header('authorization'));
 
   if (!token) {

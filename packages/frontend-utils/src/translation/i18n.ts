@@ -7,11 +7,11 @@ import en from './locales/en.json';
 const storageKey = 'language';
 const savedLanguage = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
 
-i18n
+void i18n
   .use(initReactI18next)
   .init({
     fallbackLng: 'cs',
-    lng: savedLanguage || 'cs',
+    lng: savedLanguage ?? 'cs',
     interpolation: {
       escapeValue: false,
     },

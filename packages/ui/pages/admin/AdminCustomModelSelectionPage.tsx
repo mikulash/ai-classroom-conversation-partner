@@ -48,7 +48,7 @@ export function AdminCustomModelSelectionPage() {
   useEffect(() => {
     if (!session?.user) return;
 
-    (async () => {
+    void (async () => {
       const [
         { data: responseModels, error: responseError },
         { data: ttsModels, error: ttsError },
@@ -63,7 +63,7 @@ export function AdminCustomModelSelectionPage() {
         modelClient.realtimeModels(),
         modelClient.timestampedTranscriptionModels(),
         modelClient.realtimeTranscriptionModels(),
-        modelClient.customModelSelection(session?.user.id),
+        modelClient.customModelSelection(session.user.id),
         figurantClient.getAiProvidersAvailability(),
       ]);
 
@@ -123,27 +123,27 @@ export function AdminCustomModelSelectionPage() {
         responseModel: findSelectedModel(
           filteredResponseModels,
           userSelection?.responseModelId,
-          app_config?.responseModelId,
+          app_config.responseModelId,
         ),
         ttsModel: findSelectedModel(
           filteredTtsModels,
           userSelection?.ttsModelId,
-          app_config?.ttsModelId,
+          app_config.ttsModelId,
         ),
         realtimeModel: findSelectedModel(
           filteredRealtimeModels,
           userSelection?.realtimeModelId,
-          app_config?.realtimeModelId,
+          app_config.realtimeModelId,
         ),
         timestampedTranscriptionModel: findSelectedModel(
           filteredTimestampedTranscriptionModels,
           userSelection?.timestampedTranscriptionModelId,
-          app_config?.timestampedTranscriptionModelId,
+          app_config.timestampedTranscriptionModelId,
         ),
         realtimeTranscriptionModel: findSelectedModel(
           filteredRealtimeTranscriptionModels,
           userSelection?.realtimeTranscriptionModelId,
-          app_config?.realtimeTranscriptionModelId,
+          app_config.realtimeTranscriptionModelId,
         ),
       });
 
@@ -159,7 +159,7 @@ export function AdminCustomModelSelectionPage() {
 
     setIsSaving(true);
 
-    const { error, data } = await modelClient.upsertCustomModelSelection(session?.user.id, {
+    const { error, data } = await modelClient.upsertCustomModelSelection(session.user.id, {
       responseModelId: selection.responseModel?.id ?? null,
       ttsModelId: selection.ttsModel?.id ?? null,
       realtimeModelId: selection.realtimeModel?.id ?? null,
@@ -183,21 +183,21 @@ export function AdminCustomModelSelectionPage() {
     // Update selection with data returned from the server
     const updatedSelection = { ...selection };
 
-    if (data.responseModelId && models.responseModels) {
+    if (data.responseModelId && models.responseModels.length > 0) {
       updatedSelection.responseModel = models.responseModels.find((m) => m.id === data.responseModelId);
     }
-    if (data.ttsModelId && models.ttsModels) {
+    if (data.ttsModelId && models.ttsModels.length > 0) {
       updatedSelection.ttsModel = models.ttsModels.find((m) => m.id === data.ttsModelId);
     }
-    if (data.realtimeModelId && models.realtimeModels) {
+    if (data.realtimeModelId && models.realtimeModels.length > 0) {
       updatedSelection.realtimeModel = models.realtimeModels.find((m) => m.id === data.realtimeModelId);
     }
-    if (data.timestampedTranscriptionModelId && models.timestampedTranscriptionModels) {
+    if (data.timestampedTranscriptionModelId && models.timestampedTranscriptionModels.length > 0) {
       updatedSelection.timestampedTranscriptionModel = models.timestampedTranscriptionModels.find(
         (m) => m.id === data.timestampedTranscriptionModelId,
       );
     }
-    if (data.realtimeTranscriptionModelId && models.realtimeTranscriptionModels) {
+    if (data.realtimeTranscriptionModelId && models.realtimeTranscriptionModels.length > 0) {
       updatedSelection.realtimeTranscriptionModel = models.realtimeTranscriptionModels.find(
         (m) => m.id === data.realtimeTranscriptionModelId,
       );
@@ -227,11 +227,11 @@ export function AdminCustomModelSelectionPage() {
   ];
 
   const globalModelIds: Record<keyof ModelSelection, number | null> = {
-    responseModel: app_config?.responseModelId ?? null,
-    ttsModel: app_config?.ttsModelId ?? null,
-    realtimeModel: app_config?.realtimeModelId ?? null,
-    timestampedTranscriptionModel: app_config?.timestampedTranscriptionModelId ?? null,
-    realtimeTranscriptionModel: app_config?.realtimeTranscriptionModelId ?? null,
+    responseModel: app_config.responseModelId ?? null,
+    ttsModel: app_config.ttsModelId ?? null,
+    realtimeModel: app_config.realtimeModelId ?? null,
+    timestampedTranscriptionModel: app_config.timestampedTranscriptionModelId ?? null,
+    realtimeTranscriptionModel: app_config.realtimeTranscriptionModelId ?? null,
   };
 
   const hasAnySelection = modelKeys.some((key) => selection[key] != null);
@@ -293,9 +293,11 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('responseModel')}
-            optionStatus={globalOptionStatus(app_config?.responseModelId)}
+            optionStatus={globalOptionStatus(app_config.responseModelId)}
             clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => clearSelectionForKey('responseModel')}
+            onClearSelection={() => {
+              clearSelectionForKey('responseModel');
+            }}
           />
           <ModelSelectionSection
             label={t('ttsModel')}
@@ -306,9 +308,11 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('ttsModel')}
-            optionStatus={globalOptionStatus(app_config?.ttsModelId)}
+            optionStatus={globalOptionStatus(app_config.ttsModelId)}
             clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => clearSelectionForKey('ttsModel')}
+            onClearSelection={() => {
+              clearSelectionForKey('ttsModel');
+            }}
           />
           <ModelSelectionSection
             label={t('realtimeModel')}
@@ -319,9 +323,11 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('realtimeModel')}
-            optionStatus={globalOptionStatus(app_config?.realtimeModelId)}
+            optionStatus={globalOptionStatus(app_config.realtimeModelId)}
             clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => clearSelectionForKey('realtimeModel')}
+            onClearSelection={() => {
+              clearSelectionForKey('realtimeModel');
+            }}
           />
           <ModelSelectionSection
             label={t('models.timestampedTranscriptionModel')}
@@ -332,9 +338,11 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('timestampedTranscriptionModel')}
-            optionStatus={globalOptionStatus(app_config?.timestampedTranscriptionModelId)}
+            optionStatus={globalOptionStatus(app_config.timestampedTranscriptionModelId)}
             clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => clearSelectionForKey('timestampedTranscriptionModel')}
+            onClearSelection={() => {
+              clearSelectionForKey('timestampedTranscriptionModel');
+            }}
           />
           <ModelSelectionSection
             label={t('models.realtimeTranscriptionModel')}
@@ -345,16 +353,18 @@ export function AdminCustomModelSelectionPage() {
             selectProviderLabel={t('selectProvider')}
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('realtimeTranscriptionModel')}
-            optionStatus={globalOptionStatus(app_config?.realtimeTranscriptionModelId)}
+            optionStatus={globalOptionStatus(app_config.realtimeTranscriptionModelId)}
             clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => clearSelectionForKey('realtimeTranscriptionModel')}
+            onClearSelection={() => {
+              clearSelectionForKey('realtimeTranscriptionModel');
+            }}
           />
         </ModelSelectionForm>
       </CardContent>
 
       <CardFooter className="flex gap-4">
         <Button
-          onClick={handleSave}
+          onClick={() => void handleSave()}
           disabled={isSaving}
           className='flex-1'
         >

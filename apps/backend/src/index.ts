@@ -50,6 +50,6 @@ app.listen(PORT, () => {
   console.log(`Environment: ${NODE_ENV}`);
 
   // Start the token cleanup scheduler
-  const tokenCleanupSchedule = process.env.TOKEN_CLEANUP_SCHEDULE || '0 2 * * *';
+  const tokenCleanupSchedule = process.env.TOKEN_CLEANUP_SCHEDULE ?? '0 2 * * *';
   startTokenCleanupScheduler(tokenCleanupSchedule);
 });

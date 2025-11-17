@@ -8,6 +8,7 @@ import {
   ErrorResponse,
   MessageResponse,
 } from '@repo/shared/types/dbRoutes.types';
+import { Prisma } from '../../generated/prisma/client';
 
 // Path parameter types
 interface ConversationIdParams extends ParamsDictionary {
@@ -95,6 +96,7 @@ router.post(
       }
 
       // Validate required fields
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (!personalityId || !startTime || !conversationType) {
         res.status(400).json({ message: 'personalityId, startTime, and conversationType are required' });
         return;
@@ -104,7 +106,7 @@ router.post(
         data: {
           userId: req.user.userId,
           personalityId,
-          scenarioId: scenarioId || null,
+          scenarioId: scenarioId ?? null,
           startTime: new Date(startTime),
           endTime: endTime ? new Date(endTime) : undefined,
           endedReason,
@@ -132,12 +134,7 @@ router.post(
       });
 
       // Transform the response to match ConversationWithPersonality type
-      const response: ConversationWithPersonality = {
-        ...conversation,
-        messages: conversation.messages as object | null,
-        logs: conversation.logs as object | null,
-        usedConfig: conversation.usedConfig as object | null,
-      };
+      const response: ConversationWithPersonality = conversation as ConversationWithPersonality;
 
       res.status(201).json(response);
     } catch (error) {

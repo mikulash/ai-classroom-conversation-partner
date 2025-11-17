@@ -41,7 +41,8 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   const { t } = useTypedTranslation();
   const { profile: userProfile } = useAuth();
 
-  const { personality }: ChatPageProps = location.state ?? {};
+  const state = location.state as ChatPageProps | undefined;
+  const personality = state?.personality;
 
   if (userProfile === null) {
     return (
@@ -87,7 +88,9 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
         personalityName={personality.name}
         onGoToPersonalitySelector={onGoToPersonalitySelector}
         mode={mode}
-        onClose={() => navigate('/chat')}
+        onClose={() => {
+          void navigate('/chat');
+        }}
       />
 
       {children}

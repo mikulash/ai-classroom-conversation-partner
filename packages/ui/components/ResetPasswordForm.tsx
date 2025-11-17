@@ -73,14 +73,18 @@ export const ResetPasswordForm: React.FC = () => {
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
               {t('setNewPassword', 'Choose a new password')}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={(e) => {
+              void handleSubmit(e);
+            }} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="newPassword">{t('newPassword', 'New password')}</Label>
                 <Input
                   id="newPassword"
                   type="password"
                   value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
+                  onChange={(event) => {
+                    setNewPassword(event.target.value);
+                  }}
                   placeholder={t('passwordPlaceholder')}
                   required
                 />
@@ -94,7 +98,9 @@ export const ResetPasswordForm: React.FC = () => {
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  onChange={(event) => {
+                    setConfirmPassword(event.target.value);
+                  }}
                   placeholder={t('confirmPasswordPlaceholder')}
                   required
                 />

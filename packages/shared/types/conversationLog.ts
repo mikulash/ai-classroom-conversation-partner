@@ -2,7 +2,7 @@ export interface ConversationLog {
     timestamp: string;
     level: logLevel;
     message: string;
-    data?: object;
+    data?: unknown;
 }
 
 export type logLevel = 'log' | 'error' | 'warn';

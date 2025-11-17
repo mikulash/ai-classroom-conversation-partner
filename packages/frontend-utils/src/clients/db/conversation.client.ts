@@ -5,6 +5,7 @@ import {
   MessageResponse,
 } from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
+import { AxiosError } from 'axios';
 
 export const conversationClient = {
   /**
@@ -15,8 +16,9 @@ export const conversationClient = {
     try {
       const response = await api.get<ConversationWithPersonality[]>('/api/conversations');
       return { data: response.data };
-    } catch (error: any) {
-      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch conversations' } };
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch conversations' } };
     }
   },
   /**
@@ -28,8 +30,9 @@ export const conversationClient = {
     try {
       const response = await api.get<ConversationWithPersonality[]>(`/api/conversations/user/${userId}`);
       return { data: response.data };
-    } catch (error: any) {
-      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch user conversations' } };
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch user conversations' } };
     }
   },
   /**
@@ -40,10 +43,11 @@ export const conversationClient = {
     try {
       const response = await api.post<ConversationWithPersonality>('/api/conversations', conversation);
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null as unknown as ConversationWithPersonality,
-        error: { message: error.response?.data?.message || 'Failed to create conversation' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to create conversation' },
       };
     }
   },
@@ -53,12 +57,13 @@ export const conversationClient = {
      */
   delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
     try {
-      const response = await api.delete<MessageResponse>(`/api/conversations/${id}`);
+      const response = await api.delete<MessageResponse>(`/api/conversations/${String(id)}`);
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null as unknown as MessageResponse,
-        error: { message: error.response?.data?.message || 'Failed to delete conversation' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to delete conversation' },
       };
     }
   },

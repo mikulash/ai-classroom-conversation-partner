@@ -32,6 +32,7 @@ router.get(
       const isAdmin = req.header('authorization') ? false : false; // Will be set by middleware if needed
 
       const personalities = await prisma.personality.findMany({
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         where: isAdmin ? {} : { isHidden: false },
         orderBy: { createdAt: 'desc' },
       });
@@ -93,7 +94,7 @@ router.post(
           personalityDescriptionEn,
           problemSummaryCs,
           personalityDescriptionCs,
-          isHidden: isHidden || false,
+          isHidden: isHidden ?? false,
         },
       });
 

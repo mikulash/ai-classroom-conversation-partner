@@ -75,8 +75,25 @@ const getRealtimeVoice = async (
 
   const apiKey = configProvider.getApiKey(API_KEY.OPENAI);
   const { personality, language, scenario, userProfile, conversationRole } = params;
-  const sessionBody: Record<string, any> = { model: params.model_api_name };
-  if (params.openai_voice_name?.trim()) {
+  const sessionBody: {
+    model: string;
+    voice?: string;
+    modalities?: string[];
+    instructions?: string;
+    input_audio_transcription?: {
+      model: string;
+      language: string;
+    };
+    output_audio_format?: string;
+    turn_detection?: {
+      type: string;
+      threshold: number;
+      prefix_padding_ms: number;
+      silence_duration_ms: number;
+      create_response: boolean;
+    };
+  } = { model: params.model_api_name };
+  if (params.openai_voice_name.trim()) {
     sessionBody.voice = params.openai_voice_name;
     sessionBody.modalities = ['audio', 'text'];
     sessionBody.instructions = createPersonalityPrompt({
@@ -185,7 +202,7 @@ const getTextToSpeech = async (
       voice: personality.openaiVoiceName,
       input: inputMessage,
       instructions:
-                personality.voiceInstructions + `Speak in ${language.ENGLISH_NAME}.`,
+                (personality.voiceInstructions ?? '') + `Speak in ${language.ENGLISH_NAME}.`,
       response_format: response_format,
     });
 

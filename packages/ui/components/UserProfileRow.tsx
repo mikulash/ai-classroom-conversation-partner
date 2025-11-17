@@ -48,7 +48,9 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onToggleExpansion(profile.id)}
+            onClick={() => {
+              onToggleExpansion(profile.id);
+            }}
             className="p-0 h-8 w-8"
           >
             {isExpanded ? (
@@ -60,7 +62,9 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
         </TableCell>
         <TableCell
           className="max-w-xs truncate cursor-pointer"
-          onClick={() => onToggleExpansion(profile.id)}
+          onClick={() => {
+            onToggleExpansion(profile.id);
+          }}
         >
           {profile.email}
           {isCurrentUser && (
@@ -71,14 +75,18 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
         </TableCell>
         <TableCell
           className="max-w-xs truncate cursor-pointer"
-          onClick={() => onToggleExpansion(profile.id)}
+          onClick={() => {
+            onToggleExpansion(profile.id);
+          }}
         >
           {profile.fullName ?? '-'}
         </TableCell>
         <TableCell>
           <Select
             value={profile.userRole}
-            onValueChange={(value: UserRole) => onRoleChange(profile.id, value)}
+            onValueChange={(value: UserRole) => {
+              onRoleChange(profile.id, value);
+            }}
             disabled={isProcessing || isCurrentUser}
           >
             <SelectTrigger>

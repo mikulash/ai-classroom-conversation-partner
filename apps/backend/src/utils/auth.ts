@@ -53,7 +53,7 @@ export function verifyAndDecodeToken(token: string): JWTPayload {
  * Extract token from Authorization header (Bearer token)
  */
 export function extractTokenFromHeader(authHeader: string | undefined): string | null {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return null;
   }
   return authHeader.slice(7); // Remove 'Bearer ' prefix

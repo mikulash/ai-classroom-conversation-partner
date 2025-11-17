@@ -12,14 +12,16 @@ import {
   TtsModel,
 } from '@repo/shared/types/db/entities';
 import { api } from '../api';
+import { AxiosError } from 'axios';
 
 export const modelClient = {
   responseModels: async (): Promise<ApiResponse<ResponseModel[]>> => {
     try {
       const response = await api.get<ResponseModel[]>('/api/models/response');
       return { data: response.data };
-    } catch (error: any) {
-      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch response models' } };
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch response models' } };
     }
   },
 
@@ -27,8 +29,9 @@ export const modelClient = {
     try {
       const response = await api.get<TtsModel[]>('/api/models/tts');
       return { data: response.data };
-    } catch (error: any) {
-      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch TTS models' } };
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch TTS models' } };
     }
   },
 
@@ -36,8 +39,9 @@ export const modelClient = {
     try {
       const response = await api.get<RealtimeModel[]>('/api/models/realtime');
       return { data: response.data };
-    } catch (error: any) {
-      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch realtime models' } };
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime models' } };
     }
   },
 
@@ -45,10 +49,11 @@ export const modelClient = {
     try {
       const response = await api.get<RealtimeTranscriptionModel[]>('/api/models/realtime-transcription');
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: [],
-        error: { message: error.response?.data?.message || 'Failed to fetch realtime transcription models' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime transcription models' },
       };
     }
   },
@@ -57,10 +62,11 @@ export const modelClient = {
     try {
       const response = await api.get<TimestampedTranscriptionModel[]>('/api/models/timestamped-transcription');
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: [],
-        error: { message: error.response?.data?.message || 'Failed to fetch transcription models' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to fetch transcription models' },
       };
     }
   },
@@ -69,10 +75,11 @@ export const modelClient = {
     try {
       const response = await api.get<CustomSelectionWithModels | null>(`/api/models/custom-selection/${userId}`);
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null,
-        error: { message: error.response?.data?.message || 'Failed to fetch admin selection' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to fetch admin selection' },
       };
     }
   },
@@ -84,10 +91,11 @@ export const modelClient = {
     try {
       const response = await api.put<CustomSelectionWithModels>(`/api/models/custom-selection/${userId}`, payload);
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null as unknown as CustomSelectionWithModels,
-        error: { message: error.response?.data?.message || 'Failed to update admin selection' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to update admin selection' },
       };
     }
   },
@@ -96,10 +104,11 @@ export const modelClient = {
     try {
       const response = await api.delete<MessageResponse>(`/api/models/custom-selection/${userId}`);
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: { message: '' },
-        error: { message: error.response?.data?.message || 'Failed to delete admin selection' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to delete admin selection' },
       };
     }
   },

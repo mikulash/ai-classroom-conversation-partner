@@ -68,17 +68,17 @@ router.put(
       const existingConfig = await prisma.appConfig.findFirst();
 
       const config = await prisma.appConfig.upsert({
-        where: { id: existingConfig?.id || 1 },
+        where: { id: existingConfig?.id ?? 1 },
         create: {
           responseModelId,
           ttsModelId,
           realtimeModelId,
           realtimeTranscriptionModelId,
           timestampedTranscriptionModelId,
-          silenceTimeoutInSeconds: silenceTimeoutInSeconds || 30,
-          maxConversationDurationInSeconds: maxConversationDurationInSeconds || 300,
-          appName: appName || 'AI FIGURANT',
-          allowedDomains: allowedDomains || [],
+          silenceTimeoutInSeconds: silenceTimeoutInSeconds ?? 30,
+          maxConversationDurationInSeconds: maxConversationDurationInSeconds ?? 300,
+          appName: appName ?? 'AI FIGURANT',
+          allowedDomains: allowedDomains ?? [],
         },
         update: {
           responseModelId,

@@ -6,7 +6,7 @@ import type { SetStateAction } from 'react';
 interface ProcessRealtimeTranscriptionEventParams {
     setIsTranscribing: (value: SetStateAction<boolean>) => void;
     handleTranscriptionCompleted: (transcript: string) => void;
-    logMessage: (level: logLevel, message: string, data?: any, includeInRecord?: boolean) => void;
+    logMessage: (level: logLevel, message: string, data?: unknown, includeInRecord?: boolean) => void;
     setError: (value: SetStateAction<string | null>) => void;
     setCurrentTranscript: (value: SetStateAction<string>) => void;
     onUserActivity: () => void;
@@ -24,10 +24,12 @@ export const processRealtimeTranscriptionEvent = (
   }: ProcessRealtimeTranscriptionEventParams,
 ) => {
   switch (event.type) {
-    case 'error':
+    case 'error': {
+      const errorData = event.error as { message?: string } | undefined;
       logMessage('error', 'Realtime API error:', event.error);
-      setError(event.error?.message || 'Unknown error occurred');
+      setError(errorData?.message ?? 'Unknown error occurred');
       break;
+    }
 
     case 'transcription_session.created':
       logMessage('log', 'Transcription session created', null, false);
@@ -39,14 +41,14 @@ export const processRealtimeTranscriptionEvent = (
 
     case 'conversation.item.input_audio_transcription.delta':
       // For gpt-4o-transcribe or GPT-4o mini Transcribe, this will be incremental
-      setCurrentTranscript((p) => p + event.delta);
+      setCurrentTranscript((p) => p + String(event.delta ?? ''));
       setIsTranscribing(true);
       onUserActivity();
       break;
 
     case 'conversation.item.input_audio_transcription.completed':
       setIsTranscribing(false);
-      handleTranscriptionCompleted(event.transcript);
+      handleTranscriptionCompleted(String(event.transcript ?? ''));
       break;
 
     case 'input_audio_buffer.committed':

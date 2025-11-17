@@ -13,7 +13,7 @@ export const ResetPasswordRequestForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig?.allowedDomains) || [];
+  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig.allowedDomains);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,14 +44,18 @@ export const ResetPasswordRequestForm: React.FC = () => {
         {message ? (
           <p className="text-center text-xs sm:text-sm text-green-600">{message}</p>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={(e) => {
+            void handleSubmit(e);
+          }} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">{t('email')}</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                }}
                 placeholder={t('emailPlaceholder', { allowedDomains: ALLOWED_DOMAINS.join(', ') })}
                 required
               />

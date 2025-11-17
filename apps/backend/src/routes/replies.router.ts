@@ -52,7 +52,7 @@ router.post(
       const { input_text, previousMessages, personality, conversationRole, language, scenario, userProfile } =
                 req.body;
 
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const response = await universalApi.getResponse({
         input_text,
@@ -87,7 +87,7 @@ router.post(
   ) => {
     try {
       const { inputMessage, personality, language, response_format } = req.body;
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const result = await universalApi.getSpeechAudio({
         inputMessage,
@@ -128,7 +128,7 @@ router.post(
   ) => {
     try {
       const { inputMessage, personality, language } = req.body;
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const speechAudio = await universalApi.getTimestampedSpeechAudio({
         inputMessage,
@@ -166,7 +166,7 @@ router.post(
     res: Response<FullReplyPlainResponse | ErrorResponse>,
   ) => {
     try {
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const text = await universalApi.getResponse(req.body, userId);
 
@@ -206,7 +206,7 @@ router.post(
     res: Response<FullReplyTimestampedResponse | ErrorResponse>,
   ) => {
     try {
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const text = await universalApi.getResponse(req.body, userId);
 
@@ -245,7 +245,7 @@ router.post(
     res: Response<WebRtcAnswerResponse | ErrorResponse>,
   ) => {
     try {
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
       const answer = await universalApi.getRealtimeVoice(req.body, userId);
       res.json(answer);
     } catch (error) {
@@ -270,17 +270,19 @@ router.post(
     res: Response<TranscriptionSessionCreateResponse | ErrorResponse>,
   ) => {
     try {
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
       const transcriptionSessionCreateResponse = await universalApi.getRealtimeTranscription(req.body, userId);
       console.log('Transcription session created:', transcriptionSessionCreateResponse);
       res.json(transcriptionSessionCreateResponse);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      const status = typeof err.status === 'number' ? err.status : 500;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      const status = typeof (err as any).status === 'number' ? (err as any).status : 500;
       const msg =
                 status === 500 ?
                   'Internal server error' :
                   'OpenAI transcription session creation failed';
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
       res.status(status).json({ message: msg, statusCode: status });
     }
   },

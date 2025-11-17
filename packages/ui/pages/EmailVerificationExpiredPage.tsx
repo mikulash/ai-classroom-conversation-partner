@@ -62,7 +62,9 @@ export const EmailVerificationExpiredPage: React.FC = () => {
                 {t('emailVerificationExpiredDescription')}
               </p>
 
-              <form className="space-y-4" onSubmit={handleSubmit}>
+              <form className="space-y-4" onSubmit={(e) => {
+                void handleSubmit(e);
+              }}>
                 <div className="space-y-2 text-left">
                   <Label htmlFor="email">{t('email')}</Label>
                   <Input
@@ -70,7 +72,9 @@ export const EmailVerificationExpiredPage: React.FC = () => {
                     type="email"
                     autoComplete="email"
                     value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                    }}
                     placeholder={t('emailVerificationExpiredEmailPlaceholder')}
                     aria-invalid={error ? 'true' : 'false'}
                   />

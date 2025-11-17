@@ -45,7 +45,7 @@ export function AdminGlobalModelSelectionPage() {
 
   /** Load available models + current config */
   useEffect(() => {
-    (async () => {
+    void (async () => {
       const [
         { data: responseModels, error: responseError },
         { data: ttsModels, error: ttsError },
@@ -99,28 +99,28 @@ export function AdminGlobalModelSelectionPage() {
 
       // Find selected models based on app_config
       const selectedResponseModel =
-                filteredResponseModels.find((m) => m.id === app_config.responseModelId) || null;
+                filteredResponseModels.find((m) => m.id === app_config.responseModelId) ?? null;
       const selectedTtsModel =
-                filteredTtsModels.find((m) => m.id === app_config.ttsModelId) || null;
+                filteredTtsModels.find((m) => m.id === app_config.ttsModelId) ?? null;
       const selectedRealtimeModel =
-                filteredRealtimeModels.find((m) => m.id === app_config.realtimeModelId) || null;
+                filteredRealtimeModels.find((m) => m.id === app_config.realtimeModelId) ?? null;
       const selectedTimestampedTranscriptionModel =
                 filteredTimestampedTranscriptionModels.find(
                   (m) => m.id === app_config.timestampedTranscriptionModelId,
-                ) || null;
+                ) ?? null;
       const selectedRealtimeTranscriptionModel =
                 filteredRealtimeTranscriptionModels.find(
                   (m) => m.id === app_config.realtimeTranscriptionModelId,
-                ) || null;
+                ) ?? null;
 
       setModelSelectionState({
-        responseModel: selectedResponseModel || filteredResponseModels[0] || null,
-        ttsModel: selectedTtsModel || filteredTtsModels[0] || null,
-        realtimeModel: selectedRealtimeModel || filteredRealtimeModels[0] || null,
+        responseModel: selectedResponseModel ?? filteredResponseModels[0],
+        ttsModel: selectedTtsModel ?? filteredTtsModels[0],
+        realtimeModel: selectedRealtimeModel ?? filteredRealtimeModels[0],
         timestampedTranscriptionModel:
-                    selectedTimestampedTranscriptionModel || filteredTimestampedTranscriptionModels[0] || null,
+                    selectedTimestampedTranscriptionModel ?? filteredTimestampedTranscriptionModels[0],
         realtimeTranscriptionModel:
-                    selectedRealtimeTranscriptionModel || filteredRealtimeTranscriptionModels[0] || null,
+                    selectedRealtimeTranscriptionModel ?? filteredRealtimeTranscriptionModels[0],
       });
 
       setIsLoading(false);
@@ -246,7 +246,9 @@ export function AdminGlobalModelSelectionPage() {
       </CardContent>
 
       <CardFooter>
-        <Button onClick={handleSave} disabled={isSaving} className='w-full'>
+        <Button onClick={() => {
+          void handleSave();
+        }} disabled={isSaving} className='w-full'>
           {isSaving ? t('common.saving') : t('models.saveSettings')}
         </Button>
       </CardFooter>

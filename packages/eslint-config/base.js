@@ -15,8 +15,17 @@ export const config = [
   /* core recommendations */
   js.configs.recommended,
   google,
-  ...tseslint.configs.strict,
-  ...tseslint.configs.stylistic,
+  ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  {
+    files: ['**/*.{ts,tsx,cts,mts}'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: process.cwd(),
+      },
+    },
+  },
   i18next.configs['flat/recommended'],
   {
     rules: {
@@ -31,6 +40,7 @@ export const config = [
       'no-explicit-any': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true, allowNullish: true }],
       'linebreak-style': 'off',
       'camelcase': 'off',
       'new-cap': 'off',
@@ -45,5 +55,14 @@ export const config = [
   { plugins: { onlyWarn } },
 
   /* housekeeping */
-  { ignores: ['dist/**', '**/vite-env.d.ts', 'src-tauri/**'] },
+  {
+    ignores: [
+      'dist/**',
+      '**/vite-env.d.ts',
+      'src-tauri/**',
+      '**/eslint.config.{js,cjs,mjs,ts}',
+      '**/prisma/**',
+      '**/scripts/**',
+    ],
+  },
 ];

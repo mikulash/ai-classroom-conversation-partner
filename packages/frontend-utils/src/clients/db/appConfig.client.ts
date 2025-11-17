@@ -9,16 +9,18 @@ import {
   UpdateAppConfigRequest,
 } from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
+import { AxiosError } from 'axios';
 
 export const appConfigClient = {
   updateAppConfigModels: async (payload: UpdateAppConfigRequest): Promise<ApiResponse<AppConfigWithModels>> => {
     try {
       const response = await api.put<AppConfigWithModels>('/api/app-config', payload);
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null as unknown as AppConfigWithModels,
-        error: { message: error.response?.data?.message || 'Failed to update app config' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to update app config' },
       };
     }
   },
@@ -38,7 +40,7 @@ export const appConfigClient = {
         conversationRoles: conversationRoles.data,
         appConfig: appConfig.data,
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching initial data:', error);
       throw error;
     }

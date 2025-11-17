@@ -156,7 +156,7 @@ const getTextToSpeechTimestamped = async (
     }
 
     const alignment =
-            jsonResponse?.alignment || jsonResponse?.normalized_alignment;
+            jsonResponse.alignment ?? jsonResponse.normalized_alignment;
 
     if (alignment) {
       // Parse characters into words
@@ -165,7 +165,7 @@ const getTextToSpeechTimestamped = async (
       let duration = 0;
 
       for (let i = 0; i < alignment.characters.length; i++) {
-        const startTime = alignment.character_start_times_seconds?.[i] ?? 0;
+        const startTime = alignment.character_start_times_seconds[i] ?? 0;
         const char = alignment.characters[i];
         // If this is the start of a new word, record the start time
         if (word.length === 0) {
@@ -183,7 +183,7 @@ const getTextToSpeechTimestamped = async (
           duration = 0;
         } else if (char !== ' ') {
           // Calculate the duration of this character in milliseconds
-          const endTime = alignment.character_end_times_seconds?.[i] ?? 0;
+          const endTime = alignment.character_end_times_seconds[i] ?? 0;
           const charDuration = (endTime - startTime) * 1000;
           duration += charDuration;
           word += char;

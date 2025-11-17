@@ -34,7 +34,7 @@ interface ModelSelectionSectionProps {
 }
 
 const getProviders = (models: BaseModel[]): string[] =>
-    Array.from(new Set(models.map((m) => m.provider).filter(Boolean))) as string[];
+  Array.from(new Set(models.map((m) => m.provider).filter(Boolean)));
 
 const getModelsForProvider = (
   providerName: string,
@@ -55,7 +55,7 @@ export function ModelSelectionSection({
   onClearSelection,
 }: ModelSelectionSectionProps) {
   const currentModel = modelSelection[modelKey] as BaseModel | undefined;
-  const currentProvider = currentModel?.provider || '';
+  const currentProvider = currentModel?.provider ?? '';
 
   return (
     <div className="grid gap-4">

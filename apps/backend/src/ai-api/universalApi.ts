@@ -10,7 +10,7 @@ import {
 } from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { GetResponseParams, GetTimestampedTranscriptionParams } from '../types/universalApi.types';
-import { openAiApi } from './openAiApi';
+import { openAiApi } from './openaiApi';
 import { anthropicApi } from './anthropicApi';
 import { xAiApi } from './xAiApi';
 import { elevenLabsApi } from './elevenLabsApi';
@@ -26,6 +26,7 @@ const getRealtimeTranscription = async (
   }
   const { provider, apiName: model_api_name } = realtimeTranscriptionModel;
   switch (provider) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case 'OpenAi':
       return openAiApi.getRealtimeTranscriptionToken({ ...params, model_api_name });
   }
@@ -42,6 +43,7 @@ const getRealtimeVoice = async (
   }
   const { provider, apiName: model_api_name } = realtimeModel;
   switch (provider) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case 'OpenAi':
       return openAiApi.getRealtimeVoice({ ...params, model_api_name }, userId);
   }
@@ -129,6 +131,7 @@ const getTimestampedTranscription = async (
   }
   const { provider, apiName: model_api_name } = timestampedTranscriptionModel;
   switch (provider) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case 'OpenAi':
       return openAiApi.createTimestampedTranscription({ ...params, model_api_name });
   }

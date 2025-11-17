@@ -37,27 +37,39 @@ export const useAppStore = create<AppState>((set) => ({
     realtimeTranscriptionModelId: null,
     timestampedTranscriptionModelId: null,
   },
-  setAppConfig: (appConfig) => set({ appConfig }),
+  setAppConfig: (appConfig) => {
+    set({ appConfig });
+  },
 
-  setPersonalities: (personalities) => set({ personalities }),
-  setScenarios: (scenarios) => set({ scenarios }),
-  setConversationRoles: (conversationRoles) => set({ conversationRoles }),
+  setPersonalities: (personalities) => {
+    set({ personalities });
+  },
+  setScenarios: (scenarios) => {
+    set({ scenarios });
+  },
+  setConversationRoles: (conversationRoles) => {
+    set({ conversationRoles });
+  },
   setConversationOptions: (options: {
         personalities: Personality[],
         scenarios: Scenario[],
         conversationRoles: ConversationRole[]
-    }) => set(() => ({
-    personalities: options.personalities,
-    scenarios: options.scenarios,
-    conversationRoles: options.conversationRoles,
-  }
-  )),
-  setInitialConversationOptions: (options: InitialConversationOptions) => set(() => ({
-    personalities: options.personalities,
-    scenarios: options.scenarios,
-    conversationRoles: options.conversationRoles,
-    appConfig: options.appConfig,
-  })),
+    }) => {
+    set(() => ({
+      personalities: options.personalities,
+      scenarios: options.scenarios,
+      conversationRoles: options.conversationRoles,
+    }
+    ));
+  },
+  setInitialConversationOptions: (options: InitialConversationOptions) => {
+    set(() => ({
+      personalities: options.personalities,
+      scenarios: options.scenarios,
+      conversationRoles: options.conversationRoles,
+      appConfig: options.appConfig,
+    }));
+  },
 }));
 
 
