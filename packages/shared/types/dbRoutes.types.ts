@@ -32,10 +32,9 @@ export interface MessageResponse {
   message: string;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  error?: { message: string };
-}
+export type ApiResponse<T> =
+  | { data: T; error?: never }
+  | { data: null; error: { message: string } };
 
 export interface RegisterUserRequest {
     email: string;

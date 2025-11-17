@@ -14,7 +14,7 @@ export const profileClient = {
       return { data: response.data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch profiles' } };
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch profiles' } };
     }
   },
 
@@ -25,7 +25,7 @@ export const profileClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as ProfileResponse,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to update profile' },
       };
     }
@@ -39,7 +39,7 @@ export const profileClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as ProfileResponse,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to update role' },
       };
     }

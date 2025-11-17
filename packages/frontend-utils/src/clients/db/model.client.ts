@@ -21,7 +21,7 @@ export const modelClient = {
       return { data: response.data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch response models' } };
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch response models' } };
     }
   },
 
@@ -31,7 +31,7 @@ export const modelClient = {
       return { data: response.data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch TTS models' } };
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch TTS models' } };
     }
   },
 
@@ -41,7 +41,7 @@ export const modelClient = {
       return { data: response.data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime models' } };
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime models' } };
     }
   },
 
@@ -52,7 +52,7 @@ export const modelClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: [],
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime transcription models' },
       };
     }
@@ -65,7 +65,7 @@ export const modelClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: [],
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to fetch transcription models' },
       };
     }
@@ -94,7 +94,7 @@ export const modelClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as CustomSelectionWithModels,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to update admin selection' },
       };
     }
@@ -107,7 +107,7 @@ export const modelClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: { message: '' },
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to delete admin selection' },
       };
     }

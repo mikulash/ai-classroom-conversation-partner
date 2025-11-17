@@ -18,7 +18,7 @@ export const conversationClient = {
       return { data: response.data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch conversations' } };
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch conversations' } };
     }
   },
   /**
@@ -32,7 +32,7 @@ export const conversationClient = {
       return { data: response.data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch user conversations' } };
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch user conversations' } };
     }
   },
   /**
@@ -46,7 +46,7 @@ export const conversationClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as ConversationWithPersonality,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to create conversation' },
       };
     }
@@ -62,7 +62,7 @@ export const conversationClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as MessageResponse,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to delete conversation' },
       };
     }

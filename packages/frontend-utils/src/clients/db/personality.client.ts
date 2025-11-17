@@ -10,7 +10,7 @@ export const personalityClient = {
       return { data: response.data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch personalities' } };
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch personalities' } };
     }
   },
 
@@ -21,7 +21,7 @@ export const personalityClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as Personality,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to create personality' },
       };
     }
@@ -34,7 +34,7 @@ export const personalityClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as Personality,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to update personality' },
       };
     }
@@ -47,7 +47,7 @@ export const personalityClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as MessageResponse,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to delete personality' },
       };
     }

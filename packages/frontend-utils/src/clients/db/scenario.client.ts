@@ -14,7 +14,7 @@ export const scenarioClient = {
       return { data: response.data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: [], error: { message: axiosError.response?.data.message ?? 'Failed to fetch scenarios' } };
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch scenarios' } };
     }
   },
 
@@ -25,7 +25,7 @@ export const scenarioClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as ScenarioWithPersonality,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to create scenario' },
       };
     }
@@ -38,7 +38,7 @@ export const scenarioClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as ScenarioWithPersonality,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to update scenario' },
       };
     }
@@ -51,7 +51,7 @@ export const scenarioClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as MessageResponse,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to delete scenario' },
       };
     }

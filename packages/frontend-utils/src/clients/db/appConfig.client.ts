@@ -19,7 +19,7 @@ export const appConfigClient = {
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as AppConfigWithModels,
+        data: null,
         error: { message: axiosError.response?.data.message ?? 'Failed to update app config' },
       };
     }
