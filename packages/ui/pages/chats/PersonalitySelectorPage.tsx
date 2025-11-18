@@ -309,12 +309,14 @@ export const PersonalitySelectorPage: React.FC = () => {
 
         <h2 className="text-2xl mb-8">{t('selectScenario')}</h2>
 
-        <Tabs defaultValue={activeScenarioTab} onValueChange={(v) => {
+        <Tabs value={activeScenarioTab} onValueChange={(v) => {
           setActiveScenarioTab(v as ScenarioTabKey);
         }}>
-          <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
+          <TabsList className={`grid w-full max-w-md mb-6 ${activePersonalityTab === 'custom' ? 'grid-cols-2' : 'grid-cols-3'}`}>
             <TabsTrigger value="none">{t('scenarios.none')}</TabsTrigger>
-            <TabsTrigger value="predefined">{t('scenarios.predefined')}</TabsTrigger>
+            {activePersonalityTab === 'predefined' && (
+              <TabsTrigger value="predefined">{t('scenarios.predefined')}</TabsTrigger>
+            )}
             <TabsTrigger value="custom">{t('scenarios.custom')}</TabsTrigger>
           </TabsList>
 

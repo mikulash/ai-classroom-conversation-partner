@@ -97,7 +97,7 @@ router.post(
         data: {
           userId: req.user.userId,
           personalityId,
-          scenarioId: scenarioId ?? null,
+          scenarioId,
           startTime: new Date(startTime),
           endTime: endTime ? new Date(endTime) : undefined,
           endedReason,
