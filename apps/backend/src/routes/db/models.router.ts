@@ -200,23 +200,28 @@ router.put(
         return;
       }
 
+      // Build data object with only the fields that are explicitly provided
+      const updateData: Partial<{
+        responseModelId: number | null;
+        ttsModelId: number | null;
+        realtimeModelId: number | null;
+        realtimeTranscriptionModelId: number | null;
+        timestampedTranscriptionModelId: number | null;
+      }> = {};
+
+      if (responseModelId !== undefined) updateData.responseModelId = responseModelId;
+      if (ttsModelId !== undefined) updateData.ttsModelId = ttsModelId;
+      if (realtimeModelId !== undefined) updateData.realtimeModelId = realtimeModelId;
+      if (realtimeTranscriptionModelId !== undefined) updateData.realtimeTranscriptionModelId = realtimeTranscriptionModelId;
+      if (timestampedTranscriptionModelId !== undefined) updateData.timestampedTranscriptionModelId = timestampedTranscriptionModelId;
+
       const selection = await prisma.adminUserCustomModelSelection.upsert({
         where: { userId },
         create: {
           userId,
-          responseModelId,
-          ttsModelId,
-          realtimeModelId,
-          realtimeTranscriptionModelId,
-          timestampedTranscriptionModelId,
+          ...updateData,
         },
-        update: {
-          responseModelId,
-          ttsModelId,
-          realtimeModelId,
-          realtimeTranscriptionModelId,
-          timestampedTranscriptionModelId,
-        },
+        update: updateData,
         include: {
           responseModel: true,
           ttsModel: true,

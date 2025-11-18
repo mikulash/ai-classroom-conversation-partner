@@ -41,6 +41,9 @@ export function AdminCustomModelSelectionPage() {
     realtimeTranscriptionModel: undefined,
   });
 
+  // Track which fields have explicit user overrides (vs using global defaults)
+  const [userOverrides, setUserOverrides] = useState<Set<keyof ModelSelection>>(new Set());
+
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -103,6 +106,15 @@ export function AdminCustomModelSelectionPage() {
         realtimeTranscriptionModels: filteredRealtimeTranscriptionModels,
       });
 
+      // Track which fields have user overrides
+      const overrides = new Set<keyof ModelSelection>();
+      if (userSelection?.responseModelId != null) overrides.add('responseModel');
+      if (userSelection?.ttsModelId != null) overrides.add('ttsModel');
+      if (userSelection?.realtimeModelId != null) overrides.add('realtimeModel');
+      if (userSelection?.timestampedTranscriptionModelId != null) overrides.add('timestampedTranscriptionModel');
+      if (userSelection?.realtimeTranscriptionModelId != null) overrides.add('realtimeTranscriptionModel');
+      setUserOverrides(overrides);
+
       // Find models based on user's custom config or global config as fallback
       const findSelectedModel = <T extends { id: number }>(
         modelArray: T[],
@@ -159,15 +171,70 @@ export function AdminCustomModelSelectionPage() {
 
     setIsSaving(true);
 
-    const { error, data } = await modelClient.upsertCustomModelSelection(session.user.id, {
-      responseModelId: selection.responseModel?.id ?? null,
-      ttsModelId: selection.ttsModel?.id ?? null,
-      realtimeModelId: selection.realtimeModel?.id ?? null,
-      timestampedTranscriptionModelId:
-                selection.timestampedTranscriptionModel?.id ?? null,
-      realtimeTranscriptionModelId:
-                selection.realtimeTranscriptionModel?.id ?? null,
-    });
+    // Build payload with only the fields that should be stored as overrides
+    // Logic: Only send fields where:
+    // 1. Selection is undefined (null) → send null to remove override
+    // 2. Selection differs from global → send ID to set/update override
+    // 3. Selection matches global AND had previous override → send ID to keep explicit override
+    // 4. Selection matches global AND no previous override → don't send (use global default)
+    const payload: Partial<{
+      responseModelId: number | null;
+      ttsModelId: number | null;
+      realtimeModelId: number | null;
+      timestampedTranscriptionModelId: number | null;
+      realtimeTranscriptionModelId: number | null;
+    }> = {};
+
+    // Response Model
+    if (!selection.responseModel) {
+      // Cleared - remove override
+      payload.responseModelId = null;
+    } else if (selection.responseModel.id !== appConfig.responseModelId) {
+      // Differs from global - set override
+      payload.responseModelId = selection.responseModel.id;
+    } else if (userOverrides.has('responseModel')) {
+      // Matches global but had previous override - keep explicit override
+      payload.responseModelId = selection.responseModel.id;
+    }
+    // else: matches global and no previous override - don't send
+
+    // TTS Model
+    if (!selection.ttsModel) {
+      payload.ttsModelId = null;
+    } else if (selection.ttsModel.id !== appConfig.ttsModelId) {
+      payload.ttsModelId = selection.ttsModel.id;
+    } else if (userOverrides.has('ttsModel')) {
+      payload.ttsModelId = selection.ttsModel.id;
+    }
+
+    // Realtime Model
+    if (!selection.realtimeModel) {
+      payload.realtimeModelId = null;
+    } else if (selection.realtimeModel.id !== appConfig.realtimeModelId) {
+      payload.realtimeModelId = selection.realtimeModel.id;
+    } else if (userOverrides.has('realtimeModel')) {
+      payload.realtimeModelId = selection.realtimeModel.id;
+    }
+
+    // Timestamped Transcription Model
+    if (!selection.timestampedTranscriptionModel) {
+      payload.timestampedTranscriptionModelId = null;
+    } else if (selection.timestampedTranscriptionModel.id !== appConfig.timestampedTranscriptionModelId) {
+      payload.timestampedTranscriptionModelId = selection.timestampedTranscriptionModel.id;
+    } else if (userOverrides.has('timestampedTranscriptionModel')) {
+      payload.timestampedTranscriptionModelId = selection.timestampedTranscriptionModel.id;
+    }
+
+    // Realtime Transcription Model
+    if (!selection.realtimeTranscriptionModel) {
+      payload.realtimeTranscriptionModelId = null;
+    } else if (selection.realtimeTranscriptionModel.id !== appConfig.realtimeTranscriptionModelId) {
+      payload.realtimeTranscriptionModelId = selection.realtimeTranscriptionModel.id;
+    } else if (userOverrides.has('realtimeTranscriptionModel')) {
+      payload.realtimeTranscriptionModelId = selection.realtimeTranscriptionModel.id;
+    }
+
+    const { error, data } = await modelClient.upsertCustomModelSelection(session.user.id, payload);
 
     if (error) {
       console.error(error.message);
@@ -180,28 +247,38 @@ export function AdminCustomModelSelectionPage() {
       description: t('customModelPreferencesSaved'),
     });
 
-    // Update selection with data returned from the server
-    const updatedSelection = { ...selection };
+    // Update userOverrides tracking based on what was saved
+    const newOverrides = new Set<keyof ModelSelection>();
+    if (data.responseModelId != null) newOverrides.add('responseModel');
+    if (data.ttsModelId != null) newOverrides.add('ttsModel');
+    if (data.realtimeModelId != null) newOverrides.add('realtimeModel');
+    if (data.timestampedTranscriptionModelId != null) newOverrides.add('timestampedTranscriptionModel');
+    if (data.realtimeTranscriptionModelId != null) newOverrides.add('realtimeTranscriptionModel');
+    setUserOverrides(newOverrides);
 
-    if (data.responseModelId && models.responseModels.length > 0) {
-      updatedSelection.responseModel = models.responseModels.find((m) => m.id === data.responseModelId);
-    }
-    if (data.ttsModelId && models.ttsModels.length > 0) {
-      updatedSelection.ttsModel = models.ttsModels.find((m) => m.id === data.ttsModelId);
-    }
-    if (data.realtimeModelId && models.realtimeModels.length > 0) {
-      updatedSelection.realtimeModel = models.realtimeModels.find((m) => m.id === data.realtimeModelId);
-    }
-    if (data.timestampedTranscriptionModelId && models.timestampedTranscriptionModels.length > 0) {
-      updatedSelection.timestampedTranscriptionModel = models.timestampedTranscriptionModels.find(
-        (m) => m.id === data.timestampedTranscriptionModelId,
-      );
-    }
-    if (data.realtimeTranscriptionModelId && models.realtimeTranscriptionModels.length > 0) {
-      updatedSelection.realtimeTranscriptionModel = models.realtimeTranscriptionModels.find(
-        (m) => m.id === data.realtimeTranscriptionModelId,
-      );
-    }
+    // Update selection with data returned from the server
+    // If a field is null (removed), fall back to global default for display
+    const updatedSelection: Partial<ModelSelection> = {};
+
+    updatedSelection.responseModel = data.responseModelId
+      ? models.responseModels.find((m) => m.id === data.responseModelId)
+      : models.responseModels.find((m) => m.id === appConfig.responseModelId);
+
+    updatedSelection.ttsModel = data.ttsModelId
+      ? models.ttsModels.find((m) => m.id === data.ttsModelId)
+      : models.ttsModels.find((m) => m.id === appConfig.ttsModelId);
+
+    updatedSelection.realtimeModel = data.realtimeModelId
+      ? models.realtimeModels.find((m) => m.id === data.realtimeModelId)
+      : models.realtimeModels.find((m) => m.id === appConfig.realtimeModelId);
+
+    updatedSelection.timestampedTranscriptionModel = data.timestampedTranscriptionModelId
+      ? models.timestampedTranscriptionModels.find((m) => m.id === data.timestampedTranscriptionModelId)
+      : models.timestampedTranscriptionModels.find((m) => m.id === appConfig.timestampedTranscriptionModelId);
+
+    updatedSelection.realtimeTranscriptionModel = data.realtimeTranscriptionModelId
+      ? models.realtimeTranscriptionModels.find((m) => m.id === data.realtimeTranscriptionModelId)
+      : models.realtimeTranscriptionModels.find((m) => m.id === appConfig.realtimeTranscriptionModelId);
 
     setSelection(updatedSelection);
     setIsSaving(false);
