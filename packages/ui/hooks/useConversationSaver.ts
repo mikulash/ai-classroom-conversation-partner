@@ -57,7 +57,7 @@ export const useConversationSaver = ({
           role: msg.role,
           timestamp: msg.timestamp?.toISOString() ?? new Date().toISOString(),
         })),
-        personalityId: personality.id,
+        personalityId: personality.id !== 0 ? personality.id : null,
         scenarioId: scenario?.id ?? null,
         userId: userProfile.id,
         logs: logsToSave ?? [],

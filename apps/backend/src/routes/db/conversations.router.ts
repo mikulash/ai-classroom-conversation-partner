@@ -88,7 +88,7 @@ router.post(
 
       // Validate required fields
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!personalityId || !startTime || !conversationType) {
+      if (!startTime || !conversationType) {
         res.status(400).json({ message: 'personalityId, startTime, and conversationType are required' });
         return;
       }
