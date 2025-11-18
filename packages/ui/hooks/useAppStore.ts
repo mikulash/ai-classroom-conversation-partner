@@ -3,6 +3,7 @@ import { AppConfig, ConversationRole, Personality, Scenario } from '@repo/shared
 import { InitialConversationOptions } from '@repo/shared/types/dbRoutes.types';
 
 interface AppState {
+    isLoaded: boolean,
     personalities: Personality[];
     scenarios: Scenario[];
     conversationRoles: ConversationRole[];
@@ -10,17 +11,12 @@ interface AppState {
     setPersonalities: (p: Personality[]) => void;
     setScenarios: (s: Scenario[]) => void;
     setConversationRoles: (r: ConversationRole[]) => void;
-    setConversationOptions: (options: {
-        personalities: Personality[];
-        scenarios: Scenario[];
-        conversationRoles: ConversationRole[];
-    }) => void;
     setAppConfig: (appConfig: AppConfig) => void;
     setInitialConversationOptions: (options: InitialConversationOptions) => void;
 }
 
-
 export const useAppStore = create<AppState>((set) => ({
+  isLoaded: false,
   personalities: [],
   scenarios: [],
   conversationRoles: [],
@@ -40,7 +36,6 @@ export const useAppStore = create<AppState>((set) => ({
   setAppConfig: (appConfig) => {
     set({ appConfig });
   },
-
   setPersonalities: (personalities) => {
     set({ personalities });
   },
@@ -50,24 +45,13 @@ export const useAppStore = create<AppState>((set) => ({
   setConversationRoles: (conversationRoles) => {
     set({ conversationRoles });
   },
-  setConversationOptions: (options: {
-        personalities: Personality[],
-        scenarios: Scenario[],
-        conversationRoles: ConversationRole[]
-    }) => {
-    set(() => ({
-      personalities: options.personalities,
-      scenarios: options.scenarios,
-      conversationRoles: options.conversationRoles,
-    }
-    ));
-  },
   setInitialConversationOptions: (options: InitialConversationOptions) => {
     set(() => ({
       personalities: options.personalities,
       scenarios: options.scenarios,
       conversationRoles: options.conversationRoles,
       appConfig: options.appConfig,
+      isLoaded: true,
     }));
   },
 }));

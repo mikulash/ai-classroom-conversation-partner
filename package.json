@@ -12,6 +12,7 @@
     "start": "turbo run start --parallel",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
     "typecheck": "turbo run typecheck"
   },
   "keywords": [],
