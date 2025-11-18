@@ -63,6 +63,7 @@ router.post(
     try {
       const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
 
+      console.log('scenarion new', req.body);
       // Validate required fields
       if (!involvedPersonalityId) {
         res.status(400).json({ message: 'involvedPersonalityId is required' });
@@ -73,6 +74,8 @@ router.post(
       const personality = await prisma.personality.findUnique({
         where: { id: involvedPersonalityId },
       });
+
+      console.log('found personality', personality);
 
       if (!personality) {
         res.status(404).json({ message: 'Personality not found' });
@@ -97,6 +100,8 @@ router.post(
           },
         },
       });
+
+      console.log('created scenario', scenario);
 
       res.status(201).json(scenario);
     } catch (error) {

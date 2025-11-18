@@ -26,6 +26,18 @@ CREATE TYPE "providers_realtime_transcription_model" AS ENUM ('OpenAi');
 CREATE TYPE "providers_timestamped_transcription_model" AS ENUM ('OpenAi');
 
 -- CreateTable
+CREATE TABLE "users" (
+    "id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "confirmed_at" TIMESTAMP(3),
+
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "refresh_tokens" (
     "id" TEXT NOT NULL,
     "token" TEXT NOT NULL,
@@ -42,12 +54,10 @@ CREATE TABLE "profiles" (
     "id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "email" TEXT,
-    "password" TEXT,
-    "full_name" TEXT,
-    "gender" TEXT,
+    "full_name" TEXT NOT NULL DEFAULT '',
+    "gender" TEXT NOT NULL DEFAULT '',
     "conversation_role" TEXT NOT NULL DEFAULT '',
-    "bio" TEXT,
+    "bio" TEXT NOT NULL DEFAULT '',
     "user_role" "user_role" NOT NULL DEFAULT 'basic',
 
     CONSTRAINT "profiles_pkey" PRIMARY KEY ("id")
@@ -77,7 +87,7 @@ CREATE TABLE "personalities" (
     "sex" "personality_sex" NOT NULL DEFAULT 'M',
     "voice_instructions" TEXT,
     "elevenlabs_voice_id" TEXT,
-    "openai_voice_name" "openai_voice_name" NOT NULL,
+    "openai_voice_name" "openai_voice_name" NOT NULL DEFAULT 'alloy',
     "problem_summary_en" TEXT NOT NULL DEFAULT '',
     "personality_description_en" TEXT NOT NULL DEFAULT '',
     "problem_summary_cs" TEXT NOT NULL DEFAULT '',
@@ -214,6 +224,9 @@ CREATE TABLE "app_config" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "refresh_tokens_token_key" ON "refresh_tokens"("token");
 
 -- CreateIndex
@@ -222,11 +235,11 @@ CREATE INDEX "refresh_tokens_user_id_idx" ON "refresh_tokens"("user_id");
 -- CreateIndex
 CREATE INDEX "refresh_tokens_token_idx" ON "refresh_tokens"("token");
 
--- CreateIndex
-CREATE UNIQUE INDEX "profiles_email_key" ON "profiles"("email");
+-- AddForeignKey
+ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "profiles" ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "admin_users_custom_model_selection" ADD CONSTRAINT "admin_users_custom_model_selection_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -250,7 +263,7 @@ ALTER TABLE "admin_users_custom_model_selection" ADD CONSTRAINT "admin_users_cus
 ALTER TABLE "scenarios" ADD CONSTRAINT "scenarios_involved_personality_id_fkey" FOREIGN KEY ("involved_personality_id") REFERENCES "personalities"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "conversations" ADD CONSTRAINT "conversations_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "conversations" ADD CONSTRAINT "conversations_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "conversations" ADD CONSTRAINT "conversations_personality_id_fkey" FOREIGN KEY ("personality_id") REFERENCES "personalities"("id") ON DELETE SET NULL ON UPDATE CASCADE;

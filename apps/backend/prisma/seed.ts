@@ -699,6 +699,32 @@ async function main() {
     },
   });
 
+  // Reset auto-increment sequences to avoid unique constraint errors
+  console.log('\nResetting auto-increment sequences...');
+
+  const sequences = [
+    { table: 'response_models', column: 'id' },
+    { table: 'tts_models', column: 'id' },
+    { table: 'realtime_models', column: 'id' },
+    { table: 'realtime_transcription_models', column: 'id' },
+    { table: 'timestamped_transcription_models', column: 'id' },
+    { table: 'conversation_roles', column: 'id' },
+    { table: 'app_config', column: 'id' },
+    { table: 'personalities', column: 'id' },
+    { table: 'scenarios', column: 'id' },
+  ];
+
+  for (const { table, column } of sequences) {
+    await prisma.$executeRawUnsafe(`
+      SELECT setval(
+        pg_get_serial_sequence('${table}', '${column}'),
+        COALESCE((SELECT MAX(${column}) FROM ${table}), 1),
+        true
+      )
+    `);
+    console.log(`✓ Reset sequence for ${table}.${column}`);
+  }
+
   console.log('\nDatabase seeded successfully!');
   console.log({
     responseModels: 11,
