@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 import { PrismaClient } from '../src/generated/prisma/client';
+import {Database} from "./database.types";
 
 // Supabase connection (source)
 const SUPABASE_URL = process.env.SUPABASE_URL!;
@@ -8,7 +9,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 // New PostgreSQL connection (destination)
 const prisma = new PrismaClient();
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: {
     persistSession: false,
     autoRefreshToken: false,
@@ -69,7 +70,7 @@ async function migrateData() {
           createdAt: new Date(model.created_at),
           friendlyName: model.friendly_name,
           apiName: model.api_name,
-          sampleRate: model.sampleRate,
+          sampleRate: model.sample_rate,
           docsUrl: model.docs_url,
           isEnabled: model.is_enabled,
           provider: model.provider as any,
@@ -78,7 +79,7 @@ async function migrateData() {
         update: {
           friendlyName: model.friendly_name,
           apiName: model.api_name,
-          sampleRate: model.sampleRate,
+          sampleRate: model.sample_rate,
           docsUrl: model.docs_url,
           isEnabled: model.is_enabled,
           provider: model.provider as any,
