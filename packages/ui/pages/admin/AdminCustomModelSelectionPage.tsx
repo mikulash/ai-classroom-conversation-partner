@@ -260,25 +260,25 @@ export function AdminCustomModelSelectionPage() {
     // If a field is null (removed), fall back to global default for display
     const updatedSelection: Partial<ModelSelection> = {};
 
-    updatedSelection.responseModel = data.responseModelId
-      ? models.responseModels.find((m) => m.id === data.responseModelId)
-      : models.responseModels.find((m) => m.id === appConfig.responseModelId);
+    updatedSelection.responseModel = data.responseModelId ?
+      models.responseModels.find((m) => m.id === data.responseModelId) :
+      models.responseModels.find((m) => m.id === appConfig.responseModelId);
 
-    updatedSelection.ttsModel = data.ttsModelId
-      ? models.ttsModels.find((m) => m.id === data.ttsModelId)
-      : models.ttsModels.find((m) => m.id === appConfig.ttsModelId);
+    updatedSelection.ttsModel = data.ttsModelId ?
+      models.ttsModels.find((m) => m.id === data.ttsModelId) :
+      models.ttsModels.find((m) => m.id === appConfig.ttsModelId);
 
-    updatedSelection.realtimeModel = data.realtimeModelId
-      ? models.realtimeModels.find((m) => m.id === data.realtimeModelId)
-      : models.realtimeModels.find((m) => m.id === appConfig.realtimeModelId);
+    updatedSelection.realtimeModel = data.realtimeModelId ?
+      models.realtimeModels.find((m) => m.id === data.realtimeModelId) :
+      models.realtimeModels.find((m) => m.id === appConfig.realtimeModelId);
 
-    updatedSelection.timestampedTranscriptionModel = data.timestampedTranscriptionModelId
-      ? models.timestampedTranscriptionModels.find((m) => m.id === data.timestampedTranscriptionModelId)
-      : models.timestampedTranscriptionModels.find((m) => m.id === appConfig.timestampedTranscriptionModelId);
+    updatedSelection.timestampedTranscriptionModel = data.timestampedTranscriptionModelId ?
+      models.timestampedTranscriptionModels.find((m) => m.id === data.timestampedTranscriptionModelId) :
+      models.timestampedTranscriptionModels.find((m) => m.id === appConfig.timestampedTranscriptionModelId);
 
-    updatedSelection.realtimeTranscriptionModel = data.realtimeTranscriptionModelId
-      ? models.realtimeTranscriptionModels.find((m) => m.id === data.realtimeTranscriptionModelId)
-      : models.realtimeTranscriptionModels.find((m) => m.id === appConfig.realtimeTranscriptionModelId);
+    updatedSelection.realtimeTranscriptionModel = data.realtimeTranscriptionModelId ?
+      models.realtimeTranscriptionModels.find((m) => m.id === data.realtimeTranscriptionModelId) :
+      models.realtimeTranscriptionModels.find((m) => m.id === appConfig.realtimeTranscriptionModelId);
 
     setSelection(updatedSelection);
     setIsSaving(false);
