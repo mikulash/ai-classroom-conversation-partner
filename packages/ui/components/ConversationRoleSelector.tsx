@@ -9,7 +9,7 @@ import { ConversationRole } from '@repo/shared/types/db/entities';
  * Props for the role selector (rewritten to work with role **names**, not objects).
  */
 interface ConversationRoleSelectorProps {
-    /** Predefined conversation roles coming from Supabase */
+    /** Predefined conversation roles coming from DB */
     predefinedRoles: ConversationRole[];
     /** Currently selected role name (translated) */
     value: string;
