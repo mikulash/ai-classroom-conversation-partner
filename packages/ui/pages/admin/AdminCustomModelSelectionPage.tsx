@@ -295,6 +295,14 @@ export function AdminCustomModelSelectionPage() {
       return modelId != null && model.id === modelId ? t('models.currentlyUsedGlobally') : null;
     };
 
+  const globalProviderStatus = (modelId?: number | null, modelsList?: { id: number; provider: string }[]) =>
+    (provider: string, _currentProvider?: string) => {
+      void _currentProvider;
+      if (modelId == null || !modelsList) return null;
+      const globalModel = modelsList.find((m) => m.id === modelId);
+      return globalModel?.provider === provider ? t('models.currentlyUsedGlobally') : null;
+    };
+
   const modelKeys: (keyof ModelSelection)[] = [
     'responseModel',
     'ttsModel',
@@ -311,7 +319,7 @@ export function AdminCustomModelSelectionPage() {
     realtimeTranscriptionModel: appConfig.realtimeTranscriptionModelId ?? null,
   };
 
-  const hasAnySelection = modelKeys.some((key) => selection[key] != null);
+  const hasAnyOverride = userOverrides.size > 0;
 
   const titleStatusForKey = (modelKey: keyof ModelSelection) => {
     const selectedModel = selection[modelKey] as { id?: number } | undefined;
@@ -354,7 +362,7 @@ export function AdminCustomModelSelectionPage() {
           variant='outline'
           size='sm'
           onClick={clearAllSelections}
-          disabled={!hasAnySelection}
+          disabled={!hasAnyOverride}
         >
           {clearAllLabel}
         </Button>
@@ -371,10 +379,12 @@ export function AdminCustomModelSelectionPage() {
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('responseModel')}
             optionStatus={globalOptionStatus(appConfig.responseModelId)}
+            providerStatus={globalProviderStatus(appConfig.responseModelId, models.responseModels)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('responseModel');
             }}
+            hasOverride={userOverrides.has('responseModel')}
           />
           <ModelSelectionSection
             label={t('ttsModel')}
@@ -386,10 +396,12 @@ export function AdminCustomModelSelectionPage() {
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('ttsModel')}
             optionStatus={globalOptionStatus(appConfig.ttsModelId)}
+            providerStatus={globalProviderStatus(appConfig.ttsModelId, models.ttsModels)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('ttsModel');
             }}
+            hasOverride={userOverrides.has('ttsModel')}
           />
           <ModelSelectionSection
             label={t('realtimeModel')}
@@ -401,10 +413,12 @@ export function AdminCustomModelSelectionPage() {
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('realtimeModel')}
             optionStatus={globalOptionStatus(appConfig.realtimeModelId)}
+            providerStatus={globalProviderStatus(appConfig.realtimeModelId, models.realtimeModels)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('realtimeModel');
             }}
+            hasOverride={userOverrides.has('realtimeModel')}
           />
           <ModelSelectionSection
             label={t('models.timestampedTranscriptionModel')}
@@ -416,10 +430,12 @@ export function AdminCustomModelSelectionPage() {
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('timestampedTranscriptionModel')}
             optionStatus={globalOptionStatus(appConfig.timestampedTranscriptionModelId)}
+            providerStatus={globalProviderStatus(appConfig.timestampedTranscriptionModelId, models.timestampedTranscriptionModels)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('timestampedTranscriptionModel');
             }}
+            hasOverride={userOverrides.has('timestampedTranscriptionModel')}
           />
           <ModelSelectionSection
             label={t('models.realtimeTranscriptionModel')}
@@ -431,10 +447,12 @@ export function AdminCustomModelSelectionPage() {
             selectModelLabel={t('selectModel')}
             titleStatus={titleStatusForKey('realtimeTranscriptionModel')}
             optionStatus={globalOptionStatus(appConfig.realtimeTranscriptionModelId)}
+            providerStatus={globalProviderStatus(appConfig.realtimeTranscriptionModelId, models.realtimeTranscriptionModels)}
             clearSelectionLabel={clearSectionLabel}
             onClearSelection={() => {
               clearSelectionForKey('realtimeTranscriptionModel');
             }}
+            hasOverride={userOverrides.has('realtimeTranscriptionModel')}
           />
         </ModelSelectionForm>
       </CardContent>

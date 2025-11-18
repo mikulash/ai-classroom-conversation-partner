@@ -29,8 +29,10 @@ interface ModelSelectionSectionProps {
     selectModelLabel: string;
     titleStatus?: React.ReactNode;
     optionStatus?: (model: BaseModel, currentModel: BaseModel | undefined) => string | null | undefined;
+    providerStatus?: (provider: string, currentProvider: string | undefined) => string | null | undefined;
     clearSelectionLabel?: string;
     onClearSelection?: () => void;
+    hasOverride?: boolean;
 }
 
 const getProviders = (models: BaseModel[]): string[] =>
@@ -51,8 +53,10 @@ export function ModelSelectionSection({
   selectModelLabel,
   titleStatus,
   optionStatus,
+  providerStatus,
   clearSelectionLabel,
   onClearSelection,
+  hasOverride = false,
 }: ModelSelectionSectionProps) {
   const currentModel = modelSelection[modelKey] as BaseModel | undefined;
   const currentProvider = currentModel?.provider ?? '';
@@ -70,7 +74,7 @@ export function ModelSelectionSection({
             variant="ghost"
             size="sm"
             onClick={onClearSelection}
-            disabled={!currentModel}
+            disabled={!hasOverride}
           >
             {clearSelectionLabel}
           </Button>
@@ -97,9 +101,15 @@ export function ModelSelectionSection({
             const hasAvailableModels = getModelsForProvider(provider, models).some(
               (m) => m.isAvailable,
             );
+            const statusText = providerStatus?.(provider, currentProvider);
             return (
               <SelectItem key={provider} value={provider} disabled={!hasAvailableModels}>
-                {provider}
+                <div className="flex items-center gap-2">
+                  <span>{provider}</span>
+                  {statusText ? (
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{statusText}</span>
+                  ) : null}
+                </div>
               </SelectItem>
             );
           })}
