@@ -16,8 +16,6 @@ The backend expects a `DATABASE_URL` that points to a PostgreSQL 18 database. Th
 docker run --name ai_classroom -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=ai_classroom -p 5432:5432 -d postgres:18
 ```
 
-You can stop and remove the container with `docker stop figurant-db && docker rm figurant-db`. Reusing the `.data/postgres` directory keeps your data across restarts.
-
 Set the matching connection string in `apps/backend/.env` (see `.env.example`):
 
 ```
@@ -26,7 +24,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_classroom
 
 ## Managing the schema with Prisma
 
-All models now live in [`apps/backend/prisma/schema.prisma`](../apps/backend/prisma/schema.prisma). Prisma handles generating the TypeScript client as well as running migrations. Common commands (executed from the repo root):
+All models now live in [`apps/backend/prisma/schema.prisma`](../apps/backend/prisma/schema.prisma). Prisma handles generating the TypeScript client as well as running migrations. Common commands (executed from the repo root), you can use:
 
 ```bash
 # Generate Prisma client after you edit the schema
@@ -46,19 +44,9 @@ Prisma migrations are stored inside [`apps/backend/prisma/migrations`](../apps/b
 
 ## Seeding baseline data
 
-We keep a curated set of personalities, scenarios, and default model choices in [`apps/backend/prisma/seed.ts`](../apps/backend/prisma/seed.ts). After you start PostgreSQL, run:
-
-```bash
-pnpm --filter figurant-backend prisma:seed
-```
+We keep a curated set of personalities, scenarios, and default model choices in [`apps/backend/prisma/seed-data.sql`](../apps/backend/prisma/seed-data.sql). After you start PostgreSQL, run:
 
 If you make manual changes in the database and want to convert them back to a reusable seed file, use the export helper:
-
-```bash
-pnpm --filter figurant-backend export:seed
-```
-
-This script reads from the current database, prints a TypeScript seed file into `apps/backend/prisma/seed.ts`, and lets you commit the new baseline.
 
 ## Inspecting and editing data
 
