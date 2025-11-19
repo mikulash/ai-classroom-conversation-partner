@@ -82,8 +82,10 @@ router.post(
       });
 
       if (existingUser) {
-        console.log('User already exists:', existingUser);
-        res.status(400).json({ message: 'User with this email already exists' });
+        // Use generic message to prevent account enumeration
+        res.status(200).json({
+          message: 'Registration request received. If this email can be registered, you will receive a verification link.',
+        });
         return;
       }
 
@@ -140,8 +142,8 @@ router.post(
 
       await sendVerificationEmail(userProfile.email, verifyUrl);
 
-      res.status(201).json({
-        message: 'Registration successful. Please check your email to verify your account.',
+      res.status(200).json({
+        message: 'Registration request received. If this email can be registered, you will receive a verification link.',
       });
     } catch (error) {
       console.error('Registration error:', error);
