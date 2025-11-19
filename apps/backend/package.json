@@ -7,7 +7,7 @@
     "build": "pnpm exec prisma generate && tsup",
     "start": "node dist/index.js",
     "typecheck": "pnpm exec prisma generate && tsc --noEmit",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "pnpm exec prisma generate && eslint . --max-warnings 0",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate-reset": "prisma migrate reset",
