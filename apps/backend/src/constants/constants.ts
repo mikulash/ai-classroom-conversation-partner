@@ -19,7 +19,7 @@ export const GROK_API_KEY = process.env.GROK_API_KEY;
 export const ELEVENLABS_FALLBACK_VOICE_ID_FEMALE = process.env.ELEVENLABS_FALLBACK_VOICE_ID_FEMALE ?? '';
 export const ELEVENLABS_FALLBACK_VOICE_ID_MALE = process.env.ELEVENLABS_FALLBACK_VOICE_ID_MALE ?? '';
 
-export const getJwtSecret= () : string => {
+export const getJwtSecret = () : string => {
   if (process.env.JWT_SECRET === undefined) {
     throw new Error(
       'JWT_SECRET is not defined in the environment variables',
