@@ -44,9 +44,23 @@ Prisma migrations are stored inside [`apps/backend/prisma/migrations`](../apps/b
 
 ## Seeding baseline data
 
-We keep a curated set of personalities, scenarios, and default model choices in [`apps/backend/prisma/seed-data.sql`](../apps/backend/prisma/seed-data.sql). After you start PostgreSQL, run:
+We keep a curated set of personalities, scenarios, and default model choices in [`apps/backend/prisma/seed-data.sql`](../apps/backend/prisma/seed-data.sql). After you start PostgreSQL and run migrations, seed the database with:
+
+```bash
+docker exec -i figurant-db psql -U postgres -d ai_classroom < apps/backend/prisma/seed-data.sql
+```
+
+Or if using a different container name:
+
+```bash
+docker exec -i <container-name> psql -U postgres -d ai_classroom < apps/backend/prisma/seed-data.sql
+```
 
 If you make manual changes in the database and want to convert them back to a reusable seed file, use the export helper:
+
+```bash
+docker exec -i figurant-db pg_dump -U postgres --data-only --inserts ai_classroom > apps/backend/prisma/seed-data.sql
+```
 
 ## Inspecting and editing data
 
