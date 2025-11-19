@@ -40,7 +40,7 @@ const router = Router();
 function generateEmailVerificationToken(userId: string, email: string): string {
   return jwt.sign(
     { userId, email },
-      getJwtSecret(),
+    getJwtSecret(),
     { expiresIn: '1d' }, // 24h to verify
   );
 }
@@ -592,7 +592,7 @@ router.post(
       // Generate password reset token (expires in 1 hour)
       const resetToken = jwt.sign(
         { userId: user.id, email: user.email, type: 'password-reset' },
-          getJwtSecret(),
+        getJwtSecret(),
         { expiresIn: '1h' },
       );
 

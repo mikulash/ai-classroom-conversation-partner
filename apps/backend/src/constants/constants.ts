@@ -20,8 +20,10 @@ export const ELEVENLABS_FALLBACK_VOICE_ID_FEMALE = process.env.ELEVENLABS_FALLBA
 export const ELEVENLABS_FALLBACK_VOICE_ID_MALE = process.env.ELEVENLABS_FALLBACK_VOICE_ID_MALE ?? '';
 
 export const getJwtSecret= () : string => {
-    if(process.env.JWT_SECRET === undefined) throw new Error(
-        'JWT_SECRET is not defined in the environment variables'
-    )
-    return process.env.JWT_SECRET
-}
+  if (process.env.JWT_SECRET === undefined) {
+    throw new Error(
+      'JWT_SECRET is not defined in the environment variables',
+    );
+  }
+  return process.env.JWT_SECRET;
+};
