@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import type { StringValue } from 'ms';
 import prisma from '../clients/prisma.js';
-import { JWT_SECRET, JWT_EXPIRES_IN } from '../constants/constants.js';
+import { getJwtSecret, JWT_EXPIRES_IN } from '../constants/constants.js';
 
 const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 const BCRYPT_ROUNDS = 10;
@@ -33,7 +33,7 @@ export async function comparePassword(password: string, hashedPassword: string):
  */
 export function generateToken(payload: JWTPayload): string {
   const options: jwt.SignOptions = { expiresIn: JWT_EXPIRES_IN as StringValue };
-  return jwt.sign(payload, JWT_SECRET, options);
+  return jwt.sign(payload, getJwtSecret(), options);
 }
 
 /**
@@ -41,7 +41,7 @@ export function generateToken(payload: JWTPayload): string {
  */
 export function verifyAndDecodeToken(token: string): JWTPayload {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+    const decoded = jwt.verify(token, getJwtSecret()) as JWTPayload;
     return decoded;
   } catch (error) {
     console.error('JWT verification error:', error);

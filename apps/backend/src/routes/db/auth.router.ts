@@ -30,7 +30,7 @@ import {
 import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
-import { APP_FRONTEND_URL, JWT_SECRET } from '../../constants/constants';
+import { APP_FRONTEND_URL, getJwtSecret } from '../../constants/constants';
 
 const router = Router();
 
@@ -40,7 +40,7 @@ const router = Router();
 function generateEmailVerificationToken(userId: string, email: string): string {
   return jwt.sign(
     { userId, email },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '1d' }, // 24h to verify
   );
 }
@@ -82,8 +82,10 @@ router.post(
       });
 
       if (existingUser) {
-        console.log('User already exists:', existingUser);
-        res.status(400).json({ message: 'User with this email already exists' });
+        // Use generic message to prevent account enumeration
+        res.status(200).json({
+          message: 'Registration request received. If this email can be registered, you will receive a verification link.',
+        });
         return;
       }
 
@@ -140,8 +142,8 @@ router.post(
 
       await sendVerificationEmail(userProfile.email, verifyUrl);
 
-      res.status(201).json({
-        message: 'Registration successful. Please check your email to verify your account.',
+      res.status(200).json({
+        message: 'Registration request received. If this email can be registered, you will receive a verification link.',
       });
     } catch (error) {
       console.error('Registration error:', error);
@@ -164,7 +166,7 @@ router.get(
 
       let payload: { userId: string; email: string };
       try {
-        payload = jwt.verify(token, JWT_SECRET) as { userId: string; email: string };
+        payload = jwt.verify(token, getJwtSecret()) as { userId: string; email: string };
       } catch {
         res.status(400).json({ message: 'Invalid or expired verification token' });
         return;
@@ -590,7 +592,7 @@ router.post(
       // Generate password reset token (expires in 1 hour)
       const resetToken = jwt.sign(
         { userId: user.id, email: user.email, type: 'password-reset' },
-        JWT_SECRET,
+        getJwtSecret(),
         { expiresIn: '1h' },
       );
 
@@ -629,8 +631,9 @@ router.post(
 
       // Verify the reset token
       let payload: { userId: string; email: string; type: string };
+
       try {
-        payload = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; type: string };
+        payload = jwt.verify(token, getJwtSecret()) as { userId: string; email: string; type: string };
       } catch {
         res.status(400).json({ message: 'Invalid or expired reset token' });
         return;

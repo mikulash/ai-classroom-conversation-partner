@@ -52,6 +52,6 @@
     "prisma-json-types-generator": "^3.6.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   }
 }

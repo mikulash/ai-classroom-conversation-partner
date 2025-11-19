@@ -5,7 +5,7 @@ import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
@@ -168,7 +168,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
 
       if (!offer.sdp) throw new Error('No SDP offer received from server.');
 
-      const response = await figurantClient.getWebRtcAnswer({
+      const response = await repliesClient.getWebRtcAnswer({
         openai_voice_name: personality.openaiVoiceName,
         personality,
         language,

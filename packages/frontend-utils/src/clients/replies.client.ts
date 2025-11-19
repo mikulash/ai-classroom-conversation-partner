@@ -22,7 +22,7 @@ import { api } from './api';
  * Client for interacting with the Figurant backend API.
  * Uses the shared axios client from apiService for consistent auth handling.
  */
-export class FigurantApiClient {
+export class RepliesClient {
   async getResponse(request: GenerateReplyRequest): Promise<string> {
     const { data } = await api.post<string>(`/replies/text`, request);
     return data;
@@ -124,4 +124,4 @@ export class FigurantApiClient {
 }
 
 // Export a singleton instance for convenience
-export const figurantClient = new FigurantApiClient();
+export const repliesClient = new RepliesClient();

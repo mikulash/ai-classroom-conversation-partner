@@ -15,14 +15,6 @@
       "import": "./dist/utils/*.js",
       "types": "./dist/utils/*.d.ts"
     },
-    "./generated/*": {
-      "import": "./dist/generated/*.js",
-      "types": "./dist/generated/*.d.ts"
-    },
-    "./prisma/*": {
-      "import": "./dist/prisma/*.js",
-      "types": "./dist/prisma/*.d.ts"
-    },
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
@@ -38,13 +30,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-  },
   "devDependencies": {
-    "typescript": "^5.8.3",
-    "eslint": "^9.25.0",
-    "@types/node": "^22.15.6",
     "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.15.6",
+    "eslint": "^9.25.0",
+    "typescript": "^5.9.3"
   }
 }

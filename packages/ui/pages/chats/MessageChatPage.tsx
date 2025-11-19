@@ -10,7 +10,7 @@ import { FaMicrophone, FaStop } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { MdCallEnd } from 'react-icons/md';
 import { TextToSpeechRequest } from '@repo/shared/types/figurantClient.types';
-import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { toast } from 'sonner';
@@ -189,7 +189,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
         language,
         responseFormat: 'mp3',
       };
-      const audio = await figurantClient.getSpeechAudio(ttsParams);
+      const audio = await repliesClient.getSpeechAudio(ttsParams);
       return audio.objectUrl;
     } catch (error) {
       logMessage('error', 'Error generating audio', {
@@ -380,7 +380,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     if (consecutiveSilencePrompts >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
       const silenceSystemPrompt = t('chat.silencePromptGoodbye');
       // 'The user has been silent for too long. Respond with a short goodbye.';
-      const aiText = await figurantClient.getResponse({
+      const aiText = await repliesClient.getResponse({
         inputText: silenceSystemPrompt,
         previousMessages: messages,
         personality,
@@ -416,7 +416,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     try {
       const silenceSystemPrompt = t('chat.silencePrompt');
       // 'The user has been silent for a few seconds. Respond with a short follow‑up.';
-      const aiText = await figurantClient.getResponse({
+      const aiText = await repliesClient.getResponse({
         inputText: silenceSystemPrompt,
         previousMessages: messages,
         personality,
@@ -475,7 +475,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     if (messages.length > 0) return;
     setIsAiTyping(true);
     try {
-      const aiText = await figurantClient.getResponse({
+      const aiText = await repliesClient.getResponse({
         inputText: 'Just say hi',
         previousMessages: [],
         personality,
@@ -526,7 +526,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
         userProfile,
       };
 
-      const aiText = await figurantClient.getResponse(requestMessage);
+      const aiText = await repliesClient.getResponse(requestMessage);
       if (aiText) await processAiResponse(aiText);
       else throw new Error('Empty response from AI');
     } catch (error) {

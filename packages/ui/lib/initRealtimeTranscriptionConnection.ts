@@ -1,12 +1,12 @@
 import { Language } from '@repo/shared/enums/Language';
-import { figurantClient } from '@repo/frontend-utils/src/clients/figurantClient';
+import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
 
 export async function initRealtimeTranscriptionConnection(
   onEvent: (e: RealtimeEvent) => void,
   language: Language,
 ): Promise<RealtimeConnection> {
-  const response = await figurantClient.getTranscriptionEphemeralToken(
+  const response = await repliesClient.getTranscriptionEphemeralToken(
     'pcm16',
     language,
   );
