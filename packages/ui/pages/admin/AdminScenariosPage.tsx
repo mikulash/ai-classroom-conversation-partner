@@ -34,7 +34,7 @@ export function AdminScenariosPage() {
   const [currentScenario, setCurrentScenario] = useState<ScenarioFormData>(emptyScenario);
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
   }, []);
 
   async function fetchData() {
@@ -77,7 +77,7 @@ export function AdminScenariosPage() {
       toast.error(t('admin.scenarios.notifications.deleteFailed'), { description: error.message });
     } else {
       toast.success(t('admin.scenarios.notifications.deleteSuccess'));
-      fetchData();
+      void fetchData();
     }
     setIsProcessing(false);
   };
@@ -114,7 +114,7 @@ export function AdminScenariosPage() {
       toast.error(t('admin.scenarios.notifications.updateFailed'), { description: error.message });
     } else {
       toast.success(t('admin.scenarios.notifications.updateSuccess'));
-      fetchData();
+      void fetchData();
       setIsEditDialogOpen(false);
     }
     setIsProcessing(false);
@@ -130,7 +130,7 @@ export function AdminScenariosPage() {
       toast.error(t('admin.scenarios.notifications.createFailed'), { description: error.message });
     } else {
       toast.success(t('admin.scenarios.notifications.createSuccess'));
-      fetchData();
+      void fetchData();
       setIsAddDialogOpen(false);
       setCurrentScenario(emptyScenario);
     }
@@ -170,7 +170,9 @@ export function AdminScenariosPage() {
           scenarios={scenarios}
           isProcessing={isProcessing}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={(id) => {
+            void handleDelete(id);
+          }}
           getPersonalityName={getPersonalityName}
         />
       </CardContent>
@@ -192,7 +194,9 @@ export function AdminScenariosPage() {
             <DialogClose asChild>
               <Button variant="outline">{t('admin.scenarios.cancel')}</Button>
             </DialogClose>
-            <Button onClick={() => handleEditSubmit(currentScenario)} disabled={isProcessing}>
+            <Button onClick={() => {
+              void handleEditSubmit(currentScenario);
+            }} disabled={isProcessing}>
               {isProcessing ? t('admin.scenarios.saving') : t('admin.scenarios.saveChanges')}
             </Button>
           </DialogFooter>
@@ -216,7 +220,9 @@ export function AdminScenariosPage() {
             <DialogClose asChild>
               <Button variant="outline">{t('admin.scenarios.cancel')}</Button>
             </DialogClose>
-            <Button onClick={handleAddSubmit} disabled={isProcessing}>
+            <Button onClick={() => {
+              void handleAddSubmit();
+            }} disabled={isProcessing}>
               {isProcessing ? t('admin.scenarios.creating') : t('admin.scenarios.createScenario')}
             </Button>
           </DialogFooter>

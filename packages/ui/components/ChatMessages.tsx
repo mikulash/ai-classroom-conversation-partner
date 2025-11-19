@@ -127,7 +127,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
               <p className="mr-2">{msg.content}</p>
               {msg.role === 'assistant' && msg.audioUrl && onPlayAudio && (
                 <button
-                  onClick={() => onPlayAudio(msg, index)}
+                  onClick={() => {
+                    onPlayAudio(msg, index);
+                  }}
                   className="ml-1 p-1 rounded-full hover:bg-gray-300 transition-colors"
                   title={
                     isAudioPlaying ? t('chat.stopRecording') : t('chat.startRecording')
@@ -189,7 +191,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             !assistantTranscript &&
             !isAiTyping ? (
           <div className="text-gray-500 text-center py-8">
-            {emptyStateMessage || defaultEmptyStateMessage}
+            {emptyStateMessage ?? defaultEmptyStateMessage}
           </div>
         ) : chatStyle === 'voice' ? (
           renderVoiceChat()

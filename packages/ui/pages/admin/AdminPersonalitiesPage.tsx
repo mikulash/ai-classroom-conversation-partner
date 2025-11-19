@@ -41,7 +41,7 @@ export function AdminPersonalitiesPage() {
         useState<PersonalityForm>(emptyPersonality);
 
   useEffect(() => {
-    fetchPersonalities();
+    void fetchPersonalities();
   }, []);
 
   const validateRequiredFields = (personality: PersonalityCreate): string | null => {
@@ -95,7 +95,7 @@ export function AdminPersonalitiesPage() {
         toast.error(t('personalities.deleteFailed'), { description: error.message });
       } else {
         toast.success(t('personalities.deleteSuccess'));
-        fetchPersonalities();
+        void fetchPersonalities();
       }
       setIsProcessing(false);
     }
@@ -149,7 +149,7 @@ export function AdminPersonalitiesPage() {
       toast.error(t('personalities.updateFailed'), { description: error.message });
     } else {
       toast.success(t('personalities.updateSuccess'));
-      fetchPersonalities();
+      void fetchPersonalities();
       setIsEditDialogOpen(false);
     }
     setIsProcessing(false);
@@ -173,7 +173,7 @@ export function AdminPersonalitiesPage() {
       toast.error(t('personalities.createFailed'), { description: error.message });
     } else {
       toast.success(t('personalities.createSuccess'));
-      fetchPersonalities();
+      void fetchPersonalities();
       setIsAddDialogOpen(false);
       setCurrentPersonality(emptyPersonality);
     }
@@ -203,7 +203,7 @@ export function AdminPersonalitiesPage() {
           <Input
             id="name"
             name="name"
-            value={currentPersonality.name ?? ''}
+            value={currentPersonality.name}
             onChange={handleInputChange}
           />
         </div>
@@ -291,9 +291,10 @@ export function AdminPersonalitiesPage() {
       <div className="grid gap-2">
         <Label htmlFor="openaiVoiceName">{t('personalities.openaiVoice')}</Label>
         <Select
-          value={currentPersonality.openaiVoiceName ?? 'alloy'}
-          onValueChange={(value) =>
-            handleSelectChange('openaiVoiceName', value as OpenAiVoiceName)
+          value={currentPersonality.openaiVoiceName}
+          onValueChange={(value) => {
+            handleSelectChange('openaiVoiceName', value as OpenAiVoiceName);
+          }
           }>
           <SelectTrigger>
             <SelectValue placeholder={t('personalities.selectVoice')} />
@@ -380,14 +381,16 @@ export function AdminPersonalitiesPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleEdit(personality)}
+                        onClick={() => {
+                          handleEdit(personality);
+                        }}
                       >
                         {t('common.edit')}
                       </Button>
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDelete(personality.id)}
+                        onClick={() => void handleDelete(personality.id)}
                         disabled={isProcessing}
                       >
                         {t('common.delete')}
@@ -413,7 +416,7 @@ export function AdminPersonalitiesPage() {
             <DialogClose asChild>
               <Button variant="outline">{t('common.cancel')}</Button>
             </DialogClose>
-            <Button onClick={handleEditSubmit} disabled={isProcessing}>
+            <Button onClick={() => void handleEditSubmit()} disabled={isProcessing}>
               {isProcessing ? t('common.saving') : t('common.saveChanges')}
             </Button>
           </DialogFooter>
@@ -432,7 +435,7 @@ export function AdminPersonalitiesPage() {
             <DialogClose asChild>
               <Button variant="outline">{t('common.cancel')}</Button>
             </DialogClose>
-            <Button onClick={handleAddSubmit} disabled={isProcessing}>
+            <Button onClick={() => void handleAddSubmit()} disabled={isProcessing}>
               {isProcessing ? t('common.creating') : t('personalities.createPersonality')}
             </Button>
           </DialogFooter>

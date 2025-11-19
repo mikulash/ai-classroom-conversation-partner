@@ -10,10 +10,10 @@ import {
   TtsModel,
 } from '@repo/shared/types/db/entities';
 import {
-  AdminSelectionWithModels,
+  CustomSelectionWithModels,
   ErrorResponse,
   MessageResponse,
-  UpdateAdminSelectionRequest,
+  UpdateCustomModelSelectionRequest,
 } from '@repo/shared/types/dbRoutes.types';
 
 // Path parameter types
@@ -22,10 +22,6 @@ interface UserIdParams extends ParamsDictionary {
 }
 
 const router = Router();
-
-// ============================================
-// Response Models
-// ============================================
 
 /**
  * GET /api/models/response
@@ -49,10 +45,6 @@ router.get(
     }
   });
 
-// ============================================
-// TTS Models
-// ============================================
-
 /**
  * GET /api/models/tts
  * Get all TTS models
@@ -74,10 +66,6 @@ router.get(
       res.status(500).json({ message: 'Internal server error' });
     }
   });
-
-// ============================================
-// Realtime Models
-// ============================================
 
 /**
  * GET /api/models/realtime
@@ -101,10 +89,6 @@ router.get(
     }
   });
 
-// ============================================
-// Realtime Transcription Models
-// ============================================
-
 /**
  * GET /api/models/realtime-transcription
  * Get all realtime transcription models
@@ -127,9 +111,6 @@ router.get(
     }
   });
 
-// ============================================
-// Timestamped Transcription Models
-// ============================================
 
 /**
  * GET /api/models/timestamped-transcription
@@ -153,21 +134,18 @@ router.get(
     }
   });
 
-// ============================================
-// Admin Custom Model Selection
-// ============================================
 
 /**
- * GET /api/models/admin-selection/:userId
+ * GET /api/models/custom-selection/:userId
  * Get admin custom model selection for a user (admin only)
  */
 router.get(
-  '/admin-selection/:userId',
+  '/custom-selection/:userId',
   authenticate,
   requireAdmin,
   async (
     req: Request<UserIdParams>,
-    res: Response<AdminSelectionWithModels | null | ErrorResponse>,
+    res: Response<CustomSelectionWithModels | null | ErrorResponse>,
   ) => {
     try {
       const { userId } = req.params;
@@ -191,16 +169,16 @@ router.get(
   });
 
 /**
- * PUT /api/models/admin-selection/:userId
+ * PUT /api/models/custom-selection/:userId
  * Update admin custom model selection for a user (admin only)
  */
 router.put(
-  '/admin-selection/:userId',
+  '/custom-selection/:userId',
   authenticate,
   requireAdmin,
   async (
-    req: Request<UserIdParams, AdminSelectionWithModels | ErrorResponse, UpdateAdminSelectionRequest>,
-    res: Response<AdminSelectionWithModels | ErrorResponse>,
+    req: Request<UserIdParams, CustomSelectionWithModels | ErrorResponse, UpdateCustomModelSelectionRequest>,
+    res: Response<CustomSelectionWithModels | ErrorResponse>,
   ) => {
     try {
       const { userId } = req.params;
@@ -222,23 +200,28 @@ router.put(
         return;
       }
 
+      // Build data object with only the fields that are explicitly provided
+      const updateData: Partial<{
+        responseModelId: number | null;
+        ttsModelId: number | null;
+        realtimeModelId: number | null;
+        realtimeTranscriptionModelId: number | null;
+        timestampedTranscriptionModelId: number | null;
+      }> = {};
+
+      if (responseModelId !== undefined) updateData.responseModelId = responseModelId;
+      if (ttsModelId !== undefined) updateData.ttsModelId = ttsModelId;
+      if (realtimeModelId !== undefined) updateData.realtimeModelId = realtimeModelId;
+      if (realtimeTranscriptionModelId !== undefined) updateData.realtimeTranscriptionModelId = realtimeTranscriptionModelId;
+      if (timestampedTranscriptionModelId !== undefined) updateData.timestampedTranscriptionModelId = timestampedTranscriptionModelId;
+
       const selection = await prisma.adminUserCustomModelSelection.upsert({
         where: { userId },
         create: {
           userId,
-          responseModelId,
-          ttsModelId,
-          realtimeModelId,
-          realtimeTranscriptionModelId,
-          timestampedTranscriptionModelId,
+          ...updateData,
         },
-        update: {
-          responseModelId,
-          ttsModelId,
-          realtimeModelId,
-          realtimeTranscriptionModelId,
-          timestampedTranscriptionModelId,
-        },
+        update: updateData,
         include: {
           responseModel: true,
           ttsModel: true,
@@ -256,11 +239,11 @@ router.put(
   });
 
 /**
- * DELETE /api/models/admin-selection/:userId
+ * DELETE /api/models/custom-selection/:userId
  * Delete admin custom model selection for a user (admin only)
  */
 router.delete(
-  '/admin-selection/:userId',
+  '/custom-selection/:userId',
   authenticate,
   requireAdmin,
   async (

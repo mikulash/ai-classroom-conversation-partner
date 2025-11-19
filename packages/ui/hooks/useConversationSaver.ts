@@ -19,7 +19,7 @@ interface ConversationSaverParams {
     scenario?: Scenario | null;
     chatStartTime: number;
     appConfig: AppConfig;
-    logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: any) => void;
+    logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: Record<string, unknown>) => void;
 }
 
 export const useConversationSaver = ({
@@ -40,7 +40,7 @@ export const useConversationSaver = ({
     messagesToSave?: ChatMessage[],
     logsToSave?: ConversationLog[],
   ) => {
-    if (conversationSavedRef.current || !userProfile || !personality) {
+    if (conversationSavedRef.current || !userProfile) {
       return;
     }
 
@@ -52,15 +52,15 @@ export const useConversationSaver = ({
         startTime: new Date(chatStartTime),
         endTime: new Date(),
         endedReason: endReason,
-        messages: (messagesToSave || []).map((msg) => ({
+        messages: (messagesToSave ?? []).map((msg) => ({
           content: msg.content,
           role: msg.role,
-          timestamp: msg.timestamp?.toISOString() || new Date().toISOString(),
+          timestamp: msg.timestamp?.toISOString() ?? new Date().toISOString(),
         })),
-        personalityId: personality.id,
-        scenarioId: scenario?.id || null,
+        personalityId: personality.id !== 0 ? personality.id : null,
+        scenarioId: scenario?.id !== 0 ? scenario?.id : null,
         userId: userProfile.id,
-        logs: logsToSave || [],
+        logs: logsToSave ?? [],
         createdAt: new Date(),
         conversationType: conversationType,
         usedConfig: appConfig,
@@ -74,7 +74,9 @@ export const useConversationSaver = ({
 
       logMessage('log', 'Conversation saved successfully');
     } catch (error) {
-      logMessage('error', 'Failed to save conversation:', error);
+      logMessage('error', 'Failed to save conversation', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       toast.error(t('chat.errors.saveConversationError', { defaultValue: 'Failed to save conversation' }));
     } finally {
       setIsSavingConversation(false);

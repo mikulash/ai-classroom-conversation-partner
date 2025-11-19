@@ -14,7 +14,7 @@ declare global {
 /**
  * Middleware to verify JWT authentication
  */
-export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
   try {
     const token = extractTokenFromHeader(req.header('authorization'));
 
@@ -34,7 +34,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 /**
  * Middleware to check if user is an admin or owner
  */
-export const requireAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
     res.status(401).json({ message: 'Not authenticated' });
     return;
@@ -51,7 +51,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 /**
  * Middleware to check if user is an owner
  */
-export const requireOwner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const requireOwner = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
     res.status(401).json({ message: 'Not authenticated' });
     return;

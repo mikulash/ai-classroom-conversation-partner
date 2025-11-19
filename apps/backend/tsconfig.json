@@ -2,7 +2,9 @@
   "extends": "@repo/typescript-config/node.json",
   "include": [
     "src",
-    "tsup.config.ts"
+    "tsup.config.ts",
+    "prisma",
+    "scripts"
   ],
   "exclude": [
     "node_modules",

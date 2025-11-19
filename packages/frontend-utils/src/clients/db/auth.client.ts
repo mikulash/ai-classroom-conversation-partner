@@ -1,4 +1,3 @@
-// -------------------- Auth Client --------------------
 import {
   AuthTokensResponse, LoginRequest, LogoutRequest,
   MessageResponse, ProfileResponse, RefreshTokenRequest, RegisterResponse, RegisterUserRequest,
@@ -8,6 +7,7 @@ import {
   AuthResponse,
 } from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
+import { AxiosError } from 'axios';
 
 export const authClient = {
   /**
@@ -25,10 +25,11 @@ export const authClient = {
         },
         error: null,
       };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: { message: null },
-        error: { message: error.response?.data?.message || 'Registration failed' },
+        error: { message: axiosError.response?.data.message ?? 'Registration failed' },
       };
     }
   },
@@ -55,10 +56,11 @@ export const authClient = {
         },
         error: null,
       };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: { user: null, session: null },
-        error: { message: error.response?.data?.message || 'Email verification failed' },
+        error: { message: axiosError.response?.data.message ?? 'Email verification failed' },
       };
     }
   },
@@ -71,12 +73,13 @@ export const authClient = {
         data: response.data,
         error: null,
       };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null,
         error: {
           message:
-                        error.response?.data?.message || 'Unable to resend verification email right now.',
+                        axiosError.response?.data.message ?? 'Unable to resend verification email right now.',
         },
       };
     }
@@ -85,7 +88,7 @@ export const authClient = {
   /**
      * Sign in with email and password
      */
-  signInWithPassword: async (email: string, password: string) => {
+  login: async (email: string, password: string) => {
     try {
       const payload: LoginRequest = { email, password };
       const response = await api.post<AuthResponse>('/api/auth/login', payload);
@@ -104,10 +107,62 @@ export const authClient = {
         },
         error: null,
       };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: { user: null, session: null },
-        error: { message: error.response?.data?.message || 'Login failed' },
+        error: { message: axiosError.response?.data.message ?? 'Login failed' },
+      };
+    }
+  },
+
+  /**
+     * Get current user profile from backend
+     */
+  getCurrentUser: async () => {
+    try {
+      const response = await api.get<ProfileResponse>('/api/auth/me');
+      const user = response.data;
+
+      // Update stored user profile
+      localStorage.setItem('user_profile', JSON.stringify(user));
+
+      return { data: user, error: null };
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      return {
+        data: null,
+        error: { message: axiosError.response?.data.message ?? 'Failed to fetch user profile' },
+      };
+    }
+  },
+
+  /**
+     * Manually refresh the access token
+     */
+  refreshToken: async () => {
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const payload: RefreshTokenRequest = { refreshToken };
+      const response = await api.post<AuthTokensResponse>('/api/auth/refresh', payload);
+
+      const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+      // Store new tokens
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', newRefreshToken);
+
+      return { data: { accessToken }, error: null };
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      return {
+        data: null,
+        error: { message: axiosError.response?.data.message ?? 'Token refresh failed' },
       };
     }
   },
@@ -135,56 +190,6 @@ export const authClient = {
     return { error: null };
   },
 
-
-  /**
-     * Manually refresh the access token
-     */
-  refreshToken: async () => {
-    try {
-      const refreshToken = localStorage.getItem('refresh_token');
-
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      const payload: RefreshTokenRequest = { refreshToken };
-      const response = await api.post<AuthTokensResponse>('/api/auth/refresh', payload);
-
-      const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-      // Store new tokens
-      localStorage.setItem('access_token', accessToken);
-      localStorage.setItem('refresh_token', newRefreshToken);
-
-      return { data: { accessToken }, error: null };
-    } catch (error: any) {
-      return {
-        data: null,
-        error: { message: error.response?.data?.message || 'Token refresh failed' },
-      };
-    }
-  },
-
-  /**
-     * Get current user profile from backend
-     */
-  getCurrentUser: async () => {
-    try {
-      const response = await api.get<ProfileResponse>('/api/auth/me');
-      const user = response.data;
-
-      // Update stored user profile
-      localStorage.setItem('user_profile', JSON.stringify(user));
-
-      return { data: user, error: null };
-    } catch (error: any) {
-      return {
-        data: null,
-        error: { message: error.response?.data?.message || 'Failed to fetch user profile' },
-      };
-    }
-  },
-
   /**
      * Request password reset email
      */
@@ -193,10 +198,11 @@ export const authClient = {
       const payload: RequestPasswordResetRequest = { email };
       await api.post<MessageResponse>('/api/auth/request-password-reset', payload);
       return { data: null, error: null };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null,
-        error: { message: error.response?.data?.message || 'Failed to request password reset' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to request password reset' },
       };
     }
   },
@@ -209,10 +215,11 @@ export const authClient = {
       const payload: ResetPasswordRequest = { token, newPassword };
       await api.post<MessageResponse>('/api/auth/reset-password', payload);
       return { data: null, error: null };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null,
-        error: { message: error.response?.data?.message || 'Failed to reset password' },
+        error: { message: axiosError.response?.data.message ?? 'Failed to reset password' },
       };
     }
   },
@@ -225,10 +232,11 @@ export const authClient = {
       const payload: UpdatePasswordRequest = { currentPassword, newPassword };
       await api.put<MessageResponse>('/api/auth/password', payload);
       return { data: null, error: null };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null,
-        error: { message: error.response?.data?.message || 'Password update failed' },
+        error: { message: axiosError.response?.data.message ?? 'Password update failed' },
       };
     }
   },

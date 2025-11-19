@@ -6,7 +6,12 @@ export const useConversationLogger = () => {
 
   const isDevelopment = import.meta.env.MODE === 'development';
 
-  const logMessage = useCallback((level: logLevel, message: string, data?: any, includeInRecord = true) => {
+  const logMessage = useCallback((
+    level: logLevel,
+    message: string,
+    data?: Record<string, unknown>,
+    includeInRecord = true,
+  ) => {
     if (isDevelopment) {
       if (!data) {
         console[level](message);
@@ -17,13 +22,13 @@ export const useConversationLogger = () => {
 
     if (!includeInRecord) return;
     // Add to conversation logs
-    setConversationLogs((prev) => [...prev, {
+    setConversationLogs((prev): ConversationLog[] => [...prev, {
       timestamp: new Date().toISOString(),
       level,
       message,
       data,
     }]);
-  }, []);
+  }, [isDevelopment]);
 
   return { conversationLogs, setConversationLogs, logMessage };
 };

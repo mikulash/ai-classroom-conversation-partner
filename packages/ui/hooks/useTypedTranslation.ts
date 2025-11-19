@@ -14,7 +14,9 @@ export function useTypedTranslation() {
   };
 
   return {
-    ...translation,
+    t: translation.t,
+    i18n: translation.i18n,
+    ready: translation.ready,
     language,
     changeLanguage,
   };

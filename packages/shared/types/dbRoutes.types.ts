@@ -6,8 +6,7 @@ import {
   ConversationCreate,
   ConversationRole,
   Personality,
-  PersonalityCreate,
-  ProfileExtended,
+  PersonalityCreate, Profile,
   RealtimeModel,
   RealtimeTranscriptionModel,
   ResponseModel,
@@ -18,6 +17,13 @@ import {
 } from './db/entities';
 import { UserRole } from './db/enums';
 
+export interface InitialConversationOptions {
+    personalities: Personality[];
+    scenarios: Scenario[];
+    conversationRoles: ConversationRole[];
+    appConfig: AppConfigWithModels;
+}
+
 export interface ErrorResponse {
   message: string;
 }
@@ -26,10 +32,9 @@ export interface MessageResponse {
   message: string;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  error?: { message: string };
-}
+export type ApiResponse<T> =
+  | { data: T; error?: never }
+  | { data: null; error: { message: string } };
 
 export interface RegisterUserRequest {
     email: string;
@@ -44,7 +49,7 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
-  user: ProfileExtended;
+  user: ProfileResponse;
   accessToken: string;
   refreshToken: string;
 }
@@ -80,7 +85,10 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
-export type ProfileResponse = ProfileExtended;
+export interface ProfileResponse extends Profile {
+    email: string;
+    confirmedAt: Date | null;
+}
 
 export interface ResendVerificationRequest {
   email: string;
@@ -119,15 +127,6 @@ export type ConversationWithPersonality = Conversation & {
   scenario?: ConversationScenario | null;
 };
 
-export type ConversationWithDetails = Conversation & {
-  personality: ConversationPersonality | null;
-  scenario: ConversationScenario | null;
-  user?: {
-    id: string;
-    email: string;
-    fullName: string | null;
-  } | null;
-};
 
 // ------------------------------------------------------------
 // Personalities
@@ -149,11 +148,6 @@ export type ScenarioWithPersonality = Scenario & {
   personality: Pick<Personality, 'id' | 'name' | 'avatarUrl'> | null;
 };
 
-// ------------------------------------------------------------
-// Conversation Roles
-// ------------------------------------------------------------
-
-export type ConversationRoleResponse = ConversationRole;
 
 // ------------------------------------------------------------
 // Models & App Config
@@ -169,7 +163,7 @@ export type AppConfigWithModels = AppConfig & {
   timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
 };
 
-export type AdminSelectionWithModels = AdminUserCustomModelSelection & {
+export type CustomSelectionWithModels = AdminUserCustomModelSelection & {
   responseModel: ResponseModel | null;
   ttsModel: TtsModel | null;
   realtimeModel: RealtimeModel | null;
@@ -177,7 +171,7 @@ export type AdminSelectionWithModels = AdminUserCustomModelSelection & {
   timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
 };
 
-export type UpdateAdminSelectionRequest = Partial<
+export type UpdateCustomModelSelectionRequest = Partial<
   Pick<
     AdminUserCustomModelSelection,
     | 'responseModelId'

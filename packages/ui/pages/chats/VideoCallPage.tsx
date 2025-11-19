@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MdCallEnd } from 'react-icons/md';
 import { FaPlay } from 'react-icons/fa';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { AvatarTalkingHead, AvatarTalkingHeadHandle } from '../../components/AvatarTalkingHead';
 import { PersonalityInfo } from '../../components/PersonalityInfo';
@@ -26,17 +26,12 @@ import {
   getVoiceChatUiStatusMessage,
   processRealtimeTranscriptionEvent,
 } from '../../lib/videoCallPageUtils';
+import { ChatPageWrapper } from '../../components/ChatPageWrapper';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
-export const VideoCallPage: React.FC = () => {
+const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversationRoleName, scenario }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const {
-    personality,
-    conversationRoleName,
-    scenario,
-  }: ChatPageProps = location.state ?? {};
   const [isLoading, setIsLoading] = useState(true);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -100,9 +95,6 @@ export const VideoCallPage: React.FC = () => {
   }, [handleTranscriptionCompleted]);
 
   useEffect(() => {
-    if (!personality || !conversationRoleName) {
-      navigate('/chat'); // Redirect to the personality selector if not set
-    }
     setIsLoading(false);
 
     return () => {
@@ -142,7 +134,9 @@ export const VideoCallPage: React.FC = () => {
       }
     }, 10000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [chatStartTime]);
 
   useEffect(() => {
@@ -161,7 +155,8 @@ export const VideoCallPage: React.FC = () => {
         silenceTriggeredRef.current = true;
 
         logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
-        if (!personality || !userProfile || hasChatEndedRef.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!personality || !userProfile) return;
 
         if (consecutiveSilencePromptsCount >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
           void handleSilencePromptLimitReached();
@@ -172,12 +167,14 @@ export const VideoCallPage: React.FC = () => {
       }
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [hasConversationStarted, isAiProcessing, silenceTimeoutInSeconds]);
 
   const startConversation = async () => {
     logMessage('log', 'startConversation: Starting conversation with personality', {
-      personalityName: personality?.name,
+      personalityName: personality.name,
       conversationRole: conversationRoleName,
     });
     setHasConversationStarted(true);
@@ -192,7 +189,9 @@ export const VideoCallPage: React.FC = () => {
       );
       setConnection(conn);
     } catch (e) {
-      logMessage('error', 'Failed to start conversation', e);
+      logMessage('error', 'Failed to start conversation', {
+        error: e instanceof Error ? e.message : String(e),
+      });
       setError((e as Error).message);
     } finally {
       setIsConnecting(false);
@@ -200,6 +199,7 @@ export const VideoCallPage: React.FC = () => {
   };
 
   const handleSilencePromptLimitReached = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!personality || !userProfile || hasChatEndedRef.current) {
       setIsAiProcessing(false);
       return;
@@ -209,7 +209,7 @@ export const VideoCallPage: React.FC = () => {
     setIsAiProcessing(true);
     try {
       const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
-        input_text: 'The user has been silent for too long. Respond with a short goodbye.',
+        inputText: 'The user has been silent for too long. Respond with a short goodbye.',
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -239,7 +239,9 @@ export const VideoCallPage: React.FC = () => {
       // Wait a moment before ending the chat, then pass the final messages and logs
       setTimeout(() => handleEndChatWithReason('silence', finalMessages, finalLogs), 2000);
     } catch (err) {
-      logMessage('error', 'Error during final silence prompt:', err);
+      logMessage('error', 'Error during final silence prompt', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     } finally {
       setIsAiProcessing(false);
     }
@@ -249,6 +251,7 @@ export const VideoCallPage: React.FC = () => {
     setConsecutiveSilencePromptsCount((prev) => prev + 1);
     setIsAiProcessing(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!personality || !userProfile || hasChatEndedRef.current) {
       setIsAiProcessing(false);
       return;
@@ -258,7 +261,7 @@ export const VideoCallPage: React.FC = () => {
       const silenceSystemPrompt = t('chat.silencePrompt');
 
       const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
-        input_text: silenceSystemPrompt,
+        inputText: silenceSystemPrompt,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -270,7 +273,9 @@ export const VideoCallPage: React.FC = () => {
       setMessages((prev) => [...prev, { content: reply, role: 'assistant', timestamp: new Date() }]);
       avatarRef.current?.speakAudio(speech);
     } catch (err) {
-      logMessage('error', 'Error during silence prompt:', err);
+      logMessage('error', 'Error during silence prompt', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     } finally {
       setIsAiProcessing(false);
       markActivity();
@@ -278,6 +283,7 @@ export const VideoCallPage: React.FC = () => {
   };
 
   const sendMessage = async (messageToSend: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!messageToSend.trim() || !personality) return;
 
     // Don't stop the WebRTC connection, just mark that we're processing
@@ -291,7 +297,7 @@ export const VideoCallPage: React.FC = () => {
 
     try {
       const { text: reply, speech } = await figurantClient.getFullReplyTimestamped({
-        input_text: messageToSend,
+        inputText: messageToSend,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -307,7 +313,9 @@ export const VideoCallPage: React.FC = () => {
 
       avatarRef.current?.speakAudio(speech);
     } catch (err) {
-      logMessage('error', 'Error generating full reply:', err);
+      logMessage('error', 'Error generating full reply', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       const fallback = t('aiResponseError');
       setMessages((m) => [...m, { content: fallback, role: 'assistant', timestamp: new Date() }]);
     } finally {
@@ -318,13 +326,13 @@ export const VideoCallPage: React.FC = () => {
 
   // Handler for ending chat with a specific reason
   const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLog[]) => {
-    logMessage('log', 'Ending chat with reason:', reason);
+    logMessage('log', `Ending chat with reason: ${reason}`);
 
     connection?.close();
     setConnection(null);
 
-    const finalMessages = messagesToSave || messages;
-    const finalLogs = logsToSave || conversationLogs;
+    const finalMessages = messagesToSave ?? messages;
+    const finalLogs = logsToSave ?? conversationLogs;
 
     hasChatEndedRef.current = true;
 
@@ -343,7 +351,7 @@ export const VideoCallPage: React.FC = () => {
   // Handler for going to personality selector after viewing transcript
   const handleGoToPersonalitySelector = () => {
     setIsTranscriptDialogVisible(false);
-    navigate('/chat');
+    void navigate('/chat');
   };
 
   const handleEndCall = () => {
@@ -363,14 +371,6 @@ export const VideoCallPage: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         {t('loading.general')}
-      </div>
-    );
-  }
-
-  if (!personality) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        {t('noPersonalitySelected')}
       </div>
     );
   }
@@ -462,7 +462,9 @@ export const VideoCallPage: React.FC = () => {
         <div className="flex justify-center gap-4">
           {!hasConversationStarted ? (
             <Button
-              onClick={startConversation}
+              onClick={() => {
+                void startConversation();
+              }}
               className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
               disabled={isAiProcessing}
             >
@@ -493,3 +495,10 @@ export const VideoCallPage: React.FC = () => {
   );
 };
 
+export const VideoCallPage: React.FC = () => {
+  return (
+    <ChatPageWrapper>
+      {(props) => <VideoCallPageContent {...props} />}
+    </ChatPageWrapper>
+  );
+};

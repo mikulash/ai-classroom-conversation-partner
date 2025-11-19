@@ -37,7 +37,7 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
     );
   }
 
-  if (!conversations || conversations.length === 0) {
+  if (conversations.length === 0) {
     return (
       <div className="text-center py-4 text-muted-foreground">
         {t('noConversationsFound', { defaultValue: 'No conversations found' })}
@@ -68,13 +68,15 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
         <div
           key={conversation.id}
           className="bg-background p-3 rounded border cursor-pointer hover:bg-muted/50 transition-colors"
-          onClick={() => onConversationClick(conversation)}
+          onClick={() => {
+            onConversationClick(conversation);
+          }}
         >
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-medium text-sm">
-                  {conversation.personality?.name || 'Unknown Personality'}
+                  {conversation.personality?.name ?? 'Unknown Personality'}
                 </span>
                 <span
                   className={`text-xs px-2 py-1 rounded ${getConversationTypeStyles(conversation.conversation_type)}`}>

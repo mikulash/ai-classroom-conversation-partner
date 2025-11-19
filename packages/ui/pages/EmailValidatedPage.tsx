@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -16,15 +16,16 @@ export const EmailValidatedPage: React.FC = () => {
   const { applySession } = useAuth();
   const [status, setStatus] = useState<VerificationStatus>(token ? 'loading' : 'missingToken');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
 
     if (!token) {
       setStatus('missingToken');
       setErrorMessage(null);
       return () => {
-        isMounted = false;
+        isMountedRef.current = false;
       };
     }
 
@@ -34,15 +35,15 @@ export const EmailValidatedPage: React.FC = () => {
     void (async () => {
       const { data, error } = await authClient.verifyEmail(token);
 
-      if (!isMounted) {
+      if (!isMountedRef.current) {
         return;
       }
 
-      if (error || !data?.user) {
-        const message = error?.message ?? null;
+      if (error) {
+        const message = error.message;
 
-        if (message && message.toLowerCase().includes('expired')) {
-          navigate('/verification-expired', { replace: true });
+        if (message.toLowerCase().includes('expired')) {
+          void navigate('/verification-expired', { replace: true });
           return;
         }
 
@@ -51,12 +52,12 @@ export const EmailValidatedPage: React.FC = () => {
         return;
       }
 
-      applySession(data.session ?? null);
+      applySession(data.session);
       setStatus('success');
     })();
 
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
   }, [applySession, navigate, token]);
 

@@ -7,22 +7,69 @@ These are the minimum prerequisites you need to work on the Figurant monorepo lo
 ### Core tooling
 - **Node.js 22.x** – aligns with the runtime used by the backend and web Docker images.
 - **pnpm 10.x** – enabled via `corepack enable`; all workspace scripts assume pnpm.
-- **Docker** - for deployment
+- **Docker** - for running PostgreSQL locally and deployment
 
 ### Environment & external services
-- A Supabase project with access to the **project URL** and **service role key** for the backend, plus the **anon key** for web/desktop clients.
+- A local PostgreSQL 18 instance reachable through `DATABASE_URL` (run it with Docker as shown below or point to any managed instance)
 - API keys for the AI providers you plan to use
 - Configure the `.env` files for each app (backend + web or tauri)
 
+## Getting Started with Development
+
+Follow these steps to set up your local development environment:
+
+### 1. Generate Prisma Client
+
+```bash
+pnpm --filter figurant-backend prisma:generate
+```
+
+### 2. Start PostgreSQL with Docker
+
+```bash
+# Optional: create a persistent directory for the volume
+mkdir -p .data/postgres
+
+docker run \
+  --name figurant-db \
+  -e POSTGRES_DB=ai_classroom \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  -v $(pwd)/.data/postgres:/var/lib/postgresql/data \
+  -d postgres:18
+```
+
+Set `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_classroom` inside `apps/backend/.env` (copy from `.env.example`).
+
+### 3. Run Database Migrations
+
+```bash
+pnpm --filter figurant-backend prisma:migrate
+```
+
+### 4. Seed the Database
+
+```bash
+# Connect to the database and run the seed SQL file
+docker exec -i figurant-db psql -U postgres -d ai_classroom < apps/backend/prisma/seed-data.sql
+```
+
+### 5. Start Development Server
+
+```bash
+pnpm --filter figurant-backend dev
+```
+
+Read more database tips in [docs/database.md](./database.md).
+
 ## Changes in DB schema
-If you make changes to the database schema, you will need to update generated types of supabase tables that are located in './packages/shared/types/supabase/database.types.ts'
+All schemas now live in [`apps/backend/prisma/schema.prisma`](../apps/backend/prisma/schema.prisma). Whenever you update it:
 
-### Generating types
-
-Get them here get them [here](https://supabase.com/dashboard/project/_/api?page=tables-intro) OR:
-
-1. install supabase cli and login as described in [here](https://supabase.com/docs/guides/api/rest/generating-types)
-2. rewrite the file containing the types with command `npx supabase gen types typescript --project-id "$PROJECT_REF" --schema public > ./packages/shared/types/supabase/database.types.ts`. This target path is when running from the root of the repo. Project ref can be found in the settings of your supabase project or in the project URL.
+1. Create a migration with `pnpm --filter figurant-backend prisma:migrate --name <change-summary>`.
+2. Generate the Prisma client so TypeScript picks up the new types: `pnpm --filter figurant-backend prisma:generate`.
+3. Update the seed file (`apps/backend/prisma/seed-data.sql`) if the change requires new bootstrap data.
+4. Commit the migration folder plus any updated generated files.
 
 ## Deployment
 ### Prerequisites:
@@ -41,7 +88,11 @@ it depends if the provider is already supported or if you want to add a new prov
 ### Existing provider
 >`OpenAI`, `Anthropic`, `xAI`, `ElevenLabs`
 
-if you want to add a new AI model for an already supported provider, you need to add this new model to fitting db table in supabase dashboard (response_models table, tts_models table, etc.)
+For new models that belong to an already supported provider:
+
+1. Update `apps/backend/prisma/schema.prisma` if you need new enum values.
+2. Insert the actual rows through Prisma Studio (`pnpm --filter figurant-backend prisma:studio`) **or** update `apps/backend/prisma/seed-data.sql` and re-run the seed: `docker exec -i figurant-db psql -U postgres -d ai_classroom < apps/backend/prisma/seed-data.sql`.
+3. Confirm the backend references (e.g., dropdowns in `packages/ui/components`) automatically pick up the data from the database.
 
 each table that stores models has a column
 - `provider` that specifies which provider the model belongs to
@@ -49,16 +100,15 @@ each table that stores models has a column
 - `api_name` that is used in the API calls to the provider, for example, OpenAI allows to automatically use the latest version like `gpt-4o` or you can specify a specific version like `gpt-4o-2024-08-06`
 
 ### New provider
-if you want to add a new provider, you need to do the following steps:
-1. you need to add this new provider to the postgres enum for which the models will be added, for example, adding provider `Google` to the `tts_models` table. You need to add Google value to the `providers_tts_model enum` in supabase dashboard [here](https://supabase.com/dashboard/project/_/database/types)
-2. now we can use this provider when adding new models to the `tts_models` table
-3. you need to implement the provider client in the backend project (see `packages/backend/src/lib/ai/` folder for existing providers) and implement specific api calls that follows existing interfaces.
-4. every place you need to update when added the new provider can be highlighted by TypeScript's typechecking. First, you need to generate the types for supabase as in a section above. Now the TypeScript will highlight the uncovered switch case branch you need to implement. This highlighted error will probably be in [the universalApi](../apps/backend/src/ai-api/universalApi.ts) file where the api calls are made based on the provider and model selected.
+If you need to support a brand-new provider:
+1. Add the provider to the corresponding enum in `apps/backend/prisma/schema.prisma` (`providers_tts_model`, `providers_response_model`, etc.). Run `pnpm --filter figurant-backend prisma:migrate` so the change lands in the database.
+2. Seed at least one model row for the provider by updating `apps/backend/prisma/seed-data.sql`.
+3. Implement the provider client in the backend project (see `apps/backend/src/lib/ai/` for references) and wire it into [`universalApi`](../apps/backend/src/ai-api/universalApi.ts).
+4. Re-run `pnpm --filter figurant-backend prisma:generate` so TypeScript enforces any missing switch branches or DTO updates.
 
 
 ## Problem solving
 - **OpenAI API Issues**: Check https://status.openai.com/
-- **Supabase Issues**: Check https://status.supabase.com/
 - **Anthropic Issues**: Check https://status.anthropic.com/
 - **ElevenLabs Issues**: Check https://status.elevenlabs.io/
 - **Grok Issues**: Check https://status.x.ai/

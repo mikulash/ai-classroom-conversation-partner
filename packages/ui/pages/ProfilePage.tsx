@@ -35,10 +35,10 @@ export function UserProfilePage() {
 
   useEffect(() => {
     if (!cachedProfile) return;
-    setFullName(cachedProfile.fullName ?? '');
+    setFullName(cachedProfile.fullName);
     setConversationRole(cachedProfile.conversationRole);
-    setGender(cachedProfile.gender ?? '');
-    setBio(cachedProfile.bio ?? '');
+    setGender(cachedProfile.gender);
+    setBio(cachedProfile.bio);
   }, [cachedProfile]);
 
   const fetchConversations = useCallback(async () => {
@@ -50,9 +50,9 @@ export function UserProfilePage() {
     try {
       setIsLoadingConversations(true);
 
-      const { data, error } = await conversationClient.getCurrent();
+      const { data, error } = await conversationClient.getCurrentUserConversations();
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       const toIsoString = (value: Date | string | null | undefined): string => {
         if (!value) return '';
@@ -64,10 +64,10 @@ export function UserProfilePage() {
         id: conv.id,
         start_time: toIsoString(conv.startTime),
         end_time: toIsoString(conv.endTime),
-        ended_reason: conv.endedReason ?? '',
+        ended_reason: conv.endedReason,
         conversation_type: conv.conversationType,
         messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
-        personality_id: conv.personalityId ?? null,
+        personality_id: conv.personalityId,
         personality: conv.personality ? { name: conv.personality.name } : null,
       }));
 
@@ -106,13 +106,15 @@ export function UserProfilePage() {
         cachedProfile.id,
         payload,
       );
-      if (updateError || freshData === null) {
+      if (updateError) {
         console.error('Error saving profile:', updateError);
       } else {
         console.log('Profile saved successfully');
         setProfile(freshData);
         setIsSuccess(true);
-        setTimeout(() => setIsSuccess(false), 3000);
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 3000);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -136,14 +138,11 @@ export function UserProfilePage() {
         console.error('Error fetching user profile:', profileError);
         return;
       }
-
-      if (data) {
-        setFullName(data.fullName ?? '');
-        setConversationRole(data.conversationRole ?? '');
-        setGender(data.gender ?? '');
-        setBio(data.bio ?? '');
-        setProfile(data);
-      }
+      setFullName(data.fullName);
+      setConversationRole(data.conversationRole);
+      setGender(data.gender);
+      setBio(data.bio);
+      setProfile(data);
 
       await fetchConversations();
     };
@@ -179,7 +178,9 @@ export function UserProfilePage() {
               <Input
                 id="fullName"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                }}
                 placeholder={t('usernamePlaceholder')}
                 className="mt-1"
               />
@@ -192,7 +193,9 @@ export function UserProfilePage() {
               <Label htmlFor="gender">{t('gender')}</Label>
               <Input
                 value={gender}
-                onChange={(e) => setGender(e.target.value)}
+                onChange={(e) => {
+                  setGender(e.target.value);
+                }}
                 placeholder={t('genderPlaceholder')}
                 className={'mt-1'}
               />
@@ -206,7 +209,9 @@ export function UserProfilePage() {
               <Textarea
                 id="bio"
                 value={bio}
-                onChange={(e) => setBio(e.target.value)}
+                onChange={(e) => {
+                  setBio(e.target.value);
+                }}
                 placeholder={t('bioPlaceholder')}
                 className="mt-1"
               />
@@ -217,7 +222,9 @@ export function UserProfilePage() {
           </CardContent>
 
           <CardFooter className="justify-end">
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button onClick={() => {
+              void handleSave();
+            }} disabled={isSaving}>
               {isSaving ? t('saving') : t('saveChanges')}
             </Button>
           </CardFooter>
@@ -228,7 +235,9 @@ export function UserProfilePage() {
             <CardTitle>{t('profile.myConversations', { defaultValue: 'My conversations' })}</CardTitle>
             <Button
               variant="outline"
-              onClick={fetchConversations}
+              onClick={() => {
+                void fetchConversations();
+              }}
               disabled={isLoadingConversations}
             >
               {t('refresh')}
@@ -248,8 +257,8 @@ export function UserProfilePage() {
       <ConversationTranscriptDialog
         isOpen={isConversationDialogVisible}
         onOpenChange={setIsConversationDialogVisible}
-        messages={selectedConversation?.messages || []}
-        personalityName={selectedConversation?.personality?.name || 'Unknown'}
+        messages={selectedConversation?.messages ?? []}
+        personalityName={selectedConversation?.personality?.name ?? 'Unknown'}
         mode="admin"
         conversationMetadata={selectedConversation ? {
           conversationType: selectedConversation.conversation_type,

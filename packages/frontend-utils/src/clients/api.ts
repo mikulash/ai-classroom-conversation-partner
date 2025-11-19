@@ -1,4 +1,13 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+
+interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 // Track if we're currently refreshing to prevent multiple refresh requests
 let isRefreshing = false;
@@ -11,7 +20,9 @@ const subscribeTokenRefresh = (callback: (token: string) => void) => {
 
 // Notify all subscribers when refresh completes
 const onRefreshed = (token: string) => {
-  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers.forEach((callback) => {
+    callback(token);
+  });
   refreshSubscribers = [];
 };
 
@@ -35,17 +46,17 @@ const createApiClient = (): AxiosInstance => {
       }
       return config;
     },
-    (error) => Promise.reject(error),
+    (error: Error) => Promise.reject(error),
   );
 
   // Response interceptor to handle token refresh on 401
   client.interceptors.response.use(
     (response) => response,
-    async (error) => {
-      const originalRequest = error.config;
+    async (error: AxiosError) => {
+      const originalRequest = error.config as CustomAxiosRequestConfig | undefined;
 
       // If error is 401 and we haven't tried to refresh yet
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
         if (isRefreshing) {
           // If already refreshing, queue this request
           return new Promise((resolve) => {
@@ -67,7 +78,7 @@ const createApiClient = (): AxiosInstance => {
           }
 
           // Call refresh endpoint
-          const response = await axios.post(`${baseURL}/api/auth/refresh`, {
+          const response = await axios.post<RefreshTokenResponse>(`${baseURL}/api/auth/refresh`, {
             refreshToken,
           });
 
@@ -78,7 +89,7 @@ const createApiClient = (): AxiosInstance => {
           localStorage.setItem('refresh_token', newRefreshToken);
 
           // Update authorization header
-          client.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+          client.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
           // Notify all queued requests
@@ -86,14 +97,14 @@ const createApiClient = (): AxiosInstance => {
           isRefreshing = false;
 
           // Retry the original request
-          return client(originalRequest);
+          return await client(originalRequest);
         } catch (refreshError) {
           // Refresh failed - clear tokens and redirect to login
           isRefreshing = false;
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_profile');
-          return Promise.reject(refreshError);
+          return Promise.reject(refreshError instanceof Error ? refreshError : new Error('Token refresh failed'));
         }
       }
 

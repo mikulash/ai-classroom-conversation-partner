@@ -1,14 +1,20 @@
 import { ApiResponse, ProfileResponse, UpdateProfileRequest, UpdateUserRoleRequest } from '@repo/shared/types/dbRoutes.types';
 import { api } from '../api';
 import { UserRole } from '@repo/shared/types/db/enums';
+import { AxiosError } from 'axios';
 
+/**
+ * methods to access user profiles.
+ * method to create profile is missing as profiles are created directly when users register.
+ */
 export const profileClient = {
   getAll: async (): Promise<ApiResponse<ProfileResponse[]>> => {
     try {
       const response = await api.get<ProfileResponse[]>('/api/profiles');
       return { data: response.data };
-    } catch (error: any) {
-      return { data: [], error: { message: error.response?.data?.message || 'Failed to fetch profiles' } };
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch profiles' } };
     }
   },
 
@@ -16,10 +22,11 @@ export const profileClient = {
     try {
       const response = await api.put<ProfileResponse>(`/api/profiles/${profileId}`, payload);
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as ProfileResponse,
-        error: { message: error.response?.data?.message || 'Failed to update profile' },
+        data: null,
+        error: { message: axiosError.response?.data.message ?? 'Failed to update profile' },
       };
     }
   },
@@ -29,10 +36,11 @@ export const profileClient = {
       const payload: UpdateUserRoleRequest = { userRole: role };
       const response = await api.put<ProfileResponse>(`/api/profiles/${profileId}/role`, payload);
       return { data: response.data };
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
       return {
-        data: null as unknown as ProfileResponse,
-        error: { message: error.response?.data?.message || 'Failed to update role' },
+        data: null,
+        error: { message: axiosError.response?.data.message ?? 'Failed to update role' },
       };
     }
   },

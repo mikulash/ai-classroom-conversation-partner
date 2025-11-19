@@ -49,13 +49,13 @@ router.post(
     res: Response<string | ErrorResponse>,
   ) => {
     try {
-      const { input_text, previousMessages, personality, conversationRole, language, scenario, userProfile } =
+      const { inputText, previousMessages, personality, conversationRole, language, scenario, userProfile } =
                 req.body;
 
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const response = await universalApi.getResponse({
-        input_text,
+        inputText: inputText,
         previousMessages,
         personality,
         conversationRole,
@@ -86,14 +86,14 @@ router.post(
     res: Response<TextToSpeechResponse | ErrorResponse>,
   ) => {
     try {
-      const { inputMessage, personality, language, response_format } = req.body;
-      const userId = await getUserId(req);
+      const { inputMessage, personality, language, responseFormat } = req.body;
+      const userId = getUserId(req);
 
       const result = await universalApi.getSpeechAudio({
         inputMessage,
         personality,
         language,
-        response_format,
+        responseFormat: responseFormat,
       }, userId);
 
       const audioBase64 = Buffer
@@ -128,7 +128,7 @@ router.post(
   ) => {
     try {
       const { inputMessage, personality, language } = req.body;
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const speechAudio = await universalApi.getTimestampedSpeechAudio({
         inputMessage,
@@ -166,7 +166,7 @@ router.post(
     res: Response<FullReplyPlainResponse | ErrorResponse>,
   ) => {
     try {
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const text = await universalApi.getResponse(req.body, userId);
 
@@ -174,7 +174,7 @@ router.post(
         inputMessage: text,
         personality: req.body.personality,
         language: req.body.language,
-        response_format: 'pcm',
+        responseFormat: 'pcm',
       }, userId);
 
       const speech: TextToSpeechResponse = {
@@ -206,7 +206,7 @@ router.post(
     res: Response<FullReplyTimestampedResponse | ErrorResponse>,
   ) => {
     try {
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
 
       const text = await universalApi.getResponse(req.body, userId);
 
@@ -245,7 +245,7 @@ router.post(
     res: Response<WebRtcAnswerResponse | ErrorResponse>,
   ) => {
     try {
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
       const answer = await universalApi.getRealtimeVoice(req.body, userId);
       res.json(answer);
     } catch (error) {
@@ -270,17 +270,18 @@ router.post(
     res: Response<TranscriptionSessionCreateResponse | ErrorResponse>,
   ) => {
     try {
-      const userId = await getUserId(req);
+      const userId = getUserId(req);
       const transcriptionSessionCreateResponse = await universalApi.getRealtimeTranscription(req.body, userId);
       console.log('Transcription session created:', transcriptionSessionCreateResponse);
       res.json(transcriptionSessionCreateResponse);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      const status = typeof err.status === 'number' ? err.status : 500;
-      const msg =
-                status === 500 ?
-                  'Internal server error' :
-                  'OpenAI transcription session creation failed';
+      let status = 500;
+      if (typeof err === 'object' && err !== null && 'status' in err && typeof (err as { status: unknown }).status === 'number') {
+        status = (err as { status: number }).status;
+      }
+      const msg = status === 500 ? 'Internal server error' : 'OpenAI transcription session creation failed';
+
       res.status(status).json({ message: msg, statusCode: status });
     }
   },

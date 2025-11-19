@@ -32,7 +32,7 @@ export class FigurantApiClient {
     const { data } = await api.post<TextToSpeechResponse>(`/replies/speech`, params);
 
     const buffer = this.b64ToArrayBuffer(data.audioBase64);
-    const blob = this.pcmArrayBufferToBlob(buffer, params.response_format ?? 'pcm');
+    const blob = this.pcmArrayBufferToBlob(buffer, params.responseFormat);
 
     return {
       blob,
@@ -118,7 +118,7 @@ export class FigurantApiClient {
     return buf;
   }
 
-  private pcmArrayBufferToBlob(buf: ArrayBuffer, format = 'pcm'): Blob {
+  private pcmArrayBufferToBlob(buf: ArrayBuffer, format : 'pcm' | 'mp3'= 'pcm'): Blob {
     return new Blob([buf], { type: `audio/${format}` });
   }
 }

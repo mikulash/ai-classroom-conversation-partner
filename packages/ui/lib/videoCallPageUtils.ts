@@ -6,7 +6,7 @@ import type { SetStateAction } from 'react';
 interface ProcessRealtimeTranscriptionEventParams {
     setIsTranscribing: (value: SetStateAction<boolean>) => void;
     handleTranscriptionCompleted: (transcript: string) => void;
-    logMessage: (level: logLevel, message: string, data?: any, includeInRecord?: boolean) => void;
+    logMessage: (level: logLevel, message: string, data?: Record<string, unknown>, includeInRecord?: boolean) => void;
     setError: (value: SetStateAction<string | null>) => void;
     setCurrentTranscript: (value: SetStateAction<string>) => void;
     onUserActivity: () => void;
@@ -24,29 +24,31 @@ export const processRealtimeTranscriptionEvent = (
   }: ProcessRealtimeTranscriptionEventParams,
 ) => {
   switch (event.type) {
-    case 'error':
-      logMessage('error', 'Realtime API error:', event.error);
-      setError(event.error?.message || 'Unknown error occurred');
+    case 'error': {
+      const errorData = event.error as { message?: string } | undefined;
+      logMessage('error', 'Realtime API error', { error: event.error });
+      setError(errorData?.message ?? 'Unknown error occurred');
       break;
+    }
 
     case 'transcription_session.created':
-      logMessage('log', 'Transcription session created', null, false);
+      logMessage('log', 'Transcription session created', undefined, false);
       break;
 
     case 'transcription_session.updated':
-      logMessage('log', 'Transcription session updated', null, false);
+      logMessage('log', 'Transcription session updated', undefined, false);
       break;
 
     case 'conversation.item.input_audio_transcription.delta':
       // For gpt-4o-transcribe or GPT-4o mini Transcribe, this will be incremental
-      setCurrentTranscript((p) => p + event.delta);
+      setCurrentTranscript((p) => p + (typeof event.delta === 'string' ? event.delta : ''));
       setIsTranscribing(true);
       onUserActivity();
       break;
 
     case 'conversation.item.input_audio_transcription.completed':
       setIsTranscribing(false);
-      handleTranscriptionCompleted(event.transcript);
+      handleTranscriptionCompleted(typeof event.transcript === 'string' ? event.transcript : '');
       break;
 
     case 'input_audio_buffer.committed':

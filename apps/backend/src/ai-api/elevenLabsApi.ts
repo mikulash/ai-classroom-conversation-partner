@@ -13,28 +13,28 @@ const getTextToSpeech = async (
     inputMessage,
     personality,
     language,
-    response_format,
-    model_api_name,
-    sample_rate,
+    responseFormat,
+    modelApiName,
+    sampleRate,
   } = params;
 
   const apiKeysProvider = await ConfigProvider.getInstance();
   const ELEVENLABS_API_KEY = apiKeysProvider.getApiKey(API_KEY.ELEVENLABS);
 
   try {
-    const output_format =
-            response_format === 'pcm' ? `pcm_${sample_rate}` : `mp3_${sample_rate}_32`;
-    let voice_id = personality.elevenlabsVoiceId;
-    if (!voice_id) {
+    const outputFormat =
+            responseFormat === 'pcm' ? `pcm_${sampleRate}` : `mp3_${sampleRate}_32`;
+    let voiceId = personality.elevenlabsVoiceId;
+    if (!voiceId) {
       if (personality.sex == 'F') {
-        voice_id = ELEVENLABS_FALLBACK_VOICE_ID_FEMALE;
+        voiceId = ELEVENLABS_FALLBACK_VOICE_ID_FEMALE;
       } else {
-        voice_id = ELEVENLABS_FALLBACK_VOICE_ID_MALE;
+        voiceId = ELEVENLABS_FALLBACK_VOICE_ID_MALE;
       }
     }
 
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}?output_format=${output_format}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=${outputFormat}`,
       {
         method: 'POST',
         headers: {
@@ -43,7 +43,7 @@ const getTextToSpeech = async (
         },
         body: JSON.stringify({
           text: inputMessage,
-          model_id: model_api_name,
+          model_id: modelApiName,
           language: language.ISO639,
           voice_settings: {
             stability: 0,
@@ -59,7 +59,7 @@ const getTextToSpeech = async (
       console.error('ElevenLabs API failed: ', response.status, response.statusText);
 
       return {
-        blob: new Blob([], { type: `audio/${response_format}` }),
+        blob: new Blob([], { type: `audio/${responseFormat}` }),
         objectUrl: '',
         buffer: new ArrayBuffer(0),
         sampleRate: 0,
@@ -67,20 +67,20 @@ const getTextToSpeech = async (
     }
 
     const arrayBuffer = await response.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: `audio/${response_format}` });
+    const blob = new Blob([arrayBuffer], { type: `audio/${responseFormat}` });
     const objectUrl = URL.createObjectURL(blob);
 
     return {
       blob,
       objectUrl,
       buffer: arrayBuffer,
-      sampleRate: sample_rate,
+      sampleRate: sampleRate,
     };
   } catch (error) {
     console.error('Error converting text to speech using ElevenLabs:', error);
 
     return {
-      blob: new Blob([], { type: `audio/${response_format}` }),
+      blob: new Blob([], { type: `audio/${responseFormat}` }),
       objectUrl: '',
       buffer: new ArrayBuffer(0),
       sampleRate: 0,
@@ -91,23 +91,23 @@ const getTextToSpeech = async (
 const getTextToSpeechTimestamped = async (
   params: GetTimestampedAudioParamsWithModelName,
 ): Promise<LipSyncAudio> => {
-  const { inputMessage, personality, language, model_api_name, sample_rate } = params;
+  const { inputMessage, personality, language, modelApiName, sampleRate } = params;
 
   const apiKeysProvider = await ConfigProvider.getInstance();
   const ELEVENLABS_API_KEY = apiKeysProvider.getApiKey(API_KEY.ELEVENLABS);
 
   try {
-    let voice_id = personality.elevenlabsVoiceId;
-    if (!voice_id) {
+    let voiceId = personality.elevenlabsVoiceId;
+    if (!voiceId) {
       // female and male fallback voice ids
       if (personality.sex == 'F') {
-        voice_id = ELEVENLABS_FALLBACK_VOICE_ID_FEMALE;
+        voiceId = ELEVENLABS_FALLBACK_VOICE_ID_FEMALE;
       } else {
-        voice_id = ELEVENLABS_FALLBACK_VOICE_ID_MALE;
+        voiceId = ELEVENLABS_FALLBACK_VOICE_ID_MALE;
       }
     }
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}/with-timestamps?output_format=pcm_${sample_rate}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=pcm_${sampleRate}`,
       {
         method: 'POST',
         headers: {
@@ -116,7 +116,7 @@ const getTextToSpeechTimestamped = async (
         },
         body: JSON.stringify({
           text: inputMessage,
-          model_id: model_api_name,
+          model_id: modelApiName,
           language: language.ISO639,
           voice_settings: {
             stability: 0,
@@ -156,7 +156,7 @@ const getTextToSpeechTimestamped = async (
     }
 
     const alignment =
-            jsonResponse?.alignment || jsonResponse?.normalized_alignment;
+            jsonResponse.alignment ?? jsonResponse.normalized_alignment;
 
     if (alignment) {
       // Parse characters into words
@@ -165,7 +165,7 @@ const getTextToSpeechTimestamped = async (
       let duration = 0;
 
       for (let i = 0; i < alignment.characters.length; i++) {
-        const startTime = alignment.character_start_times_seconds?.[i] ?? 0;
+        const startTime = alignment.character_start_times_seconds[i] ?? 0;
         const char = alignment.characters[i];
         // If this is the start of a new word, record the start time
         if (word.length === 0) {
@@ -183,7 +183,7 @@ const getTextToSpeechTimestamped = async (
           duration = 0;
         } else if (char !== ' ') {
           // Calculate the duration of this character in milliseconds
-          const endTime = alignment.character_end_times_seconds?.[i] ?? 0;
+          const endTime = alignment.character_end_times_seconds[i] ?? 0;
           const charDuration = (endTime - startTime) * 1000;
           duration += charDuration;
           word += char;

@@ -5,6 +5,8 @@ import {
   TranscriptionModelProvider, TtsModelProvider,
   UserRole,
 } from './enums';
+import { ConversationLog } from '../conversationLog';
+import { ConversationMessage } from '../conversationMessage';
 
 export interface AppConfig {
     id: number
@@ -61,10 +63,10 @@ export interface Conversation {
     startTime: Date
     endTime: Date
     endedReason: string
-    messages: object | null
-    logs: object | null
+    messages: ConversationMessage[] | null
+    logs: ConversationLog[] | null
     conversationType: ConversationType
-    usedConfig: object | null
+    usedConfig: AppConfig | null
 }
 
 export interface ConversationCreate {
@@ -75,10 +77,10 @@ export interface ConversationCreate {
     startTime: Date | string
     endTime?: Date | string
     endedReason?: string
-    messages?: object | null
-    logs?: object | null
+    messages?: ConversationMessage[] | null
+    logs?: ConversationLog[] | null
     conversationType: ConversationType
-    usedConfig?: object | null
+    usedConfig: AppConfig
 }
 
 export interface ConversationRole {
@@ -141,7 +143,7 @@ export interface Scenario {
 
 export interface ScenarioCreate {
     createdAt?: Date | string
-    involvedPersonalityId?: number | null
+    involvedPersonalityId: number | null
     situationDescriptionEn?: string
     settingEn?: string
     situationDescriptionCs?: string
@@ -157,39 +159,15 @@ export interface User {
     userRole: UserRole
 }
 
-export interface UserCreate {
-    id?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    email: string
-    password: string
-    userRole?: UserRole
-}
-
 export interface Profile {
     id: string
     createdAt: Date
     updatedAt: Date
-    fullName: string | null
-    gender: string | null
+    fullName: string
+    gender: string
     userRole: UserRole
     conversationRole: string
-    bio: string | null
-}
-export interface ProfileExtended extends Profile {
-    email: string;
-    confirmedAt: Date | null,
-}
-
-export interface ProfileCreate {
-    id?: string
-    userId: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    fullName?: string | null
-    gender?: string | null
-    conversationRole?: string
-    bio?: string | null
+    bio: string
 }
 
 export interface RealtimeModel {
@@ -199,15 +177,6 @@ export interface RealtimeModel {
     apiName: string
     docsUrl: string | null
     isEnabled: boolean
-    provider: RealtimeModelProvider
-}
-
-export interface RealtimeModelCreate {
-    createdAt?: Date | string
-    friendlyName: string
-    apiName: string
-    docsUrl?: string | null
-    isEnabled?: boolean
     provider: RealtimeModelProvider
 }
 
@@ -222,16 +191,6 @@ export interface RealtimeTranscriptionModel {
     allowsWordLevelTimestamps: boolean
 }
 
-export interface RealtimeTranscriptionModelCreate {
-    createdAt?: Date | string
-    friendlyName: string
-    provider: TranscriptionModelProvider
-    apiName: string
-    docsUrl?: string | null
-    isEnabled?: boolean | null
-    allowsWordLevelTimestamps?: boolean
-}
-
 export interface ResponseModel {
     id: number
     createdAt: Date
@@ -239,15 +198,6 @@ export interface ResponseModel {
     apiName: string
     docsUrl: string | null
     isEnabled: boolean
-    provider: ResponseModelProvider
-}
-
-export interface ResponseModelCreate {
-    createdAt?: Date | string
-    friendlyName: string
-    apiName: string
-    docsUrl?: string | null
-    isEnabled?: boolean
     provider: ResponseModelProvider
 }
 
@@ -261,15 +211,6 @@ export interface TimestampedTranscriptionModel {
     isEnabled: boolean
 }
 
-export interface TimestampedTranscriptionModelCreate {
-    createdAt?: Date | string
-    friendlyName: string
-    provider: TimestampedTranscriptionModelProvider
-    apiName: string
-    docsUrl?: string | null
-    isEnabled?: boolean
-}
-
 export interface TtsModel {
     id: number
     createdAt: Date
@@ -280,15 +221,4 @@ export interface TtsModel {
     isEnabled: boolean
     provider: TtsModelProvider
     allowsWordLevelTimestampedTranscript: boolean
-}
-
-export interface TtsModelCreate {
-    createdAt?: Date | string
-    friendlyName: string
-    apiName: string
-    sampleRate: number
-    docsUrl: string
-    isEnabled?: boolean
-    provider: TtsModelProvider
-    allowsWordLevelTimestampedTranscript?: boolean
 }

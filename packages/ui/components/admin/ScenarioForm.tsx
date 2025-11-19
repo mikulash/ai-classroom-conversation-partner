@@ -75,7 +75,9 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
               String(scenario.involvedPersonalityId) :
               'none'
           }
-          onValueChange={(value) => onSelectChange('involvedPersonalityId', value)}
+          onValueChange={(value) => {
+            onSelectChange('involvedPersonalityId', value);
+          }}
         >
           <SelectTrigger>
             <SelectValue placeholder={t('admin.scenarios.form.selectPersonality')}/>

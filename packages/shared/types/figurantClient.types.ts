@@ -6,7 +6,7 @@ export interface TextToSpeechRequest {
     inputMessage: string;
     personality: Personality;
     language: Language;
-    response_format: 'pcm' | 'mp3';
+    responseFormat: 'pcm' | 'mp3';
 }
 
 export interface GetTTSAudioResponse {
@@ -43,7 +43,7 @@ export interface TextToSpeechTimestampedRequest {
 }
 
 export interface GenerateReplyRequest {
-    input_text: string;
+    inputText: string;
     previousMessages: ChatMessage[];
     personality: Personality;
     conversationRole: string;
@@ -86,7 +86,7 @@ export interface ErrorResponse {
     message: string;
     statusCode?: number;
 
-    [key: string]: any; // additional properties
+    [key: string]: unknown; // additional properties
 }
 
 

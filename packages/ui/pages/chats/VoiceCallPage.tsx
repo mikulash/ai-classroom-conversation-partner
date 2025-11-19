@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MdCallEnd } from 'react-icons/md';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
@@ -16,15 +16,10 @@ import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { Personality } from '@repo/shared/types/db/entities';
+import { ChatPageWrapper } from '../../components/ChatPageWrapper';
 
-export const VoiceCallPage: React.FC = () => {
+const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversationRoleName, scenario }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const {
-    personality,
-    conversationRoleName,
-    scenario,
-  }: ChatPageProps = location.state ?? {};
 
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -54,7 +49,7 @@ export const VoiceCallPage: React.FC = () => {
     userProfile,
     personality,
     scenario,
-    chatStartTime: chatStartTime || Date.now(),
+    chatStartTime: chatStartTime ?? Date.now(),
     appConfig,
     logMessage,
   });
@@ -67,7 +62,11 @@ export const VoiceCallPage: React.FC = () => {
   const disconnect = useCallback(() => {
     if (dataChannelRef.current) dataChannelRef.current.close();
     if (peerConnectionRef.current) peerConnectionRef.current.close();
-    if (mediaStreamRef.current) mediaStreamRef.current.getTracks().forEach((t) => t.stop());
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((t) => {
+        t.stop();
+      });
+    }
     dataChannelRef.current = null;
     peerConnectionRef.current = null;
     mediaStreamRef.current = null;
@@ -81,28 +80,36 @@ export const VoiceCallPage: React.FC = () => {
 
   const handleServerEvent = useCallback((e: MessageEvent) => {
     try {
-      const ev = JSON.parse(e.data);
+      const ev = JSON.parse(String(e.data)) as { type: string; [key: string]: unknown };
 
       switch (ev.type) {
-        case 'error':
-          logMessage('error', 'Server error:', ev.error);
-          setError(`Server error: ${ev.error.message ?? 'Unknown'}`);
+        case 'error': {
+          const errorData = ev.error as { message?: string } | undefined;
+          logMessage('error', 'Server error', { error: ev.error });
+          setError(`Server error: ${errorData?.message ?? 'Unknown'}`);
           break;
-        case 'conversation.item.created':
-          if (ev.item.type === 'message' && ev.item.role === 'assistant') {
+        }
+        case 'conversation.item.created': {
+          const item = ev.item as { type?: string; role?: string } | undefined;
+          if (item?.type === 'message' && item.role === 'assistant') {
             setIsProcessing(true);
             setAssistantTranscript('');
           }
           break;
-        case 'response.audio_transcript.done':
-          setMessages((p) => [...p, { role: 'assistant', content: ev.transcript, timestamp: new Date() }]);
+        }
+        case 'response.audio_transcript.done': {
+          const transcript = typeof ev.transcript === 'string' ? ev.transcript : '';
+          setMessages((p) => [...p, { role: 'assistant', content: transcript, timestamp: new Date() }]);
           setIsProcessing(false);
           setAssistantTranscript('');
           break;
-        case 'conversation.item.input_audio_transcription.completed':
-          setMessages((p) => [...p, { role: 'user', content: ev.transcript, timestamp: new Date() }]);
+        }
+        case 'conversation.item.input_audio_transcription.completed': {
+          const transcript = typeof ev.transcript === 'string' ? ev.transcript : '';
+          setMessages((p) => [...p, { role: 'user', content: transcript, timestamp: new Date() }]);
           setCurrentTranscript('');
           break;
+        }
         case 'input_audio_buffer.speech_started':
           setIsProcessingInput(true);
           setCurrentTranscript('');
@@ -114,7 +121,9 @@ export const VoiceCallPage: React.FC = () => {
           break;
       }
     } catch (err) {
-      logMessage('error', 'Error parsing server event', err);
+      logMessage('error', 'Error parsing server event', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }, [logMessage]);
 
@@ -124,7 +133,7 @@ export const VoiceCallPage: React.FC = () => {
       isConnectingRef.current = true;
       setIsConnecting(true);
       setError(null);
-      logMessage('log', 'Initializing WebRTC connection', { personalityName: personality.name });
+      logMessage('log', 'Initializing WebRTC connection');
 
       const pc = new RTCPeerConnection();
       peerConnectionRef.current = pc;
@@ -157,6 +166,8 @@ export const VoiceCallPage: React.FC = () => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
+      if (!offer.sdp) throw new Error('No SDP offer received from server.');
+
       const response = await figurantClient.getWebRtcAnswer({
         openai_voice_name: personality.openaiVoiceName,
         personality,
@@ -164,11 +175,13 @@ export const VoiceCallPage: React.FC = () => {
         conversationRole: conversationRoleName,
         scenario,
         userProfile,
-        sdp_offer: offer.sdp!,
+        sdp_offer: offer.sdp,
       });
       await pc.setRemoteDescription({ type: 'answer', sdp: response.sdp });
     } catch (err) {
-      logMessage('error', 'Connection error:', err);
+      logMessage('error', 'Connection error', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       setError(err instanceof Error ? err.message : 'Unknown connection error');
       setIsConnecting(false);
       disconnect();
@@ -183,12 +196,12 @@ export const VoiceCallPage: React.FC = () => {
     messagesToSave?: ChatMessage[],
     logsToSave?: ConversationLog[],
   ) => {
-    logMessage('log', 'Ending call with reason:', reason);
+    logMessage('log', `Ending call with reason: ${reason}`);
 
     disconnect();
 
-    const finalMessages = messagesToSave || messages;
-    const finalLogs = logsToSave || conversationLogs;
+    const finalMessages = messagesToSave ?? messages;
+    const finalLogs = logsToSave ?? conversationLogs;
 
     // Mark the chat as ended
     hasChatEndedRef.current = true;
@@ -206,7 +219,7 @@ export const VoiceCallPage: React.FC = () => {
 
   const handleGoToPersonalitySelector = useCallback(() => {
     setIsTranscriptDialogVisible(false);
-    navigate('/chat');
+    void navigate('/chat');
   }, [navigate]);
 
   const handleEndCall = useCallback(() => {
@@ -253,7 +266,9 @@ export const VoiceCallPage: React.FC = () => {
       }
     }, 10000); // Check every 10 seconds
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [chatStartTime, maxConversationDurationInSeconds, hasChatEndedRef, logMessage, handleEndCallWithReason]);
 
   const connectionStatusMessage = isConnecting ?
@@ -294,7 +309,7 @@ export const VoiceCallPage: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="flex-1">
             <PersonalityInfo
-              personality={personality!}
+              personality={personality}
               conversationRole={conversationRoleName}
               connectionStatus={connectionStatus}
               className="border-2 border-gray-400 rounded-lg p-4 sm:p-6"
@@ -309,7 +324,7 @@ export const VoiceCallPage: React.FC = () => {
           currentTranscript={currentTranscript}
           assistantTranscript={assistantTranscript}
           isProcessing={isProcessing}
-          assistantName={personality!.name}
+          assistantName={personality.name}
           chatStyle="voice"
           isConnected={isConnected}
           className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border-2 border-gray-400 rounded-lg mb-6 sm:mb-8"
@@ -318,7 +333,9 @@ export const VoiceCallPage: React.FC = () => {
         <div className="flex justify-center gap-4">
           {!isConnected ? (
             <Button
-              onClick={() => personality && initializeWebRTC(personality)}
+              onClick={() => {
+                void initializeWebRTC(personality);
+              }}
               disabled={isConnecting}
               className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
             >
@@ -342,3 +359,10 @@ export const VoiceCallPage: React.FC = () => {
   );
 };
 
+export const VoiceCallPage: React.FC = () => {
+  return (
+    <ChatPageWrapper>
+      {(props) => <VoiceCallPageContent {...props} />}
+    </ChatPageWrapper>
+  );
+};

@@ -28,7 +28,7 @@ router.get(
     res: Response<ScenarioWithPersonality[] | ErrorResponse>,
   ) => {
     try {
-      const scenarios = await prisma.scenario.findMany({
+      const scenarios : ScenarioWithPersonality[] = await prisma.scenario.findMany({
         include: {
           personality: {
             select: {
@@ -49,38 +49,6 @@ router.get(
   });
 
 /**
- * GET /api/scenarios/:id
- * Get a specific scenario by ID
- */
-router.get(
-  '/:id',
-  async (
-    req: Request<ScenarioIdParams>,
-    res: Response<ScenarioWithPersonality | ErrorResponse>,
-  ) => {
-    try {
-      const { id } = req.params;
-
-      const scenario = await prisma.scenario.findUnique({
-        where: { id: parseInt(id) },
-        include: {
-          personality: true,
-        },
-      });
-
-      if (!scenario) {
-        res.status(404).json({ message: 'Scenario not found' });
-        return;
-      }
-
-      res.status(200).json(scenario);
-    } catch (error) {
-      console.error('Get scenario error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-/**
  * POST /api/scenarios
  * Create a new scenario (admin only)
  */
@@ -95,6 +63,7 @@ router.post(
     try {
       const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
 
+      console.log('scenarion new', req.body);
       // Validate required fields
       if (!involvedPersonalityId) {
         res.status(400).json({ message: 'involvedPersonalityId is required' });
@@ -105,6 +74,8 @@ router.post(
       const personality = await prisma.personality.findUnique({
         where: { id: involvedPersonalityId },
       });
+
+      console.log('found personality', personality);
 
       if (!personality) {
         res.status(404).json({ message: 'Personality not found' });
@@ -129,6 +100,8 @@ router.post(
           },
         },
       });
+
+      console.log('created scenario', scenario);
 
       res.status(201).json(scenario);
     } catch (error) {

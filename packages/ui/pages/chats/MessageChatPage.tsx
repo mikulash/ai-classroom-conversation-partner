@@ -1,6 +1,6 @@
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Input } from '../../components/ui/input';
 import { ChatMessages } from '../../components/ChatMessages';
 import { PersonalityInfo } from '../../components/PersonalityInfo';
@@ -26,22 +26,24 @@ import { useActivityTracker } from '../../hooks/useActivityTracker';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { Personality } from '@repo/shared/types/db/entities';
+import { ChatPageWrapper } from '../../components/ChatPageWrapper';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
-const SpeechRecognitionClass: typeof SpeechRecognition | undefined =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+const SpeechRecognitionClass: typeof SpeechRecognition | undefined = (() => {
+  if ('SpeechRecognition' in window) {
+    return window.SpeechRecognition;
+  }
+  if ('webkitSpeechRecognition' in window) {
+    return (window as { webkitSpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition;
+  }
+  return undefined;
+})();
 
-export const MessageChatPage: React.FC = () => {
+const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversationRoleName, scenario }) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { t, i18n } = useTypedTranslation();
 
-  const {
-    personality,
-    conversationRoleName,
-    scenario,
-  }: ChatPageProps = location.state ?? {};
   const appConfig = useAppStore((state) => state.appConfig);
   const { silenceTimeoutInSeconds, maxConversationDurationInSeconds } = appConfig;
   const [isLoading, setIsLoading] = useState(true);
@@ -88,9 +90,9 @@ export const MessageChatPage: React.FC = () => {
 
   // Init SpeechRecognition
   useEffect(() => {
-    if (!srSupported) return;
+    if (!srSupported || !SpeechRecognitionClass) return;
 
-    const recognition = new SpeechRecognitionClass!();
+    const recognition = new SpeechRecognitionClass();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = language.BCP47;
@@ -105,7 +107,7 @@ export const MessageChatPage: React.FC = () => {
     };
 
     recognition.onerror = (ev: SpeechRecognitionErrorEvent) => {
-      logMessage('error', 'Speech recognition error', ev.error);
+      logMessage('error', 'Speech recognition error', { error: ev.error });
       toast.error('Speech recognition failed; returning to chat list…');
       if (ev.error === 'network') {
         setIsBrowserDialogVisible(true);
@@ -129,7 +131,9 @@ export const MessageChatPage: React.FC = () => {
       recognitionRef.current.start();
       setIsRecording(true);
     } catch (err) {
-      logMessage('error', 'Failed to start recognition', err);
+      logMessage('error', 'Failed to start recognition', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   };
 
@@ -140,7 +144,9 @@ export const MessageChatPage: React.FC = () => {
   };
 
   const handleAiError = (error: unknown, fallbackMessage: string) => {
-    logMessage('error', 'Error generating message:', error);
+    logMessage('error', 'Error generating message', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return fallbackMessage;
   };
 
@@ -150,8 +156,10 @@ export const MessageChatPage: React.FC = () => {
     audioRef.current = null;
   };
 
-  const handleAudioError = (error: any) => {
-    logMessage('warn', 'Audio playback error (non-critical):', error);
+  const handleAudioError = (error: Event) => {
+    logMessage('warn', 'Audio playback error (non-critical)', {
+      error: error.type,
+    });
     setIsAudioPlaying(false);
     audioRef.current = null;
   };
@@ -164,7 +172,9 @@ export const MessageChatPage: React.FC = () => {
         audioRef.current.removeEventListener('ended', handleAudioEnded);
         audioRef.current.removeEventListener('error', handleAudioError);
       } catch (error) {
-        logMessage('warn', 'Error stopping audio:', error);
+        logMessage('warn', 'Error stopping audio', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
       audioRef.current = null;
       setIsAudioPlaying(false);
@@ -177,12 +187,14 @@ export const MessageChatPage: React.FC = () => {
         inputMessage: text,
         personality,
         language,
-        response_format: 'mp3',
+        responseFormat: 'mp3',
       };
       const audio = await figurantClient.getSpeechAudio(ttsParams);
       return audio.objectUrl;
     } catch (error) {
-      logMessage('error', 'Error generating audio:', error);
+      logMessage('error', 'Error generating audio', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return null;
     }
   };
@@ -205,7 +217,9 @@ export const MessageChatPage: React.FC = () => {
       if (error instanceof Error && error.name === 'AbortError') {
         logMessage('log', 'Audio playback was interrupted (normal behavior)');
       } else {
-        logMessage('warn', 'Audio playback failed:', error);
+        logMessage('warn', 'Audio playback failed', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
       setIsAudioPlaying(false);
       audioRef.current = null;
@@ -233,7 +247,9 @@ export const MessageChatPage: React.FC = () => {
           });
         }
       } catch (error) {
-        logMessage('warn', 'Failed to generate audio for message:', error);
+        logMessage('warn', 'Failed to generate audio for message', {
+          error: error instanceof Error ? error.message : String(error),
+        });
         setIsAudioPlaying(false);
         return;
       }
@@ -268,15 +284,15 @@ export const MessageChatPage: React.FC = () => {
           }
           setPendingAiMessage(null);
 
-          // Only try to play audio if the component is still mounted and audio is enabled
-          if (isAudioEnabled) {
-            await playAudio(audioUrl);
-          }
+          // Only try to play audio if the component is still mounted
+          await playAudio(audioUrl);
           markActivity();
           return withAudio;
         }
       } catch (error) {
-        logMessage('warn', 'Audio generation failed, continuing with text only:', error);
+        logMessage('warn', 'Audio generation failed, continuing with text only', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
@@ -301,7 +317,9 @@ export const MessageChatPage: React.FC = () => {
       }
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [isAiTyping, pendingAiMessage, messages, consecutiveSilencePrompts]);
 
   const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLog[]) => {
@@ -309,8 +327,8 @@ export const MessageChatPage: React.FC = () => {
     stopRecognition();
 
     // Use passed messages and logs or the current state
-    const finalMessages = messagesToSave || messages;
-    const finalLogs = logsToSave || conversationLogs;
+    const finalMessages = messagesToSave ?? messages;
+    const finalLogs = logsToSave ?? conversationLogs;
     // Mark the chat as ended
     chatEndedRef.current = true;
 
@@ -348,10 +366,13 @@ export const MessageChatPage: React.FC = () => {
       }
     }, 10000); // Check every 10 seconds
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [chatStartTime]);
 
   const sendSilencePrompt = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!personality || !userProfile || chatEndedRef.current) return;
     logMessage('log', 'Sending silence prompt', { counter: consecutiveSilencePrompts });
 
@@ -360,7 +381,7 @@ export const MessageChatPage: React.FC = () => {
       const silenceSystemPrompt = t('chat.silencePromptGoodbye');
       // 'The user has been silent for too long. Respond with a short goodbye.';
       const aiText = await figurantClient.getResponse({
-        input_text: silenceSystemPrompt,
+        inputText: silenceSystemPrompt,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -396,7 +417,7 @@ export const MessageChatPage: React.FC = () => {
       const silenceSystemPrompt = t('chat.silencePrompt');
       // 'The user has been silent for a few seconds. Respond with a short follow‑up.';
       const aiText = await figurantClient.getResponse({
-        input_text: silenceSystemPrompt,
+        inputText: silenceSystemPrompt,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -408,7 +429,9 @@ export const MessageChatPage: React.FC = () => {
       if (aiText) await processAiResponse(aiText);
       else throw new Error('Empty response from AI');
     } catch (err) {
-      logMessage('error', 'Error during silence prompt:', err);
+      logMessage('error', 'Error during silence prompt', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       const fallback = t('chat.silencePromptFallback');
       setMessages((prev) => [
         ...prev,
@@ -453,7 +476,7 @@ export const MessageChatPage: React.FC = () => {
     setIsAiTyping(true);
     try {
       const aiText = await figurantClient.getResponse({
-        input_text: 'Just say hi',
+        inputText: 'Just say hi',
         previousMessages: [],
         personality,
         conversationRole,
@@ -494,7 +517,7 @@ export const MessageChatPage: React.FC = () => {
 
     try {
       const requestMessage = {
-        input_text: userMsg.content,
+        inputText: userMsg.content,
         previousMessages: messages,
         personality,
         conversationRole: conversationRoleName,
@@ -556,7 +579,7 @@ export const MessageChatPage: React.FC = () => {
 
   const handleGoToPersonalitySelector = () => {
     setIsTranscriptDialogVisible(false);
-    navigate('/chat');
+    void navigate('/chat');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -570,14 +593,6 @@ export const MessageChatPage: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loading/>
-      </div>
-    );
-  }
-
-  if (!personality) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        {t('noPersonalitySelected')}
       </div>
     );
   }
@@ -626,7 +641,9 @@ export const MessageChatPage: React.FC = () => {
           messages={messages}
           isAiTyping={isAiTyping || (isAudioEnabled && pendingAiMessage !== null)}
           assistantName={personality.name}
-          onPlayAudio={playMessageAudio}
+          onPlayAudio={(url, index) => {
+            void playMessageAudio(url, index);
+          }}
           isAudioPlaying={isAudioPlaying}
           chatStyle="text"
           className="flex-grow overflow-y-auto mb-4 p-3 border rounded-md"
@@ -668,7 +685,9 @@ export const MessageChatPage: React.FC = () => {
           </Button>
 
           <Button
-            onClick={sendMessage}
+            onClick={() => {
+              void sendMessage();
+            }}
             className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full"
             disabled={
               inputMessage.trim() === '' ||
@@ -702,3 +721,10 @@ export const MessageChatPage: React.FC = () => {
   );
 };
 
+export const MessageChatPage: React.FC = () => {
+  return (
+    <ChatPageWrapper>
+      {(props) => <MessageChatPageContent {...props} />}
+    </ChatPageWrapper>
+  );
+};

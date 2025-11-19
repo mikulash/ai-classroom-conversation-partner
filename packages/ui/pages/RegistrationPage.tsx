@@ -13,7 +13,7 @@ export const RegistrationPage: React.FC = () => {
   const { t } = useTypedTranslation();
   const { signUp, loading, error, session, ready } = useAuth();
   const { appName } = useAppStore((state) => state.appConfig);
-  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig.allowedDomains) || [];
+  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig.allowedDomains);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -28,7 +28,7 @@ export const RegistrationPage: React.FC = () => {
   // Redirect to homepage once we know the user is authenticated
   useEffect(() => {
     if (ready && session) {
-      navigate('/', { replace: true });
+      void navigate('/', { replace: true });
     }
   }, [ready, session, navigate]);
 
@@ -126,7 +126,9 @@ export const RegistrationPage: React.FC = () => {
               {t('confirmationEmailSent')}
             </p>
 
-            <Button type="button" onClick={() => navigate('/sign-in')} className="w-full">
+            <Button type="button" onClick={() => {
+              void navigate('/sign-in');
+            }} className="w-full">
               {t('goToSignIn')}
             </Button>
           </Card>
@@ -149,14 +151,18 @@ export const RegistrationPage: React.FC = () => {
 
         <Card className="p-4 sm:p-6 w-full">
           <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">{t('register')}</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={(e) => {
+            void handleSubmit(e);
+          }} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fullName">{t('fullName')}</Label>
               <Input
                 id="fullName"
                 type="text"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                }}
                 placeholder={t('fullNamePlaceholder')}
                 required
               />
@@ -168,7 +174,9 @@ export const RegistrationPage: React.FC = () => {
                 id="gender"
                 type="text"
                 value={gender}
-                onChange={(e) => setGender(e.target.value)}
+                onChange={(e) => {
+                  setGender(e.target.value);
+                }}
                 placeholder={t('genderPlaceholder')}
                 required
               />
@@ -232,7 +240,9 @@ export const RegistrationPage: React.FC = () => {
               {t('alreadyHaveAccount')}{' '}
               <button
                 type="button"
-                onClick={() => navigate('/sign-in')}
+                onClick={() => {
+                  void navigate('/sign-in');
+                }}
                 className="text-blue-500 hover:underline"
               >
                 {t('signIn')}

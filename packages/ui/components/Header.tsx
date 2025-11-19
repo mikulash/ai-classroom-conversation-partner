@@ -24,7 +24,7 @@ export function Header() {
   const isLanguageChangeDisabled = /^\/chat\/.+/.test(pathname);
 
   const availableLangs = Object.values(LANGUAGE);
-  const currentLang = availableLangs.find((l) => l.ISO639 === i18n.language) || LANGUAGE.EN;
+  const currentLang = availableLangs.find((l) => l.ISO639 === i18n.language) ?? LANGUAGE.EN;
 
   const isAdmin = !!profile && isProfileAdmin(profile);
   const initials = createInitials(profile?.fullName);
@@ -41,7 +41,9 @@ export function Header() {
           <Link to="/">{appName}</Link>
         </h1>
 
-        <BurgerButton open={menuOpen} onToggle={() => setMenuOpen((o) => !o)}/>
+        <BurgerButton open={menuOpen} onToggle={() => {
+          setMenuOpen((o) => !o);
+        }}/>
 
         {/* Desktop */}
         <div className="items-center flex-wrap gap-2 hidden sm:flex">
@@ -63,8 +65,9 @@ export function Header() {
               <ProfileAvatarLink initials={initials}/>
               <SignOutBtn
                 onSignOut={() => {
-                  void signOut();
-                  navigate('/');
+                  void signOut().then(() => {
+                    void navigate('/');
+                  });
                 }}
               />
             </>
@@ -72,7 +75,9 @@ export function Header() {
         </div>
 
         {/* Mobile menu */}
-        <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)}>
+        <MobileMenuDrawer open={menuOpen} onClose={() => {
+          setMenuOpen(false);
+        }}>
           <LanguageSelector
             availableLangs={availableLangs}
             currentLang={currentLang}
@@ -83,19 +88,26 @@ export function Header() {
           />
 
           {!isSignedIn && ready && (
-            <AuthButtons fullWidth onAnyClick={() => setMenuOpen(false)}/>
+            <AuthButtons fullWidth onAnyClick={() => {
+              setMenuOpen(false);
+            }}/>
           )}
 
           {isSignedIn && (
             <>
-              {isAdmin && <AdminSectionButton fullWidth onClick={() => setMenuOpen(false)}/>}
-              <ProfileAvatarLink initials={initials} onClick={() => setMenuOpen(false)}/>
+              {isAdmin && <AdminSectionButton fullWidth onClick={() => {
+                setMenuOpen(false);
+              }}/>}
+              <ProfileAvatarLink initials={initials} onClick={() => {
+                setMenuOpen(false);
+              }}/>
               <SignOutBtn
                 fullWidth
                 onSignOut={() => {
                   setMenuOpen(false);
-                  void signOut();
-                  navigate('/');
+                  void signOut().then(() => {
+                    void navigate('/');
+                  });
                 }}
               />
             </>
@@ -133,7 +145,7 @@ const LanguageSelector: React.FC<{
       <SelectTrigger
         className={`${compact ? 'w-24' : 'w-full'} bg-white ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
         disabled={disabled}
-        title={disabled ? (t?.('languageChangeDisabledInChat') ?? 'Language change is disabled inside a chat thread.') : undefined}
+        title={disabled ? t('languageChangeDisabledInChat') : undefined}
         aria-disabled={disabled}
       >
         <SelectValue placeholder={currentLang.NATIVE_NAME.toUpperCase()}/>
@@ -215,7 +227,9 @@ const MobileMenuDrawer: React.FC<{
     <div className="fixed inset-0 z-50 bg-black bg-opacity-40 sm:hidden" onClick={onClose}>
       <div
         className="absolute top-0 right-0 w-64 h-full bg-white shadow-lg p-4 flex flex-col gap-4"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         <div className="flex justify-end">
           <button className="text-2xl font-bold" aria-label="Close menu" onClick={onClose}>

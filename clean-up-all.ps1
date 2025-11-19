@@ -1,5 +1,5 @@
 # Define the directories and file patterns to remove
-$dirsToRemove = @('dist', 'node_modules', '.turbo', '.vercel', 'target')
+$dirsToRemove = @('dist', 'node_modules', '.turbo', 'target')
 $filesToRemove = @('*.tsbuildinfo')
 
 # Get the current location

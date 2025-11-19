@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { ModelSectionConfig, ModelSelectionForm } from '../../components/admin/ModelSelectionForm';
+import { ModelSelectionForm, ModelSelectionSection } from '../../components/admin/ModelSelectionForm';
 import {
   getAvailableRealtimeModels,
   getAvailableRealtimeTranscriptionModels,
@@ -17,6 +17,7 @@ import {
   getAvailableTtsModels,
 } from '@repo/shared/utils/filterModelsByApiKeyStatus';
 import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
+import { appConfigClient } from '@repo/frontend-utils/src/clients/db/appConfig.client';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -29,7 +30,7 @@ export function AdminGlobalModelSelectionPage() {
     realtimeTranscriptionModels: [],
   });
 
-  const app_config = useAppStore((state) => state.appConfig);
+  const appConfig = useAppStore((state) => state.appConfig);
 
   const [modelSelectionState, setModelSelectionState] = useState<Partial<ModelSelection>>({
     responseModel: undefined,
@@ -44,7 +45,7 @@ export function AdminGlobalModelSelectionPage() {
 
   /** Load available models + current config */
   useEffect(() => {
-    (async () => {
+    void (async () => {
       const [
         { data: responseModels, error: responseError },
         { data: ttsModels, error: ttsError },
@@ -98,33 +99,33 @@ export function AdminGlobalModelSelectionPage() {
 
       // Find selected models based on app_config
       const selectedResponseModel =
-                filteredResponseModels.find((m) => m.id === app_config.responseModelId) || null;
+                filteredResponseModels.find((m) => m.id === appConfig.responseModelId) ?? null;
       const selectedTtsModel =
-                filteredTtsModels.find((m) => m.id === app_config.ttsModelId) || null;
+                filteredTtsModels.find((m) => m.id === appConfig.ttsModelId) ?? null;
       const selectedRealtimeModel =
-                filteredRealtimeModels.find((m) => m.id === app_config.realtimeModelId) || null;
+                filteredRealtimeModels.find((m) => m.id === appConfig.realtimeModelId) ?? null;
       const selectedTimestampedTranscriptionModel =
                 filteredTimestampedTranscriptionModels.find(
-                  (m) => m.id === app_config.timestampedTranscriptionModelId,
-                ) || null;
+                  (m) => m.id === appConfig.timestampedTranscriptionModelId,
+                ) ?? null;
       const selectedRealtimeTranscriptionModel =
                 filteredRealtimeTranscriptionModels.find(
-                  (m) => m.id === app_config.realtimeTranscriptionModelId,
-                ) || null;
+                  (m) => m.id === appConfig.realtimeTranscriptionModelId,
+                ) ?? null;
 
       setModelSelectionState({
-        responseModel: selectedResponseModel || filteredResponseModels[0] || null,
-        ttsModel: selectedTtsModel || filteredTtsModels[0] || null,
-        realtimeModel: selectedRealtimeModel || filteredRealtimeModels[0] || null,
+        responseModel: selectedResponseModel ?? filteredResponseModels[0],
+        ttsModel: selectedTtsModel ?? filteredTtsModels[0],
+        realtimeModel: selectedRealtimeModel ?? filteredRealtimeModels[0],
         timestampedTranscriptionModel:
-                    selectedTimestampedTranscriptionModel || filteredTimestampedTranscriptionModels[0] || null,
+                    selectedTimestampedTranscriptionModel ?? filteredTimestampedTranscriptionModels[0],
         realtimeTranscriptionModel:
-                    selectedRealtimeTranscriptionModel || filteredRealtimeTranscriptionModels[0] || null,
+                    selectedRealtimeTranscriptionModel ?? filteredRealtimeTranscriptionModels[0],
       });
 
       setIsLoading(false);
     })();
-  }, [app_config]);
+  }, [appConfig]);
 
   const handleSave = async () => {
     // Show confirmation dialog
@@ -138,7 +139,7 @@ export function AdminGlobalModelSelectionPage() {
     }
 
     setIsSaving(true);
-    const { data, error } = await modelClient.updateAppConfigModels({
+    const { data, error } = await appConfigClient.updateAppConfigModels({
       responseModelId: modelSelectionState.responseModel?.id,
       ttsModelId: modelSelectionState.ttsModel?.id,
       realtimeModelId: modelSelectionState.realtimeModel?.id,
@@ -162,33 +163,12 @@ export function AdminGlobalModelSelectionPage() {
     setIsSaving(false);
   };
 
-  const sections: ModelSectionConfig[] = [
-    {
-      label: t('models.responseModel'),
-      modelKey: 'responseModel',
-      models: modelOptions.responseModels,
-    },
-    {
-      label: t('models.ttsModel'),
-      modelKey: 'ttsModel',
-      models: modelOptions.ttsModels,
-    },
-    {
-      label: t('models.realtimeModel'),
-      modelKey: 'realtimeModel',
-      models: modelOptions.realtimeModels,
-    },
-    {
-      label: t('models.timestampedTranscriptionModel'),
-      modelKey: 'timestampedTranscriptionModel',
-      models: modelOptions.timestampedTranscriptionModels,
-    },
-    {
-      label: t('models.realtimeTranscriptionModel'),
-      modelKey: 'realtimeTranscriptionModel',
-      models: modelOptions.realtimeTranscriptionModels,
-    },
-  ];
+  const getOptionStatus = (configValue?: number | null) =>
+    (model: { id: number }, currentModel?: { id: number }) => {
+      if (configValue == null) return null;
+      if (!currentModel) return null;
+      return currentModel.id === configValue && model.id === currentModel.id ? t('models.currentlyApplied') : null;
+    };
 
   if (isLoading) {
     return (
@@ -204,13 +184,58 @@ export function AdminGlobalModelSelectionPage() {
         <CardTitle>{t('models.title')}</CardTitle>
       </CardHeader>
       <CardContent className='grid gap-8'>
-        <ModelSelectionForm
-          sections={sections}
-          modelSelection={modelSelectionState}
-          setModelSelection={setModelSelectionState}
-          selectProviderLabel={t('models.selectProvider')}
-          selectModelLabel={t('models.selectModel')}
-        />
+        <ModelSelectionForm>
+          <ModelSelectionSection
+            label={t('models.responseModel')}
+            modelKey='responseModel'
+            models={modelOptions.responseModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(appConfig.responseModelId)}
+          />
+          <ModelSelectionSection
+            label={t('models.ttsModel')}
+            modelKey='ttsModel'
+            models={modelOptions.ttsModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(appConfig.ttsModelId)}
+          />
+          <ModelSelectionSection
+            label={t('models.realtimeModel')}
+            modelKey='realtimeModel'
+            models={modelOptions.realtimeModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(appConfig.realtimeModelId)}
+          />
+          <ModelSelectionSection
+            label={t('models.timestampedTranscriptionModel')}
+            modelKey='timestampedTranscriptionModel'
+            models={modelOptions.timestampedTranscriptionModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(appConfig.timestampedTranscriptionModelId)}
+          />
+          <ModelSelectionSection
+            label={t('models.realtimeTranscriptionModel')}
+            modelKey='realtimeTranscriptionModel'
+            models={modelOptions.realtimeTranscriptionModels}
+            modelSelection={modelSelectionState}
+            setModelSelection={setModelSelectionState}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
+            optionStatus={getOptionStatus(appConfig.realtimeTranscriptionModelId)}
+          />
+        </ModelSelectionForm>
         <Alert variant="default">
           <AlertCircle className="h-4 w-4"/>
           <AlertTitle>{t('models.warningTitle')}</AlertTitle>
@@ -221,7 +246,9 @@ export function AdminGlobalModelSelectionPage() {
       </CardContent>
 
       <CardFooter>
-        <Button onClick={handleSave} disabled={isSaving} className='w-full'>
+        <Button onClick={() => {
+          void handleSave();
+        }} disabled={isSaving} className='w-full'>
           {isSaving ? t('common.saving') : t('models.saveSettings')}
         </Button>
       </CardFooter>

@@ -1,8 +1,8 @@
+export type logLevel = 'log' | 'error' | 'warn';
+
 export interface ConversationLog {
     timestamp: string;
     level: logLevel;
     message: string;
-    data?: object;
+    data?: Record<string, unknown>;
 }
-
-export type logLevel = 'log' | 'error' | 'warn';

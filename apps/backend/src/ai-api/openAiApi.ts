@@ -30,7 +30,7 @@ async function getRealtimeTranscriptionToken(
   const payload = {
     input_audio_format: params.input_audio_format,
     input_audio_transcription: {
-      model: params.model_api_name,
+      model: params.modelApiName,
       language: params.language.ISO639,
       prompt: '',
     },
@@ -75,8 +75,25 @@ const getRealtimeVoice = async (
 
   const apiKey = configProvider.getApiKey(API_KEY.OPENAI);
   const { personality, language, scenario, userProfile, conversationRole } = params;
-  const sessionBody: Record<string, any> = { model: params.model_api_name };
-  if (params.openai_voice_name?.trim()) {
+  const sessionBody: {
+    model: string;
+    voice?: string;
+    modalities?: string[];
+    instructions?: string;
+    input_audio_transcription?: {
+      model: string;
+      language: string;
+    };
+    output_audio_format?: string;
+    turn_detection?: {
+      type: string;
+      threshold: number;
+      prefix_padding_ms: number;
+      silence_duration_ms: number;
+      create_response: boolean;
+    };
+  } = { model: params.modelApiName };
+  if (params.openai_voice_name.trim()) {
     sessionBody.voice = params.openai_voice_name;
     sessionBody.modalities = ['audio', 'text'];
     sessionBody.instructions = createPersonalityPrompt({
@@ -116,7 +133,7 @@ const getRealtimeVoice = async (
   const ephemeralTokenResponse = (await sessionResp.json()) as EphemeralTokenResponse;
   const ephemeralToken = ephemeralTokenResponse.client_secret.value;
 
-  const sdpResp = await fetch(`${realtimeBaseUrl}?model=${params.model_api_name}`, {
+  const sdpResp = await fetch(`${realtimeBaseUrl}?model=${params.modelApiName}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${ephemeralToken}`,
@@ -135,18 +152,18 @@ const getRealtimeVoice = async (
 };
 
 const getResponse = async ({
-  input_text,
+  inputText,
   previousMessages,
   personality,
   conversationRole,
   language,
   scenario,
-  model_api_name,
+  modelApiName,
   userProfile,
 }: GetResponseParamsWithModelName): Promise<string> => {
   const openai = await getOpenAIClient();
   const completion = await openai.chat.completions.create({
-    model: model_api_name,
+    model: modelApiName,
     messages: [
       {
         role: 'system',
@@ -159,7 +176,7 @@ const getResponse = async ({
         }),
       },
       ...previousMessages,
-      { role: 'user', content: input_text },
+      { role: 'user', content: inputText },
     ],
   });
 
@@ -173,36 +190,35 @@ const getTextToSpeech = async (
     inputMessage,
     personality,
     language,
-    response_format,
-    model_api_name,
-    sample_rate,
+    responseFormat,
+    modelApiName,
+    sampleRate,
   } = params;
 
   try {
     const openai = await getOpenAIClient();
     const speechResponse = await openai.audio.speech.create({
-      model: model_api_name,
+      model: modelApiName,
       voice: personality.openaiVoiceName,
       input: inputMessage,
-      instructions:
-                personality.voiceInstructions + `Speak in ${language.ENGLISH_NAME}.`,
-      response_format: response_format,
+      instructions: (personality.voiceInstructions ?? '') + `Speak in ${language.ENGLISH_NAME}.`,
+      response_format: responseFormat,
     });
 
     const arrayBuffer = await speechResponse.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: `audio/${response_format}` });
+    const blob = new Blob([arrayBuffer], { type: `audio/${responseFormat}` });
     const objectUrl = URL.createObjectURL(blob);
     return {
       blob,
       objectUrl,
       buffer: arrayBuffer,
-      sampleRate: sample_rate, // https://platform.openai.com/docs/guides/text-to-speech
+      sampleRate: sampleRate, // https://platform.openai.com/docs/guides/text-to-speech
     };
   } catch (error) {
     console.error('Error converting text to speech using OpenAI:', error);
 
     return {
-      blob: new Blob([], { type: `audio/${response_format}` }),
+      blob: new Blob([], { type: `audio/${responseFormat}` }),
       objectUrl: '',
       buffer: new ArrayBuffer(0),
       sampleRate: 0,
@@ -214,14 +230,14 @@ async function getTextToSpeechTimestamped(
   params: GetTimestampedAudioParamsWithModelName,
   userId: string,
 ): Promise<LipSyncAudio> {
-  const { inputMessage, personality, language, model_api_name, sample_rate } = params;
+  const { inputMessage, personality, language, modelApiName, sampleRate } = params;
   const audioResponse = await getTextToSpeech({
     inputMessage,
     personality,
     language,
-    response_format: 'pcm',
-    model_api_name,
-    sample_rate,
+    responseFormat: 'pcm',
+    modelApiName: modelApiName,
+    sampleRate: sampleRate,
   });
 
   const lipSyncAudio = await getPreciseLipSyncAudio(
@@ -243,7 +259,7 @@ const createTimestampedTranscription = async (
 
   return openai.audio.transcriptions.create({
     file: params.audioFile,
-    model: params.model_api_name,
+    model: params.modelApiName,
     language: params.language.ISO639,
     response_format: 'verbose_json',
     timestamp_granularities: ['word'],

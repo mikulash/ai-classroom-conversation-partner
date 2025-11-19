@@ -24,10 +24,11 @@ const getRealtimeTranscription = async (
   if (!realtimeTranscriptionModel) {
     throw new Error('No models loaded');
   }
-  const { provider, apiName: model_api_name } = realtimeTranscriptionModel;
+  const { provider, apiName: modelApiName } = realtimeTranscriptionModel;
   switch (provider) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case 'OpenAi':
-      return openAiApi.getRealtimeTranscriptionToken({ ...params, model_api_name });
+      return openAiApi.getRealtimeTranscriptionToken({ ...params, modelApiName: modelApiName });
   }
 };
 
@@ -40,10 +41,11 @@ const getRealtimeVoice = async (
   if (!realtimeModel) {
     throw new Error('No models loaded');
   }
-  const { provider, apiName: model_api_name } = realtimeModel;
+  const { provider, apiName: modelApiName } = realtimeModel;
   switch (provider) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case 'OpenAi':
-      return openAiApi.getRealtimeVoice({ ...params, model_api_name }, userId);
+      return openAiApi.getRealtimeVoice({ ...params, modelApiName: modelApiName }, userId);
   }
 };
 
@@ -56,14 +58,14 @@ const getResponse = async (
   if (!responseModel) {
     throw new Error('No models loaded');
   }
-  const { provider, apiName: model_api_name } = responseModel;
+  const { provider, apiName: modelApiName } = responseModel;
   switch (provider) {
     case 'OpenAi':
-      return openAiApi.getResponse({ ...params, model_api_name });
+      return openAiApi.getResponse({ ...params, modelApiName: modelApiName });
     case 'Anthropic':
-      return anthropicApi.getResponse({ ...params, model_api_name });
+      return anthropicApi.getResponse({ ...params, modelApiName: modelApiName });
     case 'xAi':
-      return xAiApi.getResponse({ ...params, model_api_name });
+      return xAiApi.getResponse({ ...params, modelApiName: modelApiName });
   }
 };
 
@@ -81,14 +83,14 @@ const getTextToSpeech = async (
     case 'OpenAi':
       return openAiApi.getTextToSpeech({
         ...params,
-        model_api_name: apiName,
-        sample_rate: sampleRate,
+        modelApiName: apiName,
+        sampleRate: sampleRate,
       });
     case 'ElevenLabs':
       return elevenLabsApi.textToSpeech({
         ...params,
-        model_api_name: apiName,
-        sample_rate: sampleRate,
+        modelApiName: apiName,
+        sampleRate: sampleRate,
       });
   }
 };
@@ -106,14 +108,14 @@ const getTextToSpeechTimestamped = async (
   switch (provider) {
     case 'OpenAi':
       return openAiApi.getTextToSpeechTimestamped(
-        { ...params, model_api_name: apiName, sample_rate: sampleRate },
+        { ...params, modelApiName: apiName, sampleRate: sampleRate },
         userId,
       );
     case 'ElevenLabs':
       return elevenLabsApi.getTextToSpeechTimestamped({
         ...params,
-        model_api_name: apiName,
-        sample_rate: sampleRate,
+        modelApiName: apiName,
+        sampleRate: sampleRate,
       });
   }
 };
@@ -127,10 +129,11 @@ const getTimestampedTranscription = async (
   if (!timestampedTranscriptionModel) {
     throw new Error('No models loaded');
   }
-  const { provider, apiName: model_api_name } = timestampedTranscriptionModel;
+  const { provider, apiName: modelApiName } = timestampedTranscriptionModel;
   switch (provider) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case 'OpenAi':
-      return openAiApi.createTimestampedTranscription({ ...params, model_api_name });
+      return openAiApi.createTimestampedTranscription({ ...params, modelApiName: modelApiName });
   }
 };
 

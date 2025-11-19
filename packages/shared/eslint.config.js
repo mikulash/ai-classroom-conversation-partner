@@ -1,9 +1,4 @@
 import { config } from '@repo/eslint-config/base';
 
 /** @type {import("eslint").Linter.Config} */
-export default [
-  ...config,
-  {
-    ignores: ['**/types/supabase/database.types.ts'],
-  },
-];
+export default config;
