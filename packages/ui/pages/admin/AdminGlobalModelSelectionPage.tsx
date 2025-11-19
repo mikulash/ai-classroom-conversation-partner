@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { repliesClient } from '@repo/frontend-utils/src/clients/repliesClient';
+import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';

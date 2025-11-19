@@ -10,7 +10,7 @@ import { FaMicrophone, FaStop } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { MdCallEnd } from 'react-icons/md';
 import { TextToSpeechRequest } from '@repo/shared/types/figurantClient.types';
-import { repliesClient } from '@repo/frontend-utils/src/clients/repliesClient';
+import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { toast } from 'sonner';

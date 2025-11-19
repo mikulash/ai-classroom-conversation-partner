@@ -5,7 +5,7 @@ import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { repliesClient } from '@repo/frontend-utils/src/clients/repliesClient';
+import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';

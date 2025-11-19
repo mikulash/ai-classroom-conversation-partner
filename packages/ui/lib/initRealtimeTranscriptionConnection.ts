@@ -1,5 +1,5 @@
 import { Language } from '@repo/shared/enums/Language';
-import { repliesClient } from '@repo/frontend-utils/src/clients/repliesClient';
+import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
 
 export async function initRealtimeTranscriptionConnection(
