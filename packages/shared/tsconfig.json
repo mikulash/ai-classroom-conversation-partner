@@ -16,7 +16,6 @@
     "enums/**/*.ts",
     "types/**/*.ts",
     "utils/**/*.ts",
-    "generated/**/*.ts"
   ],
   "exclude": [
     "node_modules",
