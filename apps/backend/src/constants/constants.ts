@@ -1,7 +1,6 @@
 export const PORT = parseInt(process.env.PORT ?? '4000', 10);
 export const NODE_ENV = process.env.NODE_ENV ?? 'development';
 
-export const JWT_SECRET = process.env.JWT_SECRET ?? 'change-me';
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? '15m'; // Short-lived access tokens
 
 export const SMTP_HOST = process.env.SMTP_HOST ?? 'smtp.example.com';
@@ -20,3 +19,9 @@ export const GROK_API_KEY = process.env.GROK_API_KEY;
 export const ELEVENLABS_FALLBACK_VOICE_ID_FEMALE = process.env.ELEVENLABS_FALLBACK_VOICE_ID_FEMALE ?? '';
 export const ELEVENLABS_FALLBACK_VOICE_ID_MALE = process.env.ELEVENLABS_FALLBACK_VOICE_ID_MALE ?? '';
 
+export const getJwtSecret= () : string => {
+    if(process.env.JWT_SECRET === undefined) throw new Error(
+        'JWT_SECRET is not defined in the environment variables'
+    )
+    return process.env.JWT_SECRET
+}

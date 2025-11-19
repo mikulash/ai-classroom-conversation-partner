@@ -30,7 +30,7 @@ import {
 import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
-import { APP_FRONTEND_URL, JWT_SECRET } from '../../constants/constants';
+import { APP_FRONTEND_URL, getJwtSecret } from '../../constants/constants';
 
 const router = Router();
 
@@ -40,7 +40,7 @@ const router = Router();
 function generateEmailVerificationToken(userId: string, email: string): string {
   return jwt.sign(
     { userId, email },
-    JWT_SECRET,
+      getJwtSecret(),
     { expiresIn: '1d' }, // 24h to verify
   );
 }
@@ -164,7 +164,7 @@ router.get(
 
       let payload: { userId: string; email: string };
       try {
-        payload = jwt.verify(token, JWT_SECRET) as { userId: string; email: string };
+        payload = jwt.verify(token, getJwtSecret()) as { userId: string; email: string };
       } catch {
         res.status(400).json({ message: 'Invalid or expired verification token' });
         return;
@@ -590,7 +590,7 @@ router.post(
       // Generate password reset token (expires in 1 hour)
       const resetToken = jwt.sign(
         { userId: user.id, email: user.email, type: 'password-reset' },
-        JWT_SECRET,
+          getJwtSecret(),
         { expiresIn: '1h' },
       );
 
@@ -629,8 +629,9 @@ router.post(
 
       // Verify the reset token
       let payload: { userId: string; email: string; type: string };
+
       try {
-        payload = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; type: string };
+        payload = jwt.verify(token, getJwtSecret()) as { userId: string; email: string; type: string };
       } catch {
         res.status(400).json({ message: 'Invalid or expired reset token' });
         return;
