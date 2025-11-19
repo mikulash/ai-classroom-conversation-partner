@@ -96,7 +96,6 @@
         "SMTP_PASS",
         "MAIL_FROM",
         "TOKEN_CLEANUP_SCHEDULE"
-
       ]
     }
   }
