@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "exports": {
-    "./components/*": "./components/*.tsx",
-    "./hooks/*": "./hooks/*.ts",
-    "./layouts/*": "./layouts/*.tsx",
-    "./lib/*": "./lib/*.ts",
-    "./pages/*": "./pages/*.tsx",
-    "./routes/*": "./routes/*.tsx"
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./layouts/*": "./src/layouts/*.tsx",
+    "./lib/*": "./src/lib/*",
+    "./pages/*": "./src/pages/*.tsx",
+    "./routes/*": "./src/routes/*.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
