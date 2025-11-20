@@ -1,7 +1,7 @@
 {
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "src",
     "lib": [
       "DOM",
       "ES2023"
@@ -13,9 +13,7 @@
     "moduleResolution": "Bundler"
   },
   "include": [
-    "enums/**/*.ts",
-    "types/**/*.ts",
-    "utils/**/*.ts",
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
