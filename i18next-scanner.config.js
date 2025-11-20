@@ -7,7 +7,7 @@ module.exports = {
     '!**/node_modules/**',
   ],
   // <─ write files right where the existing ones are
-  output: './packages/ui/lib/locales/',
+  output: './packages/ui/src/lib/locales/',
   options: {
     debug: true,
 
@@ -24,7 +24,7 @@ module.exports = {
     /** * IMPORTANT CHANGES ***/
     // 1. Tell the scanner where to read the current JSONs
     resource: {
-      loadPath: 'packages/ui/lib/locales/{{lng}}.json',
+      loadPath: 'packages/ui/src/lib/locales/{{lng}}.json',
       // 2. Keep the existing save path (relative to `output`)
       savePath: '{{lng}}.json',
       jsonIndent: 2,
