@@ -6,7 +6,8 @@ import prisma from '../clients/prisma';
 import { getJwtSecret, JWT_EXPIRES_IN } from '../constants/constants';
 
 const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-const BCRYPT_ROUNDS = 10;
+const BCRYPT_ROUNDS = 10; // For password hashing only
+const TOKEN_HASH_ALGORITHM = 'sha256'; // For refresh token hashing
 
 export interface JWTPayload {
   userId: string;
@@ -35,7 +36,9 @@ export function generateToken(payload: JWTPayload): string {
   const options: jwt.SignOptions = { expiresIn: JWT_EXPIRES_IN as StringValue };
   return jwt.sign(payload, getJwtSecret(), options);
 }
-
+export function hashRefreshToken(token: string): string {
+    return crypto.createHash(TOKEN_HASH_ALGORITHM).update(token).digest('hex');
+}
 /**
  * Verify and decode a JWT token
  */
@@ -67,14 +70,17 @@ export function generateRefreshToken(): string {
 }
 
 /**
- * Store a refresh token in the database
+ * Store a refresh token in the database (hashed for security)
  */
 export async function storeRefreshToken(userId: string, token: string): Promise<void> {
   const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN);
 
+  // Hash the token before storing to protect against database leaks
+  const hashedToken = hashRefreshToken(token);
+
   await prisma.refreshToken.create({
     data: {
-      token,
+      token: hashedToken,
       userId,
       expiresAt,
     },
@@ -83,39 +89,42 @@ export async function storeRefreshToken(userId: string, token: string): Promise<
 
 /**
  * Verify a refresh token and return the associated user ID
+ * Note: Since tokens are hashed, we must compare against all active tokens
  */
 export async function verifyRefreshToken(token: string): Promise<string | null> {
-  const refreshToken = await prisma.refreshToken.findUnique({
-    where: { token },
-  });
+    const hashedToken = hashRefreshToken(token);
 
-  if (!refreshToken) {
-    return null;
-  }
-
-  // Check if token is revoked
-  if (refreshToken.revoked) {
-    return null;
-  }
-
-  // Check if token is expired
-  if (refreshToken.expiresAt < new Date()) {
-    // Clean up expired token
-    await prisma.refreshToken.delete({
-      where: { id: refreshToken.id },
+    const refreshToken = await prisma.refreshToken.findUnique({
+        where: { token: hashedToken },
     });
-    return null;
-  }
 
-  return refreshToken.userId;
+    if (!refreshToken) {
+        return null;
+    }
+
+    if (refreshToken.revoked) {
+        return null;
+    }
+
+    if (refreshToken.expiresAt < new Date()) {
+        // Clean up expired token
+        await prisma.refreshToken.delete({
+            where: { id: refreshToken.id },
+        });
+        return null;
+    }
+
+    return refreshToken.userId;
 }
 
 /**
  * Revoke a refresh token
+ * Note: Since tokens are hashed, we must compare against all active tokens
  */
 export async function revokeRefreshToken(token: string): Promise<void> {
-  await prisma.refreshToken.updateMany({
-    where: { token },
-    data: { revoked: true },
-  });
+    const hashedToken = hashRefreshToken(token);
+    await prisma.refreshToken.updateMany({
+        where: { token: hashedToken },
+        data: { revoked: true },
+    });
 }
