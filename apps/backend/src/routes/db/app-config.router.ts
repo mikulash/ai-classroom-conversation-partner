@@ -1,8 +1,8 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { authenticate, requireOwner } from '../../middleware/auth.js';
+import { authenticate, requireOwner } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
-import { AppConfigWithModels, ErrorResponse } from '@repo/shared/types/dbRoutes.types';
+import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
 import { appConfigWithModelsToDto } from '@repo/shared/mappers/dtoMappers';
 import type {AppConfigWithModelsDto} from "@repo/shared/types/db/dto";
 import {AppConfigCreate} from "@repo/shared/types/db/entities";

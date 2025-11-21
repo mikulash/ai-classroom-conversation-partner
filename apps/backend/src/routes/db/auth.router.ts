@@ -8,8 +8,8 @@ import {
     revokeRefreshToken,
     storeRefreshToken,
     verifyRefreshToken,
-} from '../../utils/auth.js';
-import {authenticate} from '../../middleware/auth.js';
+} from '../../utils/auth';
+import {authenticate} from '../../middleware/auth';
 import prisma from '../../clients/prisma';
 import {
     AuthTokensResponse,
@@ -28,9 +28,9 @@ import {
 import {EmailVerificationResponseDto,  LoginResponseDto, ProfileDto} from '@repo/shared/types/db/dto';
 import {profileToDto} from '@repo/shared/mappers/dtoMappers';
 import jwt from 'jsonwebtoken';
-import {sendPasswordResetEmail, sendVerificationEmail} from '../../utils/email.js';
+import {sendPasswordResetEmail, sendVerificationEmail} from '../../utils/email';
 import {isValidUniversityEmail} from '@repo/shared/utils/isValidUniversityEmail';
-import {APP_FRONTEND_URL, getJwtSecret} from '../../constants/constants.js';
+import {APP_FRONTEND_URL, getJwtSecret} from '../../constants/constants';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { universalApi } from '../ai-api/universalApi.js';
+import { universalApi } from '../ai-api/universalApi';
 import {
   ErrorResponse,
   FullReplyPlainResponse,
@@ -15,8 +15,8 @@ import {
   WebRtcAnswerResponse,
 } from '@repo/shared/types/figurantClient.types';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { authenticate } from '../middleware/auth.js';
-import { getUserId } from '../utils/getUserId.js';
+import { authenticate } from '../middleware/auth';
+import { getUserId } from '../utils/getUserId';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 

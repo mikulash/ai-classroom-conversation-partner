@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { PORT, NODE_ENV } from './constants/constants.js';
-import { startTokenCleanupScheduler } from './jobs/tokenCleanup.js';
+import { startTokenCleanupScheduler } from './jobs/tokenCleanup';
 
 // Legacy routes
 import replyRoutes from './routes/replies.router.js';

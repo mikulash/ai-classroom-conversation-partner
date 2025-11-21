@@ -1,7 +1,6 @@
 import { Request, Response, Router } from 'express';
 import prisma from '../../clients/prisma';
 import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
-import { ConversationRole } from '@repo/shared/types/db/entities';
 import type { ConversationRoleDto } from '@repo/shared/types/db/dto';
 import { conversationRoleToDto } from '@repo/shared/mappers/dtoMappers';
 

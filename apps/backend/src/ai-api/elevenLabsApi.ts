@@ -4,7 +4,7 @@ import { ElevenLabsTimestampedResponse, GetTTSAudioResponse } from '@repo/shared
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
 import { GetTimestampedAudioParamsWithModelName, GetTTSAudioParamsWithModelName } from '../types/universalApi.types';
-import { ELEVENLABS_FALLBACK_VOICE_ID_FEMALE, ELEVENLABS_FALLBACK_VOICE_ID_MALE } from '../constants/constants.js';
+import { ELEVENLABS_FALLBACK_VOICE_ID_FEMALE, ELEVENLABS_FALLBACK_VOICE_ID_MALE } from '../constants/constants';
 
 const getTextToSpeech = async (
   params: GetTTSAudioParamsWithModelName,

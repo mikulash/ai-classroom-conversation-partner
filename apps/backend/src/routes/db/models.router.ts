@@ -1,16 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
-import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import { authenticate, requireAdmin } from '../../middleware/auth';
+
 import {
-  RealtimeModel,
-  RealtimeTranscriptionModel,
-  ResponseModel,
-  TimestampedTranscriptionModel,
-  TtsModel,
-} from '@repo/shared/types/db/entities';
-import {
-  CustomSelectionWithModels,
   ErrorResponse,
   MessageResponse,
   UpdateCustomModelSelectionRequest,

@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { extractTokenFromHeader, verifyAndDecodeToken } from './auth.js';
+import { extractTokenFromHeader, verifyAndDecodeToken } from './auth';
 
 /**
  * Extracts the user ID from a request's Bearer token using JWT authentication.

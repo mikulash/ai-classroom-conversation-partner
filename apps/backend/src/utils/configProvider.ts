@@ -6,7 +6,7 @@ import type { AppConfig, RealtimeModel,
   ResponseModel,
   TimestampedTranscriptionModel,
   TtsModel } from '../generated/prisma/client';
-import { OPENAI_API_KEY, ELEVENLABS_API_KEY, CLAUDE_API_KEY, GROK_API_KEY } from '../constants/constants.js';
+import { OPENAI_API_KEY, ELEVENLABS_API_KEY, CLAUDE_API_KEY, GROK_API_KEY } from '../constants/constants';
 
 /**
  * Fetches all secrets once and caches them for the lifetime of the process.

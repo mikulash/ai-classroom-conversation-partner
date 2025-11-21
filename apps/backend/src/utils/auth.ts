@@ -2,8 +2,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import type { StringValue } from 'ms';
-import prisma from '../clients/prisma.js';
-import { getJwtSecret, JWT_EXPIRES_IN } from '../constants/constants.js';
+import prisma from '../clients/prisma';
+import { getJwtSecret, JWT_EXPIRES_IN } from '../constants/constants';
 
 const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 const BCRYPT_ROUNDS = 10;

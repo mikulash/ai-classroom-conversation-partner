@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
-import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import { authenticate, requireAdmin } from '../../middleware/auth';
 import {
   CreateScenarioRequest,
   ErrorResponse,
