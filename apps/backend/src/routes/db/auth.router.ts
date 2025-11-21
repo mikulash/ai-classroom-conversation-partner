@@ -8,6 +8,9 @@ import {
     revokeRefreshToken,
     storeRefreshToken,
     verifyRefreshToken,
+    generatePasswordResetToken,
+    storePasswordResetToken,
+    verifyAndConsumePasswordResetToken,
 } from '../../utils/auth';
 import {authenticate} from '../../middleware/auth';
 import prisma from '../../clients/prisma';
@@ -558,12 +561,9 @@ router.post(
         return;
       }
 
-      // Generate password reset token (expires in 1 hour)
-      const resetToken = jwt.sign(
-        { userId: user.id, email: user.email, type: 'password-reset' },
-        getJwtSecret(),
-        { expiresIn: '1h' },
-      );
+      // Generate and store password reset token (expires in 1 hour)
+      const resetToken = generatePasswordResetToken();
+      await storePasswordResetToken(user.id, resetToken);
 
       // Construct reset URL that points to the frontend reset page
       const frontendBaseUrl = APP_FRONTEND_URL.replace(/\/$/, '');
@@ -598,25 +598,17 @@ router.post(
         return;
       }
 
-      // Verify the reset token
-      let payload: { userId: string; email: string; type: string };
+      // Verify and consume the reset token (one-time use)
+      const userId = await verifyAndConsumePasswordResetToken(token);
 
-      try {
-        payload = jwt.verify(token, getJwtSecret()) as { userId: string; email: string; type: string };
-      } catch {
+      if (!userId) {
         res.status(400).json({ message: 'Invalid or expired reset token' });
-        return;
-      }
-
-      // Verify it's a password reset token
-      if (payload.type !== 'password-reset') {
-        res.status(400).json({ message: 'Invalid token type' });
         return;
       }
 
       // Get the user
       const user = await prisma.user.findUnique({
-        where: { id: payload.userId },
+        where: { id: userId },
       });
 
       if (!user) {
