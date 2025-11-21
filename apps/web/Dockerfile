@@ -32,13 +32,9 @@ RUN pnpm install --frozen-lockfile
 FROM deps AS builder
 
 # Vite build-time env (provided via --build-arg at docker build)
-ARG VITE_SUPABASE_URL
-ARG VITE_SUPABASE_ANON_KEY
 ARG VITE_BACKEND_URL
 
 # Expose them to the build process so Vite picks them up
-ENV VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-ENV VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
 ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 
 # Copy the full repo
