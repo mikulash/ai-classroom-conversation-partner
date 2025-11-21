@@ -6,6 +6,8 @@ import {
   UpdatePasswordRequest,
   AuthResponse,
 } from '@repo/shared/types/dbRoutes.types';
+import {EmailVerificationResponseDto,  LoginResponseDto, ProfileDto} from '@repo/shared/types/db/dto';
+import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
 import { AxiosError } from 'axios';
 
@@ -39,11 +41,12 @@ export const authClient = {
      */
   verifyEmail: async (token: string) => {
     try {
-      const response = await api.get<AuthResponse>('/api/auth/verify-email', {
+      const response = await api.get<EmailVerificationResponseDto>('/api/auth/verify-email', {
         params: { token },
       });
 
-      const { user, accessToken, refreshToken } = response.data;
+      const { user: userDto, accessToken, refreshToken } = response.data;
+      const user = profileDtoToEntity(userDto);
 
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', refreshToken);
@@ -91,9 +94,10 @@ export const authClient = {
   login: async (email: string, password: string) => {
     try {
       const payload: LoginRequest = { email, password };
-      const response = await api.post<AuthResponse>('/api/auth/login', payload);
+      const response = await api.post<LoginResponseDto>('/api/auth/login', payload);
 
-      const { user, accessToken, refreshToken } = response.data;
+      const { user: userDto, accessToken, refreshToken } = response.data;
+      const user = profileDtoToEntity(userDto);
 
       // Store tokens and user in localStorage
       localStorage.setItem('access_token', accessToken);
@@ -121,8 +125,8 @@ export const authClient = {
      */
   getCurrentUser: async () => {
     try {
-      const response = await api.get<ProfileResponse>('/api/auth/me');
-      const user = response.data;
+      const response = await api.get<ProfileDto>('/api/auth/me');
+      const user = profileDtoToEntity(response.data);
 
       // Update stored user profile
       localStorage.setItem('user_profile', JSON.stringify(user));

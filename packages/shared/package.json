@@ -5,7 +5,8 @@
   "exports": {
     "./enums/*": "./dist/enums/*.js",
     "./types/*": "./dist/types/*.js",
-    "./utils/*": "./dist/utils/*.js"
+    "./utils/*": "./dist/utils/*.js",
+    "./mappers/*": "./dist/mappers/*.js"
   },
   "type": "module",
   "scripts": {

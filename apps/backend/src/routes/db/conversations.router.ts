@@ -8,6 +8,8 @@ import {
   ErrorResponse,
   MessageResponse,
 } from '@repo/shared/types/dbRoutes.types';
+import type { ConversationWithPersonalityDto } from '@repo/shared/types/db/dto';
+import { conversationWithPersonalityToDto } from '@repo/shared/mappers/dtoMappers';
 
 // Path parameter types
 interface ConversationIdParams extends ParamsDictionary {
@@ -31,7 +33,7 @@ router.get(
   '/',
   async (
     req: Request,
-    res: Response<ConversationWithPersonality[] | ErrorResponse>,
+    res: Response<ConversationWithPersonalityDto[] | ErrorResponse>,
   ) => {
     try {
       if (!req.user) {
@@ -60,7 +62,7 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      res.status(200).json(conversations as ConversationWithPersonality[]);
+      res.status(200).json(conversations.map(conversationWithPersonalityToDto));
     } catch (error) {
       console.error('Get conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -74,8 +76,8 @@ router.get(
 router.post(
   '/',
   async (
-    req: Request<ParamsDictionary, ConversationWithPersonality | ErrorResponse, CreateConversationRequest>,
-    res: Response<ConversationWithPersonality | ErrorResponse>,
+    req: Request<ParamsDictionary, ConversationWithPersonalityDto | ErrorResponse, CreateConversationRequest>,
+    res: Response<ConversationWithPersonalityDto | ErrorResponse>,
   ) => {
     try {
       const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType, usedConfig } =
@@ -124,10 +126,7 @@ router.post(
         },
       });
 
-      // Transform the response to match ConversationWithPersonality type
-      const response: ConversationWithPersonality = conversation as ConversationWithPersonality;
-
-      res.status(201).json(response);
+      res.status(201).json(conversationWithPersonalityToDto(conversation));
     } catch (error) {
       console.error('Create conversation error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -191,7 +190,7 @@ router.get(
   requireAdmin,
   async (
     req: Request<UserIdParams>,
-    res: Response<ConversationWithPersonality[] | ErrorResponse>,
+    res: Response<ConversationWithPersonalityDto[] | ErrorResponse>,
   ) => {
     try {
       const { userId } = req.params;
@@ -217,7 +216,7 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      res.status(200).json(conversations as ConversationWithPersonality[]);
+      res.status(200).json(conversations.map(conversationWithPersonalityToDto));
     } catch (error) {
       console.error('Get user conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });

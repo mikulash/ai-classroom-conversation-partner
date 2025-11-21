@@ -1,4 +1,6 @@
 import { ApiResponse, ProfileResponse, UpdateProfileRequest, UpdateUserRoleRequest } from '@repo/shared/types/dbRoutes.types';
+import type { ProfileDto } from '@repo/shared/types/db/dto';
+import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
 import { UserRole } from '@repo/shared/types/db/enums';
 import { AxiosError } from 'axios';
@@ -10,8 +12,9 @@ import { AxiosError } from 'axios';
 export const profileClient = {
   getAll: async (): Promise<ApiResponse<ProfileResponse[]>> => {
     try {
-      const response = await api.get<ProfileResponse[]>('/api/profiles');
-      return { data: response.data };
+      const response = await api.get<ProfileDto[]>('/api/profiles');
+      const data = response.data.map(profileDtoToEntity);
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch profiles' } };
@@ -20,8 +23,9 @@ export const profileClient = {
 
   upsert: async (profileId: string, payload: UpdateProfileRequest): Promise<ApiResponse<ProfileResponse>> => {
     try {
-      const response = await api.put<ProfileResponse>(`/api/profiles/${profileId}`, payload);
-      return { data: response.data };
+      const response = await api.put<ProfileDto>(`/api/profiles/${profileId}`, payload);
+      const data = profileDtoToEntity(response.data);
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
@@ -34,8 +38,9 @@ export const profileClient = {
   updateRole: async (profileId: string, role: UserRole): Promise<ApiResponse<ProfileResponse>> => {
     try {
       const payload: UpdateUserRoleRequest = { userRole: role };
-      const response = await api.put<ProfileResponse>(`/api/profiles/${profileId}/role`, payload);
-      return { data: response.data };
+      const response = await api.put<ProfileDto>(`/api/profiles/${profileId}/role`, payload);
+      const data = profileDtoToEntity(response.data);
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {

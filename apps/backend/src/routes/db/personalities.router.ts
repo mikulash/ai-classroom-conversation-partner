@@ -2,13 +2,14 @@ import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
-import { Personality } from '@repo/shared/types/db/entities';
+import type { PersonalityDto } from '@repo/shared/types/db/dto';
 import {
   CreatePersonalityRequest,
   ErrorResponse,
   MessageResponse,
   UpdatePersonalityRequest,
 } from '@repo/shared/types/dbRoutes.types';
+import { personalityToDto } from '@repo/shared/mappers/dtoMappers';
 
 // Path parameter types
 interface PersonalityIdParams extends ParamsDictionary {
@@ -25,7 +26,7 @@ router.get(
   '/',
   async (
     req: Request,
-    res: Response<Personality[] | ErrorResponse>,
+    res: Response<PersonalityDto[] | ErrorResponse>,
   ) => {
     try {
     // Check if user is authenticated and is admin
@@ -37,7 +38,7 @@ router.get(
         orderBy: { createdAt: 'desc' },
       });
 
-      res.status(200).json(personalities);
+      res.status(200).json(personalities.map(personalityToDto));
     } catch (error) {
       console.error('Get personalities error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -54,8 +55,8 @@ router.post(
   authenticate,
   requireAdmin,
   async (
-    req: Request<ParamsDictionary, Personality | ErrorResponse, CreatePersonalityRequest>,
-    res: Response<Personality | ErrorResponse>,
+    req: Request<ParamsDictionary, PersonalityDto | ErrorResponse, CreatePersonalityRequest>,
+    res: Response<PersonalityDto | ErrorResponse>,
   ) => {
     try {
       const {
@@ -98,7 +99,7 @@ router.post(
         },
       });
 
-      res.status(201).json(personality);
+      res.status(201).json(personalityToDto(personality));
     } catch (error) {
       console.error('Create personality error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -114,8 +115,8 @@ router.put(
   authenticate,
   requireAdmin,
   async (
-    req: Request<PersonalityIdParams, Personality | ErrorResponse, UpdatePersonalityRequest>,
-    res: Response<Personality | ErrorResponse>,
+    req: Request<PersonalityIdParams, PersonalityDto | ErrorResponse, UpdatePersonalityRequest>,
+    res: Response<PersonalityDto | ErrorResponse>,
   ) => {
     try {
       const { id } = req.params;
@@ -154,7 +155,7 @@ router.put(
         },
       });
 
-      res.status(200).json(personality);
+      res.status(200).json(personalityToDto(personality));
     } catch (error) {
       console.error('Update personality error:', error);
       res.status(500).json({ message: 'Internal server error' });

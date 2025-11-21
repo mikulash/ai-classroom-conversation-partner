@@ -145,7 +145,6 @@ export function AdminGlobalModelSelectionPage() {
       realtimeModelId: modelSelectionState.realtimeModel?.id,
       timestampedTranscriptionModelId: modelSelectionState.timestampedTranscriptionModel?.id,
       realtimeTranscriptionModelId: modelSelectionState.realtimeTranscriptionModel?.id,
-      editedAt: new Date(),
     });
 
 
