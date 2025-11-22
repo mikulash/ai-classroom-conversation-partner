@@ -36,7 +36,7 @@ export function generateToken(payload: JWTPayload): string {
   const options: jwt.SignOptions = { expiresIn: JWT_EXPIRES_IN as StringValue };
   return jwt.sign(payload, getJwtSecret(), options);
 }
-export function hashRefreshToken(token: string): string {
+function hashRefreshToken(token: string): string {
   return crypto.createHash(TOKEN_HASH_ALGORITHM).update(token).digest('hex');
 }
 /**
