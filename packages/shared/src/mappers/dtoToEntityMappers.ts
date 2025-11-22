@@ -17,6 +17,7 @@ import type {
   TtsModelDto,
 } from '../types/db/dto';
 import type {
+  AdminUserCustomModelSelection,
   AppConfig,
   Conversation,
   ConversationRole,
@@ -28,16 +29,8 @@ import type {
   Scenario,
   TimestampedTranscriptionModel,
   TtsModel,
-  AdminUserCustomModelSelection,
 } from '../types/db/entities';
-import type {
-  AppConfigWithModels,
-  ConversationWithPersonality,
-  CustomSelectionWithModels,
-  PersonalityWithScenarios,
-  ProfileResponse,
-  ScenarioWithPersonality,
-} from '../types/dbRoutes.types';
+import type { AppConfigWithModels } from '../types/dbRoutes.types';
 
 // ============================================================
 // Helper Functions

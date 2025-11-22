@@ -4,8 +4,8 @@ import { authenticate, requireOwner } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
 import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
 import { appConfigWithModelsToDto } from '@repo/shared/mappers/dtoMappers';
-import type {AppConfigWithModelsDto} from "@repo/shared/types/db/dto";
-import {AppConfigCreate} from "@repo/shared/types/db/entities";
+import type { AppConfigWithModelsDto } from '@repo/shared/types/db/dto';
+import { AppConfigCreate } from '@repo/shared/types/db/entities';
 
 const router = Router();
 
@@ -82,7 +82,7 @@ router.put(
           maxConversationDurationInSeconds: maxConversationDurationInSeconds ?? 300,
           appName: appName ?? 'AI FIGURANT',
           allowedDomains: allowedDomains ?? [],
-            editedAt: new Date(),
+          editedAt: new Date(),
         },
         update: {
           responseModelId,
@@ -94,7 +94,7 @@ router.put(
           maxConversationDurationInSeconds,
           appName,
           allowedDomains,
-            editedAt: new Date(),
+          editedAt: new Date(),
         },
         include: {
           responseModel: true,

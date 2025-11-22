@@ -1,4 +1,9 @@
-import { ApiResponse, ProfileResponse, UpdateProfileRequest, UpdateUserRoleRequest } from '@repo/shared/types/dbRoutes.types';
+import {
+  ApiResponse,
+  ProfileResponse,
+  UpdateProfileRequest,
+  UpdateUserRoleRequest,
+} from '@repo/shared/types/dbRoutes.types';
 import type { ProfileDto } from '@repo/shared/types/db/dto';
 import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';

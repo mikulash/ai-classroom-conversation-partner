@@ -41,8 +41,8 @@ router.get(
       });
 
       const profiles = users
-        .filter(user => user.profile !== null)
-        .map(user => profileToDto({
+        .filter((user) => user.profile !== null)
+        .map((user) => profileToDto({
           ...user.profile!,
           email: user.email,
           confirmedAt: user.confirmedAt,

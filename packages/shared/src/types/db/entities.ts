@@ -1,8 +1,12 @@
 import {
   ConversationType,
   OpenAiVoiceName,
-  RealtimeModelProvider, ResponseModelProvider, Sex, TimestampedTranscriptionModelProvider,
-  TranscriptionModelProvider, TtsModelProvider,
+  RealtimeModelProvider,
+  ResponseModelProvider,
+  Sex,
+  TimestampedTranscriptionModelProvider,
+  TranscriptionModelProvider,
+  TtsModelProvider,
   UserRole,
 } from './enums';
 import { ConversationLog } from '../conversationLog';

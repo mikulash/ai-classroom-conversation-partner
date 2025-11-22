@@ -1,12 +1,17 @@
 import {
-  AuthTokensResponse, LoginRequest, LogoutRequest,
-  MessageResponse, ProfileResponse, RefreshTokenRequest, RegisterResponse, RegisterUserRequest,
-  RequestPasswordResetRequest, ResendVerificationRequest,
+  AuthTokensResponse,
+  LoginRequest,
+  LogoutRequest,
+  MessageResponse,
+  RefreshTokenRequest,
+  RegisterResponse,
+  RegisterUserRequest,
+  RequestPasswordResetRequest,
+  ResendVerificationRequest,
   ResetPasswordRequest,
   UpdatePasswordRequest,
-  AuthResponse,
 } from '@repo/shared/types/dbRoutes.types';
-import {EmailVerificationResponseDto,  LoginResponseDto, ProfileDto} from '@repo/shared/types/db/dto';
+import { EmailVerificationResponseDto, LoginResponseDto, ProfileDto } from '@repo/shared/types/db/dto';
 import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
 import { AxiosError } from 'axios';

@@ -6,7 +6,6 @@ import {
   CreateScenarioRequest,
   ErrorResponse,
   MessageResponse,
-  ScenarioWithPersonality,
   UpdateScenarioRequest,
 } from '@repo/shared/types/dbRoutes.types';
 import type { ScenarioWithPersonalityDto } from '@repo/shared/types/db/dto';

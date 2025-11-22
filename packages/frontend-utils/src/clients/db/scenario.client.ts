@@ -1,6 +1,7 @@
 import {
   ApiResponse,
-  CreateScenarioRequest, MessageResponse,
+  CreateScenarioRequest,
+  MessageResponse,
   ScenarioWithPersonality,
   UpdateScenarioRequest,
 } from '@repo/shared/types/dbRoutes.types';

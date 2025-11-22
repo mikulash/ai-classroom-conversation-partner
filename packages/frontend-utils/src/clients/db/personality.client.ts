@@ -1,4 +1,9 @@
-import { ApiResponse, CreatePersonalityRequest, MessageResponse, UpdatePersonalityRequest } from '@repo/shared/types/dbRoutes.types';
+import {
+  ApiResponse,
+  CreatePersonalityRequest,
+  MessageResponse,
+  UpdatePersonalityRequest,
+} from '@repo/shared/types/dbRoutes.types';
 import { Personality } from '@repo/shared/types/db/entities';
 import type { PersonalityDto } from '@repo/shared/types/db/dto';
 import { personalityDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';

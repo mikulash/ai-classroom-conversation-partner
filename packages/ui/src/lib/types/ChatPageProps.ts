@@ -1,4 +1,3 @@
-
 import { Personality, Scenario } from '@repo/shared/types/db/entities';
 
 export interface ChatPageProps {

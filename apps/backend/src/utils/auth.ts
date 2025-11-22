@@ -37,7 +37,7 @@ export function generateToken(payload: JWTPayload): string {
   return jwt.sign(payload, getJwtSecret(), options);
 }
 export function hashRefreshToken(token: string): string {
-    return crypto.createHash(TOKEN_HASH_ALGORITHM).update(token).digest('hex');
+  return crypto.createHash(TOKEN_HASH_ALGORITHM).update(token).digest('hex');
 }
 /**
  * Verify and decode a JWT token
@@ -92,29 +92,29 @@ export async function storeRefreshToken(userId: string, token: string): Promise<
  * Note: Since tokens are hashed, we must compare against all active tokens
  */
 export async function verifyRefreshToken(token: string): Promise<string | null> {
-    const hashedToken = hashRefreshToken(token);
+  const hashedToken = hashRefreshToken(token);
 
-    const refreshToken = await prisma.refreshToken.findUnique({
-        where: { token: hashedToken },
+  const refreshToken = await prisma.refreshToken.findUnique({
+    where: { token: hashedToken },
+  });
+
+  if (!refreshToken) {
+    return null;
+  }
+
+  if (refreshToken.revoked) {
+    return null;
+  }
+
+  if (refreshToken.expiresAt < new Date()) {
+    // Clean up expired token
+    await prisma.refreshToken.delete({
+      where: { id: refreshToken.id },
     });
+    return null;
+  }
 
-    if (!refreshToken) {
-        return null;
-    }
-
-    if (refreshToken.revoked) {
-        return null;
-    }
-
-    if (refreshToken.expiresAt < new Date()) {
-        // Clean up expired token
-        await prisma.refreshToken.delete({
-            where: { id: refreshToken.id },
-        });
-        return null;
-    }
-
-    return refreshToken.userId;
+  return refreshToken.userId;
 }
 
 /**
@@ -122,11 +122,11 @@ export async function verifyRefreshToken(token: string): Promise<string | null> 
  * Note: Since tokens are hashed, we must compare against all active tokens
  */
 export async function revokeRefreshToken(token: string): Promise<void> {
-    const hashedToken = hashRefreshToken(token);
-    await prisma.refreshToken.updateMany({
-        where: { token: hashedToken },
-        data: { revoked: true },
-    });
+  const hashedToken = hashRefreshToken(token);
+  await prisma.refreshToken.updateMany({
+    where: { token: hashedToken },
+    data: { revoked: true },
+  });
 }
 
 /**

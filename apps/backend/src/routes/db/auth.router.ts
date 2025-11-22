@@ -1,39 +1,39 @@
-import {Request, Response, Router} from 'express';
-import {ParamsDictionary} from 'express-serve-static-core';
+import { Request, Response, Router } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import {
-    comparePassword,
-    generateRefreshToken,
-    generateToken,
-    hashPassword,
-    revokeRefreshToken,
-    storeRefreshToken,
-    verifyRefreshToken,
-    generatePasswordResetToken,
-    storePasswordResetToken,
-    verifyAndConsumePasswordResetToken,
+  comparePassword,
+  generateRefreshToken,
+  generateToken,
+  hashPassword,
+  revokeRefreshToken,
+  storeRefreshToken,
+  verifyRefreshToken,
+  generatePasswordResetToken,
+  storePasswordResetToken,
+  verifyAndConsumePasswordResetToken,
 } from '../../utils/auth';
-import {authenticate} from '../../middleware/auth';
+import { authenticate } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
 import {
-    AuthTokensResponse,
-    ErrorResponse,
-    LoginRequest,
-    LogoutRequest,
-    MessageResponse,
-    RefreshTokenRequest,
-    RegisterResponse,
-    RegisterUserRequest,
-    RequestPasswordResetRequest,
-    ResendVerificationRequest,
-    ResetPasswordRequest,
-    UpdatePasswordRequest,
+  AuthTokensResponse,
+  ErrorResponse,
+  LoginRequest,
+  LogoutRequest,
+  MessageResponse,
+  RefreshTokenRequest,
+  RegisterResponse,
+  RegisterUserRequest,
+  RequestPasswordResetRequest,
+  ResendVerificationRequest,
+  ResetPasswordRequest,
+  UpdatePasswordRequest,
 } from '@repo/shared/types/dbRoutes.types';
-import {EmailVerificationResponseDto,  LoginResponseDto, ProfileDto} from '@repo/shared/types/db/dto';
-import {profileToDto} from '@repo/shared/mappers/dtoMappers';
+import { EmailVerificationResponseDto, LoginResponseDto, ProfileDto } from '@repo/shared/types/db/dto';
+import { profileToDto } from '@repo/shared/mappers/dtoMappers';
 import jwt from 'jsonwebtoken';
-import {sendPasswordResetEmail, sendVerificationEmail} from '../../utils/email';
-import {isValidUniversityEmail} from '@repo/shared/utils/isValidUniversityEmail';
-import {APP_FRONTEND_URL, getJwtSecret} from '../../constants/constants';
+import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
+import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
+import { APP_FRONTEND_URL, getJwtSecret } from '../../constants/constants';
 
 const router = Router();
 
@@ -119,8 +119,8 @@ router.post(
         });
 
         return {
-            id: user.id,
-            email: user.email,
+          id: user.id,
+          email: user.email,
         };
       });
 
@@ -266,7 +266,7 @@ router.post(
 router.post(
   '/login',
   async (
-    req: Request<ParamsDictionary,LoginResponseDto| ErrorResponse, LoginRequest>,
+    req: Request<ParamsDictionary, LoginResponseDto| ErrorResponse, LoginRequest>,
     res: Response<LoginResponseDto | ErrorResponse>,
   ) => {
     try {

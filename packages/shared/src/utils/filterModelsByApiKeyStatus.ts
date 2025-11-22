@@ -11,7 +11,8 @@ import {
 import {
   RealtimeModelProvider,
   ResponseModelProvider,
-  TimestampedTranscriptionModelProvider, TranscriptionModelProvider,
+  TimestampedTranscriptionModelProvider,
+  TranscriptionModelProvider,
   TtsModelProvider,
 } from '../types/db/enums';
 

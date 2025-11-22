@@ -4,6 +4,7 @@
  */
 
 import type {
+  AdminUserCustomModelSelection,
   AppConfig,
   Conversation,
   ConversationRole,
@@ -15,7 +16,6 @@ import type {
   Scenario,
   TimestampedTranscriptionModel,
   TtsModel,
-  AdminUserCustomModelSelection,
 } from '../types/db/entities';
 import type {
   AppConfigDto,

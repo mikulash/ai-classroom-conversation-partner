@@ -7,7 +7,7 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
-import { ScenarioCreate, Scenario } from '@repo/shared/types/db/entities';
+import { Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
 import { scenarioClient } from '@repo/frontend-utils/src/clients/db/scenario.client';
 
 type ScenarioFormData = Scenario | ScenarioCreate;
