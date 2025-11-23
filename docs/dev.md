@@ -10,7 +10,7 @@ These are the minimum prerequisites you need to work on the Figurant monorepo lo
 - **Docker** - for running PostgreSQL locally and deployment
 
 ### Environment & external services
-- A local PostgreSQL 18 instance reachable through `DATABASE_URL` (run it with Docker as shown below or point to any managed instance)
+- A local PostgreSQL 18 instance reachable through `DATABASE_URL` (a Docker Compose service is provided below, or point to any managed instance)
 - API keys for the AI providers you plan to use
 - Configure the `.env` files for each app (backend + web or tauri)
 
@@ -27,17 +27,8 @@ pnpm --filter figurant-backend prisma:generate
 ### 2. Start PostgreSQL with Docker
 
 ```bash
-# Optional: create a persistent directory for the volume
-mkdir -p .data/postgres
-
-docker run \
-  --name figurant-db \
-  -e POSTGRES_DB=ai_classroom \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 \
-  -v $(pwd)/.data/postgres:/var/lib/postgresql/data \
-  -d postgres:18
+# Starts PostgreSQL 18 defined in docker-compose.yml
+docker compose up -d postgres
 ```
 
 Set `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_classroom` inside `apps/backend/.env` (copy from `.env.example`).

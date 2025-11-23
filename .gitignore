@@ -60,3 +60,6 @@ logs
 .temp
 *.tsbuildinfo
 .scannerwork
+
+# Local database data
+.data/

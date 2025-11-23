@@ -10,10 +10,13 @@ The Figurant backend now uses a local PostgreSQL instance that is managed throug
 
 ## Running PostgreSQL locally
 
-The backend expects a `DATABASE_URL` that points to a PostgreSQL 18 database. The simplest way to run it locally is via Docker:
+The backend expects a `DATABASE_URL` that points to a PostgreSQL 18 database. The simplest way to run it locally is via the bundled Docker Compose service:
 
-```powershell
-docker run --name ai_classroom -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=ai_classroom -p 5432:5432 -d postgres:18
+```bash
+# Optional: create a persistent directory for the volume
+mkdir -p .data/postgres
+
+docker compose up -d postgres
 ```
 
 Set the matching connection string in `apps/backend/.env` (see `.env.example`):
