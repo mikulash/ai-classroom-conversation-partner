@@ -1,4 +1,4 @@
 # Frontend utils
 
-common utilities for web, tauri projects
-Clients for calling backend services
+Clients for calling backend services and i18n translations and utilities.
+Used in web and tauri projects.
