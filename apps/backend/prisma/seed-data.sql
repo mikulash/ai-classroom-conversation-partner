@@ -2,8 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict LR5j7Ge6YYWfrthoxxynrc5QcFdfDWAA0Niu7hypmFYfWX5UaiIf6DqFugqdLkD
-
 -- Dumped from database version 18.0
 -- Dumped by pg_dump version 18.0
 
@@ -18,13 +16,6 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Data for Name: _prisma_migrations; Type: TABLE DATA; Schema: public; Owner: -
---
-
-INSERT INTO public._prisma_migrations VALUES ('46dfb3e8-a6eb-4185-aaf1-99870a184693', '4262f7285ef9cd03bd561afe6aa9f2d2fa8c665b0b94245ba65b38eb2cd8437a', '2025-11-18 19:21:22.556383+01', '20251118153538_init', NULL, NULL, '2025-11-18 19:21:22.448393+01', 1);
-
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
