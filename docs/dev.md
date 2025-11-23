@@ -45,6 +45,10 @@ pnpm --filter figurant-backend prisma:migrate
 # Connect to the database and run the seed SQL file
 docker exec -i figurant-db psql -U postgres -d ai_classroom < apps/backend/prisma/seed-data.sql
 ```
+or using PowerShell:
+```powershell
+Get-Content apps/backend/prisma/seed-data.sql | docker exec -i figurant-db psql -U postgres -d ai_classroom
+```
 
 ### 5. Start Development Server
 
