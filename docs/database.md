@@ -1,6 +1,6 @@
 # Database & Prisma Workflow
 
-The Figurant backend now uses a local PostgreSQL instance that is managed through Prisma instead of Supabase. This document summarizes the tooling and commands you need to run the database, apply schema changes, and seed realistic data.
+The Figurant backend now uses a local PostgreSQL instance that is managed through Prisma. This document summarizes the tooling and commands you need to run the database, apply schema changes, and seed realistic data.
 
 ## Prerequisites
 
