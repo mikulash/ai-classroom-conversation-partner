@@ -18,6 +18,7 @@ import appConfigRoutes from './routes/db/app-config.router.js';
 import conversationRolesRoutes from './routes/db/conversation-roles.router.js';
 
 const app = express();
+app.disable('x-powered-by');
 
 // Middleware
 app.use(express.json());
