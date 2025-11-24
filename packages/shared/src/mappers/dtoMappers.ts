@@ -42,11 +42,13 @@ import type {
 // ============================================================
 
 function dateToString(date: Date): string {
+    console.log("DATE Transforming date to string: ", date, " -> ", date.toISOString(), " (UTC)");
   return date.toISOString();
 }
 
 function dateToStringOrNull(date: Date | null): string | null {
-  return date ? date.toISOString() : null;
+    console.log("DATE OR NULL Transforming date to string: ", date, " -> ", date?.toISOString(), " (UTC)");
+    return date ? date.toISOString() : null;
 }
 
 // ============================================================
@@ -266,29 +268,6 @@ export function appConfigToDto(config: AppConfig): AppConfigDto {
   };
 }
 
-export function appConfigWithModelsToDto(
-  config: AppConfig & {
-    responseModel: ResponseModel | null;
-    ttsModel: TtsModel | null;
-    realtimeModel: RealtimeModel | null;
-    realtimeTranscriptionModel: RealtimeTranscriptionModel | null;
-    timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
-  },
-): AppConfigWithModelsDto {
-  return {
-    ...appConfigToDto(config),
-    responseModel: config.responseModel ? responseModelToDto(config.responseModel) : null,
-    ttsModel: config.ttsModel ? ttsModelToDto(config.ttsModel) : null,
-    realtimeModel: config.realtimeModel ? realtimeModelToDto(config.realtimeModel) : null,
-    realtimeTranscriptionModel: config.realtimeTranscriptionModel ?
-      realtimeTranscriptionModelToDto(config.realtimeTranscriptionModel) :
-      null,
-    timestampedTranscriptionModel: config.timestampedTranscriptionModel ?
-      timestampedTranscriptionModelToDto(config.timestampedTranscriptionModel) :
-      null,
-  };
-}
-
 export function customSelectionWithModelsToDto(
   selection: AdminUserCustomModelSelection & {
     responseModel: ResponseModel | null;
@@ -315,29 +294,5 @@ export function customSelectionWithModelsToDto(
     timestampedTranscriptionModel: selection.timestampedTranscriptionModel ?
       timestampedTranscriptionModelToDto(selection.timestampedTranscriptionModel) :
       null,
-  };
-}
-
-// ============================================================
-// Initial Conversation Options Mapper
-// ============================================================
-
-export function initialConversationOptionsToDto(options: {
-  personalities: Personality[];
-  scenarios: Scenario[];
-  conversationRoles: ConversationRole[];
-  appConfig: AppConfig & {
-    responseModel: ResponseModel | null;
-    ttsModel: TtsModel | null;
-    realtimeModel: RealtimeModel | null;
-    realtimeTranscriptionModel: RealtimeTranscriptionModel | null;
-    timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
-  };
-}): InitialConversationOptionsDto {
-  return {
-    personalities: options.personalities.map(personalityToDto),
-    scenarios: options.scenarios.map(scenarioToDto),
-    conversationRoles: options.conversationRoles.map(conversationRoleToDto),
-    appConfig: appConfigWithModelsToDto(options.appConfig),
   };
 }

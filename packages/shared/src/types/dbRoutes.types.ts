@@ -21,7 +21,7 @@ export interface InitialConversationOptions {
   personalities: Personality[];
   scenarios: ScenarioWithPersonality[];
   conversationRoles: ConversationRole[];
-  appConfig: AppConfigWithModels;
+  appConfig: AppConfig;
 }
 
 export interface ErrorResponse {
