@@ -40,14 +40,10 @@ pnpm --filter figurant-backend prisma:migrate
 ```
 
 ### 4. Seed the Database
-
-```bash
-# Connect to the database and run the seed SQL file
-docker exec -i figurant-db psql -U postgres -d ai_classroom < apps/backend/prisma/seed-data.sql
-```
-or using PowerShell:
+Copy the seed file into the database container and execute it to avoid issues with encoding czech characters.
 ```powershell
-Get-Content apps/backend/prisma/seed-data.sql | docker exec -i figurant-db psql -U postgres -d ai_classroom
+docker cp apps/backend/prisma/seed-data.sql figurant-db:/tmp/seed-data.sql
+docker exec figurant-db psql -U postgres -d ai_classroom -f /tmp/seed-data.sql
 ```
 
 ### 5. Start Development Server
