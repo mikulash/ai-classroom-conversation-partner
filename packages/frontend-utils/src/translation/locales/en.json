@@ -146,7 +146,7 @@
   },
   "confirmPassword": "Confirm Password",
   "confirmPasswordPlaceholder": "Confirm your password",
-  "confirmationEmailSent": "We've sent a confirmation link to your university e-mail address. Please confirm your e-mail, then sign in with the same credentials.",
+  "confirmationEmailSent": "We've sent a confirmation link to your e-mail address. Please confirm your e-mail, then sign in with the same credentials.",
   "connectCall": "Connect Call",
   "connectToBeginConversation": "Click 'Connect' to begin the conversation",
   "connecting": "Connecting...",
