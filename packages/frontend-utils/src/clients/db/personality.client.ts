@@ -8,7 +8,7 @@ import { Personality } from '@repo/shared/types/db/entities';
 import type { PersonalityDto } from '@repo/shared/types/db/dto';
 import { personalityDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
-import { AxiosError } from 'axios';
+import { toErrorMessage } from '../../utils/errorHandling';
 
 export const personalityClient = {
   all: async (): Promise<ApiResponse<Personality[]>> => {
@@ -16,9 +16,8 @@ export const personalityClient = {
       const response = await api.get<PersonalityDto[]>('/api/personalities');
       const data = response.data.map(personalityDtoToEntity);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch personalities' } };
+    } catch (error: unknown) {
+      return { data: null, error: { message: toErrorMessage(error, 'Failed to fetch personalities') } };
     }
   },
 
@@ -27,11 +26,10 @@ export const personalityClient = {
       const response = await api.post<PersonalityDto>('/api/personalities', personality);
       const data = personalityDtoToEntity(response.data);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to create personality' },
+        error: { message: toErrorMessage(error, 'Failed to create personality') },
       };
     }
   },
@@ -41,11 +39,10 @@ export const personalityClient = {
       const response = await api.put<PersonalityDto>(`/api/personalities/${id}`, personality);
       const data = personalityDtoToEntity(response.data);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to update personality' },
+        error: { message: toErrorMessage(error, 'Failed to update personality') },
       };
     }
   },
@@ -54,11 +51,10 @@ export const personalityClient = {
     try {
       const response = await api.delete<MessageResponse>(`/api/personalities/${String(id)}`);
       return { data: response.data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to delete personality' },
+        error: { message: toErrorMessage(error, 'Failed to delete personality') },
       };
     }
   },

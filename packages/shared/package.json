@@ -3,10 +3,22 @@
   "version": "1.0.0",
   "description": "Common TypeScript types and enums for the project",
   "exports": {
-    "./enums/*": "./dist/enums/*.js",
-    "./types/*": "./dist/types/*.js",
-    "./utils/*": "./dist/utils/*.js",
-    "./mappers/*": "./dist/mappers/*.js"
+    "./enums/*": {
+      "types": "./src/enums/*.ts",
+      "default": "./dist/enums/*.js"
+    },
+    "./types/*": {
+      "types": "./src/types/*.ts",
+      "default": "./dist/types/*.js"
+    },
+    "./utils/*": {
+      "types": "./src/utils/*.ts",
+      "default": "./dist/utils/*.js"
+    },
+    "./mappers/*": {
+      "types": "./src/mappers/*.ts",
+      "default": "./dist/mappers/*.js"
+    }
   },
   "type": "module",
   "scripts": {

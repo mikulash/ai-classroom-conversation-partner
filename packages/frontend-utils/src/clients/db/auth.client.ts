@@ -14,7 +14,7 @@ import {
 import { EmailVerificationResponseDto, LoginResponseDto, ProfileDto } from '@repo/shared/types/db/dto';
 import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
-import { AxiosError } from 'axios';
+import { toErrorMessage } from '../../utils/errorHandling';
 
 export const authClient = {
   /**
@@ -32,11 +32,10 @@ export const authClient = {
         },
         error: null,
       };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: { message: null },
-        error: { message: axiosError.response?.data.message ?? 'Registration failed' },
+        error: { message: toErrorMessage(error, 'Registration failed') },
       };
     }
   },
@@ -64,11 +63,10 @@ export const authClient = {
         },
         error: null,
       };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: { user: null, session: null },
-        error: { message: axiosError.response?.data.message ?? 'Email verification failed' },
+        error: { message: toErrorMessage(error, 'Email verification failed') },
       };
     }
   },
@@ -81,13 +79,11 @@ export const authClient = {
         data: response.data,
         error: null,
       };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
         error: {
-          message:
-                        axiosError.response?.data.message ?? 'Unable to resend verification email right now.',
+          message: toErrorMessage(error, 'Unable to resend verification email right now.'),
         },
       };
     }
@@ -116,11 +112,10 @@ export const authClient = {
         },
         error: null,
       };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: { user: null, session: null },
-        error: { message: axiosError.response?.data.message ?? 'Login failed' },
+        error: { message: toErrorMessage(error, 'Login failed') },
       };
     }
   },
@@ -137,11 +132,10 @@ export const authClient = {
       localStorage.setItem('user_profile', JSON.stringify(user));
 
       return { data: user, error: null };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to fetch user profile' },
+        error: { message: toErrorMessage(error, 'Failed to fetch user profile') },
       };
     }
   },
@@ -167,11 +161,10 @@ export const authClient = {
       localStorage.setItem('refresh_token', newRefreshToken);
 
       return { data: { accessToken }, error: null };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Token refresh failed' },
+        error: { message: toErrorMessage(error, 'Token refresh failed') },
       };
     }
   },
@@ -187,7 +180,7 @@ export const authClient = {
         const payload: LogoutRequest = { refreshToken };
         await api.post<MessageResponse>('/api/auth/logout', payload);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Logout error:', error);
     } finally {
       // Always clear local storage
@@ -207,11 +200,10 @@ export const authClient = {
       const payload: RequestPasswordResetRequest = { email };
       await api.post<MessageResponse>('/api/auth/request-password-reset', payload);
       return { data: null, error: null };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to request password reset' },
+        error: { message: toErrorMessage(error, 'Failed to request password reset') },
       };
     }
   },
@@ -224,11 +216,10 @@ export const authClient = {
       const payload: ResetPasswordRequest = { token, newPassword };
       await api.post<MessageResponse>('/api/auth/reset-password', payload);
       return { data: null, error: null };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to reset password' },
+        error: { message: toErrorMessage(error, 'Failed to reset password') },
       };
     }
   },
@@ -241,11 +232,10 @@ export const authClient = {
       const payload: UpdatePasswordRequest = { currentPassword, newPassword };
       await api.put<MessageResponse>('/api/auth/password', payload);
       return { data: null, error: null };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Password update failed' },
+        error: { message: toErrorMessage(error, 'Password update failed') },
       };
     }
   },

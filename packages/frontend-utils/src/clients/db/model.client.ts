@@ -28,7 +28,7 @@ import {
   ttsModelDtoToEntity,
 } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
-import { AxiosError } from 'axios';
+import { toErrorMessage } from '../../utils/errorHandling';
 
 export const modelClient = {
   responseModels: async (): Promise<ApiResponse<ResponseModel[]>> => {
@@ -36,9 +36,8 @@ export const modelClient = {
       const response = await api.get<ResponseModelDto[]>('/api/models/response');
       const data = response.data.map(responseModelDtoToEntity);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch response models' } };
+    } catch (error: unknown) {
+      return { data: null, error: { message: toErrorMessage(error, 'Failed to fetch response models') } };
     }
   },
 
@@ -47,9 +46,8 @@ export const modelClient = {
       const response = await api.get<TtsModelDto[]>('/api/models/tts');
       const data = response.data.map(ttsModelDtoToEntity);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch TTS models' } };
+    } catch (error: unknown) {
+      return { data: null, error: { message: toErrorMessage(error, 'Failed to fetch TTS models') } };
     }
   },
 
@@ -58,9 +56,8 @@ export const modelClient = {
       const response = await api.get<RealtimeModelDto[]>('/api/models/realtime');
       const data = response.data.map(realtimeModelDtoToEntity);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime models' } };
+    } catch (error: unknown) {
+      return { data: null, error: { message: toErrorMessage(error, 'Failed to fetch realtime models') } };
     }
   },
 
@@ -69,11 +66,10 @@ export const modelClient = {
       const response = await api.get<RealtimeTranscriptionModelDto[]>('/api/models/realtime-transcription');
       const data = response.data.map(realtimeTranscriptionModelDtoToEntity);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime transcription models' },
+        error: { message: toErrorMessage(error, 'Failed to fetch realtime transcription models') },
       };
     }
   },
@@ -83,11 +79,10 @@ export const modelClient = {
       const response = await api.get<TimestampedTranscriptionModelDto[]>('/api/models/timestamped-transcription');
       const data = response.data.map(timestampedTranscriptionModelDtoToEntity);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to fetch transcription models' },
+        error: { message: toErrorMessage(error, 'Failed to fetch transcription models') },
       };
     }
   },
@@ -97,11 +92,10 @@ export const modelClient = {
       const response = await api.get<CustomSelectionWithModelsDto | null>(`/api/models/custom-selection/${userId}`);
       const data = response.data ? customSelectionWithModelsDtoToEntity(response.data) : null;
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to fetch admin selection' },
+        error: { message: toErrorMessage(error, 'Failed to fetch admin selection') },
       };
     }
   },
@@ -114,11 +108,10 @@ export const modelClient = {
       const response = await api.put<CustomSelectionWithModelsDto>(`/api/models/custom-selection/${userId}`, payload);
       const data = customSelectionWithModelsDtoToEntity(response.data);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to update admin selection' },
+        error: { message: toErrorMessage(error, 'Failed to update admin selection') },
       };
     }
   },
@@ -127,11 +120,10 @@ export const modelClient = {
     try {
       const response = await api.delete<MessageResponse>(`/api/models/custom-selection/${userId}`);
       return { data: response.data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to delete admin selection' },
+        error: { message: toErrorMessage(error, 'Failed to delete admin selection') },
       };
     }
   },

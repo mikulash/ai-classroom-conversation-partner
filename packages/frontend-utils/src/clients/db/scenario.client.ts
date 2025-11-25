@@ -8,7 +8,7 @@ import {
 import type { ScenarioWithPersonalityDto } from '@repo/shared/types/db/dto';
 import { scenarioWithPersonalityDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
-import { AxiosError } from 'axios';
+import { toErrorMessage } from '../../utils/errorHandling';
 
 export const scenarioClient = {
   all: async (): Promise<ApiResponse<ScenarioWithPersonality[]>> => {
@@ -16,9 +16,8 @@ export const scenarioClient = {
       const response = await api.get<ScenarioWithPersonalityDto[]>('/api/scenarios');
       const data = response.data.map(scenarioWithPersonalityDtoToEntity);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch scenarios' } };
+    } catch (error: unknown) {
+      return { data: null, error: { message: toErrorMessage(error, 'Failed to fetch scenarios') } };
     }
   },
 
@@ -27,11 +26,10 @@ export const scenarioClient = {
       const response = await api.post<ScenarioWithPersonalityDto>('/api/scenarios', scenario);
       const data = scenarioWithPersonalityDtoToEntity(response.data);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to create scenario' },
+        error: { message: toErrorMessage(error, 'Failed to create scenario') },
       };
     }
   },
@@ -41,11 +39,10 @@ export const scenarioClient = {
       const response = await api.put<ScenarioWithPersonalityDto>(`/api/scenarios/${String(id)}`, scenario);
       const data = scenarioWithPersonalityDtoToEntity(response.data);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to update scenario' },
+        error: { message: toErrorMessage(error, 'Failed to update scenario') },
       };
     }
   },
@@ -54,11 +51,10 @@ export const scenarioClient = {
     try {
       const response = await api.delete<MessageResponse>(`/api/scenarios/${String(id)}`);
       return { data: response.data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to delete scenario' },
+        error: { message: toErrorMessage(error, 'Failed to delete scenario') },
       };
     }
   },

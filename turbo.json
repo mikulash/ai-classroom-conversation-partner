@@ -1,5 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "pnpm-lock.yaml"
+  ],
   "tasks": {
     "prisma:generate": {
       "cache": false
@@ -54,19 +57,22 @@
     },
     "lint": {
       "dependsOn": [
-        "build",
+        "^prisma:generate",
         "^lint"
       ]
     },
     "typecheck": {
       "dependsOn": [
-        "build",
+        "^prisma:generate",
         "^typecheck"
       ],
       "outputs": []
     },
     "dev": {
-      "dependsOn": ["^prisma:generate", "^dev", "^build"],
+      "dependsOn": [
+        "^prisma:generate",
+        "^dev"
+      ],
       "persistent": true,
       "cache": false,
       "inputs": [

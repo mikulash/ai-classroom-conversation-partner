@@ -8,7 +8,7 @@ import type { ProfileDto } from '@repo/shared/types/db/dto';
 import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
 import { UserRole } from '@repo/shared/types/db/enums';
-import { AxiosError } from 'axios';
+import { toErrorMessage } from '../../utils/errorHandling';
 
 /**
  * methods to access user profiles.
@@ -20,9 +20,8 @@ export const profileClient = {
       const response = await api.get<ProfileDto[]>('/api/profiles');
       const data = response.data.map(profileDtoToEntity);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch profiles' } };
+    } catch (error: unknown) {
+      return { data: null, error: { message: toErrorMessage(error, 'Failed to fetch profiles') } };
     }
   },
 
@@ -31,11 +30,10 @@ export const profileClient = {
       const response = await api.put<ProfileDto>(`/api/profiles/${profileId}`, payload);
       const data = profileDtoToEntity(response.data);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to update profile' },
+        error: { message: toErrorMessage(error, 'Failed to update profile') },
       };
     }
   },
@@ -46,11 +44,10 @@ export const profileClient = {
       const response = await api.put<ProfileDto>(`/api/profiles/${profileId}/role`, payload);
       const data = profileDtoToEntity(response.data);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to update role' },
+        error: { message: toErrorMessage(error, 'Failed to update role') },
       };
     }
   },

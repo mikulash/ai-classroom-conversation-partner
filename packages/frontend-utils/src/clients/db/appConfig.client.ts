@@ -12,7 +12,7 @@ import {
   scenarioWithPersonalityDtoToEntity,
 } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
-import { AxiosError } from 'axios';
+import { toErrorMessage } from '../../utils/errorHandling';
 import { AppConfigCreate } from '@repo/shared/types/db/entities';
 
 export const appConfigClient = {
@@ -21,11 +21,10 @@ export const appConfigClient = {
       const response = await api.put<AppConfigWithModelsDto>('/api/app-config', payload);
       const data = appConfigWithModelsDtoToEntity(response.data);
       return { data };
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+    } catch (error: unknown) {
       return {
         data: null,
-        error: { message: axiosError.response?.data.message ?? 'Failed to update app config' },
+        error: { message: toErrorMessage(error, 'Failed to update app config') },
       };
     }
   },
@@ -45,9 +44,9 @@ export const appConfigClient = {
         conversationRoles: conversationRoles.data.map(conversationRoleDtoToEntity),
         appConfig: appConfigWithModelsDtoToEntity(appConfig.data),
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching initial data:', error);
-      throw error;
+      throw error instanceof Error ? error : new Error('Error fetching initial data');
     }
   },
 };
