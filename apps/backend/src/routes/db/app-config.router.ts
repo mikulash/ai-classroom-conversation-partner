@@ -1,12 +1,12 @@
-import {Request, Response, Router} from 'express';
-import {ParamsDictionary} from 'express-serve-static-core';
-import {authenticate, requireOwner} from '../../middleware/auth';
+import { Request, Response, Router } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { authenticate, requireOwner } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
-import {ErrorResponse} from '@repo/shared/types/dbRoutes.types';
-import {appConfigToDto} from '@repo/shared/mappers/dtoMappers';
-import {AppConfigDto} from '@repo/shared/types/db/dto';
-import {AppConfigCreate} from '@repo/shared/types/db/entities';
-import {ConfigProvider} from '../../utils/configProvider';
+import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
+import { appConfigToDto } from '@repo/shared/mappers/dtoMappers';
+import { AppConfigDto } from '@repo/shared/types/db/dto';
+import { AppConfigCreate } from '@repo/shared/types/db/entities';
+import { ConfigProvider } from '../../utils/configProvider';
 
 const router = Router();
 
@@ -23,11 +23,6 @@ router.get(
     try {
       const configProvider = await ConfigProvider.getInstance();
       const config = configProvider.getAppConfig();
-
-      if (!config) {
-        res.status(404).json({ message: 'App configuration not found' });
-        return;
-      }
 
       res.status(200).json(appConfigToDto(config));
     } catch (error) {
@@ -79,35 +74,33 @@ router.put(
           orderBy: { validFrom: 'desc' },
         });
 
-        // Set validTo on the current config if it exists
-        if (currentConfig) {
-          await tx.appConfig.update({
-            where: { id: currentConfig.id },
-            data: { validTo: now },
-          });
+        if (!currentConfig) {
+          throw new Error('No active app configuration found');
         }
 
-        // Create new config version
-          // Exclude id and validFrom/validTo from currentConfig to let Prisma generate new ones
-          const {
-            id: _id,
-            validFrom: _validFrom,
-            validTo: _validTo,
-            ...currentConfigData
-          } = currentConfig || {};
+        await tx.appConfig.update({
+          where: { id: currentConfig.id },
+          data: { validTo: now },
+        });
 
-          return tx.appConfig.create({
-            data: {
-                ...currentConfigData,
-                userId: req.user!.userId,
-                validFrom: now,
-                validTo: null,
-                responseModelId,
-                ttsModelId,
-                realtimeModelId,
-                realtimeTranscriptionModelId,
-                timestampedTranscriptionModelId,
-            },
+        const dataToCreate = {
+          ...Object.fromEntries(
+            Object.entries(currentConfig).filter(
+              ([key]) => !['id', 'validFrom', 'validTo'].includes(key),
+            ),
+          ),
+          userId: req.user!.userId,
+          validFrom: now,
+          validTo: null,
+          responseModelId,
+          ttsModelId,
+          realtimeModelId,
+          realtimeTranscriptionModelId,
+          timestampedTranscriptionModelId,
+        };
+
+        return tx.appConfig.create({
+          data: dataToCreate,
         });
       });
 

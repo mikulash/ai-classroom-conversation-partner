@@ -15,12 +15,10 @@ import type {
 } from '../types/db/entities';
 import type {
   AppConfigDto,
-  AppConfigWithModelsDto,
   ConversationDto,
   ConversationRoleDto,
   ConversationWithPersonalityDto,
   CustomSelectionWithModelsDto,
-  InitialConversationOptionsDto,
   PersonalityDto,
   PersonalityWithScenariosDto,
   ProfileDto,
@@ -41,7 +39,7 @@ function dateToString(date: Date): string {
 }
 
 function dateToStringOrNull(date: Date | null): string | null {
-    return date ? date.toISOString() : null;
+  return date ? date.toISOString() : null;
 }
 
 // ============================================================

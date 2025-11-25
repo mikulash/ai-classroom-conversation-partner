@@ -1,21 +1,19 @@
-import { ApiResponse, AppConfigWithModels, InitialConversationOptions } from '@repo/shared/types/dbRoutes.types';
+import { ApiResponse, InitialConversationOptions } from '@repo/shared/types/dbRoutes.types';
 import type {
-    AppConfigDto,
-    AppConfigWithModelsDto,
-    ConversationRoleDto,
-    PersonalityDto,
-    ScenarioWithPersonalityDto,
+  AppConfigDto,
+  ConversationRoleDto,
+  PersonalityDto,
+  ScenarioWithPersonalityDto,
 } from '@repo/shared/types/db/dto';
 import {
-    appConfigDtoToEntity,
-    appConfigWithModelsDtoToEntity,
-    conversationRoleDtoToEntity,
-    personalityDtoToEntity,
-    scenarioWithPersonalityDtoToEntity,
+  appConfigDtoToEntity,
+  conversationRoleDtoToEntity,
+  personalityDtoToEntity,
+  scenarioWithPersonalityDtoToEntity,
 } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
 import { AxiosError } from 'axios';
-import {AppConfig, AppConfigCreate} from '@repo/shared/types/db/entities';
+import { AppConfig, AppConfigCreate } from '@repo/shared/types/db/entities';
 
 export const appConfigClient = {
   updateAppConfigModels: async (payload: AppConfigCreate): Promise<ApiResponse<AppConfig>> => {

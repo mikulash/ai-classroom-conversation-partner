@@ -125,8 +125,8 @@ router.post(
         },
       });
 
-        console.log("conversation created", conversation.createdAt);
-        console.log("conversation created typeof ", typeof conversation.createdAt);
+      console.log('conversation created', conversation.createdAt);
+      console.log('conversation created typeof ', typeof conversation.createdAt);
 
       res.status(201).json(conversationWithPersonalityToDto(conversation));
     } catch (error) {

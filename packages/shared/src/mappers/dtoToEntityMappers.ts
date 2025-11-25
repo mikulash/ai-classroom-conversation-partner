@@ -1,6 +1,5 @@
 import type {
   AppConfigDto,
-  AppConfigWithModelsDto,
   ConversationDto,
   ConversationRoleDto,
   ConversationWithPersonalityDto,
@@ -30,7 +29,6 @@ import type {
   TimestampedTranscriptionModel,
   TtsModel,
 } from '../types/db/entities';
-import type { AppConfigWithModels } from '../types/dbRoutes.types';
 
 // ============================================================
 // Helper Functions
@@ -255,21 +253,6 @@ export function appConfigDtoToEntity(dto: AppConfigDto): AppConfig {
     realtimeTranscriptionModelId: dto.realtimeTranscriptionModelId,
     timestampedTranscriptionModelId: dto.timestampedTranscriptionModelId,
     maxConversationDurationInSeconds: dto.maxConversationDurationInSeconds,
-  };
-}
-
-export function appConfigWithModelsDtoToEntity(dto: AppConfigWithModelsDto): AppConfigWithModels {
-  return {
-    ...appConfigDtoToEntity(dto),
-    responseModel: dto.responseModel ? responseModelDtoToEntity(dto.responseModel) : null,
-    ttsModel: dto.ttsModel ? ttsModelDtoToEntity(dto.ttsModel) : null,
-    realtimeModel: dto.realtimeModel ? realtimeModelDtoToEntity(dto.realtimeModel) : null,
-    realtimeTranscriptionModel: dto.realtimeTranscriptionModel ?
-      realtimeTranscriptionModelDtoToEntity(dto.realtimeTranscriptionModel) :
-      null,
-    timestampedTranscriptionModel: dto.timestampedTranscriptionModel ?
-      timestampedTranscriptionModelDtoToEntity(dto.timestampedTranscriptionModel) :
-      null,
   };
 }
 

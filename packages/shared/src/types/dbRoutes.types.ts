@@ -128,9 +128,6 @@ export type CreatePersonalityRequest = PersonalityCreate;
 
 export type UpdatePersonalityRequest = Partial<Omit<Personality, 'id' | 'createdAt'>>;
 
-// PersonalityWithScenarios includes all scenarios for a personality
-export type PersonalityWithScenarios = Personality & { scenarios: Scenario[] };
-
 export type CreateScenarioRequest = ScenarioCreate;
 
 export type UpdateScenarioRequest = Partial<Omit<Scenario, 'id' | 'createdAt'>>;
@@ -145,15 +142,6 @@ export type ScenarioWithPersonality = Scenario & {
 // Models & App Config
 // ------------------------------------------------------------
 
-
-// AppConfigWithModels includes all model relations
-export type AppConfigWithModels = AppConfig & {
-  responseModel: ResponseModel | null;
-  ttsModel: TtsModel | null;
-  realtimeModel: RealtimeModel | null;
-  realtimeTranscriptionModel: RealtimeTranscriptionModel | null;
-  timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
-};
 
 // CustomSelectionWithModels includes all custom model selections for a user
 export type CustomSelectionWithModels = AdminUserCustomModelSelection & {
