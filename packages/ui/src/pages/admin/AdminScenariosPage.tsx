@@ -44,8 +44,6 @@ export function AdminScenariosPage() {
       scenarioClient.all(),
     ]);
 
-    console.log('scenariosRes', scenariosRes);
-
     // Handle scenarios response
     if (scenariosRes.error) {
       console.error(scenariosRes.error.message);
@@ -101,8 +99,6 @@ export function AdminScenariosPage() {
     if (!('id' in scenario) || !scenario.id) return;
 
     setIsProcessing(true);
-
-    console.log('current scenario to update', scenario);
 
     const { error } = await scenarioClient.update(
       scenario.id,
