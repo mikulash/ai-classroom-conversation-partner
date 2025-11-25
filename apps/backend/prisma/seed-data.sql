@@ -89,8 +89,8 @@ INSERT INTO public.tts_models VALUES (3, '2025-04-27 20:19:07.45', 'Multilingual
 -- Data for Name: app_config; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.app_config VALUES (1, '2025-10-04 23:23:04.314', 10, 2, 1, 20, '{muni.cz,mail.muni.cz,ped.muni.cz,ics.muni.cz}', 'AI FIGURANT', 2, 1, 300);
-
+INSERT INTO public.app_config (id, valid_from, valid_to, user_id, response_model_id, tts_model_id, realtime_model_id, silence_timeout_in_seconds, allowed_domains, app_name, realtime_transcription_model_id, timestamped_transcription_model_id, max_conversation_duration_in_seconds)
+VALUES (1, '2025-10-04 23:23:04.314', NULL, NULL, 10, 2, 1, 20, '{muni.cz,mail.muni.cz,ped.muni.cz,ics.muni.cz}', 'AI FIGURANT', 2, 1, 300);
 
 --
 -- Data for Name: conversation_roles; Type: TABLE DATA; Schema: public; Owner: -
@@ -225,70 +225,70 @@ INSERT INTO public.scenarios VALUES (5, '2025-04-26 14:54:46.248', 5, 'During br
 -- Name: app_config_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.app_config_id_seq', 1, false);
+SELECT pg_catalog.setval('public.app_config_id_seq', COALESCE((SELECT MAX(id) FROM public.app_config), 1));
 
 
 --
 -- Name: conversation_roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.conversation_roles_id_seq', 1, false);
+SELECT pg_catalog.setval('public.conversation_roles_id_seq', COALESCE((SELECT MAX(id) FROM public.conversation_roles), 1));
 
 
 --
 -- Name: conversations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.conversations_id_seq', 1, false);
+SELECT pg_catalog.setval('public.conversations_id_seq', COALESCE((SELECT MAX(id) FROM public.conversations), 1));
 
 
 --
 -- Name: personalities_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.personalities_id_seq', 1, false);
+SELECT pg_catalog.setval('public.personalities_id_seq', COALESCE((SELECT MAX(id) FROM public.personalities), 1));
 
 
 --
 -- Name: realtime_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.realtime_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.realtime_models_id_seq', COALESCE((SELECT MAX(id) FROM public.realtime_models), 1));
 
 
 --
 -- Name: realtime_transcription_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.realtime_transcription_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.realtime_transcription_models_id_seq', COALESCE((SELECT MAX(id) FROM public.realtime_transcription_models), 1));
 
 
 --
 -- Name: response_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.response_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.response_models_id_seq', COALESCE((SELECT MAX(id) FROM public.response_models), 1));
 
 
 --
 -- Name: scenarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.scenarios_id_seq', 1, false);
+SELECT pg_catalog.setval('public.scenarios_id_seq', COALESCE((SELECT MAX(id) FROM public.scenarios), 1));
 
 
 --
 -- Name: timestamped_transcription_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.timestamped_transcription_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.timestamped_transcription_models_id_seq', COALESCE((SELECT MAX(id) FROM public.timestamped_transcription_models), 1));
 
 
 --
 -- Name: tts_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.tts_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.tts_models_id_seq', COALESCE((SELECT MAX(id) FROM public.tts_models), 1));
 
 
 --

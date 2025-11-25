@@ -78,7 +78,6 @@ export function conversationDtoToEntity(dto: ConversationDto): Conversation {
     messages: dto.messages,
     logs: dto.logs,
     conversationType: dto.conversationType,
-    usedConfig: dto.usedConfig ? appConfigDtoToEntity(dto.usedConfig) : null,
   };
 }
 
@@ -244,7 +243,9 @@ export function timestampedTranscriptionModelDtoToEntity(
 export function appConfigDtoToEntity(dto: AppConfigDto): AppConfig {
   return {
     id: dto.id,
-    editedAt: stringToDate(dto.editedAt),
+    validFrom: stringToDate(dto.validFrom),
+    validTo: stringToDate(dto.validTo),
+    userId: dto.userId,
     responseModelId: dto.responseModelId,
     ttsModelId: dto.ttsModelId,
     realtimeModelId: dto.realtimeModelId,

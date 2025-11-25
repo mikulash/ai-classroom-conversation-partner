@@ -50,7 +50,6 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     personality,
     scenario,
     chatStartTime: chatStartTime ?? Date.now(),
-    appConfig,
     logMessage,
   });
 

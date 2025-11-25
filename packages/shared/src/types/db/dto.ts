@@ -18,7 +18,9 @@ import { ConversationMessage } from '../conversationMessage';
 
 export interface AppConfigDto {
   id: number;
-  editedAt: string;
+  validFrom: string;
+  validTo: string | null;
+  userId: string | null;
   responseModelId: number | null;
   ttsModelId: number | null;
   realtimeModelId: number | null;
@@ -63,7 +65,6 @@ export interface ConversationDto {
   messages: ConversationMessage[] | null;
   logs: ConversationLog[] | null;
   conversationType: ConversationType;
-  usedConfig: AppConfigDto | null;
 }
 
 export interface ConversationWithPersonalityDto extends ConversationDto {

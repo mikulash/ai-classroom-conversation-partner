@@ -80,7 +80,7 @@ router.post(
     res: Response<ConversationWithPersonalityDto | ErrorResponse>,
   ) => {
     try {
-      const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType, usedConfig } =
+      const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType } =
       req.body;
 
       if (!req.user) {
@@ -106,7 +106,6 @@ router.post(
           messages: messages ?? [],
           logs: logs ?? [],
           conversationType,
-          usedConfig: usedConfig,
         },
         include: {
           personality: {

@@ -6,7 +6,6 @@ declare global {
   namespace PrismaJson {
     type ConversationMessages = ConversationMessage[];
     type ConversationLogs = ConversationLog[];
-    type UsedConfig = AppConfig;
   }
 }
 

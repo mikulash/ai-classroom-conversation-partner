@@ -1,11 +1,12 @@
-import { Request, Response, Router } from 'express';
-import { ParamsDictionary } from 'express-serve-static-core';
-import { authenticate, requireOwner } from '../../middleware/auth';
+import {Request, Response, Router} from 'express';
+import {ParamsDictionary} from 'express-serve-static-core';
+import {authenticate, requireOwner} from '../../middleware/auth';
 import prisma from '../../clients/prisma';
-import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
+import {ErrorResponse} from '@repo/shared/types/dbRoutes.types';
 import {appConfigToDto} from '@repo/shared/mappers/dtoMappers';
 import {AppConfigDto} from '@repo/shared/types/db/dto';
-import { AppConfigCreate } from '@repo/shared/types/db/entities';
+import {AppConfigCreate} from '@repo/shared/types/db/entities';
+import {ConfigProvider} from '../../utils/configProvider';
 
 const router = Router();
 
@@ -20,7 +21,8 @@ router.get(
     res: Response<AppConfigDto | ErrorResponse>,
   ) => {
     try {
-      const config = await prisma.appConfig.findFirst();
+      const configProvider = await ConfigProvider.getInstance();
+      const config = configProvider.getAppConfig();
 
       if (!config) {
         res.status(404).json({ message: 'App configuration not found' });
@@ -37,6 +39,7 @@ router.get(
 /**
  * PUT /api/app-config
  * Update app configuration (owner only)
+ * Creates a new versioned config and invalidates the old one
  */
 router.put(
   '/',
@@ -53,42 +56,64 @@ router.put(
         realtimeModelId,
         realtimeTranscriptionModelId,
         timestampedTranscriptionModelId,
-        silenceTimeoutInSeconds,
-        maxConversationDurationInSeconds,
-        appName,
-        allowedDomains,
       } = req.body;
 
-      // Get the first config or create if doesn't exist
-      const existingConfig = await prisma.appConfig.findFirst();
+      if (!req.user) {
+        res.status(401).json({ message: 'Not authenticated' });
+        return;
+      }
 
-      const config = await prisma.appConfig.upsert({
-        where: { id: existingConfig?.id ?? 1 },
-        create: {
-          responseModelId,
-          ttsModelId,
-          realtimeModelId,
-          realtimeTranscriptionModelId,
-          timestampedTranscriptionModelId,
-          silenceTimeoutInSeconds: silenceTimeoutInSeconds ?? 30,
-          maxConversationDurationInSeconds: maxConversationDurationInSeconds ?? 300,
-          appName: appName ?? 'AI FIGURANT',
-          allowedDomains: allowedDomains ?? [],
-          editedAt: new Date(),
-        },
-        update: {
-          responseModelId,
-          ttsModelId,
-          realtimeModelId,
-          realtimeTranscriptionModelId,
-          timestampedTranscriptionModelId,
-          silenceTimeoutInSeconds,
-          maxConversationDurationInSeconds,
-          appName,
-          allowedDomains,
-          editedAt: new Date(),
-        },
+      const now = new Date();
+
+      // Use a transaction to atomically invalidate the current config and create a new one
+      const config = await prisma.$transaction(async (tx) => {
+        // Get the currently active config
+        const currentConfig = await tx.appConfig.findFirst({
+          where: {
+            validFrom: { lte: now },
+            OR: [
+              { validTo: null },
+              { validTo: { gt: now } },
+            ],
+          },
+          orderBy: { validFrom: 'desc' },
+        });
+
+        // Set validTo on the current config if it exists
+        if (currentConfig) {
+          await tx.appConfig.update({
+            where: { id: currentConfig.id },
+            data: { validTo: now },
+          });
+        }
+
+        // Create new config version
+          // Exclude id and validFrom/validTo from currentConfig to let Prisma generate new ones
+          const {
+            id: _id,
+            validFrom: _validFrom,
+            validTo: _validTo,
+            ...currentConfigData
+          } = currentConfig || {};
+
+          return tx.appConfig.create({
+            data: {
+                ...currentConfigData,
+                userId: req.user!.userId,
+                validFrom: now,
+                validTo: null,
+                responseModelId,
+                ttsModelId,
+                realtimeModelId,
+                realtimeTranscriptionModelId,
+                timestampedTranscriptionModelId,
+            },
+        });
       });
+
+      // Refresh cache with the new config
+      const configProvider = await ConfigProvider.getInstance();
+      await configProvider.refreshAppConfig();
 
       res.status(200).json(appConfigToDto(config));
     } catch (error) {

@@ -68,7 +68,6 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     personality,
     scenario,
     chatStartTime,
-    appConfig,
     logMessage,
   });
 

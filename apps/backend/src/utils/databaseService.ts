@@ -1,8 +1,22 @@
 import { ModelOptions } from './configProvider';
 import prisma from '../clients/prisma';
 
-export const fetchAppConfig = async () => {
-  const appConfig = await prisma.appConfig.findFirst();
+/**
+ * Fetches the currently valid app config based on validFrom and validTo timestamps.
+ * Returns the config where validFrom <= now AND (validTo IS NULL OR validTo > now)
+ */
+export const fetchAppConfig = async (asOfDate: Date = new Date()) => {
+  const appConfig = await prisma.appConfig.findFirst({
+    where: {
+      validFrom: { lte: asOfDate },
+      OR: [
+        { validTo: null },
+        { validTo: { gt: asOfDate } },
+      ],
+    },
+    orderBy: { validFrom: 'desc' },
+  });
+
   if (!appConfig) {
     throw new Error('App Config not found');
   }

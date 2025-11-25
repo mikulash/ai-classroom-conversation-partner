@@ -23,7 +23,9 @@ export const useAppStore = create<AppState>((set) => ({
   appConfig: {
     allowedDomains: [],
     appName: 'AI Figurant',
-    editedAt: new Date(),
+    validFrom: new Date(),
+    validTo: null,
+    userId: null,
     id: 0,
     realtimeModelId: null,
     responseModelId: null,

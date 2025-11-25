@@ -111,6 +111,7 @@ model User {
   conversations       Conversation[]
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  appConfigChanges    AppConfig[]
 
   @@map("users")
 }
@@ -278,8 +279,6 @@ model Conversation {
   /// [ConversationLogs]
   logs             Json?
   conversationType ConversationType @map("conversation_type")
-  /// [UsedConfig]
-  usedConfig       Json?            @map("used_config")
 
   // Relations
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -398,7 +397,9 @@ model TimestampedTranscriptionModel {
 
 model AppConfig {
   id                               Int        @id @default(autoincrement())
-  editedAt                         DateTime   @default(now()) @updatedAt @map("edited_at")
+  validFrom                        DateTime   @default(now()) @map("valid_from")
+  validTo                          DateTime?  @map("valid_to")
+  userId                           String?    @map("user_id")
   responseModelId                  Int?       @map("response_model_id")
   ttsModelId                       Int?       @map("tts_model_id")
   realtimeModelId                  Int?       @map("realtime_model_id")
@@ -410,6 +411,7 @@ model AppConfig {
   maxConversationDurationInSeconds Int        @default(300) @map("max_conversation_duration_in_seconds")
 
   // Relations
+  user                          User?                          @relation(fields: [userId], references: [id])
   responseModel                 ResponseModel?                 @relation(fields: [responseModelId], references: [id])
   ttsModel                      TtsModel?                      @relation(fields: [ttsModelId], references: [id])
   realtimeModel                 RealtimeModel?                 @relation(fields: [realtimeModelId], references: [id])
@@ -417,4 +419,5 @@ model AppConfig {
   timestampedTranscriptionModel TimestampedTranscriptionModel? @relation(fields: [timestampedTranscriptionModelId], references: [id])
 
   @@map("app_config")
+  @@index([validFrom, validTo])
 }

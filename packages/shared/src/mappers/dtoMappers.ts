@@ -1,7 +1,3 @@
-/**
- * Mapper functions to convert between domain entities and DTOs
- * Used for serializing/deserializing data for API communication
- */
 
 import type {
   AdminUserCustomModelSelection,
@@ -40,14 +36,11 @@ import type {
 // ============================================================
 // Helper Functions
 // ============================================================
-
 function dateToString(date: Date): string {
-    console.log("DATE Transforming date to string: ", date, " -> ", date.toISOString(), " (UTC)");
   return date.toISOString();
 }
 
 function dateToStringOrNull(date: Date | null): string | null {
-    console.log("DATE OR NULL Transforming date to string: ", date, " -> ", date?.toISOString(), " (UTC)");
     return date ? date.toISOString() : null;
 }
 
@@ -89,7 +82,6 @@ export function conversationToDto(conversation: Conversation): ConversationDto {
     messages: conversation.messages,
     logs: conversation.logs,
     conversationType: conversation.conversationType,
-    usedConfig: conversation.usedConfig ? appConfigToDto(conversation.usedConfig) : null,
   };
 }
 
@@ -255,7 +247,9 @@ export function timestampedTranscriptionModelToDto(
 export function appConfigToDto(config: AppConfig): AppConfigDto {
   return {
     id: config.id,
-    editedAt: dateToString(config.editedAt),
+    validFrom: dateToString(config.validFrom),
+    validTo: dateToStringOrNull(config.validTo),
+    userId: config.userId,
     responseModelId: config.responseModelId,
     ttsModelId: config.ttsModelId,
     realtimeModelId: config.realtimeModelId,
