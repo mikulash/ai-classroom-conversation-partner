@@ -272,7 +272,6 @@ router.post(
     try {
       const userId = getUserId(req);
       const transcriptionSessionCreateResponse = await universalApi.getRealtimeTranscription(req.body, userId);
-      console.log('Transcription session created:', transcriptionSessionCreateResponse);
       res.json(transcriptionSessionCreateResponse);
     } catch (err: unknown) {
       console.error(err);
