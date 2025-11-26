@@ -10,7 +10,7 @@ import { Label } from '../../components/ui/label';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { OpenAiVoiceName } from '@repo/shared/types/db/enums';
+import { OpenAiVoiceName } from '@repo/shared/types/generated/enums';
 import { Personality, PersonalityCreate } from '@repo/shared/types/db/entities';
 import { personalityClient } from '@repo/frontend-utils/src/clients/db/personality.client';
 

@@ -4,7 +4,7 @@ import { TableCell, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { ProfileResponse } from '@repo/shared/types/dbRoutes.types';
-import { UserRole } from '@repo/shared/types/db/enums';
+import { UserRole } from '@repo/shared/types/generated/enums';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ConversationsList } from './ConversationsList';

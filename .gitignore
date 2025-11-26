@@ -44,8 +44,6 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-**/generated/**
-
 # Tauri specific
 **/target/
 apps/tauri/src-tauri/icons/*
@@ -63,3 +61,4 @@ logs
 
 # Local database data
 .data/
+/apps/backend/src/generated/**

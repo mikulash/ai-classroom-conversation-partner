@@ -7,7 +7,7 @@ import {
 import type { ProfileDto } from '@repo/shared/types/db/dto';
 import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
-import { UserRole } from '@repo/shared/types/db/enums';
+import { UserRole } from '@repo/shared/types/generated/enums';
 import { AxiosError } from 'axios';
 
 /**

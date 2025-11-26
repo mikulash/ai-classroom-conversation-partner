@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { Personality, Scenario } from '@repo/shared/types/db/entities';
-import { ConversationType } from '@repo/shared/types/db/enums';
+import { ConversationType } from '@repo/shared/types/generated/enums';
 import { CreateConversationRequest, ProfileResponse } from '@repo/shared/types/dbRoutes.types';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 

@@ -15,7 +15,7 @@ import {
   TimestampedTranscriptionModel,
   TtsModel,
 } from './db/entities';
-import { UserRole } from './db/enums';
+import { UserRole } from './generated/enums';
 
 export interface InitialConversationOptions {
   personalities: Personality[];

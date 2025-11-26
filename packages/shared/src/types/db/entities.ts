@@ -8,7 +8,7 @@ import {
   TranscriptionModelProvider,
   TtsModelProvider,
   UserRole,
-} from './enums';
+} from '../generated/enums';
 import { ConversationLog } from '../conversationLog';
 import { ConversationMessage } from '../conversationMessage';
 
