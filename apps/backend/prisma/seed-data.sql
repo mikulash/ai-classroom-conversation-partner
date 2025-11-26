@@ -2,8 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict LR5j7Ge6YYWfrthoxxynrc5QcFdfDWAA0Niu7hypmFYfWX5UaiIf6DqFugqdLkD
-
 -- Dumped from database version 18.0
 -- Dumped by pg_dump version 18.0
 
@@ -18,13 +16,6 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Data for Name: _prisma_migrations; Type: TABLE DATA; Schema: public; Owner: -
---
-
-INSERT INTO public._prisma_migrations VALUES ('46dfb3e8-a6eb-4185-aaf1-99870a184693', '4262f7285ef9cd03bd561afe6aa9f2d2fa8c665b0b94245ba65b38eb2cd8437a', '2025-11-18 19:21:22.556383+01', '20251118153538_init', NULL, NULL, '2025-11-18 19:21:22.448393+01', 1);
-
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
@@ -98,8 +89,8 @@ INSERT INTO public.tts_models VALUES (3, '2025-04-27 20:19:07.45', 'Multilingual
 -- Data for Name: app_config; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.app_config VALUES (1, '2025-10-04 23:23:04.314', 10, 2, 1, 20, '{muni.cz,mail.muni.cz,ped.muni.cz,ics.muni.cz}', 'AI FIGURANT', 2, 1, 300);
-
+INSERT INTO public.app_config (id, valid_from, valid_to, user_id, response_model_id, tts_model_id, realtime_model_id, silence_timeout_in_seconds, allowed_domains, app_name, realtime_transcription_model_id, timestamped_transcription_model_id, max_conversation_duration_in_seconds)
+VALUES (1, '2025-10-04 23:23:04.314', NULL, NULL, 10, 2, 1, 20, '{muni.cz,mail.muni.cz,ped.muni.cz,ics.muni.cz}', 'AI FIGURANT', 2, 1, 300);
 
 --
 -- Data for Name: conversation_roles; Type: TABLE DATA; Schema: public; Owner: -
@@ -179,7 +170,7 @@ Pronunciation: Slight articulatory inaccuracies.
 Features: frequent laughter, close personal space.
 Pacing: Quick bursts of words, then pause for breath.
 Emotion: Joyful, sometimes frustrated when misunderstood.', NULL, 'alloy', 'Suspected bullying of a classmate;mild mental retardation.', 'Friendly, affectionate, hard-working; eager to fit in but unable to gauge others'' boundaries, sensitive to rejection.', 'podezření na šikanu spolužačky;lehká mentální retardace.', 'Přátelská, přítulná, pracovitá; touží zapadnout, ale neumí odhadnout hranice druhých, citlivá na odmítnutí.', false);
-INSERT INTO public.personalities VALUES (12, '2025-05-15 20:41:58.096', 'Libor', 16, 'https://demo.readyplayer.me/avatar?id=68265168be4c9feb94041ac4', 'male', 'M', 'Personality/Affect: Libor represents a disruptive, demotivating classmate who undermines teamwork through passive-aggressive remarks and a lack of cooperation.\nVoice: Adolescent male voice, slightly monotone, often sounds dismissive or bored.\nTone: Sarcastic, critical, and emotionally detached, frequently undermining the efforts of others.\nDialect: Uses teenage slang mixed with formal phrases to mask criticism as ''feedback.''\nPronunciation: Sometimes emphasizes negative points, often sighs or interrupts.\nFeatures: Gives off an air of superiority, is slow to contribute, and regularly questions group decisions without offering alternatives.\nPacing: Often slow and deliberate, making others uncomfortable.\nEmotion: Lacks genuine warmth, comes across as uninterested or slightly irritated.', NULL, 'onyx', 'Group disruptor', 'Libor is a 16-year-old secondary school student who consistently disrupts group projects. He sends passive-aggressive messages, avoids responsibilities, expects others to do his work, and uses group meetings to criticize rather than contribute ideas. His attitude brings down group morale and makes collaboration difficult.', 'Toxický spolužák', 'Libor je šestnáctiletý student střední školy, který opakovaně narušuje týmovou spolupráci. Posílá pasivně-agresivní zprávy, vyhýbá se povinnostem, očekává, že jeho práci udělají ostatní, a schůzky využívá spíš ke kritice než k návrhům řešení. Jeho přístup snižuje morálku a ztěžuje spolupráci ve skupině.', false);
+INSERT INTO public.personalities VALUES (12, '2025-05-15 20:41:58.096', 'Libor', 16, 'https://demo.readyplayer.me/avatar?id=68265168be4c9feb94041ac4', 'male', 'M', 'Personality/Affect: Libor represents a disruptive, demotivating classmate who undermines teamwork through passive-aggressive remarks and a lack of cooperation.\nVoice: Adolescent male voice, slightly monotone, often sounds dismissive or bored.\nTone: Sarcastic, critical, and emotionally detached, frequently undermining the efforts of others.\nDialect: Uses teenage slang mixed with formal phrases to mask criticism as ''feedback.''\nPronunciation: Sometimes emphasizes negative points, often sighs or interrupts.\nFeatures: Gives off an air of superiority, is slow to contribute, and regularly questions group decisions without offering alternatives.\nPacing: Often slow and deliberate, making others uncomfortable.\nEmotion: Lacks genuine warmth, comes across as uninterested or slightly irritated.', NULL, 'ash', 'Group disruptor', 'Libor is a 16-year-old secondary school student who consistently disrupts group projects. He sends passive-aggressive messages, avoids responsibilities, expects others to do his work, and uses group meetings to criticize rather than contribute ideas. His attitude brings down group morale and makes collaboration difficult.', 'Toxický spolužák', 'Libor je šestnáctiletý student střední školy, který opakovaně narušuje týmovou spolupráci. Posílá pasivně-agresivní zprávy, vyhýbá se povinnostem, očekává, že jeho práci udělají ostatní, a schůzky využívá spíš ke kritice než k návrhům řešení. Jeho přístup snižuje morálku a ztěžuje spolupráci ve skupině.', false);
 INSERT INTO public.personalities VALUES (9, '2025-04-26 14:48:10.543', 'Sára', 16, NULL, 'F', 'F', 'Personality/Affect: Perceptive perfectionist.
 Voice: Fine soprano, slightly tremulous.
 Tone: Polite, cautious, slightly shaky.
@@ -234,75 +225,72 @@ INSERT INTO public.scenarios VALUES (5, '2025-04-26 14:54:46.248', 5, 'During br
 -- Name: app_config_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.app_config_id_seq', 1, false);
+SELECT pg_catalog.setval('public.app_config_id_seq', COALESCE((SELECT MAX(id) FROM public.app_config), 1));
 
 
 --
 -- Name: conversation_roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.conversation_roles_id_seq', 1, false);
+SELECT pg_catalog.setval('public.conversation_roles_id_seq', COALESCE((SELECT MAX(id) FROM public.conversation_roles), 1));
 
 
 --
 -- Name: conversations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.conversations_id_seq', 1, false);
+SELECT pg_catalog.setval('public.conversations_id_seq', COALESCE((SELECT MAX(id) FROM public.conversations), 1));
 
 
 --
 -- Name: personalities_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.personalities_id_seq', 1, false);
+SELECT pg_catalog.setval('public.personalities_id_seq', COALESCE((SELECT MAX(id) FROM public.personalities), 1));
 
 
 --
 -- Name: realtime_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.realtime_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.realtime_models_id_seq', COALESCE((SELECT MAX(id) FROM public.realtime_models), 1));
 
 
 --
 -- Name: realtime_transcription_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.realtime_transcription_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.realtime_transcription_models_id_seq', COALESCE((SELECT MAX(id) FROM public.realtime_transcription_models), 1));
 
 
 --
 -- Name: response_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.response_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.response_models_id_seq', COALESCE((SELECT MAX(id) FROM public.response_models), 1));
 
 
 --
 -- Name: scenarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.scenarios_id_seq', 1, false);
+SELECT pg_catalog.setval('public.scenarios_id_seq', COALESCE((SELECT MAX(id) FROM public.scenarios), 1));
 
 
 --
 -- Name: timestamped_transcription_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.timestamped_transcription_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.timestamped_transcription_models_id_seq', COALESCE((SELECT MAX(id) FROM public.timestamped_transcription_models), 1));
 
 
 --
 -- Name: tts_models_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.tts_models_id_seq', 1, false);
+SELECT pg_catalog.setval('public.tts_models_id_seq', COALESCE((SELECT MAX(id) FROM public.tts_models), 1));
 
 
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict LR5j7Ge6YYWfrthoxxynrc5QcFdfDWAA0Niu7hypmFYfWX5UaiIf6DqFugqdLkD
-

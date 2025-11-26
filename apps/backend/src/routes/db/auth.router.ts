@@ -8,17 +8,18 @@ import {
   revokeRefreshToken,
   storeRefreshToken,
   verifyRefreshToken,
-} from '../../utils/auth.js';
-import { authenticate } from '../../middleware/auth.js';
+  generatePasswordResetToken,
+  storePasswordResetToken,
+  verifyAndConsumePasswordResetToken,
+} from '../../utils/auth';
+import { authenticate } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
 import {
-  AuthResponse,
   AuthTokensResponse,
   ErrorResponse,
   LoginRequest,
   LogoutRequest,
   MessageResponse,
-  ProfileResponse,
   RefreshTokenRequest,
   RegisterResponse,
   RegisterUserRequest,
@@ -27,6 +28,8 @@ import {
   ResetPasswordRequest,
   UpdatePasswordRequest,
 } from '@repo/shared/types/dbRoutes.types';
+import { EmailVerificationResponseDto, LoginResponseDto, ProfileDto } from '@repo/shared/types/db/dto';
+import { profileToDto } from '@repo/shared/mappers/dtoMappers';
 import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
@@ -93,7 +96,7 @@ router.post(
       const hashedPassword = await hashPassword(password);
 
       // Create user and profile in a transaction
-      const userProfile = await prisma.$transaction(async (tx): Promise<ProfileResponse> => {
+      const userProfile = await prisma.$transaction(async (tx) => {
         // Create user with credentials
         const user = await tx.user.create({
           data: {
@@ -104,7 +107,7 @@ router.post(
         });
 
         // Create profile with editable information
-        const profile = await tx.profile.create({
+        await tx.profile.create({
           data: {
             id: user.id,
             fullName: fullName,
@@ -115,20 +118,10 @@ router.post(
           },
         });
 
-        const response: ProfileResponse = {
+        return {
           id: user.id,
           email: user.email,
-          fullName: profile.fullName,
-          gender: profile.gender,
-          conversationRole: profile.conversationRole,
-          bio: profile.bio,
-          userRole: profile.userRole,
-          createdAt: profile.createdAt,
-          updatedAt: profile.updatedAt,
-          confirmedAt: user.confirmedAt ?? null,
         };
-
-        return response;
       });
 
       // NEW: generate email verification token
@@ -155,7 +148,7 @@ router.get(
   '/verify-email',
   async (
     req: Request,
-    res: Response<AuthResponse | ErrorResponse>,
+    res: Response<EmailVerificationResponseDto | ErrorResponse>,
   ) => {
     try {
       const token = req.query.token as string | undefined;
@@ -207,18 +200,11 @@ router.get(
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(verifiedUser.id, refreshToken);
 
-      const userProfile: ProfileResponse = {
-        id: verifiedUser.id,
+      const userProfile = profileToDto({
+        ...verifiedUser.profile,
         email: verifiedUser.email,
-        fullName: verifiedUser.profile.fullName,
-        gender: verifiedUser.profile.gender,
-        conversationRole: verifiedUser.profile.conversationRole,
-        bio: verifiedUser.profile.bio,
-        userRole: verifiedUser.profile.userRole,
-        createdAt: verifiedUser.profile.createdAt,
-        updatedAt: verifiedUser.profile.updatedAt,
         confirmedAt: verifiedUser.confirmedAt,
-      };
+      });
 
       res.status(200).json({
         user: userProfile,
@@ -280,8 +266,8 @@ router.post(
 router.post(
   '/login',
   async (
-    req: Request<ParamsDictionary, AuthResponse | ErrorResponse, LoginRequest>,
-    res: Response<AuthResponse | ErrorResponse>,
+    req: Request<ParamsDictionary, LoginResponseDto| ErrorResponse, LoginRequest>,
+    res: Response<LoginResponseDto | ErrorResponse>,
   ) => {
     try {
       const { email, password } = req.body;
@@ -330,18 +316,11 @@ router.post(
       await storeRefreshToken(user.id, refreshToken);
 
       // Return combined user + profile data (without password)
-      const userProfile: ProfileResponse = {
-        id: user.id,
+      const userProfile = profileToDto({
+        ...user.profile,
         email: user.email,
-        fullName: user.profile.fullName,
-        gender: user.profile.gender,
-        conversationRole: user.profile.conversationRole,
-        bio: user.profile.bio,
-        userRole: user.profile.userRole,
-        createdAt: user.profile.createdAt,
-        updatedAt: user.profile.updatedAt,
         confirmedAt: user.confirmedAt,
-      };
+      });
 
       res.status(200).json({
         user: userProfile,
@@ -363,7 +342,7 @@ router.get(
   authenticate,
   async (
     req: Request,
-    res: Response<ProfileResponse | ErrorResponse>,
+    res: Response<ProfileDto | ErrorResponse>,
   ) => {
     try {
       if (!req.user) {
@@ -389,18 +368,11 @@ router.get(
       }
 
       // Return combined user + profile data
-      const userData: ProfileResponse = {
-        id: user.id,
+      const userData = profileToDto({
+        ...user.profile,
         email: user.email,
-        fullName: user.profile.fullName,
-        gender: user.profile.gender,
-        conversationRole: user.profile.conversationRole,
-        bio: user.profile.bio,
-        userRole: user.profile.userRole,
-        createdAt: user.profile.createdAt,
-        updatedAt: user.profile.updatedAt,
         confirmedAt: user.confirmedAt,
-      };
+      });
 
       res.status(200).json(userData);
     } catch (error) {
@@ -589,12 +561,9 @@ router.post(
         return;
       }
 
-      // Generate password reset token (expires in 1 hour)
-      const resetToken = jwt.sign(
-        { userId: user.id, email: user.email, type: 'password-reset' },
-        getJwtSecret(),
-        { expiresIn: '1h' },
-      );
+      // Generate and store password reset token (expires in 1 hour)
+      const resetToken = generatePasswordResetToken();
+      await storePasswordResetToken(user.id, resetToken);
 
       // Construct reset URL that points to the frontend reset page
       const frontendBaseUrl = APP_FRONTEND_URL.replace(/\/$/, '');
@@ -629,25 +598,17 @@ router.post(
         return;
       }
 
-      // Verify the reset token
-      let payload: { userId: string; email: string; type: string };
+      // Verify and consume the reset token (one-time use)
+      const userId = await verifyAndConsumePasswordResetToken(token);
 
-      try {
-        payload = jwt.verify(token, getJwtSecret()) as { userId: string; email: string; type: string };
-      } catch {
+      if (!userId) {
         res.status(400).json({ message: 'Invalid or expired reset token' });
-        return;
-      }
-
-      // Verify it's a password reset token
-      if (payload.type !== 'password-reset') {
-        res.status(400).json({ message: 'Invalid token type' });
         return;
       }
 
       // Get the user
       const user = await prisma.user.findUnique({
-        where: { id: payload.userId },
+        where: { id: userId },
       });
 
       if (!user) {

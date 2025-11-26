@@ -1,8 +1,12 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { authenticate, requireOwner } from '../../middleware/auth.js';
+import { authenticate, requireOwner } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
-import { AppConfigWithModels, ErrorResponse, UpdateAppConfigRequest } from '@repo/shared/types/dbRoutes.types';
+import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
+import { appConfigToDto } from '@repo/shared/mappers/dtoMappers';
+import { AppConfigDto } from '@repo/shared/types/db/dto';
+import { AppConfigCreate } from '@repo/shared/types/db/entities';
+import { ConfigProvider } from '../../utils/configProvider';
 
 const router = Router();
 
@@ -13,26 +17,14 @@ const router = Router();
 router.get(
   '/',
   async (
-    _req: Request<ParamsDictionary, AppConfigWithModels | ErrorResponse>,
-    res: Response<AppConfigWithModels | ErrorResponse>,
+    _req: Request<ParamsDictionary, AppConfigDto | ErrorResponse>,
+    res: Response<AppConfigDto | ErrorResponse>,
   ) => {
     try {
-      const config : AppConfigWithModels | null = await prisma.appConfig.findFirst({
-        include: {
-          responseModel: true,
-          ttsModel: true,
-          realtimeModel: true,
-          realtimeTranscriptionModel: true,
-          timestampedTranscriptionModel: true,
-        },
-      });
+      const configProvider = await ConfigProvider.getInstance();
+      const config = configProvider.getAppConfig();
 
-      if (!config) {
-        res.status(404).json({ message: 'App configuration not found' });
-        return;
-      }
-
-      res.status(200).json(config);
+      res.status(200).json(appConfigToDto(config));
     } catch (error) {
       console.error('Get app config error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -42,14 +34,15 @@ router.get(
 /**
  * PUT /api/app-config
  * Update app configuration (owner only)
+ * Creates a new versioned config and invalidates the old one
  */
 router.put(
   '/',
   authenticate,
   requireOwner,
   async (
-    req: Request<ParamsDictionary, AppConfigWithModels | ErrorResponse, UpdateAppConfigRequest>,
-    res: Response<AppConfigWithModels | ErrorResponse>,
+    req: Request<ParamsDictionary, AppConfigDto | ErrorResponse, AppConfigCreate>,
+    res: Response<AppConfigDto | ErrorResponse>,
   ) => {
     try {
       const {
@@ -58,49 +51,64 @@ router.put(
         realtimeModelId,
         realtimeTranscriptionModelId,
         timestampedTranscriptionModelId,
-        silenceTimeoutInSeconds,
-        maxConversationDurationInSeconds,
-        appName,
-        allowedDomains,
       } = req.body;
 
-      // Get the first config or create if doesn't exist
-      const existingConfig = await prisma.appConfig.findFirst();
+      if (!req.user) {
+        res.status(401).json({ message: 'Not authenticated' });
+        return;
+      }
 
-      const config = await prisma.appConfig.upsert({
-        where: { id: existingConfig?.id ?? 1 },
-        create: {
+      const now = new Date();
+
+      // Use a transaction to atomically invalidate the current config and create a new one
+      const config = await prisma.$transaction(async (tx) => {
+        // Get the currently active config
+        const currentConfig = await tx.appConfig.findFirst({
+          where: {
+            validFrom: { lte: now },
+            OR: [
+              { validTo: null },
+              { validTo: { gt: now } },
+            ],
+          },
+          orderBy: { validFrom: 'desc' },
+        });
+
+        if (!currentConfig) {
+          throw new Error('No active app configuration found');
+        }
+
+        await tx.appConfig.update({
+          where: { id: currentConfig.id },
+          data: { validTo: now },
+        });
+
+        const dataToCreate = {
+          ...Object.fromEntries(
+            Object.entries(currentConfig).filter(
+              ([key]) => !['id', 'validFrom', 'validTo'].includes(key),
+            ),
+          ),
+          userId: req.user!.userId,
+          validFrom: now,
+          validTo: null,
           responseModelId,
           ttsModelId,
           realtimeModelId,
           realtimeTranscriptionModelId,
           timestampedTranscriptionModelId,
-          silenceTimeoutInSeconds: silenceTimeoutInSeconds ?? 30,
-          maxConversationDurationInSeconds: maxConversationDurationInSeconds ?? 300,
-          appName: appName ?? 'AI FIGURANT',
-          allowedDomains: allowedDomains ?? [],
-        },
-        update: {
-          responseModelId,
-          ttsModelId,
-          realtimeModelId,
-          realtimeTranscriptionModelId,
-          timestampedTranscriptionModelId,
-          silenceTimeoutInSeconds,
-          maxConversationDurationInSeconds,
-          appName,
-          allowedDomains,
-        },
-        include: {
-          responseModel: true,
-          ttsModel: true,
-          realtimeModel: true,
-          realtimeTranscriptionModel: true,
-          timestampedTranscriptionModel: true,
-        },
+        };
+
+        return tx.appConfig.create({
+          data: dataToCreate,
+        });
       });
 
-      res.status(200).json(config);
+      // Refresh cache with the new config
+      const configProvider = await ConfigProvider.getInstance();
+      await configProvider.refreshAppConfig();
+
+      res.status(200).json(appConfigToDto(config));
     } catch (error) {
       console.error('Update app config error:', error);
       res.status(500).json({ message: 'Internal server error' });

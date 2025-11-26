@@ -17,6 +17,7 @@ export const EmailValidatedPage: React.FC = () => {
   const [status, setStatus] = useState<VerificationStatus>(token ? 'loading' : 'missingToken');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isMountedRef = useRef(true);
+  const hasVerifiedRef = useRef(false);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -29,6 +30,14 @@ export const EmailValidatedPage: React.FC = () => {
       };
     }
 
+    // Prevent duplicate verification attempts (React 18 Strict Mode issue)
+    if (hasVerifiedRef.current) {
+      return () => {
+        isMountedRef.current = false;
+      };
+    }
+
+    hasVerifiedRef.current = true;
     setStatus('loading');
     setErrorMessage(null);
 

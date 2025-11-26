@@ -1,16 +1,22 @@
 import {
   ConversationType,
   OpenAiVoiceName,
-  RealtimeModelProvider, ResponseModelProvider, Sex, TimestampedTranscriptionModelProvider,
-  TranscriptionModelProvider, TtsModelProvider,
+  RealtimeModelProvider,
+  ResponseModelProvider,
+  Sex,
+  TimestampedTranscriptionModelProvider,
+  TranscriptionModelProvider,
+  TtsModelProvider,
   UserRole,
-} from './enums';
+} from '../generated/enums';
 import { ConversationLog } from '../conversationLog';
 import { ConversationMessage } from '../conversationMessage';
 
 export interface AppConfig {
     id: number
-    editedAt: Date
+    validFrom: Date
+    validTo: Date | null
+    userId: string | null
     responseModelId: number | null
     ttsModelId: number | null
     realtimeModelId: number | null
@@ -66,7 +72,6 @@ export interface Conversation {
     messages: ConversationMessage[] | null
     logs: ConversationLog[] | null
     conversationType: ConversationType
-    usedConfig: AppConfig | null
 }
 
 export interface ConversationCreate {
@@ -80,7 +85,6 @@ export interface ConversationCreate {
     messages?: ConversationMessage[] | null
     logs?: ConversationLog[] | null
     conversationType: ConversationType
-    usedConfig: AppConfig
 }
 
 export interface ConversationRole {

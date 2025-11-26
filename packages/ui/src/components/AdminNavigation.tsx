@@ -17,7 +17,7 @@ export function AdminNavigation() {
   }
 
   const pathname = location.pathname;
-  let activeTab = 'global_models';
+  let activeTab = 'personalities';
   if (pathname === '/admin/personalities') {
     activeTab = 'personalities';
   } else if (pathname === '/admin/scenarios') {
@@ -26,13 +26,15 @@ export function AdminNavigation() {
     activeTab = 'custom_models';
   } else if (pathname === '/admin/user-profiles') {
     activeTab = 'user_profiles';
-  } else if (pathname === '/admin') {
+  } else if (pathname === '/admin/global-models') {
     activeTab = 'global_models';
+  } else if (pathname === '/admin') {
+    activeTab = 'personalities';
   }
 
   const handleTabChange = (value: string) => {
     if (value === 'global_models') {
-      void navigate('/admin');
+      void navigate('/admin/global-models');
     } else if (value === 'personalities') {
       void navigate('/admin/personalities');
     } else if (value === 'scenarios') {

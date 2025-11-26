@@ -11,9 +11,10 @@ import {
 import {
   RealtimeModelProvider,
   ResponseModelProvider,
-  TimestampedTranscriptionModelProvider, TranscriptionModelProvider,
+  TimestampedTranscriptionModelProvider,
+  TranscriptionModelProvider,
   TtsModelProvider,
-} from '../types/db/enums';
+} from '../types/generated/enums';
 
 
 export const realtimeProvidersApiKeys = {

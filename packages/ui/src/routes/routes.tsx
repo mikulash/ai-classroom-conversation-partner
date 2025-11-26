@@ -52,10 +52,11 @@ export const ROUTES: RouteObject[] = [
           { path: 'profile', element: <UserProfilePage/> },
           {
             path: 'admin', element: <AdminPagesLayout/>, children: [
-              { index: true, element: <AdminGlobalModelSelectionPage/> },
+              { index: true, element: <AdminPersonalitiesPage/> },
               { path: 'personalities', element: <AdminPersonalitiesPage/> },
               { path: 'scenarios', element: <AdminScenariosPage/> },
               { path: 'custom-models', element: <AdminCustomModelSelectionPage/> },
+              { path: 'global-models', element: <AdminGlobalModelSelectionPage/> },
               { path: 'user-profiles', element: <AdminProfilesPage/> },
             ],
           },

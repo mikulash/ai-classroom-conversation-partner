@@ -8,7 +8,6 @@ export const useActivityTracker = (
   const silenceTriggeredRef = useRef<boolean>(false);
 
   const markActivity = useCallback(() => {
-    console.log('mark activity');
     lastActivityRef.current = Date.now();
     silenceTriggeredRef.current = false;
   }, [logMessage]);

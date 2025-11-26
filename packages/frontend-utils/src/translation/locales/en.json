@@ -76,7 +76,8 @@
         "deleteSuccess": "Scenario deleted",
         "loadFailed": "Failed to load scenarios",
         "updateFailed": "Update failed",
-        "updateSuccess": "Scenario updated"
+        "updateSuccess": "Scenario updated",
+        "validationFailed": "Please fill in all required fields"
       },
       "saveChanges": "Save Changes",
       "saving": "Saving…",
@@ -92,7 +93,6 @@
   },
   "adminSection": "Admin Section",
   "aiConversationPartner": "Your AI-powered conversation partner",
-  "aiGeneratedNote": "Note: The voice and avatar animation you are seeing is AI-generated.",
   "aiProcessing": "AI is processing...",
   "aiResponseError": "Sorry, I'm having trouble responding right now.",
   "alreadyHaveAccount": "Already have an account?",
@@ -102,6 +102,7 @@
   "cannotLoadUserProfile": "Cannot load user profile. Please try again later.",
   "chat": {
     "aiVoiceNote": "Note: The voice you are hearing is AI-generated and not a human voice.",
+    "speechRecognitionNote": "Note: Speech recognition may not be perfect. Please speak clearly and use a quiet environment for the best results.",
     "audioOff": "Audio responses off",
     "audioOn": "Audio responses on",
     "chatWith": "Chat with {{name}}",
@@ -146,9 +147,9 @@
   },
   "confirmPassword": "Confirm Password",
   "confirmPasswordPlaceholder": "Confirm your password",
-  "confirmationEmailSent": "We've sent a confirmation link to your university e-mail address. Please confirm your e-mail, then sign in with the same credentials.",
+  "confirmationEmailSent": "We've sent a confirmation link to your e-mail address. Please confirm your e-mail, then sign in with the same credentials.",
   "connectCall": "Connect Call",
-  "connectToBeginConversation": "Click 'Connect' to begin the conversation",
+  "connectToBeginConversation": "Click 'Connect' to begin the conversation. Note: Speech recognition for Czech may not be perfect — please speak clearly and use a quiet environment for the best results.",
   "connecting": "Connecting...",
   "conversationHeading": "Start conversation",
   "conversations": "Conversations",

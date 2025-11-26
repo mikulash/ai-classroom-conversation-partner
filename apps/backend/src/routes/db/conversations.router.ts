@@ -1,13 +1,15 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
-import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import { authenticate, requireAdmin } from '../../middleware/auth';
 import {
-  ConversationWithPersonality,
+
   CreateConversationRequest,
   ErrorResponse,
   MessageResponse,
 } from '@repo/shared/types/dbRoutes.types';
+import type { ConversationWithPersonalityDto } from '@repo/shared/types/db/dto';
+import { conversationWithPersonalityToDto } from '@repo/shared/mappers/dtoMappers';
 
 // Path parameter types
 interface ConversationIdParams extends ParamsDictionary {
@@ -31,7 +33,7 @@ router.get(
   '/',
   async (
     req: Request,
-    res: Response<ConversationWithPersonality[] | ErrorResponse>,
+    res: Response<ConversationWithPersonalityDto[] | ErrorResponse>,
   ) => {
     try {
       if (!req.user) {
@@ -60,7 +62,7 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      res.status(200).json(conversations as ConversationWithPersonality[]);
+      res.status(200).json(conversations.map(conversationWithPersonalityToDto));
     } catch (error) {
       console.error('Get conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -74,11 +76,11 @@ router.get(
 router.post(
   '/',
   async (
-    req: Request<ParamsDictionary, ConversationWithPersonality | ErrorResponse, CreateConversationRequest>,
-    res: Response<ConversationWithPersonality | ErrorResponse>,
+    req: Request<ParamsDictionary, ConversationWithPersonalityDto | ErrorResponse, CreateConversationRequest>,
+    res: Response<ConversationWithPersonalityDto | ErrorResponse>,
   ) => {
     try {
-      const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType, usedConfig } =
+      const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType } =
       req.body;
 
       if (!req.user) {
@@ -104,7 +106,6 @@ router.post(
           messages: messages ?? [],
           logs: logs ?? [],
           conversationType,
-          usedConfig: usedConfig,
         },
         include: {
           personality: {
@@ -124,10 +125,10 @@ router.post(
         },
       });
 
-      // Transform the response to match ConversationWithPersonality type
-      const response: ConversationWithPersonality = conversation as ConversationWithPersonality;
+      console.log('conversation created', conversation.createdAt);
+      console.log('conversation created typeof ', typeof conversation.createdAt);
 
-      res.status(201).json(response);
+      res.status(201).json(conversationWithPersonalityToDto(conversation));
     } catch (error) {
       console.error('Create conversation error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -191,7 +192,7 @@ router.get(
   requireAdmin,
   async (
     req: Request<UserIdParams>,
-    res: Response<ConversationWithPersonality[] | ErrorResponse>,
+    res: Response<ConversationWithPersonalityDto[] | ErrorResponse>,
   ) => {
     try {
       const { userId } = req.params;
@@ -217,7 +218,7 @@ router.get(
         orderBy: { startTime: 'desc' },
       });
 
-      res.status(200).json(conversations as ConversationWithPersonality[]);
+      res.status(200).json(conversations.map(conversationWithPersonalityToDto));
     } catch (error) {
       console.error('Get user conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });

@@ -50,7 +50,6 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     personality,
     scenario,
     chatStartTime: chatStartTime ?? Date.now(),
-    appConfig,
     logMessage,
   });
 
@@ -353,6 +352,10 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               <MdCallEnd className="inline-block align-middle"/>
             </Button>
           )}
+        </div>
+
+        <div className="mt-2 text-xs sm:text-sm text-center text-gray-500">
+          {t('chat.speechRecognitionNote')}
         </div>
       </div>
     </ChatLayout>

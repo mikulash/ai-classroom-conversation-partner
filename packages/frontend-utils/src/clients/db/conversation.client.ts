@@ -4,6 +4,8 @@ import {
   CreateConversationRequest,
   MessageResponse,
 } from '@repo/shared/types/dbRoutes.types';
+import type { ConversationWithPersonalityDto } from '@repo/shared/types/db/dto';
+import { conversationWithPersonalityDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
 import { api } from '../api';
 import { AxiosError } from 'axios';
 
@@ -14,8 +16,9 @@ export const conversationClient = {
      */
   getCurrentUserConversations: async (): Promise<ApiResponse<ConversationWithPersonality[]>> => {
     try {
-      const response = await api.get<ConversationWithPersonality[]>('/api/conversations');
-      return { data: response.data };
+      const response = await api.get<ConversationWithPersonalityDto[]>('/api/conversations');
+      const data = response.data.map(conversationWithPersonalityDtoToEntity);
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch conversations' } };
@@ -28,8 +31,9 @@ export const conversationClient = {
      */
   getByUserId: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
     try {
-      const response = await api.get<ConversationWithPersonality[]>(`/api/conversations/user/${userId}`);
-      return { data: response.data };
+      const response = await api.get<ConversationWithPersonalityDto[]>(`/api/conversations/user/${userId}`);
+      const data = response.data.map(conversationWithPersonalityDtoToEntity);
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch user conversations' } };
@@ -41,8 +45,9 @@ export const conversationClient = {
      */
   insert: async (conversation: CreateConversationRequest): Promise<ApiResponse<ConversationWithPersonality>> => {
     try {
-      const response = await api.post<ConversationWithPersonality>('/api/conversations', conversation);
-      return { data: response.data };
+      const response = await api.post<ConversationWithPersonalityDto>('/api/conversations', conversation);
+      const data = conversationWithPersonalityDtoToEntity(response.data);
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {

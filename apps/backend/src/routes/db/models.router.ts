@@ -1,20 +1,29 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
-import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import { authenticate, requireAdmin } from '../../middleware/auth';
+
 import {
-  RealtimeModel,
-  RealtimeTranscriptionModel,
-  ResponseModel,
-  TimestampedTranscriptionModel,
-  TtsModel,
-} from '@repo/shared/types/db/entities';
-import {
-  CustomSelectionWithModels,
   ErrorResponse,
   MessageResponse,
   UpdateCustomModelSelectionRequest,
 } from '@repo/shared/types/dbRoutes.types';
+import type {
+  ResponseModelDto,
+  TtsModelDto,
+  RealtimeModelDto,
+  RealtimeTranscriptionModelDto,
+  TimestampedTranscriptionModelDto,
+  CustomSelectionWithModelsDto,
+} from '@repo/shared/types/db/dto';
+import {
+  responseModelToDto,
+  ttsModelToDto,
+  realtimeModelToDto,
+  realtimeTranscriptionModelToDto,
+  timestampedTranscriptionModelToDto,
+  customSelectionWithModelsToDto,
+} from '@repo/shared/mappers/dtoMappers';
 
 // Path parameter types
 interface UserIdParams extends ParamsDictionary {
@@ -31,14 +40,14 @@ router.get(
   '/response',
   async (
     req: Request,
-    res: Response<ResponseModel[] | ErrorResponse>,
+    res: Response<ResponseModelDto[] | ErrorResponse>,
   ) => {
     try {
       const models = await prisma.responseModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models);
+      res.status(200).json(models.map(responseModelToDto));
     } catch (error) {
       console.error('Get response models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -53,14 +62,14 @@ router.get(
   '/tts',
   async (
     req: Request,
-    res: Response<TtsModel[] | ErrorResponse>,
+    res: Response<TtsModelDto[] | ErrorResponse>,
   ) => {
     try {
       const models = await prisma.ttsModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models);
+      res.status(200).json(models.map(ttsModelToDto));
     } catch (error) {
       console.error('Get TTS models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -75,14 +84,14 @@ router.get(
   '/realtime',
   async (
     req: Request,
-    res: Response<RealtimeModel[] | ErrorResponse>,
+    res: Response<RealtimeModelDto[] | ErrorResponse>,
   ) => {
     try {
       const models = await prisma.realtimeModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models);
+      res.status(200).json(models.map(realtimeModelToDto));
     } catch (error) {
       console.error('Get realtime models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -97,14 +106,14 @@ router.get(
   '/realtime-transcription',
   async (
     req: Request,
-    res: Response<RealtimeTranscriptionModel[] | ErrorResponse>,
+    res: Response<RealtimeTranscriptionModelDto[] | ErrorResponse>,
   ) => {
     try {
       const models = await prisma.realtimeTranscriptionModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models);
+      res.status(200).json(models.map(realtimeTranscriptionModelToDto));
     } catch (error) {
       console.error('Get realtime transcription models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -120,14 +129,14 @@ router.get(
   '/timestamped-transcription',
   async (
     req: Request,
-    res: Response<TimestampedTranscriptionModel[] | ErrorResponse>,
+    res: Response<TimestampedTranscriptionModelDto[] | ErrorResponse>,
   ) => {
     try {
       const models = await prisma.timestampedTranscriptionModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models);
+      res.status(200).json(models.map(timestampedTranscriptionModelToDto));
     } catch (error) {
       console.error('Get timestamped transcription models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -145,7 +154,7 @@ router.get(
   requireAdmin,
   async (
     req: Request<UserIdParams>,
-    res: Response<CustomSelectionWithModels | null | ErrorResponse>,
+    res: Response<CustomSelectionWithModelsDto | null | ErrorResponse>,
   ) => {
     try {
       const { userId } = req.params;
@@ -161,7 +170,7 @@ router.get(
         },
       });
 
-      res.status(200).json(selection);
+      res.status(200).json(selection ? customSelectionWithModelsToDto(selection) : null);
     } catch (error) {
       console.error('Get admin model selection error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -177,8 +186,8 @@ router.put(
   authenticate,
   requireAdmin,
   async (
-    req: Request<UserIdParams, CustomSelectionWithModels | ErrorResponse, UpdateCustomModelSelectionRequest>,
-    res: Response<CustomSelectionWithModels | ErrorResponse>,
+    req: Request<UserIdParams, CustomSelectionWithModelsDto | ErrorResponse, UpdateCustomModelSelectionRequest>,
+    res: Response<CustomSelectionWithModelsDto | ErrorResponse>,
   ) => {
     try {
       const { userId } = req.params;
@@ -231,7 +240,7 @@ router.put(
         },
       });
 
-      res.status(200).json(selection);
+      res.status(200).json(customSelectionWithModelsToDto(selection));
     } catch (error) {
       console.error('Update admin model selection error:', error);
       res.status(500).json({ message: 'Internal server error' });

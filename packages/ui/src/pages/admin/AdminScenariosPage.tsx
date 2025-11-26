@@ -7,7 +7,7 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
-import { ScenarioCreate, Scenario } from '@repo/shared/types/db/entities';
+import { Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
 import { scenarioClient } from '@repo/frontend-utils/src/clients/db/scenario.client';
 
 type ScenarioFormData = Scenario | ScenarioCreate;
@@ -43,8 +43,6 @@ export function AdminScenariosPage() {
     const [scenariosRes] = await Promise.all([
       scenarioClient.all(),
     ]);
-
-    console.log('scenariosRes', scenariosRes);
 
     // Handle scenarios response
     if (scenariosRes.error) {
@@ -97,12 +95,21 @@ export function AdminScenariosPage() {
     setCurrentScenario((prev) => ({ ...prev, [field]: processedValue }));
   };
 
+  const validateScenario = (scenario: ScenarioFormData): boolean => {
+    if (!scenario.settingEn || !scenario.settingCs ||
+        !scenario.situationDescriptionEn || !scenario.situationDescriptionCs ||
+        scenario.involvedPersonalityId === null) {
+      toast.error(t('admin.scenarios.notifications.validationFailed'));
+      return false;
+    }
+    return true;
+  };
+
   const handleEditSubmit = async (scenario: ScenarioFormData) => {
     if (!('id' in scenario) || !scenario.id) return;
+    if (!validateScenario(scenario)) return;
 
     setIsProcessing(true);
-
-    console.log('current scenario to update', scenario);
 
     const { error } = await scenarioClient.update(
       scenario.id,
@@ -121,6 +128,8 @@ export function AdminScenariosPage() {
   };
 
   const handleAddSubmit = async () => {
+    if (!validateScenario(currentScenario)) return;
+
     setIsProcessing(true);
 
     const { error } = await scenarioClient.insert(currentScenario);

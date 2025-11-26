@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { PORT, NODE_ENV } from './constants/constants.js';
-import { startTokenCleanupScheduler } from './jobs/tokenCleanup.js';
+import { PORT, NODE_ENV, APP_FRONTEND_URL } from './constants/constants.js';
+import { startTokenCleanupScheduler } from './jobs/tokenCleanup';
 
 // Legacy routes
 import replyRoutes from './routes/replies.router.js';
@@ -18,10 +18,17 @@ import appConfigRoutes from './routes/db/app-config.router.js';
 import conversationRolesRoutes from './routes/db/conversation-roles.router.js';
 
 const app = express();
+app.disable('x-powered-by');
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: APP_FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400, // 24 hours
+}));
 
 // API Routes
 app.use('/api/auth', authRoutes);

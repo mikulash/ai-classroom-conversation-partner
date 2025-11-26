@@ -1,5 +1,5 @@
 import { PrismaClient } from '../generated/prisma/client';
-import { NODE_ENV } from '../constants/constants.js';
+import { NODE_ENV } from '../constants/constants';
 
 // Create a singleton Prisma client instance
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };

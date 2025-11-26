@@ -11,7 +11,7 @@ import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { UserProfileRow } from '../../components/UserProfileRow';
-import { UserRole } from '@repo/shared/types/db/enums';
+import { UserRole } from '@repo/shared/types/generated/enums';
 import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 

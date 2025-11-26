@@ -1,14 +1,15 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
-import { authenticate, requireOwner } from '../../middleware/auth.js';
+import { authenticate, requireOwner } from '../../middleware/auth';
 import {
   ErrorResponse,
   ProfileResponse,
   UpdateProfileRequest,
   UpdateUserRoleRequest,
 } from '@repo/shared/types/dbRoutes.types';
-import { mapUserToProfileResponse } from '../../utils/mappers/mapUserToProfileResponse';
+import type { ProfileDto } from '@repo/shared/types/db/dto';
+import { profileToDto } from '@repo/shared/mappers/dtoMappers';
 
 // Path parameter types
 interface ProfileIdParams extends ParamsDictionary {
@@ -29,7 +30,7 @@ router.get(
   requireOwner,
   async (
     req: Request,
-    res: Response<ProfileResponse[] | ErrorResponse>,
+    res: Response<ProfileDto[] | ErrorResponse>,
   ) => {
     try {
       const users = await prisma.user.findMany({
@@ -39,7 +40,13 @@ router.get(
         orderBy: { createdAt: 'desc' },
       });
 
-      const profiles = users.map(mapUserToProfileResponse);
+      const profiles = users
+        .filter((user) => user.profile !== null)
+        .map((user) => profileToDto({
+          ...user.profile!,
+          email: user.email,
+          confirmedAt: user.confirmedAt,
+        }));
 
       res.status(200).json(profiles);
     } catch (error) {
@@ -59,10 +66,10 @@ router.put(
   async (
     req: Request<
             ProfileIdParams,
-            ProfileResponse | ErrorResponse,
+            ProfileDto | ErrorResponse,
             UpdateProfileRequest
         >,
-    res: Response<ProfileResponse | ErrorResponse>,
+    res: Response<ProfileDto | ErrorResponse>,
   ) => {
     try {
       const { id } = req.params;
@@ -102,12 +109,16 @@ router.put(
         },
       });
 
-      if (!user) {
+      if (!user || !user.profile) {
         res.status(404).json({ message: 'User not found' });
         return;
       }
 
-      const updatedProfile = mapUserToProfileResponse(user);
+      const updatedProfile = profileToDto({
+        ...user.profile,
+        email: user.email,
+        confirmedAt: user.confirmedAt,
+      });
 
       res.status(200).json(updatedProfile);
     } catch (error) {
@@ -133,7 +144,7 @@ router.put(
             ProfileResponse | ErrorResponse,
             UpdateUserRoleRequest
         >,
-    res: Response<ProfileResponse | ErrorResponse>,
+    res: Response<ProfileDto | ErrorResponse>,
   ) => {
     try {
       const { id } = req.params;
@@ -160,12 +171,16 @@ router.put(
         include: { profile: true },
       });
 
-      if (!user) {
+      if (!user || !user.profile) {
         res.status(404).json({ message: 'User not found' });
         return;
       }
 
-      const updatedProfile = mapUserToProfileResponse(user);
+      const updatedProfile = profileToDto({
+        ...user.profile,
+        email: user.email,
+        confirmedAt: user.confirmedAt,
+      });
 
       res.status(200).json(updatedProfile);
     } catch (error) {

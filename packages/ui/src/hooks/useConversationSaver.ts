@@ -3,12 +3,8 @@ import { useTypedTranslation } from './useTypedTranslation';
 import { toast } from 'sonner';
 import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import {
-  AppConfig,
-  Personality,
-  Scenario,
-} from '@repo/shared/types/db/entities';
-import { ConversationType } from '@repo/shared/types/db/enums';
+import { Personality, Scenario } from '@repo/shared/types/db/entities';
+import { ConversationType } from '@repo/shared/types/generated/enums';
 import { CreateConversationRequest, ProfileResponse } from '@repo/shared/types/dbRoutes.types';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 
@@ -18,7 +14,6 @@ interface ConversationSaverParams {
     personality: Personality;
     scenario?: Scenario | null;
     chatStartTime: number;
-    appConfig: AppConfig;
     logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: Record<string, unknown>) => void;
 }
 
@@ -27,7 +22,6 @@ export const useConversationSaver = ({
   personality,
   scenario,
   chatStartTime,
-  appConfig,
   logMessage,
 }: ConversationSaverParams) => {
   const [isSavingConversation, setIsSavingConversation] = useState(false);
@@ -63,7 +57,6 @@ export const useConversationSaver = ({
         logs: logsToSave ?? [],
         createdAt: new Date(),
         conversationType: conversationType,
-        usedConfig: appConfig,
       };
 
       const { error } = await conversationClient.insert(conversationData);
@@ -81,7 +74,7 @@ export const useConversationSaver = ({
     } finally {
       setIsSavingConversation(false);
     }
-  }, [userProfile, personality, scenario, chatStartTime, appConfig, logMessage, t]);
+  }, [userProfile, personality, scenario, chatStartTime, logMessage, t]);
 
   return {
     isSavingConversation,

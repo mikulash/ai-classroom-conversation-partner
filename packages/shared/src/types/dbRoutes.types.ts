@@ -1,12 +1,12 @@
 import {
   AdminUserCustomModelSelection,
   AppConfig,
-  AppConfigCreate,
   Conversation,
   ConversationCreate,
   ConversationRole,
   Personality,
-  PersonalityCreate, Profile,
+  PersonalityCreate,
+  Profile,
   RealtimeModel,
   RealtimeTranscriptionModel,
   ResponseModel,
@@ -15,13 +15,13 @@ import {
   TimestampedTranscriptionModel,
   TtsModel,
 } from './db/entities';
-import { UserRole } from './db/enums';
+import { UserRole } from './generated/enums';
 
 export interface InitialConversationOptions {
-    personalities: Personality[];
-    scenarios: Scenario[];
-    conversationRoles: ConversationRole[];
-    appConfig: AppConfigWithModels;
+  personalities: Personality[];
+  scenarios: ScenarioWithPersonality[];
+  conversationRoles: ConversationRole[];
+  appConfig: AppConfig;
 }
 
 export interface ErrorResponse {
@@ -85,10 +85,8 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
-export interface ProfileResponse extends Profile {
-    email: string;
-    confirmedAt: Date | null;
-}
+// ProfileResponse represents the user profile with email and confirmation status
+export type ProfileResponse = Profile & { email: string; confirmedAt: Date | null };
 
 export interface ResendVerificationRequest {
   email: string;
@@ -115,16 +113,10 @@ export interface UpdateUserRoleRequest {
 
 export type CreateConversationRequest = ConversationCreate;
 
-type ConversationPersonality = Pick<Personality, 'id' | 'name' | 'avatarUrl'>;
-
-type ConversationScenario = Pick<
-  Scenario,
-  'id' | 'situationDescriptionEn' | 'situationDescriptionCs'
->;
-
+// ConversationWithPersonality includes the personality and scenario information
 export type ConversationWithPersonality = Conversation & {
-  personality: ConversationPersonality | null;
-  scenario?: ConversationScenario | null;
+  personality: { id: number; name: string; avatarUrl: string | null } | null;
+  scenario?: { id: number; situationDescriptionEn: string; situationDescriptionCs: string } | null;
 };
 
 
@@ -136,16 +128,13 @@ export type CreatePersonalityRequest = PersonalityCreate;
 
 export type UpdatePersonalityRequest = Partial<Omit<Personality, 'id' | 'createdAt'>>;
 
-export type PersonalityWithScenarios = Personality & {
-  scenarios: Scenario[];
-};
-
 export type CreateScenarioRequest = ScenarioCreate;
 
 export type UpdateScenarioRequest = Partial<Omit<Scenario, 'id' | 'createdAt'>>;
 
+// ScenarioWithPersonality includes the personality information
 export type ScenarioWithPersonality = Scenario & {
-  personality: Pick<Personality, 'id' | 'name' | 'avatarUrl'> | null;
+  personality: { id: number; name: string; avatarUrl: string | null } | null;
 };
 
 
@@ -153,16 +142,8 @@ export type ScenarioWithPersonality = Scenario & {
 // Models & App Config
 // ------------------------------------------------------------
 
-export type UpdateAppConfigRequest = AppConfigCreate & { editedAt?: Date | string };
 
-export type AppConfigWithModels = AppConfig & {
-  responseModel: ResponseModel | null;
-  ttsModel: TtsModel | null;
-  realtimeModel: RealtimeModel | null;
-  realtimeTranscriptionModel: RealtimeTranscriptionModel | null;
-  timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
-};
-
+// CustomSelectionWithModels includes all custom model selections for a user
 export type CustomSelectionWithModels = AdminUserCustomModelSelection & {
   responseModel: ResponseModel | null;
   ttsModel: TtsModel | null;
@@ -171,13 +152,10 @@ export type CustomSelectionWithModels = AdminUserCustomModelSelection & {
   timestampedTranscriptionModel: TimestampedTranscriptionModel | null;
 };
 
-export type UpdateCustomModelSelectionRequest = Partial<
-  Pick<
-    AdminUserCustomModelSelection,
-    | 'responseModelId'
-    | 'ttsModelId'
-    | 'realtimeModelId'
-    | 'realtimeTranscriptionModelId'
-    | 'timestampedTranscriptionModelId'
-  >
->;
+export type UpdateCustomModelSelectionRequest = Partial<{
+  responseModelId: number | null;
+  ttsModelId: number | null;
+  realtimeModelId: number | null;
+  realtimeTranscriptionModelId: number | null;
+  timestampedTranscriptionModelId: number | null;
+}>;

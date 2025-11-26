@@ -40,6 +40,7 @@ export const config = [
             '@typescript-eslint/restrict-template-expressions': ['error', {allowNumber: true, allowNullish: true}],
             'linebreak-style': 'off',
             'new-cap': 'off',
+            '@typescript-eslint/no-non-null-assertion': 'off'
         },
     },
 

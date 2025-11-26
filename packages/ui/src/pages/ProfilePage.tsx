@@ -109,7 +109,6 @@ export function UserProfilePage() {
       if (updateError) {
         console.error('Error saving profile:', updateError);
       } else {
-        console.log('Profile saved successfully');
         setProfile(freshData);
         setIsSuccess(true);
         setTimeout(() => {

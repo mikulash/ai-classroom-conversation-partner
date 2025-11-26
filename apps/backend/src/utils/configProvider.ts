@@ -6,7 +6,7 @@ import type { AppConfig, RealtimeModel,
   ResponseModel,
   TimestampedTranscriptionModel,
   TtsModel } from '../generated/prisma/client';
-import { OPENAI_API_KEY, ELEVENLABS_API_KEY, CLAUDE_API_KEY, GROK_API_KEY } from '../constants/constants.js';
+import { OPENAI_API_KEY, ELEVENLABS_API_KEY, CLAUDE_API_KEY, GROK_API_KEY } from '../constants/constants';
 
 /**
  * Fetches all secrets once and caches them for the lifetime of the process.
@@ -25,7 +25,7 @@ export interface ModelOptions {
 export class ConfigProvider {
   private static instance?: ConfigProvider;
   private readonly secrets: Secrets;
-  private readonly appConfig: AppConfig;
+  private appConfig: AppConfig;
   private readonly modelOptions: ModelOptions;
 
   /**
@@ -68,6 +68,15 @@ export class ConfigProvider {
       appConfig,
       modelOptions,
     };
+  }
+
+  /**
+     * Refreshes the cached app config from the database.
+     * Call this after updating the app config to invalidate the cache.
+     */
+  public async refreshAppConfig(): Promise<void> {
+    const newConfig = await fetchAppConfig();
+    this.appConfig = newConfig;
   }
 
 
@@ -139,6 +148,13 @@ export class ConfigProvider {
 
   public getTimestampedTranscriptionModelById(id: number): TimestampedTranscriptionModel | undefined {
     return this.modelOptions.timestampedTranscriptionModels.find((model) => model.id === id);
+  }
+
+  /**
+   * Returns the cached app config.
+   */
+  public getAppConfig(): AppConfig {
+    return this.appConfig;
   }
 }
 

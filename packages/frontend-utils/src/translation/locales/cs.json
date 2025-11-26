@@ -77,7 +77,8 @@
         "deleteSuccess": "Scénář byl smazán",
         "loadFailed": "Načtení scénářů se nezdařilo",
         "updateFailed": "Aktualizace se nezdařila",
-        "updateSuccess": "Scénář byl aktualizován"
+        "updateSuccess": "Scénář byl aktualizován",
+        "validationFailed": "Vyplňte prosím všechna povinná pole"
       },
       "saveChanges": "Uložit změny",
       "saving": "Ukládání…",
@@ -93,7 +94,6 @@
   },
   "adminSection": "Admin sekce",
   "aiConversationPartner": "Váš konverzační partner s umělou inteligencí",
-  "aiGeneratedNote": "Poznámka: Hlas a animace avatara, které vidíte, jsou generovány umělou inteligencí.",
   "aiProcessing": "AI zpracovává...",
   "aiResponseError": "Omlouvám se, mám problém s odpovědí.",
   "alreadyHaveAccount": "Již máte účet?",
@@ -103,6 +103,7 @@
   "cannotLoadUserProfile": "Nelze načíst uživatelský profil. Zkuste to prosím později.",
   "chat": {
     "aiVoiceNote": "Poznámka: Hlas, který slyšíte, je generovaný umělou inteligencí a není lidským hlasem.",
+    "speechRecognitionNote": "Poznámka: Rozpoznávání řeči nemusí být dokonalé. Mluvte prosím jasně a nejlépe v tichém prostředí pro nejlepší výsledky.",
     "audioOff": "Zvukové odpovědi vypnuty",
     "audioOn": "Zvukové odpovědi zapnuty",
     "chatWith": "Chat s {{name}}",
@@ -147,7 +148,7 @@
   },
   "confirmPassword": "Potvrďte heslo",
   "confirmPasswordPlaceholder": "Potvrďte heslo",
-  "confirmationEmailSent": "Poslali jsme potvrzovací odkaz na váš univerzitní e-mail. Potvrďte svůj e-mail a poté se přihlaste stejnými přihlašovacími údaji.",
+  "confirmationEmailSent": "Poslali jsme potvrzovací odkaz na váš e-mail. Potvrďte svůj e-mail a poté se přihlaste stejnými přihlašovacími údaji.",
   "connectCall": "Zahájit hovor",
   "connectToBeginConversation": "Připojte se pro zahájení konverzace",
   "connecting": "Připojování...",

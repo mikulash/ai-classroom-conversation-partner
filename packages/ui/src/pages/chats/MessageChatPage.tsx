@@ -78,7 +78,6 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     personality,
     scenario,
     chatStartTime,
-    appConfig,
     logMessage,
   });
 

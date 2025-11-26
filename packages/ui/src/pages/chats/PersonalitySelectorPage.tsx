@@ -199,7 +199,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                 </label>
                 <Input
                   id="custom-personality-name"
-                  value={customPersonality.name}
+                  value={customPersonality.name ?? ''}
                   onChange={(e) => {
                     setCustomPersonality({ ...customPersonality, name: e.target.value });
                   }
@@ -240,7 +240,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                         setCustomPersonality({
                           ...customPersonality,
                           gender: 'M',
-                          openaiVoiceName: 'onyx',
+                          openaiVoiceName: 'ash',
                         });
                       }
                       }

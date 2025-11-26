@@ -1,14 +1,15 @@
 import { Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
-import { authenticate, requireAdmin } from '../../middleware/auth.js';
+import { authenticate, requireAdmin } from '../../middleware/auth';
 import {
   CreateScenarioRequest,
   ErrorResponse,
   MessageResponse,
-  ScenarioWithPersonality,
   UpdateScenarioRequest,
 } from '@repo/shared/types/dbRoutes.types';
+import type { ScenarioWithPersonalityDto } from '@repo/shared/types/db/dto';
+import { scenarioWithPersonalityToDto } from '@repo/shared/mappers/dtoMappers';
 
 // Path parameter types
 interface ScenarioIdParams extends ParamsDictionary {
@@ -25,10 +26,10 @@ router.get(
   '/',
   async (
     req: Request,
-    res: Response<ScenarioWithPersonality[] | ErrorResponse>,
+    res: Response<ScenarioWithPersonalityDto[] | ErrorResponse>,
   ) => {
     try {
-      const scenarios : ScenarioWithPersonality[] = await prisma.scenario.findMany({
+      const scenarios = await prisma.scenario.findMany({
         include: {
           personality: {
             select: {
@@ -41,7 +42,7 @@ router.get(
         orderBy: { createdAt: 'desc' },
       });
 
-      res.status(200).json(scenarios);
+      res.status(200).json(scenarios.map(scenarioWithPersonalityToDto));
     } catch (error) {
       console.error('Get scenarios error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -57,8 +58,8 @@ router.post(
   authenticate,
   requireAdmin,
   async (
-    req: Request<ParamsDictionary, ScenarioWithPersonality | ErrorResponse, CreateScenarioRequest>,
-    res: Response<ScenarioWithPersonality | ErrorResponse>,
+    req: Request<ParamsDictionary, ScenarioWithPersonalityDto | ErrorResponse, CreateScenarioRequest>,
+    res: Response<ScenarioWithPersonalityDto | ErrorResponse>,
   ) => {
     try {
       const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = req.body;
@@ -103,7 +104,7 @@ router.post(
 
       console.log('created scenario', scenario);
 
-      res.status(201).json(scenario);
+      res.status(201).json(scenarioWithPersonalityToDto(scenario));
     } catch (error) {
       console.error('Create scenario error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -119,8 +120,8 @@ router.put(
   authenticate,
   requireAdmin,
   async (
-    req: Request<ScenarioIdParams, ScenarioWithPersonality | ErrorResponse, UpdateScenarioRequest>,
-    res: Response<ScenarioWithPersonality | ErrorResponse>,
+    req: Request<ScenarioIdParams, ScenarioWithPersonalityDto | ErrorResponse, UpdateScenarioRequest>,
+    res: Response<ScenarioWithPersonalityDto | ErrorResponse>,
   ) => {
     try {
       const { id } = req.params;
@@ -158,7 +159,7 @@ router.put(
         },
       });
 
-      res.status(200).json(scenario);
+      res.status(200).json(scenarioWithPersonalityToDto(scenario));
     } catch (error) {
       console.error('Update scenario error:', error);
       res.status(500).json({ message: 'Internal server error' });
