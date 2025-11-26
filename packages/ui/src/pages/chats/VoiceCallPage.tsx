@@ -353,6 +353,10 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
             </Button>
           )}
         </div>
+
+        <div className="mt-2 text-xs sm:text-sm text-center text-gray-500">
+          {t('chat.speechRecognitionNote')}
+        </div>
       </div>
     </ChatLayout>
   );

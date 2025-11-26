@@ -483,9 +483,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
         </div>
 
         <div className="mt-2 text-xs sm:text-sm text-center text-gray-500">
-          <div>
-            {t('aiGeneratedNote')}
-          </div>
+          <div className="mt-1">{t('chat.speechRecognitionNote')}</div>
           <div className="mt-1">{uiStatusMessage}</div>
         </div>
       </div>

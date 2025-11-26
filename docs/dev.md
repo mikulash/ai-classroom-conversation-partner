@@ -42,6 +42,7 @@ pnpm --filter figurant-backend prisma:migrate
 ### 4. Seed the Database
 Copy the seed file into the database container and execute it to avoid issues with encoding czech characters.
 ```powershell
+# From the project's root folder:
 docker cp apps/backend/prisma/seed-data.sql figurant-db:/tmp/seed-data.sql
 docker exec figurant-db psql -U postgres -d ai_classroom -f /tmp/seed-data.sql
 ```
