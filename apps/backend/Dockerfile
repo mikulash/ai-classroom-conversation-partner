@@ -33,6 +33,9 @@ FROM base AS runner
 # Set environment variables
 ENV NODE_ENV=production
 
+# Install OpenSSL (required for Prisma)
+RUN apk add --no-cache openssl ca-certificates
+
 # Copy package.json files for production install
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/backend/package.json ./apps/backend/
@@ -41,6 +44,13 @@ COPY --from=builder /app/packages/shared/package.json ./packages/shared/
 # Copy the built files from shared package and backend
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+
+# Copy Prisma generated client (includes query engine binaries)
+COPY --from=builder /app/apps/backend/src/generated ./apps/backend/src/generated
+RUN ls -R /app/apps/backend/src/generated
+
+# Copy Prisma schema (needed for migrations if you run them)
+COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
 
 # Environment variables are expected to be provided at runtime (e.g., via docker run --env-file).
 

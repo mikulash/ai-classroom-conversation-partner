@@ -11,3 +11,31 @@ services:
       - "5432:5432"
     volumes:
       - ./.data/postgres:/var/lib/postgresql
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: figurant-backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+    env_file:
+      - apps/backend/.env
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_BACKEND_URL: http://localhost:4000
+    container_name: figurant-frontend
+    restart: unless-stopped
+    ports:
+      - "4173:4173"
+    depends_on:
+      - backend
+
+
