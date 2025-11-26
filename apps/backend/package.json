@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "typecheck": "pnpm exec prisma generate && tsc --noEmit",
     "lint": "pnpm exec prisma generate && eslint . --max-warnings 0",
+    "test": "pnpm --filter @repo/vitest-config build && vitest run",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate-reset": "prisma migrate reset",
@@ -43,14 +44,19 @@
     "@types/node": "^22.14.1",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.3",
+    "@types/supertest": "^6.0.2",
+    "@repo/vitest-config": "workspace:*",
+    "@vitest/coverage-istanbul": "^3.2.4",
     "esbuild": "0.25.0",
     "esbuild-register": "^3.5.0",
     "eslint": "^9.25.0",
     "nodemon": "^3.1.9",
     "prisma": "^6.18.0",
     "prisma-json-types-generator": "^3.6.2",
+    "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.4.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }

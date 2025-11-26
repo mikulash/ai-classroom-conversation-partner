@@ -65,6 +65,16 @@
       ],
       "outputs": []
     },
+    "test": {
+      "dependsOn": [
+        "^test",
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**",
+        "coverage.json"
+      ]
+    },
     "dev": {
       "dependsOn": ["^prisma:generate", "^dev", "^build"],
       "persistent": true,
