@@ -240,7 +240,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                         setCustomPersonality({
                           ...customPersonality,
                           gender: 'M',
-                          openaiVoiceName: 'onyx',
+                          openaiVoiceName: 'ash',
                         });
                       }
                       }
