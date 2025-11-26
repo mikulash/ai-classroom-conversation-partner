@@ -77,7 +77,8 @@
         "deleteSuccess": "Scénář byl smazán",
         "loadFailed": "Načtení scénářů se nezdařilo",
         "updateFailed": "Aktualizace se nezdařila",
-        "updateSuccess": "Scénář byl aktualizován"
+        "updateSuccess": "Scénář byl aktualizován",
+        "validationFailed": "Vyplňte prosím všechna povinná pole"
       },
       "saveChanges": "Uložit změny",
       "saving": "Ukládání…",

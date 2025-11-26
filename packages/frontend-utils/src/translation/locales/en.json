@@ -76,7 +76,8 @@
         "deleteSuccess": "Scenario deleted",
         "loadFailed": "Failed to load scenarios",
         "updateFailed": "Update failed",
-        "updateSuccess": "Scenario updated"
+        "updateSuccess": "Scenario updated",
+        "validationFailed": "Please fill in all required fields"
       },
       "saveChanges": "Save Changes",
       "saving": "Saving…",

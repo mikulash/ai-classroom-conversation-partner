@@ -24,51 +24,65 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <Label htmlFor="settingEn">{t('admin.scenarios.form.settingEn')}</Label>
+        <Label htmlFor="settingEn" className="flex items-center gap-1">
+          {t('admin.scenarios.form.settingEn')} <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="settingEn"
           name="settingEn"
           value={scenario.settingEn ?? ''}
           onChange={onInputChange}
           rows={3}
+          required
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="settingCs">{t('admin.scenarios.form.settingCs')}</Label>
+        <Label htmlFor="settingCs" className="flex items-center gap-1">
+          {t('admin.scenarios.form.settingCs')} <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="settingCs"
           name="settingCs"
           value={scenario.settingCs ?? ''}
           onChange={onInputChange}
           rows={3}
+          required
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="situationDescriptionEn">{t('admin.scenarios.form.descriptionEn')}</Label>
+        <Label htmlFor="situationDescriptionEn" className="flex items-center gap-1">
+          {t('admin.scenarios.form.descriptionEn')} <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="situationDescriptionEn"
           name="situationDescriptionEn"
           value={scenario.situationDescriptionEn ?? ''}
           onChange={onInputChange}
           rows={4}
+          required
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="situationDescriptionCs">{t('admin.scenarios.form.descriptionCs')}</Label>
+        <Label htmlFor="situationDescriptionCs" className="flex items-center gap-1">
+          {t('admin.scenarios.form.descriptionCs')} <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="situationDescriptionCs"
           name="situationDescriptionCs"
           value={scenario.situationDescriptionCs ?? ''}
           onChange={onInputChange}
           rows={4}
+          required
         />
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="involvedPersonalityId">{t('admin.scenarios.form.personality')}</Label>
+        <Label htmlFor="involvedPersonalityId" className="flex items-center gap-1">
+          {t('admin.scenarios.form.personality')} <span className="text-red-500">*</span>
+        </Label>
         <Select
           value={
             scenario.involvedPersonalityId !== null ?
@@ -78,6 +92,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({
           onValueChange={(value) => {
             onSelectChange('involvedPersonalityId', value);
           }}
+          required
         >
           <SelectTrigger>
             <SelectValue placeholder={t('admin.scenarios.form.selectPersonality')}/>

@@ -95,8 +95,19 @@ export function AdminScenariosPage() {
     setCurrentScenario((prev) => ({ ...prev, [field]: processedValue }));
   };
 
+  const validateScenario = (scenario: ScenarioFormData): boolean => {
+    if (!scenario.settingEn || !scenario.settingCs ||
+        !scenario.situationDescriptionEn || !scenario.situationDescriptionCs ||
+        scenario.involvedPersonalityId === null) {
+      toast.error(t('admin.scenarios.notifications.validationFailed'));
+      return false;
+    }
+    return true;
+  };
+
   const handleEditSubmit = async (scenario: ScenarioFormData) => {
     if (!('id' in scenario) || !scenario.id) return;
+    if (!validateScenario(scenario)) return;
 
     setIsProcessing(true);
 
@@ -117,6 +128,8 @@ export function AdminScenariosPage() {
   };
 
   const handleAddSubmit = async () => {
+    if (!validateScenario(currentScenario)) return;
+
     setIsProcessing(true);
 
     const { error } = await scenarioClient.insert(currentScenario);
