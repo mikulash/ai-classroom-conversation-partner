@@ -169,7 +169,6 @@
   "emailValidationDefaultError": "Ověřovací odkaz je neplatný nebo mu vypršela platnost. Na přihlašovací stránce si vyžádejte nový.",
   "emailValidationMissingTokenTitle": "Neúplný ověřovací odkaz",
   "emailValidationMissingTokenMessage": "V ověřovacím odkazu chybí token. Zkopírujte prosím celou adresu z e-mailu.",
-  "emailValidationRedirectMessage": "Hotovo! Za okamžik vás přesměrujeme do aplikace...",
   "emailVerificationExpiredTitle": "Platnost tohoto ověřovacího odkazu vypršela.",
   "emailVerificationExpiredDescription": "Zadejte e-mail, se kterým jste se registrovali, a pošleme vám nový ověřovací e-mail.",
   "emailVerificationExpiredPrimaryAction": "Poslat nový ověřovací e-mail",
