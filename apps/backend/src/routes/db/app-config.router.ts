@@ -7,6 +7,7 @@ import { appConfigToDto } from '@repo/shared/mappers/dtoMappers';
 import { AppConfigDto } from '@repo/shared/types/db/dto';
 import { AppConfigCreate } from '@repo/shared/types/db/entities';
 import { ConfigProvider } from '../../utils/configProvider';
+import { fetchAppConfig } from '../../utils/databaseService';
 
 const router = Router();
 
@@ -59,20 +60,11 @@ router.put(
       }
 
       const now = new Date();
+      const currentConfig = await fetchAppConfig(now);
 
       // Use a transaction to atomically invalidate the current config and create a new one
       const config = await prisma.$transaction(async (tx) => {
         // Get the currently active config
-        const currentConfig = await tx.appConfig.findFirst({
-          where: {
-            validFrom: { lte: now },
-            OR: [
-              { validTo: null },
-              { validTo: { gt: now } },
-            ],
-          },
-          orderBy: { validFrom: 'desc' },
-        });
 
         if (!currentConfig) {
           throw new Error('No active app configuration found');

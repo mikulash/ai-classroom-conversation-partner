@@ -34,6 +34,7 @@ import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
 import { APP_FRONTEND_URL, getJwtSecret } from '../../constants/constants';
+import { fetchAppConfig } from '../../utils/databaseService';
 
 const router = Router();
 
@@ -68,8 +69,8 @@ router.post(
       }
 
       // Get allowed domains from app config
-      const appConfig = await prisma.appConfig.findFirst();
-      const allowedDomains = appConfig?.allowedDomains ?? [];
+      const appConfig = await fetchAppConfig();
+      const allowedDomains = appConfig.allowedDomains ?? [];
 
       // Validate university email
       if (allowedDomains.length > 0 && !isValidUniversityEmail(email, allowedDomains)) {

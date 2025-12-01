@@ -4,8 +4,11 @@ import prisma from '../clients/prisma';
 /**
  * Fetches the currently valid app config based on validFrom and validTo timestamps.
  * Returns the config where validFrom <= now AND (validTo IS NULL OR validTo > now)
+ * @param asOfDate - The date to check validity against (defaults to current time)
  */
-export const fetchAppConfig = async (asOfDate: Date = new Date()) => {
+export const fetchAppConfig = async (
+  asOfDate: Date = new Date(),
+) => {
   const appConfig = await prisma.appConfig.findFirst({
     where: {
       validFrom: { lte: asOfDate },
