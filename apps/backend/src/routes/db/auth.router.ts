@@ -9,8 +9,7 @@ import {
   storeRefreshToken,
   verifyRefreshToken,
   generatePasswordResetToken,
-  storePasswordResetToken,
-  verifyAndConsumePasswordResetToken,
+  verifyPasswordResetToken,
 } from '../../utils/auth';
 import { authenticate } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
@@ -562,9 +561,8 @@ router.post(
         return;
       }
 
-      // Generate and store password reset token (expires in 1 hour)
-      const resetToken = generatePasswordResetToken();
-      await storePasswordResetToken(user.id, resetToken);
+      // Generate password reset token (expires in 10 minutes)
+      const resetToken = generatePasswordResetToken(user.id);
 
       // Construct reset URL that points to the frontend reset page
       const frontendBaseUrl = APP_FRONTEND_URL.replace(/\/$/, '');
@@ -599,8 +597,8 @@ router.post(
         return;
       }
 
-      // Verify and consume the reset token (one-time use)
-      const userId = await verifyAndConsumePasswordResetToken(token);
+      // Verify the reset token (valid for 10 minutes)
+      const userId = verifyPasswordResetToken(token);
 
       if (!userId) {
         res.status(400).json({ message: 'Invalid or expired reset token' });

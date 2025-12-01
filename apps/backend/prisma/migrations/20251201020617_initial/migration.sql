@@ -50,18 +50,6 @@ CREATE TABLE "refresh_tokens" (
 );
 
 -- CreateTable
-CREATE TABLE "password_reset_tokens" (
-    "id" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "expires_at" TIMESTAMP(3) NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "used" BOOLEAN NOT NULL DEFAULT false,
-
-    CONSTRAINT "password_reset_tokens_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "profiles" (
     "id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -249,22 +237,10 @@ CREATE INDEX "refresh_tokens_user_id_idx" ON "refresh_tokens"("user_id");
 CREATE INDEX "refresh_tokens_token_idx" ON "refresh_tokens"("token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "password_reset_tokens_token_key" ON "password_reset_tokens"("token");
-
--- CreateIndex
-CREATE INDEX "password_reset_tokens_user_id_idx" ON "password_reset_tokens"("user_id");
-
--- CreateIndex
-CREATE INDEX "password_reset_tokens_token_idx" ON "password_reset_tokens"("token");
-
--- CreateIndex
 CREATE INDEX "app_config_valid_from_valid_to_idx" ON "app_config"("valid_from", "valid_to");
 
 -- AddForeignKey
 ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "password_reset_tokens" ADD CONSTRAINT "password_reset_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "profiles" ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
