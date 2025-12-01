@@ -66,10 +66,6 @@ router.put(
       const config = await prisma.$transaction(async (tx) => {
         // Get the currently active config
 
-        if (!currentConfig) {
-          throw new Error('No active app configuration found');
-        }
-
         await tx.appConfig.update({
           where: { id: currentConfig.id },
           data: { validTo: now },

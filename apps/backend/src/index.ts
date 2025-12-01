@@ -50,37 +50,37 @@ app.get('/', (req, res) => {
 
 // Health Check
 app.get('/health', async (_req, res) => {
-    const timestamp = new Date().toISOString();
-    const start = Date.now();
+  const timestamp = new Date().toISOString();
+  const start = Date.now();
 
-    try {
-        await prisma.$connect();
-        const latencyMs = Date.now() - start;
+  try {
+    await prisma.$connect();
+    const latencyMs = Date.now() - start;
 
-        console.log(`[Health] OK - database responsive in ${latencyMs}ms`);
+    console.log(`[Health] OK - database responsive in ${latencyMs}ms`);
 
-        res.status(200).json({
-            status: 'ok',
-            timestamp,
-            checks: {
-                database: 'ok',
-                latencyMs,
-            },
-        });
-    } catch (error) {
-        console.error('[Health] FAILED - database check error', error);
+    res.status(200).json({
+      status: 'ok',
+      timestamp,
+      checks: {
+        database: 'ok',
+        latencyMs,
+      },
+    });
+  } catch (error) {
+    console.error('[Health] FAILED - database check error', error);
 
-        res.status(503).json({
-            status: 'error',
-            timestamp,
-            checks: {
-                   database: {
-                    status: 'error',
-                    message: 'Can\'t reach database server',
-                },
-            },
-        });
-    }
+    res.status(503).json({
+      status: 'error',
+      timestamp,
+      checks: {
+        database: {
+          status: 'error',
+          message: 'Can\'t reach database server',
+        },
+      },
+    });
+  }
 });
 
 app.listen(PORT, () => {
