@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import prisma from '../clients/prisma';
 
 /**
- * Cleanup expired and revoked refresh tokens, and used/expired password reset tokens
+ * Cleanup expired and revoked refresh tokens
  */
 export async function cleanupExpiredTokens(): Promise<void> {
   try {
@@ -19,20 +19,8 @@ export async function cleanupExpiredTokens(): Promise<void> {
       },
     });
 
-    // Delete password reset tokens that are either expired or already used
-    const resetResult = await prisma.passwordResetToken.deleteMany({
-      where: {
-        OR: [
-          { expiresAt: { lt: now } },
-          { used: true },
-        ],
-      },
-    });
-
-    const totalDeleted = refreshResult.count + resetResult.count;
-
-    if (totalDeleted > 0) {
-      console.log(`[Token Cleanup] Successfully deleted ${refreshResult.count} refresh tokens and ${resetResult.count} password reset tokens`);
+    if (refreshResult.count > 0) {
+      console.log(`[Token Cleanup] Successfully deleted ${refreshResult.count} refresh tokens`);
     } else {
       console.log('[Token Cleanup] No expired/revoked tokens found');
     }

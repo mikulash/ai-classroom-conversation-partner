@@ -5,7 +5,7 @@ CREATE TYPE "user_role" AS ENUM ('basic', 'admin', 'owner');
 CREATE TYPE "conversation_type" AS ENUM ('VoiceOnly', 'Video', 'TextOnly', 'TextWithAudio');
 
 -- CreateEnum
-CREATE TYPE "openai_voice_name" AS ENUM ('alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'sage', 'shimmer', 'verse');
+CREATE TYPE "openai_voice_name" AS ENUM ('alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer');
 
 -- CreateEnum
 CREATE TYPE "personality_sex" AS ENUM ('F', 'M');
@@ -133,7 +133,6 @@ CREATE TABLE "conversations" (
     "messages" JSONB,
     "logs" JSONB,
     "conversation_type" "conversation_type" NOT NULL,
-    "used_config" JSONB,
 
     CONSTRAINT "conversations_pkey" PRIMARY KEY ("id")
 );
@@ -209,7 +208,9 @@ CREATE TABLE "timestamped_transcription_models" (
 -- CreateTable
 CREATE TABLE "app_config" (
     "id" SERIAL NOT NULL,
-    "edited_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "valid_from" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "valid_to" TIMESTAMP(3),
+    "user_id" TEXT,
     "response_model_id" INTEGER,
     "tts_model_id" INTEGER,
     "realtime_model_id" INTEGER,
@@ -234,6 +235,9 @@ CREATE INDEX "refresh_tokens_user_id_idx" ON "refresh_tokens"("user_id");
 
 -- CreateIndex
 CREATE INDEX "refresh_tokens_token_idx" ON "refresh_tokens"("token");
+
+-- CreateIndex
+CREATE INDEX "app_config_valid_from_valid_to_idx" ON "app_config"("valid_from", "valid_to");
 
 -- AddForeignKey
 ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -270,6 +274,9 @@ ALTER TABLE "conversations" ADD CONSTRAINT "conversations_personality_id_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "conversations" ADD CONSTRAINT "conversations_scenario_id_fkey" FOREIGN KEY ("scenario_id") REFERENCES "scenarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "app_config" ADD CONSTRAINT "app_config_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "app_config" ADD CONSTRAINT "app_config_response_model_id_fkey" FOREIGN KEY ("response_model_id") REFERENCES "response_models"("id") ON DELETE SET NULL ON UPDATE CASCADE;

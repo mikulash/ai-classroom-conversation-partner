@@ -83,7 +83,6 @@ export const EmailValidatedPage: React.FC = () => {
     case 'success':
       title = t('emailValidatedSuccess');
       descriptionLines.push(t('emailValidatedMessage'));
-      descriptionLines.push(t('emailValidationRedirectMessage'));
       actionTo = '/chat';
       actionLabel = t('goToPersonalitySelector');
       break;

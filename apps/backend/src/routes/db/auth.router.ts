@@ -9,8 +9,7 @@ import {
   storeRefreshToken,
   verifyRefreshToken,
   generatePasswordResetToken,
-  storePasswordResetToken,
-  verifyAndConsumePasswordResetToken,
+  verifyPasswordResetToken,
 } from '../../utils/auth';
 import { authenticate } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
@@ -34,6 +33,7 @@ import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
 import { APP_FRONTEND_URL, getJwtSecret } from '../../constants/constants';
+import { ConfigProvider } from '../../utils/configProvider';
 
 const router = Router();
 
@@ -44,7 +44,7 @@ function generateEmailVerificationToken(userId: string, email: string): string {
   return jwt.sign(
     { userId, email },
     getJwtSecret(),
-    { expiresIn: '1d' }, // 24h to verify
+    { expiresIn: '10m' }, // 10 minutes to verify
   );
 }
 
@@ -68,8 +68,8 @@ router.post(
       }
 
       // Get allowed domains from app config
-      const appConfig = await prisma.appConfig.findFirst();
-      const allowedDomains = appConfig?.allowedDomains ?? [];
+      const configProvider = await ConfigProvider.getInstance();
+      const { allowedDomains } = configProvider.getAppConfig();
 
       // Validate university email
       if (allowedDomains.length > 0 && !isValidUniversityEmail(email, allowedDomains)) {
@@ -561,9 +561,8 @@ router.post(
         return;
       }
 
-      // Generate and store password reset token (expires in 1 hour)
-      const resetToken = generatePasswordResetToken();
-      await storePasswordResetToken(user.id, resetToken);
+      // Generate password reset token (expires in 10 minutes)
+      const resetToken = generatePasswordResetToken(user.id);
 
       // Construct reset URL that points to the frontend reset page
       const frontendBaseUrl = APP_FRONTEND_URL.replace(/\/$/, '');
@@ -598,8 +597,8 @@ router.post(
         return;
       }
 
-      // Verify and consume the reset token (one-time use)
-      const userId = await verifyAndConsumePasswordResetToken(token);
+      // Verify the reset token (valid for 10 minutes)
+      const userId = verifyPasswordResetToken(token);
 
       if (!userId) {
         res.status(400).json({ message: 'Invalid or expired reset token' });

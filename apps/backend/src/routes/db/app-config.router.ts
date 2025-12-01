@@ -59,24 +59,12 @@ router.put(
       }
 
       const now = new Date();
+      const configProvider = await ConfigProvider.getInstance();
+      const currentConfig = configProvider.getAppConfig();
 
       // Use a transaction to atomically invalidate the current config and create a new one
       const config = await prisma.$transaction(async (tx) => {
         // Get the currently active config
-        const currentConfig = await tx.appConfig.findFirst({
-          where: {
-            validFrom: { lte: now },
-            OR: [
-              { validTo: null },
-              { validTo: { gt: now } },
-            ],
-          },
-          orderBy: { validFrom: 'desc' },
-        });
-
-        if (!currentConfig) {
-          throw new Error('No active app configuration found');
-        }
 
         await tx.appConfig.update({
           where: { id: currentConfig.id },
@@ -105,7 +93,6 @@ router.put(
       });
 
       // Refresh cache with the new config
-      const configProvider = await ConfigProvider.getInstance();
       await configProvider.refreshAppConfig();
 
       res.status(200).json(appConfigToDto(config));
