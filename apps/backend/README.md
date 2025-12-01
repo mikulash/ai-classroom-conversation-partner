@@ -6,15 +6,27 @@ The backend package hosts the Express API that powers Figurant's conversational 
 
 ## Environment variables
 
-| Variable                              | Required?     | Usage |
-|---------------------------------------|---------------|-------|
-| `DATABASE_URL`                        | **Required**  | Connection string consumed by Prisma to talk to PostgreSQL |
-| `OPENAI_API_KEY`                      | Optional      | Conversations - Realtime, Response generating, TTS, Speech to text |
-| `ELEVENLABS_API_KEY`                  | Optional      | Conversations - TTS |
-| `CLAUDE_API_KEY`                      | Optional      | Conversations - Response generating |
-| `GROK_API_KEY`                        | Optional      | Conversations - Response generating |
-| `ELEVENLABS_FALLBACK_VOICE_ID_FEMALE` | Optional      | Fallback ID when Elevenlabs selected for TTS but selected character missing custom voice id |
-| `ELEVENLABS_FALLBACK_VOICE_ID_MALE`   | Optional      | Fallback ID when Elevenlabs selected for TTS but selected character missing custom voice id |
+Two environment files are available:
+- `.env.local` - For local development (DATABASE_URL uses `localhost`, APP_FRONTEND_URL uses dev server)
+- `.env.production` - For Docker Compose (DATABASE_URL uses `postgres` service, APP_FRONTEND_URL uses production build)
+
+| Variable                              | Required?    | Usage                                                                                              |
+|---------------------------------------|--------------|----------------------------------------------------------------------------------------------------|
+| `DATABASE_URL`                        | **Required** | Connection string consumed by Prisma to talk to PostgreSQL                                         |
+| `JWT_SECRET`                          | **Required** | Secret key for signing JWT tokens (change in production!)                                          |
+| `JWT_EXPIRES_IN`                      | **Required** | JWT token expiration time (e.g., `7d` for 7 days)                                                  |
+| `APP_FRONTEND_URL`                    | **Required** | Frontend URL for CORS and email verification links                                                 |
+| `SMTP_HOST`                           | **Required** | SMTP server host for sending emails (use `localhost` for local, `host.docker.internal` for Docker) |
+| `SMTP_PORT`                           | **Required** | SMTP server port (e.g., `1025` for Mailpit)                                                        |
+| `SMTP_USER`                           | Optional     | SMTP authentication username (leave empty for local development)                                   |
+| `SMTP_PASS`                           | Optional     | SMTP authentication password (leave empty for local development)                                   |
+| `MAIL_FROM`                           | **Required** | Email address used as sender for outgoing emails                                                   |
+| `OPENAI_API_KEY`                      | Optional     | Conversations - Realtime, Response generating, TTS, Speech to text                                 |
+| `ELEVENLABS_API_KEY`                  | Optional     | Conversations - TTS                                                                                |
+| `CLAUDE_API_KEY`                      | Optional     | Conversations - Response generating                                                                |
+| `GROK_API_KEY`                        | Optional     | Conversations - Response generating                                                                |
+| `ELEVENLABS_FALLBACK_VOICE_ID_FEMALE` | Optional     | Fallback ID when Elevenlabs selected for TTS but selected character missing custom voice id        |
+| `ELEVENLABS_FALLBACK_VOICE_ID_MALE`   | Optional     | Fallback ID when Elevenlabs selected for TTS but selected character missing custom voice id        |
 
 ## Deployment
 
