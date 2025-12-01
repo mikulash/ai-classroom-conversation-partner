@@ -23,7 +23,7 @@ services:
     depends_on:
       - postgres
     env_file:
-      - apps/backend/.env
+      - apps/backend/.env.production
 
   frontend:
     build:
