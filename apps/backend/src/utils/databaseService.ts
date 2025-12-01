@@ -59,9 +59,9 @@ export const fetchUserCustomModelConfig = async (userId: string) => {
     });
 
     if (!data) {
-      console.warn('Could not fetch user model config for userId:', userId);
       return null;
     }
+    console.info('Fetched user model config for userId:', userId);
     return data;
   } catch (error) {
     console.warn('Error fetching user model config:', error);
