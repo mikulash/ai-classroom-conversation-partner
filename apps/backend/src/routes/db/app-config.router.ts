@@ -7,7 +7,6 @@ import { appConfigToDto } from '@repo/shared/mappers/dtoMappers';
 import { AppConfigDto } from '@repo/shared/types/db/dto';
 import { AppConfigCreate } from '@repo/shared/types/db/entities';
 import { ConfigProvider } from '../../utils/configProvider';
-import { fetchAppConfig } from '../../utils/databaseService';
 
 const router = Router();
 
@@ -60,7 +59,8 @@ router.put(
       }
 
       const now = new Date();
-      const currentConfig = await fetchAppConfig(now);
+      const configProvider = await ConfigProvider.getInstance();
+      const currentConfig = configProvider.getAppConfig();
 
       // Use a transaction to atomically invalidate the current config and create a new one
       const config = await prisma.$transaction(async (tx) => {
@@ -93,7 +93,6 @@ router.put(
       });
 
       // Refresh cache with the new config
-      const configProvider = await ConfigProvider.getInstance();
       await configProvider.refreshAppConfig();
 
       res.status(200).json(appConfigToDto(config));
