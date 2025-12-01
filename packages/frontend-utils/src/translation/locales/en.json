@@ -168,7 +168,6 @@
   "emailValidationDefaultError": "The verification link may be invalid or expired. Please request a new one from the sign-in page.",
   "emailValidationMissingTokenTitle": "Verification link incomplete",
   "emailValidationMissingTokenMessage": "The verification link is missing its token. Please copy the full URL from your email.",
-  "emailValidationRedirectMessage": "You're all set! Redirecting you to the app...",
   "emailVerificationExpiredTitle": "This verification link has expired.",
   "emailVerificationExpiredDescription": "Enter the email address you used to sign up and we'll send a new verification email.",
   "emailVerificationExpiredPrimaryAction": "Send a new verification email",

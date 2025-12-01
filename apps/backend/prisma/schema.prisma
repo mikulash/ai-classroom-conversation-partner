@@ -46,7 +46,6 @@ enum OpenAiVoiceName {
   echo    @map("echo")
   sage    @map("sage")
   shimmer @map("shimmer")
-  verse   @map("verse")
 
   @@map("openai_voice_name")
 }
