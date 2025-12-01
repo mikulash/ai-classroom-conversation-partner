@@ -18,7 +18,7 @@ These are the minimum prerequisites you need to work on the Figurant monorepo lo
 
 Follow these steps to set up your local development environment:
 
-### 1. Generate Prisma Client
+### 1. Generate Prisma Client code
 
 ```bash
 pnpm --filter figurant-backend prisma:generate
@@ -47,13 +47,12 @@ docker cp apps/backend/prisma/seed-data.sql figurant-db:/tmp/seed-data.sql
 docker exec figurant-db psql -U postgres -d ai_classroom -f /tmp/seed-data.sql
 ```
 
-### 5. Start Development Server
+### 5. Start Development 
 
 ```bash
-pnpm --filter figurant-backend dev
+pnpm run dev:web-backend
 ```
 
-Read more database tips in [docs/database.md](./database.md).
 
 ## Changes in DB schema
 All schemas now live in [`apps/backend/prisma/schema.prisma`](../apps/backend/prisma/schema.prisma). Whenever you update it:
@@ -74,6 +73,14 @@ Deployment instructions for each app are in their respective README files:
 - [Backend](../apps/backend/README.md)
 - [Web](../apps/web/README.md)
 - [Desktop (Tauri)](../apps/tauri/README.md)
+
+or can be run together with docker-compose in the root of the repository.
+1. Run the docker containers with `docker compose up -d`
+2. Apply the migrations `pnpm --filter figurant-backend prisma:migrate`
+3. Seed the database
+   1. Copy the seed file into the database container and execute it to avoid issues with encoding czech characters.
+   `docker cp apps/backend/prisma/seed-data.sql figurant-db:/tmp/seed-data.sql`
+   2. Run the seed file `docker exec figurant-db psql -U postgres -d ai_classroom -f /tmp/seed-data.sql`
 
 ## Adding new AI models
 it depends if the provider is already supported or if you want to add a new provider
