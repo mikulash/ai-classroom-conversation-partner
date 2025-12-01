@@ -34,8 +34,7 @@ export const OpenAiVoiceName = {
     coral: 'coral',
     echo: 'echo',
     sage: 'sage',
-    shimmer: 'shimmer',
-    verse: 'verse'
+    shimmer: 'shimmer'
 } as const
 
 export type OpenAiVoiceName = (typeof OpenAiVoiceName)[keyof typeof OpenAiVoiceName]
