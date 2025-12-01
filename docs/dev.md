@@ -65,15 +65,18 @@ All schemas now live in [`apps/backend/prisma/schema.prisma`](../apps/backend/pr
 ## Deployment
 ### Prerequisites:
 - Docker installed and running
+- Properly configured `.env.production` for the backend app and `env` for the web/tauri app
 - Valid api keys for required services
 - Node.js and pnpm installed
 
 ### Steps:
+#### separately:
 Deployment instructions for each app are in their respective README files:
 - [Backend](../apps/backend/README.md)
 - [Web](../apps/web/README.md)
 - [Desktop (Tauri)](../apps/tauri/README.md)
 
+#### ...or all together:
 or can be run together with docker-compose in the root of the repository.
 1. Run the docker containers with `docker compose up -d`
 2. Apply the migrations `pnpm --filter figurant-backend prisma:migrate`
