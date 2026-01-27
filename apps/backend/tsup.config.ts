@@ -1,7 +1,7 @@
 import { defineConfig, type Options } from 'tsup';
 
 export default defineConfig((options: Options) => ({
-  entry: ['src/index.ts'],
+  entry: ['src/main.ts'],
   format: ['esm'],
   target: 'node22',
   clean: true,
@@ -11,5 +11,5 @@ export default defineConfig((options: Options) => ({
   dts: false,
   splitting: false,
   minify: !options.watch,
-  onSuccess: options.watch ? 'node --no-warnings dist/index.js' : undefined,
+  onSuccess: options.watch ? 'node --no-warnings dist/main.js' : undefined,
 }));
