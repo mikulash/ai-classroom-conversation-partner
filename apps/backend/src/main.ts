@@ -15,6 +15,7 @@ import scenariosRoutes from './routes/db/scenarios.router';
 import modelsRoutes from './routes/db/models.router';
 import appConfigRoutes from './routes/db/app-config.router';
 import conversationRolesRoutes from './routes/db/conversation-roles.router';
+import { writeFileSync } from 'fs';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -60,6 +61,15 @@ async function bootstrap(): Promise<void> {
 
   const tokenCleanupSchedule = process.env.TOKEN_CLEANUP_SCHEDULE ?? '0 2 * * *';
   startTokenCleanupScheduler(tokenCleanupSchedule);
+
+  try {
+    const outPath = 'openapi.json';
+    writeFileSync(outPath, JSON.stringify(document, null, 2), 'utf8');
+    console.log(`Wrote OpenAPI JSON to ${outPath}`);
+  } catch (err) {
+    console.error('Failed to write OpenAPI JSON', err);
+  }
 }
+
 
 bootstrap();
