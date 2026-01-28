@@ -354,7 +354,16 @@
     "/api/profiles/{id}": {
       "put": {
         "operationId": "ProfilesController_updateProfile",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -390,7 +399,16 @@
     "/api/profiles/{id}/role": {
       "put": {
         "operationId": "ProfilesController_updateUserRole",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Put, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
@@ -9,10 +9,6 @@ import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
 import type { ProfileDto } from '@repo/shared/types/db/dto';
 import { profileToDto } from '@repo/shared/mappers/dtoMappers';
 import { UpdateProfileDto, UpdateUserRoleDto } from '../dtos/profiles.dto';
-
-interface ProfileIdParams {
-  id: string;
-}
 
 @ApiTags('profiles')
 @ApiBearerAuth()
@@ -50,16 +46,16 @@ export class ProfilesController {
   }
 
   @Put(':id')
+  @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateProfileDto })
   @ApiOkResponse({ description: 'Updated profile', type: Object })
   async updateProfile(
-    @Param() params: ProfileIdParams,
+    @Param('id') id: string,
     @Body() body: UpdateProfileDto,
     @Req() req: Request,
     @Res() res: Response<ProfileDto | ErrorResponse>,
   ): Promise<void> {
     try {
-      const { id } = params;
       const { fullName, gender, conversationRole, bio } = body;
 
       if (req.user?.userId !== id && req.user?.userRole !== 'admin' && req.user?.userRole !== 'owner') {
@@ -112,15 +108,15 @@ export class ProfilesController {
   @UseGuards(RolesGuard)
   @Roles('owner')
   @Put(':id/role')
+  @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateUserRoleDto })
   @ApiOkResponse({ description: 'Update user role', type: Object })
   async updateUserRole(
-    @Param() params: ProfileIdParams,
+    @Param('id') id: string,
     @Body() body: UpdateUserRoleDto,
     @Res() res: Response<ProfileDto | ErrorResponse>,
   ): Promise<void> {
     try {
-      const { id } = params;
       const { userRole } = body;
 
       const user = await prisma.user.findUnique({ where: { id }, include: { profile: true } });
