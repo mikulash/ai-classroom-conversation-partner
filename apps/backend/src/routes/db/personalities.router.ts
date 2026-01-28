@@ -1,5 +1,6 @@
-import { Request, Response, Router } from 'express';
-import { ParamsDictionary } from 'express-serve-static-core';
+import express from 'express';
+import type { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth';
 import type { PersonalityDto } from '@repo/shared/types/db/dto';
@@ -16,7 +17,7 @@ interface PersonalityIdParams extends ParamsDictionary {
   id: string;
 }
 
-const router = Router();
+const router = express.Router();
 
 /**
  * GET /api/personalities

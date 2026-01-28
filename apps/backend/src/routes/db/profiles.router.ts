@@ -1,5 +1,6 @@
-import { Request, Response, Router } from 'express';
-import { ParamsDictionary } from 'express-serve-static-core';
+import express from 'express';
+import type { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireOwner } from '../../middleware/auth';
 import {
@@ -16,7 +17,7 @@ interface ProfileIdParams extends ParamsDictionary {
     id: string;
 }
 
-const router = Router();
+const router = express.Router();
 
 // All profile routes require authentication
 router.use(authenticate);

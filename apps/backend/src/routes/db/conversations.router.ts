@@ -1,5 +1,6 @@
-import { Request, Response, Router } from 'express';
-import { ParamsDictionary } from 'express-serve-static-core';
+import express from 'express';
+import type { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import prisma from '../../clients/prisma';
 import { authenticate, requireAdmin } from '../../middleware/auth';
 import {
@@ -20,7 +21,7 @@ interface UserIdParams extends ParamsDictionary {
   userId: string;
 }
 
-const router = Router();
+const router = express.Router();
 
 // All conversation routes require authentication
 router.use(authenticate);

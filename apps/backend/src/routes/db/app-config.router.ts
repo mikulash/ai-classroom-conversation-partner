@@ -1,5 +1,6 @@
-import { Request, Response, Router } from 'express';
-import { ParamsDictionary } from 'express-serve-static-core';
+import express from 'express';
+import type { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import { authenticate, requireOwner } from '../../middleware/auth';
 import prisma from '../../clients/prisma';
 import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
@@ -8,7 +9,7 @@ import { AppConfigDto } from '@repo/shared/types/db/dto';
 import { AppConfigCreate } from '@repo/shared/types/db/entities';
 import { ConfigProvider } from '../../utils/configProvider';
 
-const router = Router();
+const router = express.Router();
 
 /**
  * GET /api/app-config

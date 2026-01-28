@@ -1,5 +1,6 @@
-import { Request, Response, Router } from 'express';
-import { ParamsDictionary } from 'express-serve-static-core';
+import express from 'express';
+import type { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import {
   comparePassword,
   generateRefreshToken,
@@ -35,7 +36,7 @@ import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmai
 import { APP_FRONTEND_URL, getJwtSecret } from '../../constants/constants';
 import { ConfigProvider } from '../../utils/configProvider';
 
-const router = Router();
+const router = express.Router();
 
 /**
  * Validate if email belongs to allowed domains

@@ -8,7 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import {
   comparePassword,
   generatePasswordResetToken,
@@ -193,12 +193,16 @@ export class AuthController {
 
       await storeRefreshToken(verifiedUser.id, refreshToken);
 
-      const profile: ProfileDto = profileToDto(verifiedUser.profile);
+      const profile: ProfileDto = profileToDto({
+        ...verifiedUser.profile,
+        email: verifiedUser.email,
+        confirmedAt: verifiedUser.confirmedAt,
+      });
 
       res.status(200).json({
         accessToken,
         refreshToken,
-        profile,
+        user: profile,
       });
     } catch (error) {
       console.error('Verification error:', error);
@@ -245,12 +249,16 @@ export class AuthController {
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(user.id, refreshToken);
 
-      const profile: ProfileDto = profileToDto(user.profile);
+      const profile: ProfileDto = profileToDto({
+        ...user.profile,
+        email: user.email,
+        confirmedAt: user.confirmedAt,
+      });
 
       res.status(200).json({
         accessToken,
         refreshToken,
-        profile,
+        user: profile,
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -273,14 +281,14 @@ export class AuthController {
         return;
       }
 
-      const decoded = await verifyRefreshToken(refreshToken);
-      if (!decoded) {
+      const userId = await verifyRefreshToken(refreshToken);
+      if (!userId) {
         res.status(401).json({ message: 'Invalid refresh token' });
         return;
       }
 
       const user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
+        where: { id: userId },
         include: { profile: true },
       });
 
@@ -386,7 +394,7 @@ export class AuthController {
       const user = await prisma.user.findUnique({ where: { email } });
 
       if (user) {
-        const resetToken = generatePasswordResetToken({ userId: user.id, email: user.email });
+        const resetToken = generatePasswordResetToken(user.id);
         await sendPasswordResetEmail(email, resetToken);
       }
 
@@ -414,8 +422,8 @@ export class AuthController {
         return;
       }
 
-      const payload = verifyPasswordResetToken(token);
-      if (!payload) {
+      const userId = verifyPasswordResetToken(token);
+      if (!userId) {
         res.status(400).json({ message: 'Invalid or expired reset token' });
         return;
       }
@@ -423,7 +431,7 @@ export class AuthController {
       const hashedPassword = await hashPassword(newPassword);
 
       await prisma.user.update({
-        where: { id: payload.userId },
+        where: { id: userId },
         data: { password: hashedPassword },
       });
 

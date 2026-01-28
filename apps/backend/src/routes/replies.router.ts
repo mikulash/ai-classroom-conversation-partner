@@ -1,4 +1,5 @@
-import { Request, Response, Router } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import { universalApi } from '../ai-api/universalApi';
 import {
   ErrorResponse,
@@ -14,13 +15,13 @@ import {
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,
 } from '@repo/shared/types/figurantClient.types';
-import { ParamsDictionary } from 'express-serve-static-core';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import { authenticate } from '../middleware/auth';
 import { getUserId } from '../utils/getUserId';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 
-const router = Router({ mergeParams: true });
+const router = express.Router({ mergeParams: true });
 
 // Apply authentication middleware to all routes
 router.use(authenticate);

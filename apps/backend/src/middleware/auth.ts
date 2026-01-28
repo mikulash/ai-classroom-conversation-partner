@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { extractTokenFromHeader, JWTPayload, verifyAndDecodeToken } from '../utils/auth';
 
 // Extend Express Request to include user info

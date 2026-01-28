@@ -1,14 +1,11 @@
 import { Body, Controller, Get, Param, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
-import {
-  ErrorResponse,
-  ProfileResponse,
-} from '@repo/shared/types/dbRoutes.types';
+import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
 import type { ProfileDto } from '@repo/shared/types/db/dto';
 import { profileToDto } from '@repo/shared/mappers/dtoMappers';
 import { UpdateProfileDto, UpdateUserRoleDto } from '../dtos/profiles.dto';
@@ -120,7 +117,7 @@ export class ProfilesController {
   async updateUserRole(
     @Param() params: ProfileIdParams,
     @Body() body: UpdateUserRoleDto,
-    @Res() res: Response<ProfileResponse | ErrorResponse>,
+    @Res() res: Response<ProfileDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { id } = params;
