@@ -10,9 +10,10 @@ import { AppConfigController } from './controllers/app-config.controller';
 import { ConversationRolesController } from './controllers/conversation-roles.controller';
 import { RepliesController } from './controllers/replies.controller';
 import { HealthModule } from './health/health.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
-  imports: [HealthModule],
+  imports: [HealthModule, TasksModule],
   controllers: [
     AppController,
     AuthController,

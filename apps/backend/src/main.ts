@@ -7,7 +7,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cors from 'cors';
 import { AppModule } from './app.module';
 import { APP_FRONTEND_URL, NODE_ENV, PORT } from './constants/constants';
-import { startTokenCleanupScheduler } from './jobs/tokenCleanup';
 import replyRoutes from './routes/replies.router';
 import conversationsRoutes from './routes/db/conversations.router';
 import personalitiesRoutes from './routes/db/personalities.router';
@@ -58,9 +57,6 @@ async function bootstrap(): Promise<void> {
   await app.listen(PORT);
   console.log(`Backend server listening on port ${PORT}`);
   console.log(`Environment: ${NODE_ENV}`);
-
-  const tokenCleanupSchedule = process.env.TOKEN_CLEANUP_SCHEDULE ?? '0 2 * * *';
-  startTokenCleanupScheduler(tokenCleanupSchedule);
 
   try {
     const outPath = 'openapi.json';
