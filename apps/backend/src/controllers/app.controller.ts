@@ -41,7 +41,7 @@ export class AppController {
         checks: {
           database: {
             status: 'error',
-            message: "Can't reach database server",
+            message: 'Can\'t reach database server',
           },
         },
       });
