@@ -9,8 +9,10 @@ import { ModelsController } from './controllers/models.controller';
 import { AppConfigController } from './controllers/app-config.controller';
 import { ConversationRolesController } from './controllers/conversation-roles.controller';
 import { RepliesController } from './controllers/replies.controller';
+import { HealthModule } from './health/health.module';
 
 @Module({
+  imports: [HealthModule],
   controllers: [
     AppController,
     AuthController,
