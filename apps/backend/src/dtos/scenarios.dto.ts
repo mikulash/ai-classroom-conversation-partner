@@ -4,52 +4,52 @@ import { IsInt, IsOptional, IsString } from 'class-validator';
 export class CreateScenarioDto {
     @ApiProperty({ description: 'Personality ID' })
     @IsInt()
-    involvedPersonalityId!: number;
+      involvedPersonalityId!: number;
 
     @ApiPropertyOptional({ description: 'Situation description in English' })
     @IsOptional()
     @IsString()
-    situationDescriptionEn?: string;
+      situationDescriptionEn?: string;
 
     @ApiPropertyOptional({ description: 'Setting in English' })
     @IsOptional()
     @IsString()
-    settingEn?: string;
+      settingEn?: string;
 
     @ApiPropertyOptional({ description: 'Situation description in Czech' })
     @IsOptional()
     @IsString()
-    situationDescriptionCs?: string;
+      situationDescriptionCs?: string;
 
     @ApiPropertyOptional({ description: 'Setting in Czech' })
     @IsOptional()
     @IsString()
-    settingCs?: string;
+      settingCs?: string;
 }
 
 export class UpdateScenarioDto {
     @ApiPropertyOptional({ description: 'Personality ID' })
     @IsOptional()
     @IsInt()
-    involvedPersonalityId?: number;
+      involvedPersonalityId?: number;
 
     @ApiPropertyOptional({ description: 'Situation description in English' })
     @IsOptional()
     @IsString()
-    situationDescriptionEn?: string;
+      situationDescriptionEn?: string;
 
     @ApiPropertyOptional({ description: 'Setting in English' })
     @IsOptional()
     @IsString()
-    settingEn?: string;
+      settingEn?: string;
 
     @ApiPropertyOptional({ description: 'Situation description in Czech' })
     @IsOptional()
     @IsString()
-    situationDescriptionCs?: string;
+      situationDescriptionCs?: string;
 
     @ApiPropertyOptional({ description: 'Setting in Czech' })
     @IsOptional()
     @IsString()
-    settingCs?: string;
+      settingCs?: string;
 }

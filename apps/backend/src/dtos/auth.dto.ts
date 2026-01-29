@@ -4,81 +4,81 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 export class RegisterUserDto {
   @ApiProperty({ example: 'student@example.edu' })
   @IsEmail()
-  email!: string;
+    email!: string;
 
   @ApiProperty({ example: 'strong-password' })
   @IsString()
   @IsNotEmpty()
-  password!: string;
+    password!: string;
 
   @ApiProperty({ example: 'Ada Lovelace' })
   @IsString()
   @IsNotEmpty()
-  fullName!: string;
+    fullName!: string;
 
   @ApiProperty({ example: 'female' })
   @IsString()
   @IsNotEmpty()
-  gender!: string;
+    gender!: string;
 }
 
 export class LoginDto {
   @ApiProperty({ example: 'student@example.edu' })
   @IsEmail()
-  email!: string;
+    email!: string;
 
   @ApiProperty({ example: 'strong-password' })
   @IsString()
   @IsNotEmpty()
-  password!: string;
+    password!: string;
 }
 
 export class RefreshTokenDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  refreshToken!: string;
+    refreshToken!: string;
 }
 
 export class LogoutDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  refreshToken!: string;
+    refreshToken!: string;
 }
 
 export class UpdatePasswordDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  currentPassword!: string;
+    currentPassword!: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  newPassword!: string;
+    newPassword!: string;
 }
 
 export class RequestPasswordResetDto {
   @ApiProperty({ example: 'student@example.edu' })
   @IsEmail()
-  email!: string;
+    email!: string;
 }
 
 export class ResetPasswordDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  token!: string;
+    token!: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  newPassword!: string;
+    newPassword!: string;
 }
 
 export class ResendVerificationDto {
   @ApiProperty({ example: 'student@example.edu' })
   @IsEmail()
-  email!: string;
+    email!: string;
 }

@@ -7,108 +7,108 @@ import { IsArray, IsObject, IsOptional, IsString } from 'class-validator';
 export class GenerateReplyDto {
     @ApiProperty({ description: 'User input text' })
     @IsString()
-    inputText!: string;
+      inputText!: string;
 
     @ApiPropertyOptional({ description: 'Previous conversation messages', type: [Object] })
     @IsOptional()
     @IsArray()
-    previousMessages?: unknown[];
+      previousMessages?: unknown[];
 
     @ApiPropertyOptional({ description: 'Personality configuration' })
     @IsOptional()
     @IsObject()
-    personality?: unknown;
+      personality?: unknown;
 
     @ApiPropertyOptional({ description: 'Conversation role' })
     @IsOptional()
-    conversationRole?: unknown;
+      conversationRole?: unknown;
 
     @ApiPropertyOptional({ description: 'Language setting' })
     @IsOptional()
     @IsString()
-    language?: string;
+      language?: string;
 
     @ApiPropertyOptional({ description: 'Scenario configuration' })
     @IsOptional()
     @IsObject()
-    scenario?: unknown;
+      scenario?: unknown;
 
     @ApiPropertyOptional({ description: 'User profile information' })
     @IsOptional()
     @IsObject()
-    userProfile?: unknown;
+      userProfile?: unknown;
 }
 
 export class TextToSpeechDto {
     @ApiProperty({ description: 'Text to convert to speech' })
     @IsString()
-    inputMessage!: string;
+      inputMessage!: string;
 
     @ApiPropertyOptional({ description: 'Personality for voice settings' })
     @IsOptional()
     @IsObject()
-    personality?: unknown;
+      personality?: unknown;
 
     @ApiPropertyOptional({ description: 'Language setting' })
     @IsOptional()
     @IsString()
-    language?: string;
+      language?: string;
 
     @ApiPropertyOptional({ description: 'Audio response format' })
     @IsOptional()
     @IsString()
-    responseFormat?: string;
+      responseFormat?: string;
 }
 
 export class TextToSpeechTimestampedDto {
     @ApiProperty({ description: 'Text to convert to speech' })
     @IsString()
-    inputMessage!: string;
+      inputMessage!: string;
 
     @ApiPropertyOptional({ description: 'Personality for voice settings' })
     @IsOptional()
     @IsObject()
-    personality?: unknown;
+      personality?: unknown;
 
     @ApiPropertyOptional({ description: 'Language setting' })
     @IsOptional()
     @IsString()
-    language?: string;
+      language?: string;
 }
 
 export class RealtimeVoiceDto {
     @ApiProperty({ description: 'SDP offer for WebRTC' })
     @IsString()
-    sdpOffer!: string;
+      sdpOffer!: string;
 
     @ApiPropertyOptional({ description: 'Personality configuration' })
     @IsOptional()
     @IsObject()
-    personality?: unknown;
+      personality?: unknown;
 
     @ApiPropertyOptional({ description: 'Conversation role' })
     @IsOptional()
-    conversationRole?: unknown;
+      conversationRole?: unknown;
 
     @ApiPropertyOptional({ description: 'Language setting' })
     @IsOptional()
     @IsString()
-    language?: string;
+      language?: string;
 
     @ApiPropertyOptional({ description: 'Scenario configuration' })
     @IsOptional()
     @IsObject()
-    scenario?: unknown;
+      scenario?: unknown;
 
     @ApiPropertyOptional({ description: 'User profile information' })
     @IsOptional()
     @IsObject()
-    userProfile?: unknown;
+      userProfile?: unknown;
 }
 
 export class RealtimeTranscriptionDto {
     @ApiPropertyOptional({ description: 'Language setting' })
     @IsOptional()
     @IsString()
-    language?: string;
+      language?: string;
 }

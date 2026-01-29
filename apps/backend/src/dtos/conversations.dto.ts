@@ -6,38 +6,38 @@ export class CreateConversationDto {
     @ApiPropertyOptional({ description: 'Personality ID' })
     @IsOptional()
     @IsInt()
-    personalityId?: number | null;
+      personalityId?: number | null;
 
     @ApiPropertyOptional({ description: 'Scenario ID' })
     @IsOptional()
     @IsInt()
-    scenarioId?: number | null;
+      scenarioId?: number | null;
 
     @ApiProperty({ description: 'Conversation start time' })
     @IsDateString()
-    startTime!: string;
+      startTime!: string;
 
     @ApiPropertyOptional({ description: 'Conversation end time' })
     @IsOptional()
     @IsDateString()
-    endTime?: string | null;
+      endTime?: string | null;
 
     @ApiPropertyOptional({ description: 'Reason conversation ended' })
     @IsOptional()
     @IsString()
-    endedReason?: string | null;
+      endedReason?: string | null;
 
     @ApiPropertyOptional({ description: 'Conversation messages', type: [Object] })
     @IsOptional()
     @IsArray()
-    messages?: unknown[];
+      messages?: unknown[];
 
     @ApiPropertyOptional({ description: 'Conversation logs', type: [Object] })
     @IsOptional()
     @IsArray()
-    logs?: unknown[];
+      logs?: unknown[];
 
     @ApiProperty({ description: 'Conversation type' })
     @IsString()
-    conversationType!: ConversationType;
+      conversationType!: ConversationType;
 }
