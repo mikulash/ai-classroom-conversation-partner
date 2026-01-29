@@ -1,7 +1,8 @@
 # AI Conversation Partner for Practicing Classroom Communication
-_aka my Master's thesis at Masaryk University software engineering program in 2025_
+_aka my Master's thesis at Masaryk University's software engineering program in 2025_
 
-An AI-powered simulation platform that helps students of pedagogical faculty practice classroom conversations in a safe, controlled virtual environment.
+A multi-platform AI simulation environment for practicing pedagogical conversations. It provides web (Vite), desktop (Tauri), and backend (Express) packages for real-time and asynchronous dialogue with AI-driven characters, using configurable providers (OpenAI, xAI, ElevenLabs,... ). Postgres powers auth and storage, with Docker for deployment.
+
 This application provides pedagogy students with realistic training scenarios featuring virtual students, parents, and colleagues.
 
 ![VideoCall.png](docs/assets/VideoCall.png)
