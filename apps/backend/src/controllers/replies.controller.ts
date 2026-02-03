@@ -1,4 +1,4 @@
-import { All, Controller, Get, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { universalApi } from '../ai-api/universalApi';
@@ -28,40 +28,34 @@ import {
 @UseGuards(AuthGuard)
 @Controller('api/replies')
 export class RepliesController {
-    @All()
-    @ApiOkResponse({ description: 'Health check', type: Object })
-  healthCheck(@Res() res: Response): void {
-    res.status(200).json({ message: 'Hello from replies!' });
-  }
-
     @Post('text')
     @ApiBody({ type: GenerateReplyDto })
     @ApiOkResponse({ description: 'AI-generated text response', type: String })
-    async generateText(
+  async generateText(
         @Body() body: GenerateReplyDto,
         @Req() req: Request,
         @Res() res: Response<string | ErrorResponse>,
-    ): Promise<void> {
-      try {
-        const { inputText, previousMessages, personality, conversationRole, language, scenario, userProfile } = body;
-        const userId = getUserId(req);
+  ): Promise<void> {
+    try {
+      const { inputText, previousMessages, personality, conversationRole, language, scenario, userProfile } = body;
+      const userId = getUserId(req);
 
-        const response = await universalApi.getResponse({
-          inputText,
-          previousMessages: previousMessages as never[],
-          personality: personality as never,
-          conversationRole: conversationRole as never,
-          language: language as never,
-          scenario: scenario as never,
-          userProfile: userProfile as never,
-        }, userId);
+      const response = await universalApi.getResponse({
+        inputText,
+        previousMessages: previousMessages as never[],
+        personality: personality as never,
+        conversationRole: conversationRole as never,
+        language: language as never,
+        scenario: scenario as never,
+        userProfile: userProfile as never,
+      }, userId);
 
-        res.json(response);
-      } catch (error) {
-        console.error('Error getting response:', error);
-        res.status(500).json({ message: 'Failed to get response' });
-      }
+      res.json(response);
+    } catch (error) {
+      console.error('Error getting response:', error);
+      res.status(500).json({ message: 'Failed to get response' });
     }
+  }
 
     @Post('speech')
     @ApiBody({ type: TextToSpeechDto })

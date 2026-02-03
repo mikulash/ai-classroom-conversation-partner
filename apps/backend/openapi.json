@@ -24,22 +24,169 @@
     },
     "/health": {
       "get": {
-        "operationId": "AppController_health",
+        "operationId": "HealthController_check",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Health status",
+            "description": "The Health Check is successful",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
                 }
               }
             }
           }
         },
         "tags": [
-          "root"
+          "health"
         ]
       }
     },
@@ -440,6 +587,1308 @@
           }
         ]
       }
+    },
+    "/api/conversations": {
+      "get": {
+        "operationId": "ConversationsController_getConversations",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List conversations for current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "conversations"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "ConversationsController_createConversation",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "conversations"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/conversations/{id}": {
+      "delete": {
+        "operationId": "ConversationsController_deleteConversation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "conversations"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/conversations/user/{userId}": {
+      "get": {
+        "operationId": "ConversationsController_getUserConversations",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List conversations for specific user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "conversations"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/personalities": {
+      "get": {
+        "operationId": "PersonalitiesController_getPersonalities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List all personalities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "personalities"
+        ]
+      },
+      "post": {
+        "operationId": "PersonalitiesController_createPersonality",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePersonalityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created personality",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "personalities"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/personalities/{id}": {
+      "put": {
+        "operationId": "PersonalitiesController_updatePersonality",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePersonalityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated personality",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "personalities"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "PersonalitiesController_deletePersonality",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Personality deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "personalities"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/scenarios": {
+      "get": {
+        "operationId": "ScenariosController_getScenarios",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List all scenarios",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "scenarios"
+        ]
+      },
+      "post": {
+        "operationId": "ScenariosController_createScenario",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScenarioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created scenario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "scenarios"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/scenarios/{id}": {
+      "put": {
+        "operationId": "ScenariosController_updateScenario",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateScenarioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated scenario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "scenarios"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "ScenariosController_deleteScenario",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scenario deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "scenarios"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/models/response": {
+      "get": {
+        "operationId": "ModelsController_getResponseModels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List response models",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "models"
+        ]
+      }
+    },
+    "/api/models/tts": {
+      "get": {
+        "operationId": "ModelsController_getTtsModels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List TTS models",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "models"
+        ]
+      }
+    },
+    "/api/models/realtime": {
+      "get": {
+        "operationId": "ModelsController_getRealtimeModels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List realtime models",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "models"
+        ]
+      }
+    },
+    "/api/models/realtime-transcription": {
+      "get": {
+        "operationId": "ModelsController_getRealtimeTranscriptionModels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List realtime transcription models",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "models"
+        ]
+      }
+    },
+    "/api/models/timestamped-transcription": {
+      "get": {
+        "operationId": "ModelsController_getTimestampedTranscriptionModels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List timestamped transcription models",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "models"
+        ]
+      }
+    },
+    "/api/models/custom-selection/{userId}": {
+      "get": {
+        "operationId": "ModelsController_getCustomSelection",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get custom model selection for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "models"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "ModelsController_updateCustomSelection",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCustomModelSelectionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update custom model selection for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "models"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "ModelsController_deleteCustomSelection",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete custom model selection for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "models"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/app-config": {
+      "get": {
+        "operationId": "AppConfigController_getAppConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Get app configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "app-config"
+        ]
+      },
+      "put": {
+        "operationId": "AppConfigController_updateAppConfig",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update app configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "app-config"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/conversation-roles": {
+      "get": {
+        "operationId": "ConversationRolesController_getConversationRoles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List all conversation roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "conversation-roles"
+        ]
+      }
+    },
+    "/api/replies/text": {
+      "post": {
+        "operationId": "RepliesController_generateText",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AI-generated text response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/speech": {
+      "post": {
+        "operationId": "RepliesController_generateSpeech",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextToSpeechDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Speech audio in Base64",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/speech/timestamped": {
+      "post": {
+        "operationId": "RepliesController_generateTimestampedSpeech",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextToSpeechTimestampedDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Timestamped audio with Base64 encoding",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/full/plain": {
+      "post": {
+        "operationId": "RepliesController_generateFullPlain",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Text and TTS audio",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/full/timestamped": {
+      "post": {
+        "operationId": "RepliesController_generateFullTimestamped",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Text and timestamped speech",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/speech/realtime": {
+      "post": {
+        "operationId": "RepliesController_realtimeVoice",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealtimeVoiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "WebRTC answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/transcription/realtime": {
+      "post": {
+        "operationId": "RepliesController_realtimeTranscription",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealtimeTranscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcription session details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/providers": {
+      "get": {
+        "operationId": "RepliesController_getProviders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of providers with availability status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/health/liveness": {
+      "get": {
+        "operationId": "HealthController_liveness",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health/readiness": {
+      "get": {
+        "operationId": "HealthController_readiness",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
     }
   },
   "info": {
@@ -606,6 +2055,351 @@
               "admin",
               "owner"
             ]
+          }
+        }
+      },
+      "Object": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreatePersonalityDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Personality name"
+          },
+          "age": {
+            "type": "number",
+            "description": "Age of the personality"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "Avatar URL"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "sex": {
+            "type": "string",
+            "description": "Sex"
+          },
+          "voiceInstructions": {
+            "type": "string",
+            "description": "Voice instructions"
+          },
+          "elevenlabsVoiceId": {
+            "type": "string",
+            "description": "ElevenLabs voice ID"
+          },
+          "openaiVoiceName": {
+            "type": "string",
+            "description": "OpenAI voice name"
+          },
+          "problemSummaryEn": {
+            "type": "string",
+            "description": "Problem summary in English"
+          },
+          "personalityDescriptionEn": {
+            "type": "string",
+            "description": "Personality description in English"
+          },
+          "problemSummaryCs": {
+            "type": "string",
+            "description": "Problem summary in Czech"
+          },
+          "personalityDescriptionCs": {
+            "type": "string",
+            "description": "Personality description in Czech"
+          },
+          "isHidden": {
+            "type": "boolean",
+            "description": "Whether personality is hidden"
+          }
+        }
+      },
+      "UpdatePersonalityDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Personality name"
+          },
+          "age": {
+            "type": "number",
+            "description": "Age of the personality"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "Avatar URL"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "sex": {
+            "type": "string",
+            "description": "Sex"
+          },
+          "voiceInstructions": {
+            "type": "string",
+            "description": "Voice instructions"
+          },
+          "elevenlabsVoiceId": {
+            "type": "string",
+            "description": "ElevenLabs voice ID"
+          },
+          "openaiVoiceName": {
+            "type": "string",
+            "description": "OpenAI voice name"
+          },
+          "problemSummaryEn": {
+            "type": "string",
+            "description": "Problem summary in English"
+          },
+          "personalityDescriptionEn": {
+            "type": "string",
+            "description": "Personality description in English"
+          },
+          "problemSummaryCs": {
+            "type": "string",
+            "description": "Problem summary in Czech"
+          },
+          "personalityDescriptionCs": {
+            "type": "string",
+            "description": "Personality description in Czech"
+          },
+          "isHidden": {
+            "type": "boolean",
+            "description": "Whether personality is hidden"
+          }
+        }
+      },
+      "CreateScenarioDto": {
+        "type": "object",
+        "properties": {
+          "involvedPersonalityId": {
+            "type": "number",
+            "description": "Personality ID"
+          },
+          "situationDescriptionEn": {
+            "type": "string",
+            "description": "Situation description in English"
+          },
+          "settingEn": {
+            "type": "string",
+            "description": "Setting in English"
+          },
+          "situationDescriptionCs": {
+            "type": "string",
+            "description": "Situation description in Czech"
+          },
+          "settingCs": {
+            "type": "string",
+            "description": "Setting in Czech"
+          }
+        },
+        "required": [
+          "involvedPersonalityId"
+        ]
+      },
+      "UpdateScenarioDto": {
+        "type": "object",
+        "properties": {
+          "involvedPersonalityId": {
+            "type": "number",
+            "description": "Personality ID"
+          },
+          "situationDescriptionEn": {
+            "type": "string",
+            "description": "Situation description in English"
+          },
+          "settingEn": {
+            "type": "string",
+            "description": "Setting in English"
+          },
+          "situationDescriptionCs": {
+            "type": "string",
+            "description": "Situation description in Czech"
+          },
+          "settingCs": {
+            "type": "string",
+            "description": "Setting in Czech"
+          }
+        }
+      },
+      "UpdateCustomModelSelectionDto": {
+        "type": "object",
+        "properties": {
+          "responseModelId": {
+            "type": "object",
+            "description": "Response model ID"
+          },
+          "ttsModelId": {
+            "type": "object",
+            "description": "TTS model ID"
+          },
+          "realtimeModelId": {
+            "type": "object",
+            "description": "Realtime model ID"
+          },
+          "realtimeTranscriptionModelId": {
+            "type": "object",
+            "description": "Realtime transcription model ID"
+          },
+          "timestampedTranscriptionModelId": {
+            "type": "object",
+            "description": "Timestamped transcription model ID"
+          }
+        }
+      },
+      "UpdateAppConfigDto": {
+        "type": "object",
+        "properties": {
+          "responseModelId": {
+            "type": "object",
+            "description": "Response model ID"
+          },
+          "ttsModelId": {
+            "type": "object",
+            "description": "TTS model ID"
+          },
+          "realtimeModelId": {
+            "type": "object",
+            "description": "Realtime model ID"
+          },
+          "realtimeTranscriptionModelId": {
+            "type": "object",
+            "description": "Realtime transcription model ID"
+          },
+          "timestampedTranscriptionModelId": {
+            "type": "object",
+            "description": "Timestamped transcription model ID"
+          }
+        }
+      },
+      "GenerateReplyDto": {
+        "type": "object",
+        "properties": {
+          "inputText": {
+            "type": "string",
+            "description": "User input text"
+          },
+          "previousMessages": {
+            "description": "Previous conversation messages",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "personality": {
+            "type": "object",
+            "description": "Personality configuration"
+          },
+          "conversationRole": {
+            "type": "object",
+            "description": "Conversation role"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          },
+          "scenario": {
+            "type": "object",
+            "description": "Scenario configuration"
+          },
+          "userProfile": {
+            "type": "object",
+            "description": "User profile information"
+          }
+        },
+        "required": [
+          "inputText"
+        ]
+      },
+      "TextToSpeechDto": {
+        "type": "object",
+        "properties": {
+          "inputMessage": {
+            "type": "string",
+            "description": "Text to convert to speech"
+          },
+          "personality": {
+            "type": "object",
+            "description": "Personality for voice settings"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          },
+          "responseFormat": {
+            "type": "string",
+            "description": "Audio response format"
+          }
+        },
+        "required": [
+          "inputMessage"
+        ]
+      },
+      "TextToSpeechTimestampedDto": {
+        "type": "object",
+        "properties": {
+          "inputMessage": {
+            "type": "string",
+            "description": "Text to convert to speech"
+          },
+          "personality": {
+            "type": "object",
+            "description": "Personality for voice settings"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          }
+        },
+        "required": [
+          "inputMessage"
+        ]
+      },
+      "RealtimeVoiceDto": {
+        "type": "object",
+        "properties": {
+          "sdpOffer": {
+            "type": "string",
+            "description": "SDP offer for WebRTC"
+          },
+          "personality": {
+            "type": "object",
+            "description": "Personality configuration"
+          },
+          "conversationRole": {
+            "type": "object",
+            "description": "Conversation role"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          },
+          "scenario": {
+            "type": "object",
+            "description": "Scenario configuration"
+          },
+          "userProfile": {
+            "type": "object",
+            "description": "User profile information"
+          }
+        },
+        "required": [
+          "sdpOffer"
+        ]
+      },
+      "RealtimeTranscriptionDto": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Language setting"
           }
         }
       }
