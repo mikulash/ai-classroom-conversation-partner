@@ -55,7 +55,7 @@
     "@types/nodemailer": "^7.0.3",
     "esbuild": "0.25.0",
     "esbuild-register": "^3.5.0",
-    "eslint": "^9.25.0",
+    "eslint": "^9.39.2",
     "nodemon": "^3.1.9",
     "prisma": "^6.18.0",
     "prisma-json-types-generator": "^3.6.2",

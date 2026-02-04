@@ -22,7 +22,7 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@openapitools/openapi-generator-cli": "^2.28.0",
-    "eslint": "^9.25.0",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3"
   },
   "private": true

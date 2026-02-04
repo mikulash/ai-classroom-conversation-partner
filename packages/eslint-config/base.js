@@ -59,7 +59,7 @@ export const config = [
             'src-tauri/**',
             '**/eslint.config.{js,cjs,mjs,ts}',
             '**/prisma/**',
-            '**/scripts/**',
+            '**/generated/**',
         ],
     },
 ];
