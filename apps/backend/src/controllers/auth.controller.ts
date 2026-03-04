@@ -21,13 +21,7 @@ import {
   verifyRefreshToken,
 } from '../utils/auth';
 import prisma from '../clients/prisma';
-import {
-  AuthTokensResponse,
-  ErrorResponse,
-  MessageResponse,
-  RegisterResponse,
-} from '@repo/shared/types/dbRoutes.types';
-import { EmailVerificationResponseDto, LoginResponseDto, ProfileDto } from '@repo/shared/types/db/dto';
+import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
 import { profileToDto } from '@repo/shared/mappers/dtoMappers';
 import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../utils/email';
@@ -45,6 +39,12 @@ import {
   ResendVerificationDto,
   ResetPasswordDto,
   UpdatePasswordDto,
+  AuthProfileResponseDto,
+  AuthRegisterResponseDto,
+  AuthEmailVerificationResponseDto,
+  AuthLoginResponseDto,
+  AuthTokensResponseDto,
+  AuthMessageResponseDto,
 } from '../dtos/auth.dto';
 
 @ApiTags('auth')
@@ -61,12 +61,49 @@ export class AuthController {
     );
   }
 
+  @Get('me')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @ApiOkResponse({ description: 'Current user profile', type: AuthProfileResponseDto })
+  async me(
+    @Req() req: Request,
+    @Res() res: Response<AuthProfileResponseDto | ErrorResponse>,
+  ): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: 'Not authenticated' });
+        return;
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: req.user.userId },
+        include: { profile: true },
+      });
+
+      if (!user || !user.profile) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      const userData = profileToDto({
+        ...user.profile,
+        email: user.email,
+        confirmedAt: user.confirmedAt,
+      });
+
+      res.status(200).json(userData);
+    } catch (error) {
+      console.error('Get profile error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
   @Post('register')
   @ApiBody({ description: 'Register a new user', type: RegisterUserDto })
-  @ApiOkResponse({ description: 'Registration accepted', type: Object })
+  @ApiOkResponse({ description: 'Registration accepted', type: AuthRegisterResponseDto })
   async register(
     @Body() body: RegisterUserDto,
-    @Res() res: Response<RegisterResponse | ErrorResponse>,
+    @Res() res: Response<AuthRegisterResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { email, password, fullName, gender } = body;
@@ -141,10 +178,10 @@ export class AuthController {
   }
 
   @Get('verify-email')
-  @ApiOkResponse({ description: 'Email verification result', type: Object })
+  @ApiOkResponse({ description: 'Email verification result', type: AuthEmailVerificationResponseDto })
   async verifyEmail(
     @Query('token') token: string | undefined,
-    @Res() res: Response<EmailVerificationResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthEmailVerificationResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       if (!token) {
@@ -193,7 +230,7 @@ export class AuthController {
 
       await storeRefreshToken(verifiedUser.id, refreshToken);
 
-      const profile: ProfileDto = profileToDto({
+      const profile = profileToDto({
         ...verifiedUser.profile,
         email: verifiedUser.email,
         confirmedAt: verifiedUser.confirmedAt,
@@ -212,10 +249,10 @@ export class AuthController {
 
   @Post('login')
   @ApiBody({ description: 'Login request', type: LoginDto })
-  @ApiOkResponse({ description: 'Login response with tokens', type: Object })
+  @ApiOkResponse({ description: 'Login response with tokens', type: AuthLoginResponseDto })
   async login(
     @Body() body: LoginDto,
-    @Res() res: Response<LoginResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthLoginResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { email, password } = body;
@@ -249,7 +286,7 @@ export class AuthController {
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(user.id, refreshToken);
 
-      const profile: ProfileDto = profileToDto({
+      const profile = profileToDto({
         ...user.profile,
         email: user.email,
         confirmedAt: user.confirmedAt,
@@ -268,10 +305,10 @@ export class AuthController {
 
   @Post('refresh')
   @ApiBody({ description: 'Refresh token exchange', type: RefreshTokenDto })
-  @ApiOkResponse({ description: 'New access token', type: Object })
+  @ApiOkResponse({ description: 'New access token', type: AuthTokensResponseDto })
   async refresh(
     @Body() body: RefreshTokenDto,
-    @Res() res: Response<AuthTokensResponse | ErrorResponse>,
+    @Res() res: Response<AuthTokensResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { refreshToken } = body;
@@ -315,10 +352,10 @@ export class AuthController {
 
   @Post('logout')
   @ApiBody({ description: 'Logout request', type: LogoutDto })
-  @ApiOkResponse({ description: 'Logout acknowledgement', type: Object })
+  @ApiOkResponse({ description: 'Logout acknowledgement', type: AuthMessageResponseDto })
   async logout(
     @Body() body: LogoutDto,
-    @Res() res: Response<MessageResponse | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { refreshToken } = body;
@@ -341,11 +378,11 @@ export class AuthController {
   @Post('update-password')
   @ApiBearerAuth()
   @ApiBody({ description: 'Update password request', type: UpdatePasswordDto })
-  @ApiOkResponse({ description: 'Password updated', type: Object })
+  @ApiOkResponse({ description: 'Password updated', type: AuthMessageResponseDto })
   async updatePassword(
     @Req() req: Request & { user?: { userId: string } },
     @Body() body: UpdatePasswordDto,
-    @Res() res: Response<MessageResponse | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { currentPassword, newPassword } = body;
@@ -378,10 +415,10 @@ export class AuthController {
 
   @Post('request-password-reset')
   @ApiBody({ description: 'Request password reset', type: RequestPasswordResetDto })
-  @ApiOkResponse({ description: 'Password reset email queued', type: Object })
+  @ApiOkResponse({ description: 'Password reset email queued', type: AuthMessageResponseDto })
   async requestPasswordReset(
     @Body() body: RequestPasswordResetDto,
-    @Res() res: Response<MessageResponse | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { email } = body;
@@ -409,10 +446,10 @@ export class AuthController {
 
   @Post('reset-password')
   @ApiBody({ description: 'Reset password using token', type: ResetPasswordDto })
-  @ApiOkResponse({ description: 'Password reset confirmation', type: Object })
+  @ApiOkResponse({ description: 'Password reset confirmation', type: AuthMessageResponseDto })
   async resetPassword(
     @Body() body: ResetPasswordDto,
-    @Res() res: Response<MessageResponse | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { token, newPassword } = body;
@@ -444,10 +481,10 @@ export class AuthController {
 
   @Post('resend-verification')
   @ApiBody({ description: 'Resend verification email', type: ResendVerificationDto })
-  @ApiOkResponse({ description: 'Verification email resent', type: Object })
+  @ApiOkResponse({ description: 'Verification email resent', type: AuthMessageResponseDto })
   async resendVerification(
     @Body() body: ResendVerificationDto,
-    @Res() res: Response<MessageResponse | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { email } = body;

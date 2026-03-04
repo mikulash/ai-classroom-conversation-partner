@@ -6,9 +6,8 @@ import { AuthGuard } from '../common/guards/auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
-import type { ProfileDto } from '@repo/shared/types/db/dto';
 import { profileToDto } from '@repo/shared/mappers/dtoMappers';
-import { UpdateProfileDto, UpdateUserRoleDto } from '../dtos/profiles.dto';
+import { UpdateProfileDto, UpdateUserRoleDto, ProfileResponseDto } from '../dtos/profiles.dto';
 
 @ApiTags('profiles')
 @ApiBearerAuth()
@@ -18,9 +17,9 @@ export class ProfilesController {
   @Get()
   @UseGuards(RolesGuard)
   @Roles('owner')
-  @ApiOkResponse({ description: 'List profiles', type: Object })
+  @ApiOkResponse({ description: 'List profiles', type: [ProfileResponseDto] })
   async getProfiles(
-    @Res() res: Response<ProfileDto[] | ErrorResponse>,
+    @Res() res: Response<ProfileResponseDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const users = await prisma.user.findMany({
@@ -48,12 +47,12 @@ export class ProfilesController {
   @Put(':id')
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateProfileDto })
-  @ApiOkResponse({ description: 'Updated profile', type: Object })
+  @ApiOkResponse({ description: 'Updated profile', type: ProfileResponseDto })
   async updateProfile(
     @Param('id') id: string,
     @Body() body: UpdateProfileDto,
     @Req() req: Request,
-    @Res() res: Response<ProfileDto | ErrorResponse>,
+    @Res() res: Response<ProfileResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { fullName, gender, conversationRole, bio } = body;
@@ -110,11 +109,11 @@ export class ProfilesController {
   @Put(':id/role')
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateUserRoleDto })
-  @ApiOkResponse({ description: 'Update user role', type: Object })
+  @ApiOkResponse({ description: 'Update user role', type: ProfileResponseDto })
   async updateUserRole(
     @Param('id') id: string,
     @Body() body: UpdateUserRoleDto,
-    @Res() res: Response<ProfileDto | ErrorResponse>,
+    @Res() res: Response<ProfileResponseDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { userRole } = body;

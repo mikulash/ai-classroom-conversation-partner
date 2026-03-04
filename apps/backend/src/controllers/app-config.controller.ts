@@ -6,92 +6,91 @@ import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
-import { appConfigToDto } from '@repo/shared/mappers/dtoMappers';
-import { AppConfigDto } from '@repo/shared/types/db/dto';
 import { ConfigProvider } from '../utils/configProvider';
-import { UpdateAppConfigDto } from '../dtos/app-config.dto';
+import { UpdateAppConfigDto, AppConfigDto } from '../dtos/app-config.dto';
+import { appConfigEntityToDto } from '../utils/entityToDtoMappers';
 
 @ApiTags('app-config')
 @Controller('api/app-config')
 export class AppConfigController {
-    @Get()
-    @ApiOkResponse({ description: 'Get app configuration', type: Object })
+  @Get()
+  @ApiOkResponse({ description: 'Get app configuration', type: AppConfigDto })
   async getAppConfig(
-        @Res() res: Response<AppConfigDto | ErrorResponse>,
+    @Res() res: Response<AppConfigDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const configProvider = await ConfigProvider.getInstance();
       const config = configProvider.getAppConfig();
 
-      res.status(200).json(appConfigToDto(config));
+      res.status(200).json(appConfigEntityToDto(config));
     } catch (error) {
       console.error('Get app config error:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   }
 
-    @Put()
-    @ApiBearerAuth()
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles('owner')
-    @ApiBody({ type: UpdateAppConfigDto })
-    @ApiOkResponse({ description: 'Update app configuration', type: Object })
-    async updateAppConfig(
-        @Body() body: UpdateAppConfigDto,
-        @Req() req: Request,
-        @Res() res: Response<AppConfigDto | ErrorResponse>,
-    ): Promise<void> {
-      try {
-        const {
+  @Put()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('owner')
+  @ApiBody({ type: UpdateAppConfigDto })
+  @ApiOkResponse({ description: 'Update app configuration', type: AppConfigDto })
+  async updateAppConfig(
+    @Body() body: UpdateAppConfigDto,
+    @Req() req: Request,
+    @Res() res: Response<AppConfigDto | ErrorResponse>,
+  ): Promise<void> {
+    try {
+      const {
+        responseModelId,
+        ttsModelId,
+        realtimeModelId,
+        realtimeTranscriptionModelId,
+        timestampedTranscriptionModelId,
+      } = body;
+
+      if (!req.user) {
+        res.status(401).json({ message: 'Not authenticated' });
+        return;
+      }
+
+      const now = new Date();
+      const configProvider = await ConfigProvider.getInstance();
+      const currentConfig = configProvider.getAppConfig();
+
+      const config = await prisma.$transaction(async (tx) => {
+        await tx.appConfig.update({
+          where: { id: currentConfig.id },
+          data: { validTo: now },
+        });
+
+        const dataToCreate = {
+          ...Object.fromEntries(
+            Object.entries(currentConfig).filter(
+              ([key]) => !['id', 'validFrom', 'validTo'].includes(key),
+            ),
+          ),
+          userId: req.user!.userId,
+          validFrom: now,
+          validTo: null,
           responseModelId,
           ttsModelId,
           realtimeModelId,
           realtimeTranscriptionModelId,
           timestampedTranscriptionModelId,
-        } = body;
+        };
 
-        if (!req.user) {
-          res.status(401).json({ message: 'Not authenticated' });
-          return;
-        }
-
-        const now = new Date();
-        const configProvider = await ConfigProvider.getInstance();
-        const currentConfig = configProvider.getAppConfig();
-
-        const config = await prisma.$transaction(async (tx) => {
-          await tx.appConfig.update({
-            where: { id: currentConfig.id },
-            data: { validTo: now },
-          });
-
-          const dataToCreate = {
-            ...Object.fromEntries(
-              Object.entries(currentConfig).filter(
-                ([key]) => !['id', 'validFrom', 'validTo'].includes(key),
-              ),
-            ),
-            userId: req.user!.userId,
-            validFrom: now,
-            validTo: null,
-            responseModelId,
-            ttsModelId,
-            realtimeModelId,
-            realtimeTranscriptionModelId,
-            timestampedTranscriptionModelId,
-          };
-
-          return tx.appConfig.create({
-            data: dataToCreate,
-          });
+        return tx.appConfig.create({
+          data: dataToCreate,
         });
+      });
 
-        await configProvider.refreshAppConfig();
+      await configProvider.refreshAppConfig();
 
-        res.status(200).json(appConfigToDto(config));
-      } catch (error) {
-        console.error('Update app config error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-      }
+      res.status(200).json(appConfigEntityToDto(config));
+    } catch (error) {
+      console.error('Update app config error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
+  }
 }

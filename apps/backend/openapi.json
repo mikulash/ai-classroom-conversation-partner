@@ -11,7 +11,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "string"
                 }
               }
             }
@@ -190,6 +190,32 @@
         ]
       }
     },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current user profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthProfileResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/api/auth/register": {
       "post": {
         "operationId": "AuthController_register",
@@ -211,7 +237,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthRegisterResponseDto"
                 }
               }
             }
@@ -232,7 +258,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthEmailVerificationResponseDto"
                 }
               }
             }
@@ -264,7 +290,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthLoginResponseDto"
                 }
               }
             }
@@ -296,7 +322,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthTokensResponseDto"
                 }
               }
             }
@@ -328,7 +354,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthMessageResponseDto"
                 }
               }
             }
@@ -360,7 +386,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthMessageResponseDto"
                 }
               }
             }
@@ -397,7 +423,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthMessageResponseDto"
                 }
               }
             }
@@ -429,7 +455,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthMessageResponseDto"
                 }
               }
             }
@@ -461,7 +487,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AuthMessageResponseDto"
                 }
               }
             }
@@ -482,7 +508,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProfileResponseDto"
+                  }
                 }
               }
             }
@@ -527,7 +556,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProfileResponseDto"
                 }
               }
             }
@@ -572,7 +601,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProfileResponseDto"
                 }
               }
             }
@@ -598,7 +627,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationWithPersonalityResponseDto"
+                  }
                 }
               }
             }
@@ -621,7 +653,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Object"
+                "$ref": "#/components/schemas/CreateConversationDto"
               }
             }
           }
@@ -632,7 +664,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ConversationWithPersonalityResponseDto"
                 }
               }
             }
@@ -667,7 +699,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ConversationMessageResponseDto"
                 }
               }
             }
@@ -702,7 +734,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationWithPersonalityResponseDto"
+                  }
                 }
               }
             }
@@ -728,7 +763,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonalityDto"
+                  }
                 }
               }
             }
@@ -757,7 +795,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/PersonalityDto"
                 }
               }
             }
@@ -802,7 +840,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/PersonalityDto"
                 }
               }
             }
@@ -835,7 +873,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -861,7 +899,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScenarioWithPersonalityDto"
+                  }
                 }
               }
             }
@@ -890,7 +931,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ScenarioWithPersonalityDto"
                 }
               }
             }
@@ -935,7 +976,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ScenarioWithPersonalityDto"
                 }
               }
             }
@@ -968,7 +1009,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ScenarioMessageResponseDto"
                 }
               }
             }
@@ -994,7 +1035,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseModelResponseDto"
+                  }
                 }
               }
             }
@@ -1015,7 +1059,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TtsModelResponseDto"
+                  }
                 }
               }
             }
@@ -1036,7 +1083,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RealtimeModelResponseDto"
+                  }
                 }
               }
             }
@@ -1057,7 +1107,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RealtimeTranscriptionModelResponseDto"
+                  }
                 }
               }
             }
@@ -1078,7 +1131,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimestampedTranscriptionModelResponseDto"
+                  }
                 }
               }
             }
@@ -1108,7 +1164,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/CustomSelectionWithModelsResponseDto"
                 }
               }
             }
@@ -1151,7 +1207,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/CustomSelectionWithModelsResponseDto"
                 }
               }
             }
@@ -1184,7 +1240,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ModelsMessageResponseDto"
                 }
               }
             }
@@ -1210,7 +1266,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AppConfigDto"
                 }
               }
             }
@@ -1239,7 +1295,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AppConfigDto"
                 }
               }
             }
@@ -1265,7 +1321,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationRoleDto"
+                  }
                 }
               }
             }
@@ -1332,7 +1391,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/TextToSpeechResponseDto"
                 }
               }
             }
@@ -1368,7 +1427,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/TextToSpeechTimestampedResponseDto"
                 }
               }
             }
@@ -1404,7 +1463,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/FullReplyPlainResponseDto"
                 }
               }
             }
@@ -1440,7 +1499,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/FullReplyTimestampedResponseDto"
                 }
               }
             }
@@ -1476,7 +1535,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/WebRtcAnswerResponseDto"
                 }
               }
             }
@@ -1512,7 +1571,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/TranscriptionSessionCreateResponseDto"
                 }
               }
             }
@@ -1538,7 +1597,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AiProviderStatusDto"
+                  }
                 }
               }
             }
@@ -1908,6 +1970,114 @@
       }
     },
     "schemas": {
+      "AppHealthChecksDto": {
+        "type": "object",
+        "properties": {
+          "database": {
+            "description": "Returns \"ok\" string or error object if failed",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "latencyMs": {
+            "type": "number"
+          }
+        }
+      },
+      "AppHealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "checks": {
+            "$ref": "#/components/schemas/AppHealthChecksDto"
+          }
+        },
+        "required": [
+          "status",
+          "timestamp",
+          "checks"
+        ]
+      },
+      "AuthProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Updated at timestamp"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "userRole": {
+            "type": "string",
+            "description": "User role",
+            "enum": [
+              "basic",
+              "admin",
+              "owner"
+            ]
+          },
+          "conversationRole": {
+            "type": "string",
+            "description": "Conversation role"
+          },
+          "bio": {
+            "type": "string",
+            "description": "Bio"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "description": "Email confirmed at timestamp",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "fullName",
+          "gender",
+          "userRole",
+          "conversationRole",
+          "bio",
+          "email"
+        ]
+      },
       "RegisterUserDto": {
         "type": "object",
         "properties": {
@@ -1935,6 +2105,44 @@
           "gender"
         ]
       },
+      "AuthRegisterResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Registration result message"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AuthEmailVerificationResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token"
+          },
+          "user": {
+            "description": "User profile",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthProfileResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "user"
+        ]
+      },
       "LoginDto": {
         "type": "object",
         "properties": {
@@ -1952,6 +2160,32 @@
           "password"
         ]
       },
+      "AuthLoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token"
+          },
+          "user": {
+            "description": "User profile",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthProfileResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "user"
+        ]
+      },
       "RefreshTokenDto": {
         "type": "object",
         "properties": {
@@ -1960,6 +2194,23 @@
           }
         },
         "required": [
+          "refreshToken"
+        ]
+      },
+      "AuthTokensResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token"
+          }
+        },
+        "required": [
+          "accessToken",
           "refreshToken"
         ]
       },
@@ -1972,6 +2223,18 @@
         },
         "required": [
           "refreshToken"
+        ]
+      },
+      "AuthMessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message"
+          }
+        },
+        "required": [
+          "message"
         ]
       },
       "UpdatePasswordDto": {
@@ -2028,20 +2291,85 @@
           "email"
         ]
       },
+      "ProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Updated at timestamp"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "userRole": {
+            "type": "string",
+            "description": "User role",
+            "enum": [
+              "basic",
+              "admin",
+              "owner"
+            ]
+          },
+          "conversationRole": {
+            "type": "string",
+            "description": "Conversation role"
+          },
+          "bio": {
+            "type": "string",
+            "description": "Bio"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "description": "Email confirmed at timestamp",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "fullName",
+          "gender",
+          "userRole",
+          "conversationRole",
+          "bio",
+          "email"
+        ]
+      },
       "UpdateProfileDto": {
         "type": "object",
         "properties": {
           "fullName": {
-            "type": "object"
+            "type": "string",
+            "nullable": true
           },
           "gender": {
-            "type": "object"
+            "type": "string",
+            "nullable": true
           },
           "conversationRole": {
             "type": "string"
           },
           "bio": {
-            "type": "object"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -2058,9 +2386,310 @@
           }
         }
       },
-      "Object": {
+      "ConversationPersonalityRefDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Personality ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Personality name"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "Avatar URL",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "avatarUrl"
+        ]
+      },
+      "ConversationScenarioRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Scenario ID"
+          },
+          "situationDescriptionEn": {
+            "type": "string",
+            "description": "Situation description in English"
+          },
+          "situationDescriptionCs": {
+            "type": "string",
+            "description": "Situation description in Czech"
+          }
+        },
+        "required": [
+          "id",
+          "situationDescriptionEn",
+          "situationDescriptionCs"
+        ]
+      },
+      "ConversationWithPersonalityResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Conversation ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "personalityId": {
+            "type": "number",
+            "description": "Personality ID",
+            "nullable": true
+          },
+          "scenarioId": {
+            "type": "number",
+            "description": "Scenario ID",
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Conversation start time"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "Conversation end time"
+          },
+          "endedReason": {
+            "type": "string",
+            "description": "Ended reason"
+          },
+          "messages": {
+            "description": "Conversation messages",
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "logs": {
+            "description": "Conversation logs",
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "conversationType": {
+            "type": "string",
+            "description": "Conversation type",
+            "enum": [
+              "VoiceOnly",
+              "Video",
+              "TextOnly",
+              "TextWithAudio"
+            ]
+          },
+          "personality": {
+            "description": "Personality reference",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConversationPersonalityRefDto"
+              }
+            ]
+          },
+          "scenario": {
+            "description": "Scenario reference",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConversationScenarioRefDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "userId",
+          "startTime",
+          "endTime",
+          "endedReason",
+          "conversationType"
+        ]
+      },
+      "CreateConversationDto": {
+        "type": "object",
+        "properties": {
+          "personalityId": {
+            "type": "number",
+            "description": "Personality ID",
+            "nullable": true
+          },
+          "scenarioId": {
+            "type": "number",
+            "description": "Scenario ID",
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Conversation start time"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "Conversation end time",
+            "nullable": true
+          },
+          "endedReason": {
+            "type": "string",
+            "description": "Reason conversation ended",
+            "nullable": true
+          },
+          "messages": {
+            "description": "Conversation messages",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "logs": {
+            "description": "Conversation logs",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "conversationType": {
+            "type": "string",
+            "description": "Conversation type",
+            "enum": [
+              "VoiceOnly",
+              "Video",
+              "TextOnly",
+              "TextWithAudio"
+            ]
+          }
+        },
+        "required": [
+          "startTime",
+          "conversationType"
+        ]
+      },
+      "ConversationMessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "PersonalityDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Personality ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "name": {
+            "type": "string",
+            "description": "Personality name"
+          },
+          "age": {
+            "type": "number",
+            "description": "Age",
+            "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "Avatar URL",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "sex": {
+            "type": "string",
+            "description": "Sex",
+            "enum": [
+              "F",
+              "M"
+            ]
+          },
+          "voiceInstructions": {
+            "type": "string",
+            "description": "Voice instructions",
+            "nullable": true
+          },
+          "elevenlabsVoiceId": {
+            "type": "string",
+            "description": "ElevenLabs voice ID",
+            "nullable": true
+          },
+          "openaiVoiceName": {
+            "type": "string",
+            "description": "OpenAI voice name",
+            "enum": [
+              "alloy",
+              "ash",
+              "ballad",
+              "coral",
+              "echo",
+              "sage",
+              "shimmer"
+            ]
+          },
+          "problemSummaryEn": {
+            "type": "string",
+            "description": "Problem summary in English"
+          },
+          "personalityDescriptionEn": {
+            "type": "string",
+            "description": "Personality description in English"
+          },
+          "problemSummaryCs": {
+            "type": "string",
+            "description": "Problem summary in Czech"
+          },
+          "personalityDescriptionCs": {
+            "type": "string",
+            "description": "Personality description in Czech"
+          },
+          "isHidden": {
+            "type": "boolean",
+            "description": "Whether personality is hidden"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "name",
+          "age",
+          "avatarUrl",
+          "gender",
+          "sex",
+          "voiceInstructions",
+          "elevenlabsVoiceId",
+          "openaiVoiceName",
+          "problemSummaryEn",
+          "personalityDescriptionEn",
+          "problemSummaryCs",
+          "personalityDescriptionCs",
+          "isHidden"
+        ]
       },
       "CreatePersonalityDto": {
         "type": "object",
@@ -2176,6 +2805,94 @@
           }
         }
       },
+      "MessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ScenarioPersonalityRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Personality ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Personality name"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "Avatar URL",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "avatarUrl"
+        ]
+      },
+      "ScenarioWithPersonalityDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Scenario ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "involvedPersonalityId": {
+            "type": "number",
+            "description": "Involved personality ID",
+            "nullable": true
+          },
+          "situationDescriptionEn": {
+            "type": "string",
+            "description": "Situation description in English"
+          },
+          "settingEn": {
+            "type": "string",
+            "description": "Setting in English"
+          },
+          "situationDescriptionCs": {
+            "type": "string",
+            "description": "Situation description in Czech"
+          },
+          "settingCs": {
+            "type": "string",
+            "description": "Setting in Czech"
+          },
+          "personality": {
+            "description": "Associated personality",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioPersonalityRefDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "involvedPersonalityId",
+          "situationDescriptionEn",
+          "settingEn",
+          "situationDescriptionCs",
+          "settingCs",
+          "personality"
+        ]
+      },
       "CreateScenarioDto": {
         "type": "object",
         "properties": {
@@ -2229,55 +2946,528 @@
           }
         }
       },
+      "ScenarioMessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ResponseModelResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Model ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "friendlyName": {
+            "type": "string",
+            "description": "Friendly name"
+          },
+          "apiName": {
+            "type": "string",
+            "description": "API name"
+          },
+          "docsUrl": {
+            "type": "string",
+            "description": "Documentation URL",
+            "nullable": true
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "Whether model is enabled"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Model provider",
+            "enum": [
+              "OpenAi",
+              "xAi",
+              "Anthropic"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "friendlyName",
+          "apiName",
+          "isEnabled",
+          "provider"
+        ]
+      },
+      "TtsModelResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Model ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "friendlyName": {
+            "type": "string",
+            "description": "Friendly name"
+          },
+          "apiName": {
+            "type": "string",
+            "description": "API name"
+          },
+          "sampleRate": {
+            "type": "number",
+            "description": "Sample rate"
+          },
+          "docsUrl": {
+            "type": "string",
+            "description": "Documentation URL"
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "Whether model is enabled"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Model provider",
+            "enum": [
+              "OpenAi",
+              "ElevenLabs"
+            ]
+          },
+          "allowsWordLevelTimestampedTranscript": {
+            "type": "boolean",
+            "description": "Whether model allows word-level timestamped transcripts"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "friendlyName",
+          "apiName",
+          "sampleRate",
+          "docsUrl",
+          "isEnabled",
+          "provider",
+          "allowsWordLevelTimestampedTranscript"
+        ]
+      },
+      "RealtimeModelResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Model ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "friendlyName": {
+            "type": "string",
+            "description": "Friendly name"
+          },
+          "apiName": {
+            "type": "string",
+            "description": "API name"
+          },
+          "docsUrl": {
+            "type": "string",
+            "description": "Documentation URL",
+            "nullable": true
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "Whether model is enabled"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Model provider",
+            "enum": [
+              "OpenAi"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "friendlyName",
+          "apiName",
+          "isEnabled",
+          "provider"
+        ]
+      },
+      "RealtimeTranscriptionModelResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Model ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "friendlyName": {
+            "type": "string",
+            "description": "Friendly name"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Model provider",
+            "enum": [
+              "OpenAi"
+            ]
+          },
+          "apiName": {
+            "type": "string",
+            "description": "API name"
+          },
+          "docsUrl": {
+            "type": "string",
+            "description": "Documentation URL",
+            "nullable": true
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "Whether model is enabled",
+            "nullable": true
+          },
+          "allowsWordLevelTimestamps": {
+            "type": "boolean",
+            "description": "Whether model allows word-level timestamps"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "friendlyName",
+          "provider",
+          "apiName",
+          "allowsWordLevelTimestamps"
+        ]
+      },
+      "TimestampedTranscriptionModelResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Model ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "friendlyName": {
+            "type": "string",
+            "description": "Friendly name"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Model provider",
+            "enum": [
+              "OpenAi"
+            ]
+          },
+          "apiName": {
+            "type": "string",
+            "description": "API name"
+          },
+          "docsUrl": {
+            "type": "string",
+            "description": "Documentation URL",
+            "nullable": true
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "Whether model is enabled"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "friendlyName",
+          "provider",
+          "apiName",
+          "isEnabled"
+        ]
+      },
+      "CustomSelectionWithModelsResponseDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "responseModelId": {
+            "type": "number",
+            "description": "Response model ID",
+            "nullable": true
+          },
+          "ttsModelId": {
+            "type": "number",
+            "description": "TTS model ID",
+            "nullable": true
+          },
+          "realtimeModelId": {
+            "type": "number",
+            "description": "Realtime model ID",
+            "nullable": true
+          },
+          "realtimeTranscriptionModelId": {
+            "type": "number",
+            "description": "Realtime transcription model ID",
+            "nullable": true
+          },
+          "timestampedTranscriptionModelId": {
+            "type": "number",
+            "description": "Timestamped transcription model ID",
+            "nullable": true
+          },
+          "responseModel": {
+            "description": "Response model",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ResponseModelResponseDto"
+              }
+            ]
+          },
+          "ttsModel": {
+            "description": "TTS model",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TtsModelResponseDto"
+              }
+            ]
+          },
+          "realtimeModel": {
+            "description": "Realtime model",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RealtimeModelResponseDto"
+              }
+            ]
+          },
+          "realtimeTranscriptionModel": {
+            "description": "Realtime transcription model",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RealtimeTranscriptionModelResponseDto"
+              }
+            ]
+          },
+          "timestampedTranscriptionModel": {
+            "description": "Timestamped transcription model",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TimestampedTranscriptionModelResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "userId",
+          "createdAt"
+        ]
+      },
       "UpdateCustomModelSelectionDto": {
         "type": "object",
         "properties": {
           "responseModelId": {
-            "type": "object",
-            "description": "Response model ID"
+            "type": "number",
+            "description": "Response model ID",
+            "nullable": true
           },
           "ttsModelId": {
-            "type": "object",
-            "description": "TTS model ID"
+            "type": "number",
+            "description": "TTS model ID",
+            "nullable": true
           },
           "realtimeModelId": {
-            "type": "object",
-            "description": "Realtime model ID"
+            "type": "number",
+            "description": "Realtime model ID",
+            "nullable": true
           },
           "realtimeTranscriptionModelId": {
-            "type": "object",
-            "description": "Realtime transcription model ID"
+            "type": "number",
+            "description": "Realtime transcription model ID",
+            "nullable": true
           },
           "timestampedTranscriptionModelId": {
-            "type": "object",
-            "description": "Timestamped transcription model ID"
+            "type": "number",
+            "description": "Timestamped transcription model ID",
+            "nullable": true
           }
         }
+      },
+      "ModelsMessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AppConfigDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Config ID"
+          },
+          "validFrom": {
+            "type": "string",
+            "description": "Valid from timestamp"
+          },
+          "validTo": {
+            "type": "string",
+            "description": "Valid to timestamp",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID",
+            "nullable": true
+          },
+          "responseModelId": {
+            "type": "number",
+            "description": "Response model ID",
+            "nullable": true
+          },
+          "ttsModelId": {
+            "type": "number",
+            "description": "TTS model ID",
+            "nullable": true
+          },
+          "realtimeModelId": {
+            "type": "number",
+            "description": "Realtime model ID",
+            "nullable": true
+          },
+          "silenceTimeoutInSeconds": {
+            "type": "number",
+            "description": "Silence timeout in seconds"
+          },
+          "allowedDomains": {
+            "description": "Allowed email domains",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "appName": {
+            "type": "string",
+            "description": "Application name"
+          },
+          "realtimeTranscriptionModelId": {
+            "type": "number",
+            "description": "Realtime transcription model ID",
+            "nullable": true
+          },
+          "timestampedTranscriptionModelId": {
+            "type": "number",
+            "description": "Timestamped transcription model ID",
+            "nullable": true
+          },
+          "maxConversationDurationInSeconds": {
+            "type": "number",
+            "description": "Max conversation duration in seconds"
+          }
+        },
+        "required": [
+          "id",
+          "validFrom",
+          "validTo",
+          "userId",
+          "responseModelId",
+          "ttsModelId",
+          "realtimeModelId",
+          "silenceTimeoutInSeconds",
+          "allowedDomains",
+          "appName",
+          "realtimeTranscriptionModelId",
+          "timestampedTranscriptionModelId",
+          "maxConversationDurationInSeconds"
+        ]
       },
       "UpdateAppConfigDto": {
         "type": "object",
         "properties": {
           "responseModelId": {
-            "type": "object",
-            "description": "Response model ID"
+            "type": "number",
+            "description": "Response model ID",
+            "nullable": true
           },
           "ttsModelId": {
-            "type": "object",
-            "description": "TTS model ID"
+            "type": "number",
+            "description": "TTS model ID",
+            "nullable": true
           },
           "realtimeModelId": {
-            "type": "object",
-            "description": "Realtime model ID"
+            "type": "number",
+            "description": "Realtime model ID",
+            "nullable": true
           },
           "realtimeTranscriptionModelId": {
-            "type": "object",
-            "description": "Realtime transcription model ID"
+            "type": "number",
+            "description": "Realtime transcription model ID",
+            "nullable": true
           },
           "timestampedTranscriptionModelId": {
-            "type": "object",
-            "description": "Timestamped transcription model ID"
+            "type": "number",
+            "description": "Timestamped transcription model ID",
+            "nullable": true
           }
         }
+      },
+      "ConversationRoleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Role ID"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "nameEn": {
+            "type": "string",
+            "description": "Role name in English"
+          },
+          "nameCs": {
+            "type": "string",
+            "description": "Role name in Czech"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "nameEn",
+          "nameCs"
+        ]
       },
       "GenerateReplyDto": {
         "type": "object",
@@ -2342,6 +3532,23 @@
           "inputMessage"
         ]
       },
+      "TextToSpeechResponseDto": {
+        "type": "object",
+        "properties": {
+          "audioBase64": {
+            "type": "string",
+            "description": "Base64 encoded audio"
+          },
+          "sampleRate": {
+            "type": "number",
+            "description": "Sample rate of the audio"
+          }
+        },
+        "required": [
+          "audioBase64",
+          "sampleRate"
+        ]
+      },
       "TextToSpeechTimestampedDto": {
         "type": "object",
         "properties": {
@@ -2360,6 +3567,87 @@
         },
         "required": [
           "inputMessage"
+        ]
+      },
+      "TextToSpeechTimestampedResponseDto": {
+        "type": "object",
+        "properties": {
+          "audio": {
+            "description": "Array of base64 encoded audio chunks",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "words": {
+            "description": "Array of words spoken",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "wtimes": {
+            "description": "Array of start times for words",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "wdurations": {
+            "description": "Array of durations for words",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "audio",
+          "words",
+          "wtimes",
+          "wdurations"
+        ]
+      },
+      "FullReplyPlainResponseDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Text reply from assistant"
+          },
+          "speech": {
+            "description": "Generated speech audio response",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TextToSpeechResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "text",
+          "speech"
+        ]
+      },
+      "FullReplyTimestampedResponseDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Text reply from assistant"
+          },
+          "speech": {
+            "description": "Generated timestamped speech audio response",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TextToSpeechTimestampedResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "text",
+          "speech"
         ]
       },
       "RealtimeVoiceDto": {
@@ -2394,6 +3682,18 @@
           "sdpOffer"
         ]
       },
+      "WebRtcAnswerResponseDto": {
+        "type": "object",
+        "properties": {
+          "sdp": {
+            "type": "string",
+            "description": "WebRTC SDP answer"
+          }
+        },
+        "required": [
+          "sdp"
+        ]
+      },
       "RealtimeTranscriptionDto": {
         "type": "object",
         "properties": {
@@ -2402,6 +3702,126 @@
             "description": "Language setting"
           }
         }
+      },
+      "TurnDetectionDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "prefix_padding_ms": {
+            "type": "number"
+          },
+          "silence_duration_ms": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "type",
+          "threshold",
+          "prefix_padding_ms",
+          "silence_duration_ms"
+        ]
+      },
+      "InputAudioTranscriptionDto": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string",
+            "nullable": true
+          },
+          "prompt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "model",
+          "language",
+          "prompt"
+        ]
+      },
+      "ClientSecretDto": {
+        "type": "object",
+        "properties": {
+          "expires_at": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "expires_at",
+          "value"
+        ]
+      },
+      "TranscriptionSessionCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string"
+          },
+          "modalities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "turn_detection": {
+            "$ref": "#/components/schemas/TurnDetectionDto"
+          },
+          "input_audio_format": {
+            "type": "string"
+          },
+          "input_audio_transcription": {
+            "$ref": "#/components/schemas/InputAudioTranscriptionDto"
+          },
+          "client_secret": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ClientSecretDto"
+              }
+            ]
+          },
+          "expires_at": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "object",
+          "modalities",
+          "turn_detection",
+          "input_audio_format",
+          "input_audio_transcription"
+        ]
+      },
+      "AiProviderStatusDto": {
+        "type": "object",
+        "properties": {
+          "apiKey": {
+            "type": "string",
+            "description": "API Key enumerator"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "description": "Whether the API is available / configured"
+          }
+        },
+        "required": [
+          "apiKey",
+          "isAvailable"
+        ]
       }
     }
   }

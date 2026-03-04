@@ -6,17 +6,16 @@ import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import type { ErrorResponse, MessageResponse } from '@repo/shared/types/dbRoutes.types';
-import type { PersonalityDto } from '@repo/shared/types/db/dto';
 import { personalityToDto } from '@repo/shared/mappers/dtoMappers';
-import { CreatePersonalityDto, UpdatePersonalityDto } from '../dtos/personalities.dto';
+import { CreatePersonalityDto, UpdatePersonalityDto, PersonalityDto, MessageResponseDto } from '../dtos/personalities.dto';
 
 @ApiTags('personalities')
 @Controller('api/personalities')
 export class PersonalitiesController {
-    @Get()
-    @ApiOkResponse({ description: 'List all personalities', type: Object })
+  @Get()
+  @ApiOkResponse({ description: 'List all personalities', type: [PersonalityDto] })
   async getPersonalities(
-        @Res() res: Response<PersonalityDto[] | ErrorResponse>,
+    @Res() res: Response<PersonalityDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const personalities = await prisma.personality.findMany({
@@ -31,137 +30,137 @@ export class PersonalitiesController {
     }
   }
 
-    @Post()
-    @ApiBearerAuth()
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles('admin', 'owner')
-    @ApiBody({ type: CreatePersonalityDto })
-    @ApiOkResponse({ description: 'Created personality', type: Object })
-    async createPersonality(
-        @Body() body: CreatePersonalityDto,
-        @Res() res: Response<PersonalityDto | ErrorResponse>,
-    ): Promise<void> {
-      try {
-        const {
+  @Post()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin', 'owner')
+  @ApiBody({ type: CreatePersonalityDto })
+  @ApiOkResponse({ description: 'Created personality', type: PersonalityDto })
+  async createPersonality(
+    @Body() body: CreatePersonalityDto,
+    @Res() res: Response<PersonalityDto | ErrorResponse>,
+  ): Promise<void> {
+    try {
+      const {
+        name,
+        age,
+        avatarUrl,
+        gender,
+        sex,
+        voiceInstructions,
+        elevenlabsVoiceId,
+        openaiVoiceName,
+        problemSummaryEn,
+        personalityDescriptionEn,
+        problemSummaryCs,
+        personalityDescriptionCs,
+        isHidden,
+      } = body;
+
+      if (!name) {
+        res.status(400).json({ message: 'Name is required' });
+        return;
+      }
+
+      const personality = await prisma.personality.create({
+        data: {
           name,
           age,
           avatarUrl,
           gender,
-          sex,
+          sex: sex as never,
           voiceInstructions,
           elevenlabsVoiceId,
-          openaiVoiceName,
+          openaiVoiceName: openaiVoiceName as never,
+          problemSummaryEn,
+          personalityDescriptionEn,
+          problemSummaryCs,
+          personalityDescriptionCs,
+          isHidden: isHidden ?? false,
+        },
+      });
+
+      res.status(201).json(personalityToDto(personality));
+    } catch (error) {
+      console.error('Create personality error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  @Put(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin', 'owner')
+  @ApiParam({ name: 'id', type: String })
+  @ApiBody({ type: UpdatePersonalityDto })
+  @ApiOkResponse({ description: 'Updated personality', type: PersonalityDto })
+  async updatePersonality(
+    @Param('id') id: string,
+    @Body() body: UpdatePersonalityDto,
+    @Res() res: Response<PersonalityDto | ErrorResponse>,
+  ): Promise<void> {
+    try {
+      const {
+        name,
+        age,
+        avatarUrl,
+        gender,
+        sex,
+        voiceInstructions,
+        elevenlabsVoiceId,
+        openaiVoiceName,
+        problemSummaryEn,
+        personalityDescriptionEn,
+        problemSummaryCs,
+        personalityDescriptionCs,
+        isHidden,
+      } = body;
+
+      const personality = await prisma.personality.update({
+        where: { id: parseInt(id) },
+        data: {
+          name,
+          age,
+          avatarUrl,
+          gender,
+          sex: sex as never,
+          voiceInstructions,
+          elevenlabsVoiceId,
+          openaiVoiceName: openaiVoiceName as never,
           problemSummaryEn,
           personalityDescriptionEn,
           problemSummaryCs,
           personalityDescriptionCs,
           isHidden,
-        } = body;
+        },
+      });
 
-        if (!name) {
-          res.status(400).json({ message: 'Name is required' });
-          return;
-        }
-
-        const personality = await prisma.personality.create({
-          data: {
-            name,
-            age,
-            avatarUrl,
-            gender,
-            sex: sex as never,
-            voiceInstructions,
-            elevenlabsVoiceId,
-            openaiVoiceName: openaiVoiceName as never,
-            problemSummaryEn,
-            personalityDescriptionEn,
-            problemSummaryCs,
-            personalityDescriptionCs,
-            isHidden: isHidden ?? false,
-          },
-        });
-
-        res.status(201).json(personalityToDto(personality));
-      } catch (error) {
-        console.error('Create personality error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-      }
+      res.status(200).json(personalityToDto(personality));
+    } catch (error) {
+      console.error('Update personality error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
+  }
 
-    @Put(':id')
-    @ApiBearerAuth()
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles('admin', 'owner')
-    @ApiParam({ name: 'id', type: String })
-    @ApiBody({ type: UpdatePersonalityDto })
-    @ApiOkResponse({ description: 'Updated personality', type: Object })
-    async updatePersonality(
-        @Param('id') id: string,
-        @Body() body: UpdatePersonalityDto,
-        @Res() res: Response<PersonalityDto | ErrorResponse>,
-    ): Promise<void> {
-      try {
-        const {
-          name,
-          age,
-          avatarUrl,
-          gender,
-          sex,
-          voiceInstructions,
-          elevenlabsVoiceId,
-          openaiVoiceName,
-          problemSummaryEn,
-          personalityDescriptionEn,
-          problemSummaryCs,
-          personalityDescriptionCs,
-          isHidden,
-        } = body;
+  @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin', 'owner')
+  @ApiParam({ name: 'id', type: String })
+  @ApiOkResponse({ description: 'Personality deleted', type: MessageResponseDto })
+  async deletePersonality(
+    @Param('id') id: string,
+    @Res() res: Response<MessageResponse | ErrorResponse>,
+  ): Promise<void> {
+    try {
+      await prisma.personality.delete({
+        where: { id: parseInt(id) },
+      });
 
-        const personality = await prisma.personality.update({
-          where: { id: parseInt(id) },
-          data: {
-            name,
-            age,
-            avatarUrl,
-            gender,
-            sex: sex as never,
-            voiceInstructions,
-            elevenlabsVoiceId,
-            openaiVoiceName: openaiVoiceName as never,
-            problemSummaryEn,
-            personalityDescriptionEn,
-            problemSummaryCs,
-            personalityDescriptionCs,
-            isHidden,
-          },
-        });
-
-        res.status(200).json(personalityToDto(personality));
-      } catch (error) {
-        console.error('Update personality error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-      }
+      res.status(200).json({ message: 'Personality deleted successfully' });
+    } catch (error) {
+      console.error('Delete personality error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-
-    @Delete(':id')
-    @ApiBearerAuth()
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles('admin', 'owner')
-    @ApiParam({ name: 'id', type: String })
-    @ApiOkResponse({ description: 'Personality deleted', type: Object })
-    async deletePersonality(
-        @Param('id') id: string,
-        @Res() res: Response<MessageResponse | ErrorResponse>,
-    ): Promise<void> {
-      try {
-        await prisma.personality.delete({
-          where: { id: parseInt(id) },
-        });
-
-        res.status(200).json({ message: 'Personality deleted successfully' });
-      } catch (error) {
-        console.error('Delete personality error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-      }
-    }
+  }
 }
