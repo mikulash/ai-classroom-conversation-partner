@@ -1,20 +1,23 @@
+
 import {
-  ApiResponse,
-  CreateScenarioRequest,
-  MessageResponse,
-  ScenarioWithPersonality,
-  UpdateScenarioRequest,
-} from '@repo/shared/types/dbRoutes.types';
-import type { ScenarioWithPersonalityDto } from '@repo/shared/types/db/dto';
-import { scenarioWithPersonalityDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
+  CreateScenarioDto,
+  ScenariosApiFp,
+  UpdateScenarioDto,
+} from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
+import { scenarioWithPersonalityDtoToModel } from '../../dtoToModelMappers';
+import { ApiResponse, MessageResponse } from '../client.types';
+import { ScenarioWithPersonalityModel } from '../../models';
+
+const scenariosApi = ScenariosApiFp();
 
 export const scenarioClient = {
-  all: async (): Promise<ApiResponse<ScenarioWithPersonality[]>> => {
+  all: async (): Promise<ApiResponse<ScenarioWithPersonalityModel[]>> => {
     try {
-      const response = await api.get<ScenarioWithPersonalityDto[]>('/api/scenarios');
-      const data = response.data.map(scenarioWithPersonalityDtoToEntity);
+      const requestFn = await scenariosApi.scenariosControllerGetScenarios();
+      const response = await requestFn(api);
+      const data = response.data.map(scenarioWithPersonalityDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -22,10 +25,11 @@ export const scenarioClient = {
     }
   },
 
-  insert: async (scenario: CreateScenarioRequest): Promise<ApiResponse<ScenarioWithPersonality>> => {
+  insert: async (scenario: CreateScenarioDto): Promise<ApiResponse<ScenarioWithPersonalityModel>> => {
     try {
-      const response = await api.post<ScenarioWithPersonalityDto>('/api/scenarios', scenario);
-      const data = scenarioWithPersonalityDtoToEntity(response.data);
+      const requestFn = await scenariosApi.scenariosControllerCreateScenario(scenario);
+      const response = await requestFn(api);
+      const data = scenarioWithPersonalityDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -36,10 +40,11 @@ export const scenarioClient = {
     }
   },
 
-  update: async (id: number, scenario: UpdateScenarioRequest): Promise<ApiResponse<ScenarioWithPersonality>> => {
+  update: async (id: number, scenario: UpdateScenarioDto): Promise<ApiResponse<ScenarioWithPersonalityModel>> => {
     try {
-      const response = await api.put<ScenarioWithPersonalityDto>(`/api/scenarios/${String(id)}`, scenario);
-      const data = scenarioWithPersonalityDtoToEntity(response.data);
+      const requestFn = await scenariosApi.scenariosControllerUpdateScenario(String(id), scenario);
+      const response = await requestFn(api);
+      const data = scenarioWithPersonalityDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -52,8 +57,10 @@ export const scenarioClient = {
 
   delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
     try {
-      const response = await api.delete<MessageResponse>(`/api/scenarios/${String(id)}`);
-      return { data: response.data };
+      const requestFn = await scenariosApi.scenariosControllerDeleteScenario(String(id));
+      const response = await requestFn(api);
+      const data: MessageResponse = { message: (response.data).message };
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
@@ -63,3 +70,4 @@ export const scenarioClient = {
     }
   },
 };
+

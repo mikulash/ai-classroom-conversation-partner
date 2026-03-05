@@ -5,9 +5,9 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
-import { conversationWithPersonalityToDto } from '@repo/shared/mappers/dtoMappers';
-import { CreateConversationDto, ConversationWithPersonalityResponseDto, ConversationMessageResponseDto } from '../dtos/conversations.dto';
+import { CreateConversationDto, ConversationWithPersonalityDto, ConversationMessageResponseDto } from '../dtos/conversations.dto';
+import { conversationWithPersonalityEntityToDto } from '../utils/entityToDtoMappers';
+import { ErrorResponse } from '../types/api.types';
 
 @ApiTags('conversations')
 @ApiBearerAuth()
@@ -15,10 +15,10 @@ import { CreateConversationDto, ConversationWithPersonalityResponseDto, Conversa
 @Controller('api/conversations')
 export class ConversationsController {
   @Get()
-  @ApiOkResponse({ description: 'List conversations for current user', type: [ConversationWithPersonalityResponseDto] })
+  @ApiOkResponse({ description: 'List conversations for current user', type: [ConversationWithPersonalityDto] })
   async getConversations(
     @Req() req: Request,
-    @Res() res: Response<ConversationWithPersonalityResponseDto[] | ErrorResponse>,
+    @Res() res: Response<ConversationWithPersonalityDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       if (!req.user) {
@@ -47,7 +47,7 @@ export class ConversationsController {
         orderBy: { startTime: 'desc' },
       });
 
-      res.status(200).json(conversations.map(conversationWithPersonalityToDto));
+      res.status(200).json(conversations.map(conversationWithPersonalityEntityToDto));
     } catch (error) {
       console.error('Get conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -56,11 +56,11 @@ export class ConversationsController {
 
   @Post()
   @ApiBody({ type: CreateConversationDto })
-  @ApiOkResponse({ description: 'Created conversation', type: ConversationWithPersonalityResponseDto })
+  @ApiOkResponse({ description: 'Created conversation', type: ConversationWithPersonalityDto })
   async createConversation(
     @Body() body: CreateConversationDto,
     @Req() req: Request,
-    @Res() res: Response<ConversationWithPersonalityResponseDto | ErrorResponse>,
+    @Res() res: Response<ConversationWithPersonalityDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType } = body;
@@ -106,7 +106,7 @@ export class ConversationsController {
         },
       });
 
-      res.status(201).json(conversationWithPersonalityToDto(conversation));
+      res.status(201).json(conversationWithPersonalityEntityToDto(conversation));
     } catch (error) {
       console.error('Create conversation error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -160,10 +160,10 @@ export class ConversationsController {
   @UseGuards(RolesGuard)
   @Roles('admin', 'owner')
   @ApiParam({ name: 'userId', type: String })
-  @ApiOkResponse({ description: 'List conversations for specific user', type: [ConversationWithPersonalityResponseDto] })
+  @ApiOkResponse({ description: 'List conversations for specific user', type: [ConversationWithPersonalityDto] })
   async getUserConversations(
     @Param('userId') userId: string,
-    @Res() res: Response<ConversationWithPersonalityResponseDto[] | ErrorResponse>,
+    @Res() res: Response<ConversationWithPersonalityDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const conversations = await prisma.conversation.findMany({
@@ -187,7 +187,7 @@ export class ConversationsController {
         orderBy: { startTime: 'desc' },
       });
 
-      res.status(200).json(conversations.map(conversationWithPersonalityToDto));
+      res.status(200).json(conversations.map(conversationWithPersonalityEntityToDto));
     } catch (error) {
       console.error('Get user conversations error:', error);
       res.status(500).json({ message: 'Internal server error' });

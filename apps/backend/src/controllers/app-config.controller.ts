@@ -5,7 +5,7 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
+import { ErrorResponse } from '../types/api.types';
 import { ConfigProvider } from '../utils/configProvider';
 import { UpdateAppConfigDto, AppConfigDto } from '../dtos/app-config.dto';
 import { appConfigEntityToDto } from '../utils/entityToDtoMappers';

@@ -5,9 +5,9 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import type { ErrorResponse, MessageResponse } from '@repo/shared/types/dbRoutes.types';
-import { personalityToDto } from '@repo/shared/mappers/dtoMappers';
+import type { ErrorResponse, MessageResponse } from '../types/api.types';
 import { CreatePersonalityDto, UpdatePersonalityDto, PersonalityDto, MessageResponseDto } from '../dtos/personalities.dto';
+import { personalityEntityToDto } from '../utils/entityToDtoMappers';
 
 @ApiTags('personalities')
 @Controller('api/personalities')
@@ -23,7 +23,7 @@ export class PersonalitiesController {
         orderBy: { createdAt: 'desc' },
       });
 
-      res.status(200).json(personalities.map(personalityToDto));
+      res.status(200).json(personalities.map(personalityEntityToDto));
     } catch (error) {
       console.error('Get personalities error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -80,7 +80,7 @@ export class PersonalitiesController {
         },
       });
 
-      res.status(201).json(personalityToDto(personality));
+      res.status(201).json(personalityEntityToDto(personality));
     } catch (error) {
       console.error('Create personality error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -135,7 +135,7 @@ export class PersonalitiesController {
         },
       });
 
-      res.status(200).json(personalityToDto(personality));
+      res.status(200).json(personalityEntityToDto(personality));
     } catch (error) {
       console.error('Update personality error:', error);
       res.status(500).json({ message: 'Internal server error' });

@@ -1,24 +1,26 @@
 import {
-  ApiResponse,
-  ProfileResponse,
-  UpdateProfileRequest,
-  UpdateUserRoleRequest,
-} from '@repo/shared/types/dbRoutes.types';
-import type { ProfileDto } from '@repo/shared/types/db/dto';
-import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
+  ProfilesApiFp,
+  UpdateProfileDto,
+  UpdateUserRoleDto,
+} from '../generated';
 import { api } from '../api';
-import { UserRole } from '@repo/shared/types/generated/enums';
 import { AxiosError } from 'axios';
+import { ProfileModel } from '../../models';
+import { profileDtoToModel } from '../../dtoToModelMappers';
+import { ApiResponse } from '../client.types';
+
+const profilesApi = ProfilesApiFp();
 
 /**
  * methods to access user profiles.
  * method to create profile is missing as profiles are created directly when users register.
  */
 export const profileClient = {
-  getAll: async (): Promise<ApiResponse<ProfileResponse[]>> => {
+  getAll: async (): Promise<ApiResponse<ProfileModel[]>> => {
     try {
-      const response = await api.get<ProfileDto[]>('/api/profiles');
-      const data = response.data.map(profileDtoToEntity);
+      const requestFn = await profilesApi.profilesControllerGetProfiles();
+      const response = await requestFn(api);
+      const data = response.data.map(profileDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -26,10 +28,11 @@ export const profileClient = {
     }
   },
 
-  upsert: async (profileId: string, payload: UpdateProfileRequest): Promise<ApiResponse<ProfileResponse>> => {
+  upsert: async (profileId: string, payload: UpdateProfileDto): Promise<ApiResponse<ProfileModel>> => {
     try {
-      const response = await api.put<ProfileDto>(`/api/profiles/${profileId}`, payload);
-      const data = profileDtoToEntity(response.data);
+      const requestFn = await profilesApi.profilesControllerUpdateProfile(profileId, payload);
+      const response = await requestFn(api);
+      const data = profileDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -40,11 +43,12 @@ export const profileClient = {
     }
   },
 
-  updateRole: async (profileId: string, role: UserRole): Promise<ApiResponse<ProfileResponse>> => {
+  updateRole: async (profileId: string, role: UpdateUserRoleDto['userRole']): Promise<ApiResponse<ProfileModel>> => {
     try {
-      const payload: UpdateUserRoleRequest = { userRole: role };
-      const response = await api.put<ProfileDto>(`/api/profiles/${profileId}/role`, payload);
-      const data = profileDtoToEntity(response.data);
+      const payload: UpdateUserRoleDto = { userRole: role };
+      const requestFn = await profilesApi.profilesControllerUpdateUserRole(profileId, payload);
+      const response = await requestFn(api);
+      const data = profileDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;

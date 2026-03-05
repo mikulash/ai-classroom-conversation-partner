@@ -68,7 +68,7 @@ export class ConversationScenarioRefDto {
       situationDescriptionCs!: string;
 }
 
-export class ConversationWithPersonalityResponseDto {
+export class ConversationWithPersonalityDto {
     @ApiProperty({ description: 'Conversation ID' })
       id!: number;
 

@@ -12,53 +12,6 @@ import {
 import { ConversationLog } from '../conversationLog';
 import { ConversationMessage } from '../conversationMessage';
 
-export interface AppConfig {
-    id: number
-    validFrom: Date
-    validTo: Date | null
-    userId: string | null
-    responseModelId: number | null
-    ttsModelId: number | null
-    realtimeModelId: number | null
-    silenceTimeoutInSeconds: number
-    allowedDomains: string[]
-    appName: string
-    realtimeTranscriptionModelId: number | null
-    timestampedTranscriptionModelId: number | null
-    maxConversationDurationInSeconds: number
-}
-
-export interface AppConfigCreate {
-    responseModelId?: number | null
-    ttsModelId?: number | null
-    realtimeModelId?: number | null
-    silenceTimeoutInSeconds?: number
-    allowedDomains?: string[]
-    appName?: string
-    realtimeTranscriptionModelId?: number | null
-    timestampedTranscriptionModelId?: number | null
-    maxConversationDurationInSeconds?: number
-}
-
-export interface AdminUserCustomModelSelection {
-    userId: string
-    createdAt: Date
-    responseModelId: number | null
-    ttsModelId: number | null
-    realtimeModelId: number | null
-    realtimeTranscriptionModelId: number | null
-    timestampedTranscriptionModelId: number | null
-}
-
-export interface AdminUserCustomModelSelectionCreate {
-    userId: string
-    createdAt?: Date | string
-    responseModelId?: number | null
-    ttsModelId?: number | null
-    realtimeModelId?: number | null
-    realtimeTranscriptionModelId?: number | null
-    timestampedTranscriptionModelId?: number | null
-}
 
 export interface Conversation {
     id: number
@@ -94,11 +47,6 @@ export interface ConversationRole {
     nameCs: string
 }
 
-export interface ConversationRoleCreate {
-    createdAt?: Date | string
-    nameEn: string
-    nameCs: string
-}
 
 export interface Personality {
     id: number

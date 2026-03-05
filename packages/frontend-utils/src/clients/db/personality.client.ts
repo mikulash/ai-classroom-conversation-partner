@@ -1,20 +1,22 @@
 import {
-  ApiResponse,
-  CreatePersonalityRequest,
-  MessageResponse,
-  UpdatePersonalityRequest,
-} from '@repo/shared/types/dbRoutes.types';
-import { Personality } from '@repo/shared/types/db/entities';
-import type { PersonalityDto } from '@repo/shared/types/db/dto';
-import { personalityDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
+  CreatePersonalityDto,
+  PersonalitiesApiFp,
+  UpdatePersonalityDto,
+} from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
+import { PersonalityModel } from '../../models';
+import { personalityDtoToModel } from '../../dtoToModelMappers';
+import { ApiResponse, MessageResponse } from '../client.types';
+
+const personalitiesApi = PersonalitiesApiFp();
 
 export const personalityClient = {
-  all: async (): Promise<ApiResponse<Personality[]>> => {
+  all: async (): Promise<ApiResponse<PersonalityModel[]>> => {
     try {
-      const response = await api.get<PersonalityDto[]>('/api/personalities');
-      const data = response.data.map(personalityDtoToEntity);
+      const requestFn = await personalitiesApi.personalitiesControllerGetPersonalities();
+      const response = await requestFn(api);
+      const data = response.data.map(personalityDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -22,10 +24,11 @@ export const personalityClient = {
     }
   },
 
-  insert: async (personality: CreatePersonalityRequest): Promise<ApiResponse<Personality>> => {
+  insert: async (personality: CreatePersonalityDto): Promise<ApiResponse<PersonalityModel>> => {
     try {
-      const response = await api.post<PersonalityDto>('/api/personalities', personality);
-      const data = personalityDtoToEntity(response.data);
+      const requestFn = await personalitiesApi.personalitiesControllerCreatePersonality(personality);
+      const response = await requestFn(api);
+      const data = personalityDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -36,10 +39,11 @@ export const personalityClient = {
     }
   },
 
-  update: async (id: number, personality: UpdatePersonalityRequest): Promise<ApiResponse<Personality>> => {
+  update: async (id: number, personality: UpdatePersonalityDto): Promise<ApiResponse<PersonalityModel>> => {
     try {
-      const response = await api.put<PersonalityDto>(`/api/personalities/${id}`, personality);
-      const data = personalityDtoToEntity(response.data);
+      const requestFn = await personalitiesApi.personalitiesControllerUpdatePersonality(String(id), personality);
+      const response = await requestFn(api);
+      const data = personalityDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -52,8 +56,10 @@ export const personalityClient = {
 
   delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
     try {
-      const response = await api.delete<MessageResponse>(`/api/personalities/${String(id)}`);
-      return { data: response.data };
+      const requestFn = await personalitiesApi.personalitiesControllerDeletePersonality(String(id));
+      const response = await requestFn(api);
+      const data: MessageResponse = { message: response.data.message };
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {

@@ -21,8 +21,6 @@ import {
   verifyRefreshToken,
 } from '../utils/auth';
 import prisma from '../clients/prisma';
-import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
-import { profileToDto } from '@repo/shared/mappers/dtoMappers';
 import jwt from 'jsonwebtoken';
 import { sendPasswordResetEmail, sendVerificationEmail } from '../utils/email';
 import { isValidUniversityEmail } from '@repo/shared/utils/isValidUniversityEmail';
@@ -46,6 +44,8 @@ import {
   AuthTokensResponseDto,
   AuthMessageResponseDto,
 } from '../dtos/auth.dto';
+import { ErrorResponse } from '../types/api.types';
+import { profileEntityToDto } from '../utils/entityToDtoMappers';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -85,7 +85,7 @@ export class AuthController {
         return;
       }
 
-      const userData = profileToDto({
+      const userData = profileEntityToDto({
         ...user.profile,
         email: user.email,
         confirmedAt: user.confirmedAt,
@@ -230,7 +230,7 @@ export class AuthController {
 
       await storeRefreshToken(verifiedUser.id, refreshToken);
 
-      const profile = profileToDto({
+      const profile = profileEntityToDto({
         ...verifiedUser.profile,
         email: verifiedUser.email,
         confirmedAt: verifiedUser.confirmedAt,
@@ -286,7 +286,7 @@ export class AuthController {
       const refreshToken = generateRefreshToken();
       await storeRefreshToken(user.id, refreshToken);
 
-      const profile = profileToDto({
+      const profile = profileEntityToDto({
         ...user.profile,
         email: user.email,
         confirmedAt: user.confirmedAt,

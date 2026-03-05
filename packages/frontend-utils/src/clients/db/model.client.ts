@@ -1,40 +1,36 @@
 import {
-  ApiResponse,
-  CustomSelectionWithModels,
-  MessageResponse,
-  UpdateCustomModelSelectionRequest,
-} from '@repo/shared/types/dbRoutes.types';
-import {
-  RealtimeModel,
-  RealtimeTranscriptionModel,
-  ResponseModel,
-  TimestampedTranscriptionModel,
-  TtsModel,
-} from '@repo/shared/types/db/entities';
-import type {
-  CustomSelectionWithModelsDto,
-  RealtimeModelDto,
-  RealtimeTranscriptionModelDto,
-  ResponseModelDto,
-  TimestampedTranscriptionModelDto,
-  TtsModelDto,
-} from '@repo/shared/types/db/dto';
-import {
-  customSelectionWithModelsDtoToEntity,
-  realtimeModelDtoToEntity,
-  realtimeTranscriptionModelDtoToEntity,
-  responseModelDtoToEntity,
-  timestampedTranscriptionModelDtoToEntity,
-  ttsModelDtoToEntity,
-} from '@repo/shared/mappers/dtoToEntityMappers';
+  ModelsApiFp,
+  UpdateCustomModelSelectionDto,
+} from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
+import {
+
+  CustomSelectionWithModelsModel,
+  RealtimeModelModel,
+  RealtimeTranscriptionModelModel,
+  ResponseModelModel,
+  TimestampedTranscriptionModelModel,
+  TtsModelModel,
+} from '../../models';
+import {
+  customSelectionWithModelsDtoToModel,
+  realtimeModelDtoToModel,
+  realtimeTranscriptionModelDtoToModel,
+  responseModelDtoToModel,
+  timestampedTranscriptionModelDtoToModel,
+  ttsModelDtoToModel,
+} from '../../dtoToModelMappers';
+import { ApiResponse, MessageResponse } from '../client.types';
+
+const modelsApi = ModelsApiFp();
 
 export const modelClient = {
-  responseModels: async (): Promise<ApiResponse<ResponseModel[]>> => {
+  responseModels: async (): Promise<ApiResponse<ResponseModelModel[]>> => {
     try {
-      const response = await api.get<ResponseModelDto[]>('/api/models/response');
-      const data = response.data.map(responseModelDtoToEntity);
+      const requestFn = await modelsApi.modelsControllerGetResponseModels();
+      const response = await requestFn(api);
+      const data = response.data.map(responseModelDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -42,10 +38,11 @@ export const modelClient = {
     }
   },
 
-  ttsModels: async (): Promise<ApiResponse<TtsModel[]>> => {
+  ttsModels: async (): Promise<ApiResponse<TtsModelModel[]>> => {
     try {
-      const response = await api.get<TtsModelDto[]>('/api/models/tts');
-      const data = response.data.map(ttsModelDtoToEntity);
+      const requestFn = await modelsApi.modelsControllerGetTtsModels();
+      const response = await requestFn(api);
+      const data = response.data.map(ttsModelDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -53,10 +50,11 @@ export const modelClient = {
     }
   },
 
-  realtimeModels: async (): Promise<ApiResponse<RealtimeModel[]>> => {
+  realtimeModels: async (): Promise<ApiResponse<RealtimeModelModel[]>> => {
     try {
-      const response = await api.get<RealtimeModelDto[]>('/api/models/realtime');
-      const data = response.data.map(realtimeModelDtoToEntity);
+      const requestFn = await modelsApi.modelsControllerGetRealtimeModels();
+      const response = await requestFn(api);
+      const data = response.data.map(realtimeModelDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -64,10 +62,11 @@ export const modelClient = {
     }
   },
 
-  realtimeTranscriptionModels: async (): Promise<ApiResponse<RealtimeTranscriptionModel[]>> => {
+  realtimeTranscriptionModels: async (): Promise<ApiResponse<RealtimeTranscriptionModelModel[]>> => {
     try {
-      const response = await api.get<RealtimeTranscriptionModelDto[]>('/api/models/realtime-transcription');
-      const data = response.data.map(realtimeTranscriptionModelDtoToEntity);
+      const requestFn = await modelsApi.modelsControllerGetRealtimeTranscriptionModels();
+      const response = await requestFn(api);
+      const data = response.data.map(realtimeTranscriptionModelDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -78,10 +77,11 @@ export const modelClient = {
     }
   },
 
-  timestampedTranscriptionModels: async (): Promise<ApiResponse<TimestampedTranscriptionModel[]>> => {
+  timestampedTranscriptionModels: async (): Promise<ApiResponse<TimestampedTranscriptionModelModel[]>> => {
     try {
-      const response = await api.get<TimestampedTranscriptionModelDto[]>('/api/models/timestamped-transcription');
-      const data = response.data.map(timestampedTranscriptionModelDtoToEntity);
+      const requestFn = await modelsApi.modelsControllerGetTimestampedTranscriptionModels();
+      const response = await requestFn(api);
+      const data = response.data.map(timestampedTranscriptionModelDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -92,10 +92,11 @@ export const modelClient = {
     }
   },
 
-  customModelSelection: async (userId: string): Promise<ApiResponse<CustomSelectionWithModels | null>> => {
+  customModelSelection: async (userId: string): Promise<ApiResponse<CustomSelectionWithModelsModel | null>> => {
     try {
-      const response = await api.get<CustomSelectionWithModelsDto | null>(`/api/models/custom-selection/${userId}`);
-      const data = response.data ? customSelectionWithModelsDtoToEntity(response.data) : null;
+      const requestFn = await modelsApi.modelsControllerGetCustomSelection(userId);
+      const response = await requestFn(api);
+      const data = response.data ? customSelectionWithModelsDtoToModel(response.data) : null;
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -108,11 +109,12 @@ export const modelClient = {
 
   upsertCustomModelSelection: async (
     userId: string,
-    payload: UpdateCustomModelSelectionRequest,
-  ): Promise<ApiResponse<CustomSelectionWithModels>> => {
+    payload: UpdateCustomModelSelectionDto,
+  ): Promise<ApiResponse<CustomSelectionWithModelsModel>> => {
     try {
-      const response = await api.put<CustomSelectionWithModelsDto>(`/api/models/custom-selection/${userId}`, payload);
-      const data = customSelectionWithModelsDtoToEntity(response.data);
+      const requestFn = await modelsApi.modelsControllerUpdateCustomSelection(userId, payload);
+      const response = await requestFn(api);
+      const data = customSelectionWithModelsDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -125,8 +127,10 @@ export const modelClient = {
 
   deleteCustomModelSelection: async (userId: string): Promise<ApiResponse<MessageResponse>> => {
     try {
-      const response = await api.delete<MessageResponse>(`/api/models/custom-selection/${userId}`);
-      return { data: response.data };
+      const requestFn = await modelsApi.modelsControllerDeleteCustomSelection(userId);
+      const response = await requestFn(api);
+      const data: MessageResponse = { message: response.data.message };
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
@@ -136,3 +140,4 @@ export const modelClient = {
     }
   },
 };
+

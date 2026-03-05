@@ -1,7 +1,103 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 import type { ApiKey } from '@repo/shared/enums/ApiKey';
+
+// ============================================================
+// Nested input DTOs (personality / scenario / profile shapes
+// sent by the frontend as part of reply-generation requests)
+// ============================================================
+
+export class ReplyPersonalityDto {
+  @ApiProperty({ description: 'Personality ID' })
+    id!: number;
+
+  @ApiProperty({ description: 'Personality name' })
+    name!: string;
+
+  @ApiPropertyOptional({ description: 'Age', nullable: true, type: Number })
+    age?: number | null;
+
+  @ApiPropertyOptional({ description: 'Sex', nullable: true, type: String })
+    sex?: string | null;
+
+  @ApiPropertyOptional({ description: 'Gender', type: String })
+    gender?: string;
+
+  @ApiPropertyOptional({ description: 'OpenAI voice name', type: String })
+    openaiVoiceName?: string;
+
+  @ApiPropertyOptional({ description: 'ElevenLabs voice ID', nullable: true, type: String })
+    elevenlabsVoiceId?: string | null;
+
+  @ApiPropertyOptional({ description: 'Voice instructions', nullable: true, type: String })
+    voiceInstructions?: string | null;
+
+  @ApiPropertyOptional({ description: 'Personality description in English', type: String })
+    personalityDescriptionEn?: string;
+
+  @ApiPropertyOptional({ description: 'Personality description in Czech', type: String })
+    personalityDescriptionCs?: string;
+
+  @ApiPropertyOptional({ description: 'Problem summary in English', type: String })
+    problemSummaryEn?: string;
+
+  @ApiPropertyOptional({ description: 'Problem summary in Czech', type: String })
+    problemSummaryCs?: string;
+
+  @ApiPropertyOptional({ description: 'Avatar URL', nullable: true, type: String })
+    avatarUrl?: string | null;
+
+  @ApiPropertyOptional({ description: 'Is hidden flag', type: Boolean })
+    isHidden?: boolean;
+}
+
+export class ReplyScenarioDto {
+  @ApiPropertyOptional({ description: 'Scenario ID', type: Number })
+    id?: number;
+
+  @ApiPropertyOptional({ description: 'Involved personality ID', type: Number })
+    involvedPersonalityId?: number;
+
+  @ApiPropertyOptional({ description: 'Setting in English', type: String })
+    settingEn?: string;
+
+  @ApiPropertyOptional({ description: 'Setting in Czech', type: String })
+    settingCs?: string;
+
+  @ApiPropertyOptional({ description: 'Situation description in English', type: String })
+    situationDescriptionEn?: string;
+
+  @ApiPropertyOptional({ description: 'Situation description in Czech', type: String })
+    situationDescriptionCs?: string;
+}
+
+export class ReplyProfileDto {
+  @ApiProperty({ description: 'User ID' })
+    id!: string;
+
+  @ApiPropertyOptional({ description: 'Full name', type: String })
+    fullName?: string;
+
+  @ApiPropertyOptional({ description: 'Gender', type: String })
+    gender?: string;
+
+  @ApiPropertyOptional({ description: 'Conversation role', type: String })
+    conversationRole?: string;
+
+  @ApiPropertyOptional({ description: 'Bio', type: String })
+    bio?: string;
+
+  @ApiPropertyOptional({ description: 'Email address', type: String })
+    email?: string;
+
+  @ApiPropertyOptional({ description: 'User role', type: String })
+    userRole?: string;
+}
+
+// ============================================================
+// Request DTOs
+// ============================================================
 
 export class GenerateReplyDto {
   @ApiProperty({ description: 'User input text' })
@@ -13,29 +109,30 @@ export class GenerateReplyDto {
   @IsArray()
     previousMessages?: unknown[];
 
-  @ApiPropertyOptional({ description: 'Personality configuration' })
+  @ApiPropertyOptional({ description: 'Personality configuration', type: ReplyPersonalityDto })
   @IsOptional()
   @IsObject()
-    personality?: unknown;
+    personality?: ReplyPersonalityDto;
 
-  @ApiPropertyOptional({ description: 'Conversation role' })
+  @ApiPropertyOptional({ description: 'Conversation role (translated name string)', type: String })
   @IsOptional()
-    conversationRole?: unknown;
+  @IsString()
+    conversationRole?: string;
 
-  @ApiPropertyOptional({ description: 'Language setting' })
+  @ApiPropertyOptional({ description: 'Language setting', type: String })
   @IsOptional()
   @IsString()
     language?: string;
 
-  @ApiPropertyOptional({ description: 'Scenario configuration' })
+  @ApiPropertyOptional({ description: 'Scenario configuration', type: ReplyScenarioDto, nullable: true })
   @IsOptional()
   @IsObject()
-    scenario?: unknown;
+    scenario?: ReplyScenarioDto | null;
 
-  @ApiPropertyOptional({ description: 'User profile information' })
+  @ApiPropertyOptional({ description: 'User profile information', type: ReplyProfileDto })
   @IsOptional()
   @IsObject()
-    userProfile?: unknown;
+    userProfile?: ReplyProfileDto;
 }
 
 export class TextToSpeechDto {
@@ -43,20 +140,21 @@ export class TextToSpeechDto {
   @IsString()
     inputMessage!: string;
 
-  @ApiPropertyOptional({ description: 'Personality for voice settings' })
+  @ApiPropertyOptional({ description: 'Personality for voice settings', type: ReplyPersonalityDto })
   @IsOptional()
   @IsObject()
-    personality?: unknown;
+    personality?: ReplyPersonalityDto;
 
-  @ApiPropertyOptional({ description: 'Language setting' })
+  @ApiPropertyOptional({ description: 'Language setting', type: String })
   @IsOptional()
   @IsString()
     language?: string;
 
-  @ApiPropertyOptional({ description: 'Audio response format' })
+  @ApiPropertyOptional({ description: 'Audio response format', type: String, enum: ['pcm', 'mp3'] })
   @IsOptional()
   @IsString()
-    responseFormat?: string;
+  @IsIn(['pcm', 'mp3'])
+    responseFormat?: 'pcm' | 'mp3';
 }
 
 export class TextToSpeechTimestampedDto {
@@ -64,12 +162,12 @@ export class TextToSpeechTimestampedDto {
   @IsString()
     inputMessage!: string;
 
-  @ApiPropertyOptional({ description: 'Personality for voice settings' })
+  @ApiPropertyOptional({ description: 'Personality for voice settings', type: ReplyPersonalityDto })
   @IsOptional()
   @IsObject()
-    personality?: unknown;
+    personality?: ReplyPersonalityDto;
 
-  @ApiPropertyOptional({ description: 'Language setting' })
+  @ApiPropertyOptional({ description: 'Language setting', type: String })
   @IsOptional()
   @IsString()
     language?: string;
@@ -80,29 +178,30 @@ export class RealtimeVoiceDto {
   @IsString()
     sdpOffer!: string;
 
-  @ApiPropertyOptional({ description: 'Personality configuration' })
+  @ApiPropertyOptional({ description: 'Personality configuration', type: ReplyPersonalityDto })
   @IsOptional()
   @IsObject()
-    personality?: unknown;
+    personality?: ReplyPersonalityDto;
 
-  @ApiPropertyOptional({ description: 'Conversation role' })
+  @ApiPropertyOptional({ description: 'Conversation role (translated name string)', type: String })
   @IsOptional()
-    conversationRole?: unknown;
+  @IsString()
+    conversationRole?: string;
 
-  @ApiPropertyOptional({ description: 'Language setting' })
+  @ApiPropertyOptional({ description: 'Language setting', type: String })
   @IsOptional()
   @IsString()
     language?: string;
 
-  @ApiPropertyOptional({ description: 'Scenario configuration' })
+  @ApiPropertyOptional({ description: 'Scenario configuration', type: ReplyScenarioDto, nullable: true })
   @IsOptional()
   @IsObject()
-    scenario?: unknown;
+    scenario?: ReplyScenarioDto | null;
 
-  @ApiPropertyOptional({ description: 'User profile information' })
+  @ApiPropertyOptional({ description: 'User profile information', type: ReplyProfileDto })
   @IsOptional()
   @IsObject()
-    userProfile?: unknown;
+    userProfile?: ReplyProfileDto;
 }
 
 export class RealtimeTranscriptionDto {
@@ -121,6 +220,7 @@ export class TextToSpeechResponseDto {
     audioBase64!: string;
 
   @ApiProperty({ description: 'Sample rate of the audio' })
+  @IsNumber()
     sampleRate!: number;
 }
 
@@ -225,3 +325,4 @@ export class AiProviderStatusDto {
   @ApiProperty({ description: 'Whether the API is available / configured' })
     isAvailable!: boolean;
 }
+

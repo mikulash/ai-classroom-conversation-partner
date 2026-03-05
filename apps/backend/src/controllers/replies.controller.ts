@@ -2,9 +2,7 @@ import { Controller, Get, Post, Body, Req, Res, UseGuards } from '@nestjs/common
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { universalApi } from '../ai-api/universalApi';
-import type {
-  ErrorResponse,
-} from '@repo/shared/types/figurantClient.types';
+import type { ErrorResponse } from '../types/api.types';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { getUserId } from '../utils/getUserId';
 import { API_KEY } from '@repo/shared/enums/ApiKey';

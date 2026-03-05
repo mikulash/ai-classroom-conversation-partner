@@ -1,25 +1,32 @@
-import { ApiResponse, InitialConversationOptions } from '@repo/shared/types/dbRoutes.types';
-import type {
-  AppConfigDto,
-  ConversationRoleDto,
-  PersonalityDto,
-  ScenarioWithPersonalityDto,
-} from '@repo/shared/types/db/dto';
 import {
-  appConfigDtoToEntity,
-  conversationRoleDtoToEntity,
-  personalityDtoToEntity,
-  scenarioWithPersonalityDtoToEntity,
-} from '@repo/shared/mappers/dtoToEntityMappers';
+  AppConfigApiFp,
+  ConversationRolesApiFp,
+  PersonalitiesApiFp,
+  ScenariosApiFp,
+  UpdateAppConfigDto,
+} from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
-import { AppConfig, AppConfigCreate } from '@repo/shared/types/db/entities';
+import { AppConfigModel, InitialConversationOptions } from '../../models';
+import {
+  appConfigDtoToModel,
+  conversationRoleDtoToModel,
+  personalityDtoToModel,
+  scenarioWithPersonalityDtoToModel,
+} from '../../dtoToModelMappers';
+import { ApiResponse } from '../client.types';
+
+const appConfigApi = AppConfigApiFp();
+const conversationRolesApi = ConversationRolesApiFp();
+const personalitiesApi = PersonalitiesApiFp();
+const scenariosApi = ScenariosApiFp();
 
 export const appConfigClient = {
-  updateAppConfigModels: async (payload: AppConfigCreate): Promise<ApiResponse<AppConfig>> => {
+  updateAppConfigModels: async (payload: UpdateAppConfigDto): Promise<ApiResponse<AppConfigModel>> => {
     try {
-      const response = await api.put<AppConfigDto>('/api/app-config', payload);
-      const data = appConfigDtoToEntity(response.data);
+      const requestFn = await appConfigApi.appConfigControllerUpdateAppConfig(payload);
+      const response = await requestFn(api);
+      const data = appConfigDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -32,18 +39,25 @@ export const appConfigClient = {
 
   fetchInitialConversationOptions: async (): Promise<InitialConversationOptions> => {
     try {
+      const [personalitiesFn, scenariosFn, conversationRolesFn, appConfigFn] = await Promise.all([
+        personalitiesApi.personalitiesControllerGetPersonalities(),
+        scenariosApi.scenariosControllerGetScenarios(),
+        conversationRolesApi.conversationRolesControllerGetConversationRoles(),
+        appConfigApi.appConfigControllerGetAppConfig(),
+      ]);
+
       const [personalities, scenarios, conversationRoles, appConfig] = await Promise.all([
-        api.get<PersonalityDto[]>('/api/personalities'),
-        api.get<ScenarioWithPersonalityDto[]>('/api/scenarios'),
-        api.get<ConversationRoleDto[]>('/api/conversation-roles'),
-        api.get<AppConfigDto>('/api/app-config'),
+        personalitiesFn(api),
+        scenariosFn(api),
+        conversationRolesFn(api),
+        appConfigFn(api),
       ]);
 
       return {
-        personalities: personalities.data.map(personalityDtoToEntity),
-        scenarios: scenarios.data.map(scenarioWithPersonalityDtoToEntity),
-        conversationRoles: conversationRoles.data.map(conversationRoleDtoToEntity),
-        appConfig: appConfigDtoToEntity(appConfig.data),
+        personalities: personalities.data.map(personalityDtoToModel),
+        scenarios: scenarios.data.map(scenarioWithPersonalityDtoToModel),
+        conversationRoles: conversationRoles.data.map(conversationRoleDtoToModel),
+        appConfig: appConfigDtoToModel(appConfig.data),
       };
     } catch (error) {
       console.error('Error fetching initial data:', error);

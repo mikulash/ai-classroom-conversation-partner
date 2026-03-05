@@ -1,37 +1,29 @@
-import {
-  AuthTokensResponse,
-  LoginRequest,
-  LogoutRequest,
-  MessageResponse,
-  RefreshTokenRequest,
-  RegisterResponse,
-  RegisterUserRequest,
-  RequestPasswordResetRequest,
-  ResendVerificationRequest,
-  ResetPasswordRequest,
-  UpdatePasswordRequest,
-} from '@repo/shared/types/dbRoutes.types';
-import { EmailVerificationResponseDto, LoginResponseDto, ProfileDto } from '@repo/shared/types/db/dto';
-import { profileDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
-import { api } from '../api';
 import { AxiosError } from 'axios';
+import {
+  AuthApiFp,
+  LoginDto,
+  LogoutDto,
+  RefreshTokenDto,
+  RegisterUserDto,
+  RequestPasswordResetDto,
+  ResendVerificationDto,
+  ResetPasswordDto,
+  UpdatePasswordDto,
+} from '../generated';
+import { api } from '../api';
+import { profileDtoToModel } from '../../dtoToModelMappers';
+
+const authApi = AuthApiFp();
 
 export const authClient = {
   /**
-     * Register a new user
-     */
-  register: async (payload: RegisterUserRequest) => {
+   * Register a new user
+   */
+  register: async (payload: RegisterUserDto) => {
     try {
-      const response = await api.post<RegisterResponse>('/api/auth/register', payload);
-
-      const { message } = response.data;
-
-      return {
-        data: {
-          message,
-        },
-        error: null,
-      };
+      const requestFn = await authApi.authControllerRegister(payload);
+      const response = await requestFn(api);
+      return { data: { message: response.data.message }, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
@@ -42,26 +34,21 @@ export const authClient = {
   },
 
   /**
-     * Verify email using token from verification link
-     */
+   * Verify email using token from verification link
+   */
   verifyEmail: async (token: string) => {
     try {
-      const response = await api.get<EmailVerificationResponseDto>('/api/auth/verify-email', {
-        params: { token },
-      });
-
+      const requestFn = await authApi.authControllerVerifyEmail({ params: { token } });
+      const response = await requestFn(api);
       const { user: userDto, accessToken, refreshToken } = response.data;
-      const user = profileDtoToEntity(userDto);
+      const user = profileDtoToModel(userDto);
 
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', refreshToken);
       localStorage.setItem('user_profile', JSON.stringify(user));
 
       return {
-        data: {
-          user,
-          session: { access_token: accessToken, user },
-        },
+        data: { user, session: { access_token: accessToken, user } },
         error: null,
       };
     } catch (error) {
@@ -73,47 +60,37 @@ export const authClient = {
     }
   },
 
-  resendVerificationEmail: async (payload: ResendVerificationRequest) => {
+  resendVerificationEmail: async (payload: ResendVerificationDto) => {
     try {
-      const response = await api.post<MessageResponse>('/api/auth/resend-verification', payload);
-
-      return {
-        data: response.data,
-        error: null,
-      };
+      const requestFn = await authApi.authControllerResendVerification(payload);
+      const response = await requestFn(api);
+      return { data: { message: response.data.message }, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {
         data: null,
-        error: {
-          message:
-                        axiosError.response?.data.message ?? 'Unable to resend verification email right now.',
-        },
+        error: { message: axiosError.response?.data.message ?? 'Unable to resend verification email right now.' },
       };
     }
   },
 
   /**
-     * Sign in with email and password
-     */
+   * Sign in with email and password
+   */
   login: async (email: string, password: string) => {
     try {
-      const payload: LoginRequest = { email, password };
-      const response = await api.post<LoginResponseDto>('/api/auth/login', payload);
-
+      const payload: LoginDto = { email, password };
+      const requestFn = await authApi.authControllerLogin(payload);
+      const response = await requestFn(api);
       const { user: userDto, accessToken, refreshToken } = response.data;
-      const user = profileDtoToEntity(userDto);
+      const user = profileDtoToModel(userDto);
 
-      // Store tokens and user in localStorage
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', refreshToken);
       localStorage.setItem('user_profile', JSON.stringify(user));
 
       return {
-        data: {
-          user,
-          session: { access_token: accessToken, user },
-        },
+        data: { user, session: { access_token: accessToken, user } },
         error: null,
       };
     } catch (error) {
@@ -126,16 +103,15 @@ export const authClient = {
   },
 
   /**
-     * Get current user profile from backend
-     */
+   * Get current user profile from backend
+   */
   getCurrentUser: async () => {
     try {
-      const response = await api.get<ProfileDto>('/api/auth/me');
-      const user = profileDtoToEntity(response.data);
+      const requestFn = await authApi.authControllerMe();
+      const response = await requestFn(api);
+      const user = profileDtoToModel(response.data);
 
-      // Update stored user profile
       localStorage.setItem('user_profile', JSON.stringify(user));
-
       return { data: user, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -147,22 +123,18 @@ export const authClient = {
   },
 
   /**
-     * Manually refresh the access token
-     */
+   * Manually refresh the access token
+   */
   refreshToken: async () => {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) throw new Error('No refresh token available');
 
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      const payload: RefreshTokenRequest = { refreshToken };
-      const response = await api.post<AuthTokensResponse>('/api/auth/refresh', payload);
-
+      const payload: RefreshTokenDto = { refreshToken };
+      const requestFn = await authApi.authControllerRefresh(payload);
+      const response = await requestFn(api);
       const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-      // Store new tokens
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('refresh_token', newRefreshToken);
 
@@ -177,20 +149,19 @@ export const authClient = {
   },
 
   /**
-     * Sign out from current device
-     */
+   * Sign out from current device
+   */
   signOut: async () => {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
-
       if (refreshToken) {
-        const payload: LogoutRequest = { refreshToken };
-        await api.post<MessageResponse>('/api/auth/logout', payload);
+        const payload: LogoutDto = { refreshToken };
+        const requestFn = await authApi.authControllerLogout(payload);
+        await requestFn(api);
       }
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Always clear local storage
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('user_profile');
@@ -200,12 +171,13 @@ export const authClient = {
   },
 
   /**
-     * Request password reset email
-     */
+   * Request password reset email
+   */
   resetPasswordForEmail: async (email: string) => {
     try {
-      const payload: RequestPasswordResetRequest = { email };
-      await api.post<MessageResponse>('/api/auth/request-password-reset', payload);
+      const payload: RequestPasswordResetDto = { email };
+      const requestFn = await authApi.authControllerRequestPasswordReset(payload);
+      await requestFn(api);
       return { data: null, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -217,12 +189,13 @@ export const authClient = {
   },
 
   /**
-     * Reset password with token
-     */
+   * Reset password with token
+   */
   resetPassword: async (token: string, newPassword: string) => {
     try {
-      const payload: ResetPasswordRequest = { token, newPassword };
-      await api.post<MessageResponse>('/api/auth/reset-password', payload);
+      const payload: ResetPasswordDto = { token, newPassword };
+      const requestFn = await authApi.authControllerResetPassword(payload);
+      await requestFn(api);
       return { data: null, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -234,12 +207,13 @@ export const authClient = {
   },
 
   /**
-     * Update password
-     */
+   * Update password
+   */
   updatePassword: async (currentPassword: string, newPassword: string) => {
     try {
-      const payload: UpdatePasswordRequest = { currentPassword, newPassword };
-      await api.put<MessageResponse>('/api/auth/password', payload);
+      const payload: UpdatePasswordDto = { currentPassword, newPassword };
+      const requestFn = await authApi.authControllerUpdatePassword(payload);
+      await requestFn(api);
       return { data: null, error: null };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;

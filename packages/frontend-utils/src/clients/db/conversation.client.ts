@@ -1,52 +1,58 @@
 import {
-  ApiResponse,
-  ConversationWithPersonality,
-  CreateConversationRequest,
-  MessageResponse,
-} from '@repo/shared/types/dbRoutes.types';
-import type { ConversationWithPersonalityDto } from '@repo/shared/types/db/dto';
-import { conversationWithPersonalityDtoToEntity } from '@repo/shared/mappers/dtoToEntityMappers';
+  ConversationsApiFp,
+  CreateConversationDto,
+} from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
+import { ConversationModel } from '../../models';
+import { conversationDtoToModel } from '../../dtoToModelMappers';
+import { ApiResponse, MessageResponse } from '../client.types';
+
+const conversationsApi = ConversationsApiFp();
 
 export const conversationClient = {
   /**
-     * User profile page
-     * for viewing previous conversations of the signed in user
-     */
-  getCurrentUserConversations: async (): Promise<ApiResponse<ConversationWithPersonality[]>> => {
+   * User profile page
+   * for viewing previous conversations of the signed in user
+   */
+  getCurrentUserConversations: async (): Promise<ApiResponse<ConversationModel[]>> => {
     try {
-      const response = await api.get<ConversationWithPersonalityDto[]>('/api/conversations');
-      const data = response.data.map(conversationWithPersonalityDtoToEntity);
+      const requestFn = await conversationsApi.conversationsControllerGetConversations();
+      const response = await requestFn(api);
+      const data = response.data.map(conversationDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch conversations' } };
     }
   },
+
   /**
-     * Fetches all conversations for the selected user.
-     * Used in admin/user-profiles page.
-     * @param userId
-     */
-  getByUserId: async (userId: string): Promise<ApiResponse<ConversationWithPersonality[]>> => {
+   * Fetches all conversations for the selected user.
+   * Used in admin/user-profiles page.
+   * @param userId
+   */
+  getByUserId: async (userId: string): Promise<ApiResponse<ConversationModel[]>> => {
     try {
-      const response = await api.get<ConversationWithPersonalityDto[]>(`/api/conversations/user/${userId}`);
-      const data = response.data.map(conversationWithPersonalityDtoToEntity);
+      const requestFn = await conversationsApi.conversationsControllerGetUserConversations(userId);
+      const response = await requestFn(api);
+      const data = response.data.map(conversationDtoToModel);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch user conversations' } };
     }
   },
+
   /**
-     * Saving conversation after it has ended.
-     * @param conversation
-     */
-  insert: async (conversation: CreateConversationRequest): Promise<ApiResponse<ConversationWithPersonality>> => {
+   * Saving conversation after it has ended.
+   * @param conversation
+   */
+  insert: async (conversation: CreateConversationDto): Promise<ApiResponse<ConversationModel>> => {
     try {
-      const response = await api.post<ConversationWithPersonalityDto>('/api/conversations', conversation);
-      const data = conversationWithPersonalityDtoToEntity(response.data);
+      const requestFn = await conversationsApi.conversationsControllerCreateConversation(conversation);
+      const response = await requestFn(api);
+      const data = conversationDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -56,14 +62,17 @@ export const conversationClient = {
       };
     }
   },
+
   /**
-     * Delete conversation by id
-     * @param id
-     */
+   * Delete conversation by id
+   * @param id
+   */
   delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
     try {
-      const response = await api.delete<MessageResponse>(`/api/conversations/${String(id)}`);
-      return { data: response.data };
+      const requestFn = await conversationsApi.conversationsControllerDeleteConversation(String(id));
+      const response = await requestFn(api);
+      const data: MessageResponse = { message: response.data.message };
+      return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
       return {

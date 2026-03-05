@@ -1,35 +1,48 @@
 import {
-  FullReplyPlainResponse,
-  FullReplyTimestampedResponse,
+  FullReplyPlainResponseDto,
+  FullReplyTimestampedResponseDto,
+  GenerateReplyDto,
+  RepliesApiFp,
+  RealtimeTranscriptionDto,
+  RealtimeVoiceDto,
+  TextToSpeechDto,
+  TextToSpeechResponseDto,
+  TextToSpeechTimestampedDto,
+  TextToSpeechTimestampedResponseDto,
+  WebRtcAnswerResponseDto,
+} from './generated';
+import {
   GenerateReplyRequest,
   GetTTSAudioResponse,
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
-  TextToSpeechResponse,
   TextToSpeechTimestampedRequest,
-  TextToSpeechTimestampedResponse,
   TranscriptionSessionCreateResponse,
   WebRtcAnswerResponse,
-} from '@repo/shared/types/figurantClient.types';
+} from '../figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
-import { Language } from '@repo/shared/enums/Language';
 import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 import { api } from './api';
 
+const repliesApi = RepliesApiFp();
 
 /**
  * Client for interacting with the Figurant backend API.
  * Uses the shared axios client from apiService for consistent auth handling.
+ * Uses the generated RepliesApiFp internally; public signatures kept for backward compatibility.
  */
 export class RepliesClient {
   async getResponse(request: GenerateReplyRequest): Promise<string> {
-    const { data } = await api.post<string>(`/replies/text`, request);
-    return data;
+    const requestFn = await repliesApi.repliesControllerGenerateText(request as unknown as GenerateReplyDto);
+    const response = await requestFn(api);
+    return response.data;
   }
 
   async getSpeechAudio(params: TextToSpeechRequest): Promise<GetTTSAudioResponse> {
-    const { data } = await api.post<TextToSpeechResponse>(`/replies/speech`, params);
+    const requestFn = await repliesApi.repliesControllerGenerateSpeech(params as unknown as TextToSpeechDto);
+    const response = await requestFn(api);
+    const data = response.data as TextToSpeechResponseDto;
 
     const buffer = this.b64ToArrayBuffer(data.audioBase64);
     const blob = this.pcmArrayBufferToBlob(buffer, params.responseFormat);
@@ -43,7 +56,9 @@ export class RepliesClient {
   }
 
   async getTimestampedSpeechAudio(params: TextToSpeechTimestampedRequest): Promise<LipSyncAudio> {
-    const { data } = await api.post<TextToSpeechTimestampedResponse>(`/replies/speech/timestamped`, params);
+    const requestFn = await repliesApi.repliesControllerGenerateTimestampedSpeech(params as unknown as TextToSpeechTimestampedDto);
+    const response = await requestFn(api);
+    const data = response.data as TextToSpeechTimestampedResponseDto;
 
     return {
       ...data,
@@ -52,7 +67,9 @@ export class RepliesClient {
   }
 
   async getFullReplyPlain(request: GenerateReplyRequest): Promise<{ text: string; speech: GetTTSAudioResponse }> {
-    const { data } = await api.post<FullReplyPlainResponse>(`/replies/full/plain`, request);
+    const requestFn = await repliesApi.repliesControllerGenerateFullPlain(request as unknown as GenerateReplyDto);
+    const response = await requestFn(api);
+    const data = response.data as FullReplyPlainResponseDto;
 
     const buffer = this.b64ToArrayBuffer(data.speech.audioBase64);
     const blob = this.pcmArrayBufferToBlob(buffer);
@@ -69,7 +86,9 @@ export class RepliesClient {
   }
 
   async getFullReplyTimestamped(request: GenerateReplyRequest): Promise<{ text: string; speech: LipSyncAudio }> {
-    const { data } = await api.post<FullReplyTimestampedResponse>(`/replies/full/timestamped`, request);
+    const requestFn = await repliesApi.repliesControllerGenerateFullTimestamped(request as unknown as GenerateReplyDto);
+    const response = await requestFn(api);
+    const data = response.data as FullReplyTimestampedResponseDto;
 
     return {
       text: data.text,
@@ -81,30 +100,36 @@ export class RepliesClient {
   }
 
   async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerResponse> {
-    const { data } = await api.post<WebRtcAnswerResponse>(`/replies/speech/realtime`, request);
-    return data;
+    const dto: RealtimeVoiceDto = {
+      sdpOffer: request.sdp_offer,
+      personality: request.personality as object,
+      conversationRole: request.conversationRole as unknown as object,
+      language: request.language as unknown as string,
+      scenario: request.scenario as unknown as object,
+      userProfile: request.userProfile as object,
+    };
+    const requestFn = await repliesApi.repliesControllerRealtimeVoice(dto);
+    const response = await requestFn(api);
+    return response.data as WebRtcAnswerResponseDto;
   }
 
   async getTranscriptionEphemeralToken(
     inputAudioFormat: string,
-    language: Language,
+    language: RealtimeTranscriptionRequest['language'],
   ): Promise<TranscriptionSessionCreateResponse> {
-    const body: RealtimeTranscriptionRequest = {
-      input_audio_format: inputAudioFormat,
-      language: language,
+    const body: RealtimeTranscriptionDto = {
+      language: language as unknown as string,
     };
 
-    const { data } = await api.post<TranscriptionSessionCreateResponse>(
-      '/replies/transcription/realtime',
-      body,
-    );
-
-    return data;
+    const requestFn = await repliesApi.repliesControllerRealtimeTranscription(body);
+    const response = await requestFn(api);
+    return response.data as unknown as TranscriptionSessionCreateResponse;
   }
 
   async getAiProvidersAvailability(): Promise<AiProviderStatus[]> {
-    const { data } = await api.get<AiProviderStatus[]>(`/replies/providers`);
-    return data;
+    const requestFn = await repliesApi.repliesControllerGetProviders();
+    const response = await requestFn(api);
+    return response.data as unknown as AiProviderStatus[];
   }
 
 
@@ -118,7 +143,7 @@ export class RepliesClient {
     return buf;
   }
 
-  private pcmArrayBufferToBlob(buf: ArrayBuffer, format : 'pcm' | 'mp3'= 'pcm'): Blob {
+  private pcmArrayBufferToBlob(buf: ArrayBuffer, format: 'pcm' | 'mp3' = 'pcm'): Blob {
     return new Blob([buf], { type: `audio/${format}` });
   }
 }

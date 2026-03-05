@@ -2,9 +2,9 @@ import { Controller, Get, Res } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import prisma from '../clients/prisma';
-import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
-import { conversationRoleToDto } from '@repo/shared/mappers/dtoMappers';
+import { ErrorResponse } from '../types/api.types';
 import { ConversationRoleDto } from '../dtos/conversation-roles.dto';
+import { conversationRoleEntityToDto } from '../utils/entityToDtoMappers';
 
 @ApiTags('conversation-roles')
 @Controller('api/conversation-roles')
@@ -19,7 +19,7 @@ export class ConversationRolesController {
         orderBy: { createdAt: 'desc' },
       });
 
-      res.status(200).json(roles.map(conversationRoleToDto));
+      res.status(200).json(roles.map(conversationRoleEntityToDto));
     } catch (error) {
       console.error('Get conversation roles error:', error);
       res.status(500).json({ message: 'Internal server error' });

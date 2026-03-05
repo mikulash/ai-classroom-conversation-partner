@@ -5,40 +5,40 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
-import {
-  responseModelToDto,
-  ttsModelToDto,
-  realtimeModelToDto,
-  realtimeTranscriptionModelToDto,
-  timestampedTranscriptionModelToDto,
-  customSelectionWithModelsToDto,
-} from '@repo/shared/mappers/dtoMappers';
+import { ErrorResponse } from '../types/api.types';
+
 import {
   UpdateCustomModelSelectionDto,
-  ResponseModelResponseDto,
-  TtsModelResponseDto,
-  RealtimeModelResponseDto,
-  RealtimeTranscriptionModelResponseDto,
-  TimestampedTranscriptionModelResponseDto,
-  CustomSelectionWithModelsResponseDto,
+  ResponseModelDto,
+  TtsModelDto,
+  RealtimeModelDto,
+  RealtimeTranscriptionModelDto,
+  TimestampedTranscriptionModelDto,
+  CustomSelectionWithModelsDto,
   ModelsMessageResponseDto,
 } from '../dtos/models.dto';
+import {
+  customSelectionWithModelsToDto,
+  realtimeModelEntityToDto,
+  realtimeTranscriptionModelEntityToDto,
+  responseModelEntityToDto, timestampedTranscriptionModelEntityToDto,
+  ttsModelEntityToDto,
+} from '../utils/entityToDtoMappers';
 
 @ApiTags('models')
 @Controller('api/models')
 export class ModelsController {
   @Get('response')
-  @ApiOkResponse({ description: 'List response models', type: [ResponseModelResponseDto] })
+  @ApiOkResponse({ description: 'List response models', type: [ResponseModelDto] })
   async getResponseModels(
-    @Res() res: Response<ResponseModelResponseDto[] | ErrorResponse>,
+    @Res() res: Response<ResponseModelDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const models = await prisma.responseModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models.map(responseModelToDto));
+      res.status(200).json(models.map(responseModelEntityToDto));
     } catch (error) {
       console.error('Get response models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -46,16 +46,16 @@ export class ModelsController {
   }
 
   @Get('tts')
-  @ApiOkResponse({ description: 'List TTS models', type: [TtsModelResponseDto] })
+  @ApiOkResponse({ description: 'List TTS models', type: [TtsModelDto] })
   async getTtsModels(
-    @Res() res: Response<TtsModelResponseDto[] | ErrorResponse>,
+    @Res() res: Response<TtsModelDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const models = await prisma.ttsModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models.map(ttsModelToDto));
+      res.status(200).json(models.map(ttsModelEntityToDto));
     } catch (error) {
       console.error('Get TTS models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -63,16 +63,16 @@ export class ModelsController {
   }
 
   @Get('realtime')
-  @ApiOkResponse({ description: 'List realtime models', type: [RealtimeModelResponseDto] })
+  @ApiOkResponse({ description: 'List realtime models', type: [RealtimeModelDto] })
   async getRealtimeModels(
-    @Res() res: Response<RealtimeModelResponseDto[] | ErrorResponse>,
+    @Res() res: Response<RealtimeModelDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const models = await prisma.realtimeModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models.map(realtimeModelToDto));
+      res.status(200).json(models.map(realtimeModelEntityToDto));
     } catch (error) {
       console.error('Get realtime models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -80,16 +80,16 @@ export class ModelsController {
   }
 
   @Get('realtime-transcription')
-  @ApiOkResponse({ description: 'List realtime transcription models', type: [RealtimeTranscriptionModelResponseDto] })
+  @ApiOkResponse({ description: 'List realtime transcription models', type: [RealtimeTranscriptionModelDto] })
   async getRealtimeTranscriptionModels(
-    @Res() res: Response<RealtimeTranscriptionModelResponseDto[] | ErrorResponse>,
+    @Res() res: Response<RealtimeTranscriptionModelDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const models = await prisma.realtimeTranscriptionModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models.map(realtimeTranscriptionModelToDto));
+      res.status(200).json(models.map(realtimeTranscriptionModelEntityToDto));
     } catch (error) {
       console.error('Get realtime transcription models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -97,16 +97,16 @@ export class ModelsController {
   }
 
   @Get('timestamped-transcription')
-  @ApiOkResponse({ description: 'List timestamped transcription models', type: [TimestampedTranscriptionModelResponseDto] })
+  @ApiOkResponse({ description: 'List timestamped transcription models', type: [TimestampedTranscriptionModelDto] })
   async getTimestampedTranscriptionModels(
-    @Res() res: Response<TimestampedTranscriptionModelResponseDto[] | ErrorResponse>,
+    @Res() res: Response<TimestampedTranscriptionModelDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const models = await prisma.timestampedTranscriptionModel.findMany({
         where: { isEnabled: true },
         orderBy: { createdAt: 'desc' },
       });
-      res.status(200).json(models.map(timestampedTranscriptionModelToDto));
+      res.status(200).json(models.map(timestampedTranscriptionModelEntityToDto));
     } catch (error) {
       console.error('Get timestamped transcription models error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -118,10 +118,10 @@ export class ModelsController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin', 'owner')
   @ApiParam({ name: 'userId', type: String })
-  @ApiOkResponse({ description: 'Get custom model selection for user', type: CustomSelectionWithModelsResponseDto })
+  @ApiOkResponse({ description: 'Get custom model selection for user', type: CustomSelectionWithModelsDto })
   async getCustomSelection(
     @Param('userId') userId: string,
-    @Res() res: Response<CustomSelectionWithModelsResponseDto | null | ErrorResponse>,
+    @Res() res: Response<CustomSelectionWithModelsDto | null | ErrorResponse>,
   ): Promise<void> {
     try {
       const selection = await prisma.adminUserCustomModelSelection.findUnique({
@@ -148,11 +148,11 @@ export class ModelsController {
   @Roles('admin', 'owner')
   @ApiParam({ name: 'userId', type: String })
   @ApiBody({ type: UpdateCustomModelSelectionDto })
-  @ApiOkResponse({ description: 'Update custom model selection for user', type: CustomSelectionWithModelsResponseDto })
+  @ApiOkResponse({ description: 'Update custom model selection for user', type: CustomSelectionWithModelsDto })
   async updateCustomSelection(
     @Param('userId') userId: string,
     @Body() body: UpdateCustomModelSelectionDto,
-    @Res() res: Response<CustomSelectionWithModelsResponseDto | ErrorResponse>,
+    @Res() res: Response<CustomSelectionWithModelsDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const {

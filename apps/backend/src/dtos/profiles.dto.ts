@@ -30,24 +30,12 @@ export class UpdateUserRoleDto {
     userRole!: UserRole;
 }
 
-export interface ProfileDto {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  fullName: string;
-  gender: string;
-  userRole: UserRole;
-  conversationRole: string;
-  bio: string;
-  email: string;
-  confirmedAt: string | null;
-}
 
 // ============================================================
 // Response DTOs
 // ============================================================
 
-export class ProfileResponseDto {
+export class ProfileDto {
   @ApiProperty({ description: 'User ID' })
     id!: string;
 

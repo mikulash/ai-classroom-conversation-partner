@@ -5,9 +5,9 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import type { ErrorResponse, MessageResponse } from '@repo/shared/types/dbRoutes.types';
-import { scenarioWithPersonalityToDto } from '@repo/shared/mappers/dtoMappers';
+import type { ErrorResponse, MessageResponse } from '../types/api.types';
 import { CreateScenarioDto, UpdateScenarioDto, ScenarioWithPersonalityDto, ScenarioMessageResponseDto } from '../dtos/scenarios.dto';
+import { scenarioWithPersonalityEntityToDto } from '../utils/entityToDtoMappers';
 
 @ApiTags('scenarios')
 @Controller('api/scenarios')
@@ -31,7 +31,7 @@ export class ScenariosController {
         orderBy: { createdAt: 'desc' },
       });
 
-      res.status(200).json(scenarios.map(scenarioWithPersonalityToDto));
+      res.status(200).json(scenarios.map(scenarioWithPersonalityEntityToDto));
     } catch (error) {
       console.error('Get scenarios error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -84,7 +84,7 @@ export class ScenariosController {
         },
       });
 
-      res.status(201).json(scenarioWithPersonalityToDto(scenario));
+      res.status(201).json(scenarioWithPersonalityEntityToDto(scenario));
     } catch (error) {
       console.error('Create scenario error:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -137,7 +137,7 @@ export class ScenariosController {
         },
       });
 
-      res.status(200).json(scenarioWithPersonalityToDto(scenario));
+      res.status(200).json(scenarioWithPersonalityEntityToDto(scenario));
     } catch (error) {
       console.error('Update scenario error:', error);
       res.status(500).json({ message: 'Internal server error' });

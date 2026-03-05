@@ -5,9 +5,9 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { ErrorResponse } from '@repo/shared/types/dbRoutes.types';
-import { profileToDto } from '@repo/shared/mappers/dtoMappers';
-import { UpdateProfileDto, UpdateUserRoleDto, ProfileResponseDto } from '../dtos/profiles.dto';
+import { UpdateProfileDto, UpdateUserRoleDto, ProfileDto } from '../dtos/profiles.dto';
+import { profileEntityToDto } from '../utils/entityToDtoMappers';
+import { ErrorResponse } from '../types/api.types';
 
 @ApiTags('profiles')
 @ApiBearerAuth()
@@ -17,9 +17,9 @@ export class ProfilesController {
   @Get()
   @UseGuards(RolesGuard)
   @Roles('owner')
-  @ApiOkResponse({ description: 'List profiles', type: [ProfileResponseDto] })
+  @ApiOkResponse({ description: 'List profiles', type: [ProfileDto] })
   async getProfiles(
-    @Res() res: Response<ProfileResponseDto[] | ErrorResponse>,
+    @Res() res: Response<ProfileDto[] | ErrorResponse>,
   ): Promise<void> {
     try {
       const users = await prisma.user.findMany({
@@ -31,7 +31,7 @@ export class ProfilesController {
 
       const profiles = users
         .filter((user) => user.profile !== null)
-        .map((user) => profileToDto({
+        .map((user) => profileEntityToDto({
           ...user.profile!,
           email: user.email,
           confirmedAt: user.confirmedAt,
@@ -47,12 +47,12 @@ export class ProfilesController {
   @Put(':id')
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateProfileDto })
-  @ApiOkResponse({ description: 'Updated profile', type: ProfileResponseDto })
+  @ApiOkResponse({ description: 'Updated profile', type: ProfileDto })
   async updateProfile(
     @Param('id') id: string,
     @Body() body: UpdateProfileDto,
     @Req() req: Request,
-    @Res() res: Response<ProfileResponseDto | ErrorResponse>,
+    @Res() res: Response<ProfileDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { fullName, gender, conversationRole, bio } = body;
@@ -91,7 +91,7 @@ export class ProfilesController {
         return;
       }
 
-      const updatedProfile = profileToDto({
+      const updatedProfile = profileEntityToDto({
         ...user.profile,
         email: user.email,
         confirmedAt: user.confirmedAt,
@@ -109,11 +109,11 @@ export class ProfilesController {
   @Put(':id/role')
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateUserRoleDto })
-  @ApiOkResponse({ description: 'Update user role', type: ProfileResponseDto })
+  @ApiOkResponse({ description: 'Update user role', type: ProfileDto })
   async updateUserRole(
     @Param('id') id: string,
     @Body() body: UpdateUserRoleDto,
-    @Res() res: Response<ProfileResponseDto | ErrorResponse>,
+    @Res() res: Response<ProfileDto | ErrorResponse>,
   ): Promise<void> {
     try {
       const { userRole } = body;
@@ -136,7 +136,7 @@ export class ProfilesController {
         return;
       }
 
-      const updatedProfile = profileToDto({
+      const updatedProfile = profileEntityToDto({
         ...updatedUser.profile,
         email: updatedUser.email,
         confirmedAt: updatedUser.confirmedAt,
