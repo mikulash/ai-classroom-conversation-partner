@@ -337,7 +337,7 @@ model RealtimeTranscriptionModel {
   provider                 TranscriptionModelProvider
   apiName                  String                     @map("api_name")
   docsUrl                  String?                    @map("docs_url")
-  isEnabled                Boolean?                   @default(true) @map("is_enabled")
+  isEnabled                Boolean                   @default(true) @map("is_enabled")
   allowsWordLevelTimestamps Boolean                   @default(false) @map("allows_word_level_timestamps")
 
   // Relations
