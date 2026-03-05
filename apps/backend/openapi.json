@@ -1037,7 +1037,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ResponseModelResponseDto"
+                    "$ref": "#/components/schemas/ResponseModelDto"
                   }
                 }
               }
@@ -1061,7 +1061,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TtsModelResponseDto"
+                    "$ref": "#/components/schemas/TtsModelDto"
                   }
                 }
               }
@@ -1085,7 +1085,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/RealtimeModelResponseDto"
+                    "$ref": "#/components/schemas/RealtimeModelDto"
                   }
                 }
               }
@@ -1109,7 +1109,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/RealtimeTranscriptionModelResponseDto"
+                    "$ref": "#/components/schemas/RealtimeTranscriptionModelDto"
                   }
                 }
               }
@@ -1133,7 +1133,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TimestampedTranscriptionModelResponseDto"
+                    "$ref": "#/components/schemas/TimestampedTranscriptionModelDto"
                   }
                 }
               }
@@ -1164,7 +1164,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CustomSelectionWithModelsResponseDto"
+                  "$ref": "#/components/schemas/CustomSelectionWithModelsDto"
                 }
               }
             }
@@ -1207,7 +1207,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CustomSelectionWithModelsResponseDto"
+                  "$ref": "#/components/schemas/CustomSelectionWithModelsDto"
                 }
               }
             }
@@ -1949,6 +1949,287 @@
         },
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/api/replies/text": {
+      "post": {
+        "operationId": "RepliesController_generateText",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AI-generated text response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/speech": {
+      "post": {
+        "operationId": "RepliesController_generateSpeech",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextToSpeechDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Speech audio in Base64",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextToSpeechResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/speech/timestamped": {
+      "post": {
+        "operationId": "RepliesController_generateTimestampedSpeech",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextToSpeechTimestampedDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Timestamped audio with Base64 encoding",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextToSpeechTimestampedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/full/plain": {
+      "post": {
+        "operationId": "RepliesController_generateFullPlain",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Text and TTS audio",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FullReplyPlainResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/full/timestamped": {
+      "post": {
+        "operationId": "RepliesController_generateFullTimestamped",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReplyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Text and timestamped speech",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FullReplyTimestampedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/speech/realtime": {
+      "post": {
+        "operationId": "RepliesController_realtimeVoice",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealtimeVoiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "WebRTC answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebRtcAnswerResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/transcription/realtime": {
+      "post": {
+        "operationId": "RepliesController_realtimeTranscription",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealtimeTranscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcription session details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptionSessionCreateResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/replies/providers": {
+      "get": {
+        "operationId": "RepliesController_getProviders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of providers with availability status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AiProviderStatusDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "replies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
         ]
       }
     }
@@ -2958,7 +3239,7 @@
           "message"
         ]
       },
-      "ResponseModelResponseDto": {
+      "ResponseModelDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -3005,7 +3286,7 @@
           "provider"
         ]
       },
-      "TtsModelResponseDto": {
+      "TtsModelDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -3061,7 +3342,7 @@
           "allowsWordLevelTimestampedTranscript"
         ]
       },
-      "RealtimeModelResponseDto": {
+      "RealtimeModelDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -3106,7 +3387,7 @@
           "provider"
         ]
       },
-      "RealtimeTranscriptionModelResponseDto": {
+      "RealtimeTranscriptionModelDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -3139,8 +3420,7 @@
           },
           "isEnabled": {
             "type": "boolean",
-            "description": "Whether model is enabled",
-            "nullable": true
+            "description": "Whether model is enabled"
           },
           "allowsWordLevelTimestamps": {
             "type": "boolean",
@@ -3156,7 +3436,7 @@
           "allowsWordLevelTimestamps"
         ]
       },
-      "TimestampedTranscriptionModelResponseDto": {
+      "TimestampedTranscriptionModelDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -3201,7 +3481,7 @@
           "isEnabled"
         ]
       },
-      "CustomSelectionWithModelsResponseDto": {
+      "CustomSelectionWithModelsDto": {
         "type": "object",
         "properties": {
           "userId": {
@@ -3242,7 +3522,7 @@
             "nullable": true,
             "allOf": [
               {
-                "$ref": "#/components/schemas/ResponseModelResponseDto"
+                "$ref": "#/components/schemas/ResponseModelDto"
               }
             ]
           },
@@ -3251,7 +3531,7 @@
             "nullable": true,
             "allOf": [
               {
-                "$ref": "#/components/schemas/TtsModelResponseDto"
+                "$ref": "#/components/schemas/TtsModelDto"
               }
             ]
           },
@@ -3260,7 +3540,7 @@
             "nullable": true,
             "allOf": [
               {
-                "$ref": "#/components/schemas/RealtimeModelResponseDto"
+                "$ref": "#/components/schemas/RealtimeModelDto"
               }
             ]
           },
@@ -3269,7 +3549,7 @@
             "nullable": true,
             "allOf": [
               {
-                "$ref": "#/components/schemas/RealtimeTranscriptionModelResponseDto"
+                "$ref": "#/components/schemas/RealtimeTranscriptionModelDto"
               }
             ]
           },
@@ -3278,7 +3558,7 @@
             "nullable": true,
             "allOf": [
               {
-                "$ref": "#/components/schemas/TimestampedTranscriptionModelResponseDto"
+                "$ref": "#/components/schemas/TimestampedTranscriptionModelDto"
               }
             ]
           }
@@ -3821,6 +4101,371 @@
         "required": [
           "apiKey",
           "isAvailable"
+        ]
+      },
+      "ReplyPersonalityDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Personality ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Personality name"
+          },
+          "age": {
+            "type": "number",
+            "nullable": true,
+            "description": "Age"
+          },
+          "sex": {
+            "type": "string",
+            "nullable": true,
+            "description": "Sex"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "openaiVoiceName": {
+            "type": "string",
+            "description": "OpenAI voice name"
+          },
+          "elevenlabsVoiceId": {
+            "type": "string",
+            "nullable": true,
+            "description": "ElevenLabs voice ID"
+          },
+          "voiceInstructions": {
+            "type": "string",
+            "nullable": true,
+            "description": "Voice instructions"
+          },
+          "personalityDescriptionEn": {
+            "type": "string",
+            "description": "Personality description in English"
+          },
+          "personalityDescriptionCs": {
+            "type": "string",
+            "description": "Personality description in Czech"
+          },
+          "problemSummaryEn": {
+            "type": "string",
+            "description": "Problem summary in English"
+          },
+          "problemSummaryCs": {
+            "type": "string",
+            "description": "Problem summary in Czech"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Avatar URL"
+          },
+          "isHidden": {
+            "type": "boolean",
+            "description": "Is hidden flag"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ReplyScenarioDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Scenario ID"
+          },
+          "involvedPersonalityId": {
+            "type": "number",
+            "description": "Involved personality ID"
+          },
+          "settingEn": {
+            "type": "string",
+            "description": "Setting in English"
+          },
+          "settingCs": {
+            "type": "string",
+            "description": "Setting in Czech"
+          },
+          "situationDescriptionEn": {
+            "type": "string",
+            "description": "Situation description in English"
+          },
+          "situationDescriptionCs": {
+            "type": "string",
+            "description": "Situation description in Czech"
+          }
+        }
+      },
+      "ReplyProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "conversationRole": {
+            "type": "string",
+            "description": "Conversation role"
+          },
+          "bio": {
+            "type": "string",
+            "description": "Bio"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address"
+          },
+          "userRole": {
+            "type": "string",
+            "description": "User role"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "GenerateReplyDto": {
+        "type": "object",
+        "properties": {
+          "inputText": {
+            "type": "string",
+            "description": "User input text"
+          },
+          "previousMessages": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Previous conversation messages"
+          },
+          "personality": {
+            "$ref": "#/components/schemas/ReplyPersonalityDto"
+          },
+          "conversationRole": {
+            "type": "string",
+            "description": "Conversation role name string"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          },
+          "scenario": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyScenarioDto"
+              }
+            ]
+          },
+          "userProfile": {
+            "$ref": "#/components/schemas/ReplyProfileDto"
+          }
+        },
+        "required": [
+          "inputText"
+        ]
+      },
+      "TextToSpeechDto": {
+        "type": "object",
+        "properties": {
+          "inputMessage": {
+            "type": "string",
+            "description": "Text to convert to speech"
+          },
+          "personality": {
+            "$ref": "#/components/schemas/ReplyPersonalityDto"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          },
+          "responseFormat": {
+            "type": "string",
+            "enum": [
+              "pcm",
+              "mp3"
+            ],
+            "description": "Audio response format"
+          }
+        },
+        "required": [
+          "inputMessage"
+        ]
+      },
+      "TextToSpeechTimestampedDto": {
+        "type": "object",
+        "properties": {
+          "inputMessage": {
+            "type": "string",
+            "description": "Text to convert to speech"
+          },
+          "personality": {
+            "$ref": "#/components/schemas/ReplyPersonalityDto"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          }
+        },
+        "required": [
+          "inputMessage"
+        ]
+      },
+      "RealtimeVoiceDto": {
+        "type": "object",
+        "properties": {
+          "sdpOffer": {
+            "type": "string",
+            "description": "SDP offer for WebRTC"
+          },
+          "personality": {
+            "$ref": "#/components/schemas/ReplyPersonalityDto"
+          },
+          "conversationRole": {
+            "type": "string",
+            "description": "Conversation role name string"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          },
+          "scenario": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyScenarioDto"
+              }
+            ]
+          },
+          "userProfile": {
+            "$ref": "#/components/schemas/ReplyProfileDto"
+          }
+        },
+        "required": [
+          "sdpOffer"
+        ]
+      },
+      "RealtimeTranscriptionDto": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Language setting"
+          }
+        }
+      },
+      "TextToSpeechResponseDto": {
+        "type": "object",
+        "properties": {
+          "audioBase64": {
+            "type": "string",
+            "description": "Base64 encoded audio"
+          },
+          "sampleRate": {
+            "type": "number",
+            "description": "Sample rate of the audio"
+          }
+        },
+        "required": [
+          "audioBase64",
+          "sampleRate"
+        ]
+      },
+      "TextToSpeechTimestampedResponseDto": {
+        "type": "object",
+        "properties": {
+          "audio": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of base64 encoded audio chunks"
+          },
+          "words": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of words spoken"
+          },
+          "wtimes": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Array of start times for words"
+          },
+          "wdurations": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Array of durations for words"
+          }
+        },
+        "required": [
+          "audio",
+          "words",
+          "wtimes",
+          "wdurations"
+        ]
+      },
+      "FullReplyPlainResponseDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Text reply from assistant"
+          },
+          "speech": {
+            "$ref": "#/components/schemas/TextToSpeechResponseDto"
+          }
+        },
+        "required": [
+          "text",
+          "speech"
+        ]
+      },
+      "FullReplyTimestampedResponseDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Text reply from assistant"
+          },
+          "speech": {
+            "$ref": "#/components/schemas/TextToSpeechTimestampedResponseDto"
+          }
+        },
+        "required": [
+          "text",
+          "speech"
+        ]
+      },
+      "WebRtcAnswerResponseDto": {
+        "type": "object",
+        "properties": {
+          "sdp": {
+            "type": "string",
+            "description": "WebRTC SDP answer"
+          }
+        },
+        "required": [
+          "sdp"
         ]
       }
     }
