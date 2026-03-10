@@ -90,15 +90,15 @@ export function AdminScenariosPage() {
 
   const handleSelectChange = (field: string, value: string) => {
     const processedValue =
-            field === 'involvedPersonalityId' && value === 'none' ? null : field === 'involvedPersonalityId' ? Number(value) : value;
+      field === 'involvedPersonalityId' && value === 'none' ? null : field === 'involvedPersonalityId' ? Number(value) : value;
 
     setCurrentScenario((prev) => ({ ...prev, [field]: processedValue }));
   };
 
   const validateScenario = (scenario: ScenarioFormData): boolean => {
     if (!scenario.settingEn || !scenario.settingCs ||
-        !scenario.situationDescriptionEn || !scenario.situationDescriptionCs ||
-        scenario.involvedPersonalityId === null) {
+      !scenario.situationDescriptionEn || !scenario.situationDescriptionCs ||
+      scenario.involvedPersonalityId === null) {
       toast.error(t('admin.scenarios.notifications.validationFailed'));
       return false;
     }
@@ -113,7 +113,13 @@ export function AdminScenariosPage() {
 
     const { error } = await scenarioClient.update(
       scenario.id,
-      scenario,
+      {
+        settingEn: scenario.settingEn,
+        settingCs: scenario.settingCs,
+        situationDescriptionEn: scenario.situationDescriptionEn,
+        situationDescriptionCs: scenario.situationDescriptionCs,
+        involvedPersonalityId: scenario.involvedPersonalityId ?? undefined,
+      },
     );
 
     if (error) {
@@ -132,7 +138,13 @@ export function AdminScenariosPage() {
 
     setIsProcessing(true);
 
-    const { error } = await scenarioClient.insert(currentScenario);
+    const { error } = await scenarioClient.insert({
+      settingEn: currentScenario.settingEn,
+      settingCs: currentScenario.settingCs,
+      situationDescriptionEn: currentScenario.situationDescriptionEn,
+      situationDescriptionCs: currentScenario.situationDescriptionCs,
+      involvedPersonalityId: currentScenario.involvedPersonalityId ?? undefined,
+    });
 
     if (error) {
       console.error(error.message);

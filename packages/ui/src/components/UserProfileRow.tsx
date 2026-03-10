@@ -3,22 +3,22 @@ import { Button } from './ui/button';
 import { TableCell, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { ProfileResponse } from '@repo/shared/types/dbRoutes.types';
+import { ProfileModel } from '@repo/frontend-utils/src/models';
 import { UserRole } from '@repo/shared/types/generated/enums';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ConversationsList } from './ConversationsList';
 
 interface UserProfileRowProps {
-    profile: ProfileResponse;
-    currentUserId?: string;
-    isExpanded: boolean;
-    isProcessing: boolean;
-    conversations: MyConversation[];
-    isLoadingConversations: boolean;
-    onToggleExpansion: (userId: string) => void;
-    onRoleChange: (profileId: string, newRole: UserRole) => void;
-    onConversationClick: (conversation: MyConversation) => void;
+  profile: ProfileModel;
+  currentUserId?: string;
+  isExpanded: boolean;
+  isProcessing: boolean;
+  conversations: MyConversation[];
+  isLoadingConversations: boolean;
+  onToggleExpansion: (userId: string) => void;
+  onRoleChange: (profileId: string, newRole: UserRole) => void;
+  onConversationClick: (conversation: MyConversation) => void;
 }
 
 export const UserProfileRow: React.FC<UserProfileRowProps> = ({
@@ -54,9 +54,9 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
             className="p-0 h-8 w-8"
           >
             {isExpanded ? (
-              <ChevronDown className="h-4 w-4"/>
+              <ChevronDown className="h-4 w-4" />
             ) : (
-              <ChevronRight className="h-4 w-4"/>
+              <ChevronRight className="h-4 w-4" />
             )}
           </Button>
         </TableCell>
@@ -90,7 +90,7 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
             disabled={isProcessing || isCurrentUser}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t('admin.profiles.table.role')}/>
+              <SelectValue placeholder={t('admin.profiles.table.role')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="basic">

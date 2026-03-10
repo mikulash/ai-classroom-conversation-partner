@@ -5,7 +5,7 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { ErrorResponse } from '../types/api.types';
+import { ErrorResponse } from '../types/universalApi.types';
 
 import {
   UpdateCustomModelSelectionDto,

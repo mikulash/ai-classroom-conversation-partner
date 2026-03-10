@@ -38,7 +38,7 @@ export function AdminPersonalitiesPage() {
   };
 
   const [currentPersonality, setCurrentPersonality] =
-        useState<PersonalityForm>(emptyPersonality);
+    useState<PersonalityForm>(emptyPersonality);
 
   useEffect(() => {
     void fetchPersonalities();
@@ -136,12 +136,12 @@ export function AdminPersonalitiesPage() {
       problemSummaryCs: currentPersonality.problemSummaryCs,
       personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
       personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
-      gender: currentPersonality.gender,
-      age: currentPersonality.age,
-      avatarUrl: currentPersonality.avatarUrl,
+      gender: currentPersonality.gender ?? undefined,
+      age: currentPersonality.age ?? undefined,
+      avatarUrl: currentPersonality.avatarUrl ?? undefined,
       openaiVoiceName: currentPersonality.openaiVoiceName,
-      elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId,
-      voiceInstructions: currentPersonality.voiceInstructions,
+      elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
+      voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
     });
 
     if (error) {
@@ -166,7 +166,19 @@ export function AdminPersonalitiesPage() {
 
     setIsProcessing(true);
 
-    const { error } = await personalityClient.insert(currentPersonality as PersonalityCreate);
+    const { error } = await personalityClient.insert({
+      name: currentPersonality.name,
+      problemSummaryEn: currentPersonality.problemSummaryEn,
+      problemSummaryCs: currentPersonality.problemSummaryCs,
+      personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
+      personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
+      gender: currentPersonality.gender ?? undefined,
+      age: currentPersonality.age ?? undefined,
+      avatarUrl: currentPersonality.avatarUrl ?? undefined,
+      openaiVoiceName: currentPersonality.openaiVoiceName,
+      elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
+      voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
+    });
 
     if (error) {
       console.error(error.message);

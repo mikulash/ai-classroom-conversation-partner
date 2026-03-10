@@ -2,9 +2,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateScenarioDto {
-  @ApiProperty({ description: 'Personality ID' })
+  @ApiPropertyOptional({ description: 'Personality ID' })
   @IsInt()
-    involvedPersonalityId!: number;
+    involvedPersonalityId?: number;
 
   @ApiPropertyOptional({ description: 'Situation description in English' })
   @IsOptional()

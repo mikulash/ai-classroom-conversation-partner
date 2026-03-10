@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { ConversationWithPersonality, ProfileResponse } from '@repo/shared/types/dbRoutes.types';
+import { ConversationModel, ProfileModel } from '@repo/frontend-utils/src/models';
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
@@ -19,7 +19,7 @@ import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversa
 export function AdminProfilesPage() {
   const { t } = useTypedTranslation();
 
-  const [profiles, setProfiles] = useState<ProfileResponse[]>([]);
+  const [profiles, setProfiles] = useState<ProfileModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [search, setSearch] = useState('');
@@ -83,7 +83,7 @@ export function AdminProfilesPage() {
         return Number.isNaN(date.getTime()) ? '' : date.toISOString();
       };
 
-      const conversations: MyConversation[] = data.map((conv: ConversationWithPersonality) => ({
+      const conversations: MyConversation[] = data.map((conv: any) => ({
         id: conv.id,
         start_time: toIsoString(conv.startTime),
         end_time: toIsoString(conv.endTime),
@@ -143,7 +143,7 @@ export function AdminProfilesPage() {
     if (profiles.length === 0) return [];
     return profiles.filter((p) =>
       p.email.toLowerCase().includes(search.toLowerCase().trim()) ||
-            p.fullName.toLowerCase().includes(search.toLowerCase().trim()),
+      p.fullName.toLowerCase().includes(search.toLowerCase().trim()),
     );
   }, [profiles, search]);
 

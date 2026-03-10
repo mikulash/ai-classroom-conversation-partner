@@ -1,23 +1,24 @@
 import { useCallback, useEffect } from 'react';
-import { ProfileResponse, RegisterUserRequest } from '@repo/shared/types/dbRoutes.types';
+import { ProfileModel } from '@repo/frontend-utils/src/models';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
+import { RegisterUserDto } from '@repo/frontend-utils/src/clients/generated/index';
 
 
 export interface Session {
   access_token: string;
-  user: ProfileResponse;
+  user: ProfileModel;
 }
 
 interface AuthStoreState {
-    session: Session | null;
-    ready: boolean;
-    loading: boolean;
-    error: string | null;
-    profile: ProfileResponse | null;
-    setProfile: (profile: ProfileResponse) => void;
-    clearProfile: () => void;
+  session: Session | null;
+  ready: boolean;
+  loading: boolean;
+  error: string | null;
+  profile: ProfileModel | null;
+  setProfile: (profile: ProfileModel) => void;
+  clearProfile: () => void;
 }
 
 const useAuthStore = create<AuthStoreState>()(
@@ -74,7 +75,7 @@ const readSessionFromStorage = (): Session | null => {
       return null;
     }
 
-    const user = JSON.parse(userStr) as ProfileResponse;
+    const user = JSON.parse(userStr) as ProfileModel;
     return {
       access_token: accessToken,
       user,
@@ -145,7 +146,7 @@ export const useAuth = () => {
     return !!data.session;
   }, []);
 
-  const signUp = useCallback(async (params: RegisterUserRequest) => {
+  const signUp = useCallback(async (params: RegisterUserDto) => {
     setAuthState({ loading: true, error: null });
 
     const { error: authError } = await authClient.register({

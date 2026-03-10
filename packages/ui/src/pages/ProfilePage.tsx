@@ -4,7 +4,6 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { ConversationWithPersonality, UpdateProfileRequest } from '@repo/shared/types/dbRoutes.types';
 import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
@@ -15,6 +14,7 @@ import { MyConversation } from '@repo/shared/types/myConversation';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
+import { UpdateProfileDto } from '@repo/frontend-utils/src/clients/generated/index';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
@@ -60,7 +60,7 @@ export function UserProfilePage() {
         return Number.isNaN(date.getTime()) ? '' : date.toISOString();
       };
 
-      const conversationsData: MyConversation[] = data.map((conv: ConversationWithPersonality) => ({
+      const conversationsData: MyConversation[] = data.map((conv: any) => ({
         id: conv.id,
         start_time: toIsoString(conv.startTime),
         end_time: toIsoString(conv.endTime),
@@ -95,7 +95,7 @@ export function UserProfilePage() {
     setIsSaving(true);
     setIsSuccess(false);
     try {
-      const payload: UpdateProfileRequest = {
+      const payload: UpdateProfileDto = {
         fullName,
         conversationRole,
         gender,

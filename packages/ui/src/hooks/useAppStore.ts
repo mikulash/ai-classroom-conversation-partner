@@ -1,17 +1,17 @@
 import { create } from 'zustand';
-import { AppConfig, ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
-import { InitialConversationOptions } from '@repo/shared/types/dbRoutes.types';
+import { ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
+import { AppConfigModel, InitialConversationOptions } from '@repo/frontend-utils/src/models';
 
 interface AppState {
     isLoaded: boolean,
     personalities: Personality[];
     scenarios: Scenario[];
     conversationRoles: ConversationRole[];
-    appConfig: AppConfig;
+    appConfig: AppConfigModel;
     setPersonalities: (p: Personality[]) => void;
     setScenarios: (s: Scenario[]) => void;
     setConversationRoles: (r: ConversationRole[]) => void;
-    setAppConfig: (appConfig: AppConfig) => void;
+    setAppConfig: (appConfig: AppConfigModel) => void;
     setInitialConversationOptions: (options: InitialConversationOptions) => void;
 }
 

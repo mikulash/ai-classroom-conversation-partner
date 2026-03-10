@@ -510,7 +510,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ProfileResponseDto"
+                    "$ref": "#/components/schemas/ProfileDto"
                   }
                 }
               }
@@ -556,7 +556,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProfileResponseDto"
+                  "$ref": "#/components/schemas/ProfileDto"
                 }
               }
             }
@@ -601,7 +601,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProfileResponseDto"
+                  "$ref": "#/components/schemas/ProfileDto"
                 }
               }
             }
@@ -629,7 +629,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ConversationWithPersonalityResponseDto"
+                    "$ref": "#/components/schemas/ConversationWithPersonalityDto"
                   }
                 }
               }
@@ -664,7 +664,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConversationWithPersonalityResponseDto"
+                  "$ref": "#/components/schemas/ConversationWithPersonalityDto"
                 }
               }
             }
@@ -736,7 +736,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ConversationWithPersonalityResponseDto"
+                    "$ref": "#/components/schemas/ConversationWithPersonalityDto"
                   }
                 }
               }
@@ -1951,287 +1951,6 @@
           "health"
         ]
       }
-    },
-    "/api/replies/text": {
-      "post": {
-        "operationId": "RepliesController_generateText",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GenerateReplyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "AI-generated text response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "replies"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/replies/speech": {
-      "post": {
-        "operationId": "RepliesController_generateSpeech",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TextToSpeechDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Speech audio in Base64",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TextToSpeechResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "replies"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/replies/speech/timestamped": {
-      "post": {
-        "operationId": "RepliesController_generateTimestampedSpeech",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TextToSpeechTimestampedDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Timestamped audio with Base64 encoding",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TextToSpeechTimestampedResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "replies"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/replies/full/plain": {
-      "post": {
-        "operationId": "RepliesController_generateFullPlain",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GenerateReplyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Text and TTS audio",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FullReplyPlainResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "replies"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/replies/full/timestamped": {
-      "post": {
-        "operationId": "RepliesController_generateFullTimestamped",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GenerateReplyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Text and timestamped speech",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FullReplyTimestampedResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "replies"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/replies/speech/realtime": {
-      "post": {
-        "operationId": "RepliesController_realtimeVoice",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RealtimeVoiceDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "WebRTC answer",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WebRtcAnswerResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "replies"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/replies/transcription/realtime": {
-      "post": {
-        "operationId": "RepliesController_realtimeTranscription",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RealtimeTranscriptionDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Transcription session details",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TranscriptionSessionCreateResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "replies"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/replies/providers": {
-      "get": {
-        "operationId": "RepliesController_getProviders",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "List of providers with availability status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AiProviderStatusDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "replies"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
     }
   },
   "info": {
@@ -2572,7 +2291,7 @@
           "email"
         ]
       },
-      "ProfileResponseDto": {
+      "ProfileDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -2712,7 +2431,7 @@
           "situationDescriptionCs"
         ]
       },
-      "ConversationWithPersonalityResponseDto": {
+      "ConversationWithPersonalityDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -3197,10 +2916,7 @@
             "type": "string",
             "description": "Setting in Czech"
           }
-        },
-        "required": [
-          "involvedPersonalityId"
-        ]
+        }
       },
       "UpdateScenarioDto": {
         "type": "object",
@@ -3420,7 +3136,8 @@
           },
           "isEnabled": {
             "type": "boolean",
-            "description": "Whether model is enabled"
+            "description": "Whether model is enabled",
+            "nullable": true
           },
           "allowsWordLevelTimestamps": {
             "type": "boolean",
@@ -3749,6 +3466,141 @@
           "nameCs"
         ]
       },
+      "ReplyPersonalityDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Personality ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Personality name"
+          },
+          "age": {
+            "type": "number",
+            "description": "Age",
+            "nullable": true
+          },
+          "sex": {
+            "type": "string",
+            "description": "Sex",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "openaiVoiceName": {
+            "type": "string",
+            "description": "OpenAI voice name"
+          },
+          "elevenlabsVoiceId": {
+            "type": "string",
+            "description": "ElevenLabs voice ID",
+            "nullable": true
+          },
+          "voiceInstructions": {
+            "type": "string",
+            "description": "Voice instructions",
+            "nullable": true
+          },
+          "personalityDescriptionEn": {
+            "type": "string",
+            "description": "Personality description in English"
+          },
+          "personalityDescriptionCs": {
+            "type": "string",
+            "description": "Personality description in Czech"
+          },
+          "problemSummaryEn": {
+            "type": "string",
+            "description": "Problem summary in English"
+          },
+          "problemSummaryCs": {
+            "type": "string",
+            "description": "Problem summary in Czech"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "Avatar URL",
+            "nullable": true
+          },
+          "isHidden": {
+            "type": "boolean",
+            "description": "Is hidden flag"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ReplyScenarioDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Scenario ID"
+          },
+          "involvedPersonalityId": {
+            "type": "number",
+            "description": "Involved personality ID"
+          },
+          "settingEn": {
+            "type": "string",
+            "description": "Setting in English"
+          },
+          "settingCs": {
+            "type": "string",
+            "description": "Setting in Czech"
+          },
+          "situationDescriptionEn": {
+            "type": "string",
+            "description": "Situation description in English"
+          },
+          "situationDescriptionCs": {
+            "type": "string",
+            "description": "Situation description in Czech"
+          }
+        }
+      },
+      "ReplyProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "Full name"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Gender"
+          },
+          "conversationRole": {
+            "type": "string",
+            "description": "Conversation role"
+          },
+          "bio": {
+            "type": "string",
+            "description": "Bio"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address"
+          },
+          "userRole": {
+            "type": "string",
+            "description": "User role"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "GenerateReplyDto": {
         "type": "object",
         "properties": {
@@ -3764,24 +3616,37 @@
             }
           },
           "personality": {
-            "type": "object",
-            "description": "Personality configuration"
+            "description": "Personality configuration",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyPersonalityDto"
+              }
+            ]
           },
           "conversationRole": {
-            "type": "object",
-            "description": "Conversation role"
+            "type": "string",
+            "description": "Conversation role (translated name string)"
           },
           "language": {
             "type": "string",
             "description": "Language setting"
           },
           "scenario": {
-            "type": "object",
-            "description": "Scenario configuration"
+            "description": "Scenario configuration",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyScenarioDto"
+              }
+            ]
           },
           "userProfile": {
-            "type": "object",
-            "description": "User profile information"
+            "description": "User profile information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyProfileDto"
+              }
+            ]
           }
         },
         "required": [
@@ -3796,8 +3661,12 @@
             "description": "Text to convert to speech"
           },
           "personality": {
-            "type": "object",
-            "description": "Personality for voice settings"
+            "description": "Personality for voice settings",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyPersonalityDto"
+              }
+            ]
           },
           "language": {
             "type": "string",
@@ -3805,7 +3674,11 @@
           },
           "responseFormat": {
             "type": "string",
-            "description": "Audio response format"
+            "description": "Audio response format",
+            "enum": [
+              "pcm",
+              "mp3"
+            ]
           }
         },
         "required": [
@@ -3837,8 +3710,12 @@
             "description": "Text to convert to speech"
           },
           "personality": {
-            "type": "object",
-            "description": "Personality for voice settings"
+            "description": "Personality for voice settings",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyPersonalityDto"
+              }
+            ]
           },
           "language": {
             "type": "string",
@@ -3938,24 +3815,37 @@
             "description": "SDP offer for WebRTC"
           },
           "personality": {
-            "type": "object",
-            "description": "Personality configuration"
+            "description": "Personality configuration",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyPersonalityDto"
+              }
+            ]
           },
           "conversationRole": {
-            "type": "object",
-            "description": "Conversation role"
+            "type": "string",
+            "description": "Conversation role (translated name string)"
           },
           "language": {
             "type": "string",
             "description": "Language setting"
           },
           "scenario": {
-            "type": "object",
-            "description": "Scenario configuration"
+            "description": "Scenario configuration",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyScenarioDto"
+              }
+            ]
           },
           "userProfile": {
-            "type": "object",
-            "description": "User profile information"
+            "description": "User profile information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReplyProfileDto"
+              }
+            ]
           }
         },
         "required": [
@@ -4101,371 +3991,6 @@
         "required": [
           "apiKey",
           "isAvailable"
-        ]
-      },
-      "ReplyPersonalityDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Personality ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "Personality name"
-          },
-          "age": {
-            "type": "number",
-            "nullable": true,
-            "description": "Age"
-          },
-          "sex": {
-            "type": "string",
-            "nullable": true,
-            "description": "Sex"
-          },
-          "gender": {
-            "type": "string",
-            "description": "Gender"
-          },
-          "openaiVoiceName": {
-            "type": "string",
-            "description": "OpenAI voice name"
-          },
-          "elevenlabsVoiceId": {
-            "type": "string",
-            "nullable": true,
-            "description": "ElevenLabs voice ID"
-          },
-          "voiceInstructions": {
-            "type": "string",
-            "nullable": true,
-            "description": "Voice instructions"
-          },
-          "personalityDescriptionEn": {
-            "type": "string",
-            "description": "Personality description in English"
-          },
-          "personalityDescriptionCs": {
-            "type": "string",
-            "description": "Personality description in Czech"
-          },
-          "problemSummaryEn": {
-            "type": "string",
-            "description": "Problem summary in English"
-          },
-          "problemSummaryCs": {
-            "type": "string",
-            "description": "Problem summary in Czech"
-          },
-          "avatarUrl": {
-            "type": "string",
-            "nullable": true,
-            "description": "Avatar URL"
-          },
-          "isHidden": {
-            "type": "boolean",
-            "description": "Is hidden flag"
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ]
-      },
-      "ReplyScenarioDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Scenario ID"
-          },
-          "involvedPersonalityId": {
-            "type": "number",
-            "description": "Involved personality ID"
-          },
-          "settingEn": {
-            "type": "string",
-            "description": "Setting in English"
-          },
-          "settingCs": {
-            "type": "string",
-            "description": "Setting in Czech"
-          },
-          "situationDescriptionEn": {
-            "type": "string",
-            "description": "Situation description in English"
-          },
-          "situationDescriptionCs": {
-            "type": "string",
-            "description": "Situation description in Czech"
-          }
-        }
-      },
-      "ReplyProfileDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "User ID"
-          },
-          "fullName": {
-            "type": "string",
-            "description": "Full name"
-          },
-          "gender": {
-            "type": "string",
-            "description": "Gender"
-          },
-          "conversationRole": {
-            "type": "string",
-            "description": "Conversation role"
-          },
-          "bio": {
-            "type": "string",
-            "description": "Bio"
-          },
-          "email": {
-            "type": "string",
-            "description": "Email address"
-          },
-          "userRole": {
-            "type": "string",
-            "description": "User role"
-          }
-        },
-        "required": [
-          "id"
-        ]
-      },
-      "GenerateReplyDto": {
-        "type": "object",
-        "properties": {
-          "inputText": {
-            "type": "string",
-            "description": "User input text"
-          },
-          "previousMessages": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            },
-            "description": "Previous conversation messages"
-          },
-          "personality": {
-            "$ref": "#/components/schemas/ReplyPersonalityDto"
-          },
-          "conversationRole": {
-            "type": "string",
-            "description": "Conversation role name string"
-          },
-          "language": {
-            "type": "string",
-            "description": "Language setting"
-          },
-          "scenario": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ReplyScenarioDto"
-              }
-            ]
-          },
-          "userProfile": {
-            "$ref": "#/components/schemas/ReplyProfileDto"
-          }
-        },
-        "required": [
-          "inputText"
-        ]
-      },
-      "TextToSpeechDto": {
-        "type": "object",
-        "properties": {
-          "inputMessage": {
-            "type": "string",
-            "description": "Text to convert to speech"
-          },
-          "personality": {
-            "$ref": "#/components/schemas/ReplyPersonalityDto"
-          },
-          "language": {
-            "type": "string",
-            "description": "Language setting"
-          },
-          "responseFormat": {
-            "type": "string",
-            "enum": [
-              "pcm",
-              "mp3"
-            ],
-            "description": "Audio response format"
-          }
-        },
-        "required": [
-          "inputMessage"
-        ]
-      },
-      "TextToSpeechTimestampedDto": {
-        "type": "object",
-        "properties": {
-          "inputMessage": {
-            "type": "string",
-            "description": "Text to convert to speech"
-          },
-          "personality": {
-            "$ref": "#/components/schemas/ReplyPersonalityDto"
-          },
-          "language": {
-            "type": "string",
-            "description": "Language setting"
-          }
-        },
-        "required": [
-          "inputMessage"
-        ]
-      },
-      "RealtimeVoiceDto": {
-        "type": "object",
-        "properties": {
-          "sdpOffer": {
-            "type": "string",
-            "description": "SDP offer for WebRTC"
-          },
-          "personality": {
-            "$ref": "#/components/schemas/ReplyPersonalityDto"
-          },
-          "conversationRole": {
-            "type": "string",
-            "description": "Conversation role name string"
-          },
-          "language": {
-            "type": "string",
-            "description": "Language setting"
-          },
-          "scenario": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ReplyScenarioDto"
-              }
-            ]
-          },
-          "userProfile": {
-            "$ref": "#/components/schemas/ReplyProfileDto"
-          }
-        },
-        "required": [
-          "sdpOffer"
-        ]
-      },
-      "RealtimeTranscriptionDto": {
-        "type": "object",
-        "properties": {
-          "language": {
-            "type": "string",
-            "description": "Language setting"
-          }
-        }
-      },
-      "TextToSpeechResponseDto": {
-        "type": "object",
-        "properties": {
-          "audioBase64": {
-            "type": "string",
-            "description": "Base64 encoded audio"
-          },
-          "sampleRate": {
-            "type": "number",
-            "description": "Sample rate of the audio"
-          }
-        },
-        "required": [
-          "audioBase64",
-          "sampleRate"
-        ]
-      },
-      "TextToSpeechTimestampedResponseDto": {
-        "type": "object",
-        "properties": {
-          "audio": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Array of base64 encoded audio chunks"
-          },
-          "words": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Array of words spoken"
-          },
-          "wtimes": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            },
-            "description": "Array of start times for words"
-          },
-          "wdurations": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            },
-            "description": "Array of durations for words"
-          }
-        },
-        "required": [
-          "audio",
-          "words",
-          "wtimes",
-          "wdurations"
-        ]
-      },
-      "FullReplyPlainResponseDto": {
-        "type": "object",
-        "properties": {
-          "text": {
-            "type": "string",
-            "description": "Text reply from assistant"
-          },
-          "speech": {
-            "$ref": "#/components/schemas/TextToSpeechResponseDto"
-          }
-        },
-        "required": [
-          "text",
-          "speech"
-        ]
-      },
-      "FullReplyTimestampedResponseDto": {
-        "type": "object",
-        "properties": {
-          "text": {
-            "type": "string",
-            "description": "Text reply from assistant"
-          },
-          "speech": {
-            "$ref": "#/components/schemas/TextToSpeechTimestampedResponseDto"
-          }
-        },
-        "required": [
-          "text",
-          "speech"
-        ]
-      },
-      "WebRtcAnswerResponseDto": {
-        "type": "object",
-        "properties": {
-          "sdp": {
-            "type": "string",
-            "description": "WebRTC SDP answer"
-          }
-        },
-        "required": [
-          "sdp"
         ]
       }
     }

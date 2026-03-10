@@ -5,16 +5,17 @@ import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { Personality, Scenario } from '@repo/shared/types/db/entities';
 import { ConversationType } from '@repo/shared/types/generated/enums';
-import { CreateConversationRequest, ProfileResponse } from '@repo/shared/types/dbRoutes.types';
+import { CreateConversationDto } from '@repo/frontend-utils/src/clients/generated/index';
+import { ProfileModel } from '@repo/frontend-utils/src/models';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 
 
 interface ConversationSaverParams {
-    userProfile?: ProfileResponse | null;
-    personality: Personality;
-    scenario?: Scenario | null;
-    chatStartTime: number;
-    logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: Record<string, unknown>) => void;
+  userProfile?: ProfileModel | null;
+  personality: Personality;
+  scenario?: Scenario | null;
+  chatStartTime: number;
+  logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: Record<string, unknown>) => void;
 }
 
 export const useConversationSaver = ({
@@ -30,7 +31,7 @@ export const useConversationSaver = ({
 
   const saveConversationToDatabase = useCallback(async (
     endReason: 'timeLimit' | 'silence' | 'manual',
-    conversationType:ConversationType,
+    conversationType: ConversationType,
     messagesToSave?: ChatMessage[],
     logsToSave?: ConversationLog[],
   ) => {
@@ -42,9 +43,9 @@ export const useConversationSaver = ({
       setIsSavingConversation(true);
       conversationSavedRef.current = true;
 
-      const conversationData: CreateConversationRequest = {
-        startTime: new Date(chatStartTime),
-        endTime: new Date(),
+      const conversationData: CreateConversationDto = {
+        startTime: new Date(chatStartTime).toISOString(),
+        endTime: new Date().toISOString(),
         endedReason: endReason,
         messages: (messagesToSave ?? []).map((msg) => ({
           content: msg.content,
@@ -53,9 +54,7 @@ export const useConversationSaver = ({
         })),
         personalityId: personality.id !== 0 ? personality.id : null,
         scenarioId: scenario?.id !== 0 ? scenario?.id : null,
-        userId: userProfile.id,
         logs: logsToSave ?? [],
-        createdAt: new Date(),
         conversationType: conversationType,
       };
 
