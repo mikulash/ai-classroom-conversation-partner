@@ -25,7 +25,7 @@ import { TimestampedTranscriptionModelModel } from '../generated/prisma/models/T
 import { ScenarioWithPersonalityDto } from '../dtos/scenarios.dto';
 import { PersonalityDto } from '../dtos/personalities.dto';
 import { ProfileDto } from '../dtos/profiles.dto';
-import { ConversationWithPersonalityDto } from '../dtos/conversations.dto';
+import { ConversationMessageDto, ConversationLogDto, ConversationWithPersonalityDto } from '../dtos/conversations.dto';
 import { ConversationRoleDto } from '../dtos/conversation-roles.dto';
 
 
@@ -229,8 +229,8 @@ export function conversationWithPersonalityEntityToDto(
     startTime: dateToString(conversation.startTime),
     endTime: dateToString(conversation.endTime),
     endedReason: conversation.endedReason,
-    messages: conversation.messages,
-    logs: conversation.logs,
+    messages: (conversation.messages) as ConversationMessageDto[] | null,
+    logs: (conversation.logs) as ConversationLogDto[] | null,
     conversationType: conversation.conversationType,
     personality: conversation.personality,
     scenario: conversation.scenario,

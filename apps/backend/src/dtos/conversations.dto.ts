@@ -2,6 +2,44 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 import { ConversationType } from '@repo/shared/types/generated/enums';
 
+// ============================================================
+// Nested item DTOs
+// ============================================================
+
+/** Matches ConversationMessage from @repo/shared/types/conversationMessage */
+export class ConversationMessageDto {
+    @ApiProperty({ description: 'Role of the message sender', enum: ['user', 'assistant'] })
+      role!: 'user' | 'assistant';
+
+    @ApiProperty({ description: 'Message content' })
+      content!: string;
+
+    @ApiProperty({ description: 'Message timestamp (ISO 8601)' })
+      timestamp!: string;
+}
+
+/** Matches logLevel from @repo/shared/types/conversationLog */
+export type LogLevel = 'log' | 'error' | 'warn';
+
+/** Matches ConversationLog from @repo/shared/types/conversationLog */
+export class ConversationLogDto {
+    @ApiProperty({ description: 'Log timestamp (ISO 8601)' })
+      timestamp!: string;
+
+    @ApiProperty({ description: 'Log level', enum: ['log', 'error', 'warn'] })
+      level!: LogLevel;
+
+    @ApiProperty({ description: 'Log message' })
+      message!: string;
+
+    @ApiPropertyOptional({ description: 'Additional log data', type: 'object', additionalProperties: true, nullable: true })
+      data?: Record<string, unknown> | null;
+}
+
+// ============================================================
+// Request DTOs
+// ============================================================
+
 export class CreateConversationDto {
     @ApiPropertyOptional({ description: 'Personality ID', type: Number, nullable: true })
     @IsOptional()
@@ -27,15 +65,15 @@ export class CreateConversationDto {
     @IsString()
       endedReason?: string | null;
 
-    @ApiPropertyOptional({ description: 'Conversation messages', type: [Object] })
+    @ApiPropertyOptional({ description: 'Conversation messages', type: [ConversationMessageDto] })
     @IsOptional()
     @IsArray()
-      messages?: unknown[];
+      messages?: ConversationMessageDto[];
 
-    @ApiPropertyOptional({ description: 'Conversation logs', type: [Object] })
+    @ApiPropertyOptional({ description: 'Conversation logs', type: [ConversationLogDto] })
     @IsOptional()
     @IsArray()
-      logs?: unknown[];
+      logs?: ConversationLogDto[];
 
     @ApiProperty({ description: 'Conversation type', enum: ConversationType })
     @IsString()
@@ -93,11 +131,11 @@ export class ConversationWithPersonalityDto {
     @ApiProperty({ description: 'Ended reason' })
       endedReason!: string;
 
-    @ApiPropertyOptional({ description: 'Conversation messages', type: [Object], nullable: true })
-      messages!: unknown[] | null;
+    @ApiPropertyOptional({ description: 'Conversation messages', type: [ConversationMessageDto], nullable: true })
+      messages!: ConversationMessageDto[] | null;
 
-    @ApiPropertyOptional({ description: 'Conversation logs', type: [Object], nullable: true })
-      logs!: unknown[] | null;
+    @ApiPropertyOptional({ description: 'Conversation logs', type: [ConversationLogDto], nullable: true })
+      logs!: ConversationLogDto[] | null;
 
     @ApiProperty({ description: 'Conversation type', enum: ConversationType })
       conversationType!: ConversationType;

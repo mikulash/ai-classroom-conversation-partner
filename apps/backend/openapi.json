@@ -2386,6 +2386,65 @@
           }
         }
       },
+      "ConversationMessageDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role of the message sender",
+            "enum": [
+              "user",
+              "assistant"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "description": "Message content"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Message timestamp (ISO 8601)"
+          }
+        },
+        "required": [
+          "role",
+          "content",
+          "timestamp"
+        ]
+      },
+      "ConversationLogDto": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Log timestamp (ISO 8601)"
+          },
+          "level": {
+            "type": "string",
+            "description": "Log level",
+            "enum": [
+              "log",
+              "error",
+              "warn"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "description": "Log message"
+          },
+          "data": {
+            "type": "object",
+            "description": "Additional log data",
+            "additionalProperties": true,
+            "nullable": true
+          }
+        },
+        "required": [
+          "timestamp",
+          "level",
+          "message"
+        ]
+      },
       "ConversationPersonalityRefDto": {
         "type": "object",
         "properties": {
@@ -2473,7 +2532,7 @@
             "nullable": true,
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/ConversationMessageDto"
             }
           },
           "logs": {
@@ -2481,7 +2540,7 @@
             "nullable": true,
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/ConversationLogDto"
             }
           },
           "conversationType": {
@@ -2554,14 +2613,14 @@
             "description": "Conversation messages",
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/ConversationMessageDto"
             }
           },
           "logs": {
             "description": "Conversation logs",
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/ConversationLogDto"
             }
           },
           "conversationType": {
@@ -3591,7 +3650,7 @@
             "description": "Previous conversation messages",
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/ConversationMessageDto"
             }
           },
           "personality": {
