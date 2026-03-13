@@ -7,7 +7,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { UpdateProfileDto, UpdateUserRoleDto, ProfileDto } from '../dtos/profiles.dto';
 import { profileEntityToDto } from '../utils/entityToDtoMappers';
-import { ErrorResponse } from '../types/api.types';
+import { ErrorResponseDto } from '../dtos/common.dto';
 
 @ApiTags('profiles')
 @ApiBearerAuth()
@@ -19,7 +19,7 @@ export class ProfilesController {
   @Roles('owner')
   @ApiOkResponse({ description: 'List profiles', type: [ProfileDto] })
   async getProfiles(
-    @Res() res: Response<ProfileDto[] | ErrorResponse>,
+    @Res() res: Response<ProfileDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const users = await prisma.user.findMany({
@@ -52,7 +52,7 @@ export class ProfilesController {
     @Param('id') id: string,
     @Body() body: UpdateProfileDto,
     @Req() req: Request,
-    @Res() res: Response<ProfileDto | ErrorResponse>,
+    @Res() res: Response<ProfileDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { fullName, gender, conversationRole, bio } = body;
@@ -113,7 +113,7 @@ export class ProfilesController {
   async updateUserRole(
     @Param('id') id: string,
     @Body() body: UpdateUserRoleDto,
-    @Res() res: Response<ProfileDto | ErrorResponse>,
+    @Res() res: Response<ProfileDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { userRole } = body;

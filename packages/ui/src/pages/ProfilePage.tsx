@@ -14,7 +14,7 @@ import { MyConversation } from '@repo/shared/types/myConversation';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
-import { UpdateProfileDto } from '@repo/frontend-utils/src/clients/generated/index';
+import { UpdateProfileDto } from '@repo/frontend-utils/src/clients/generated';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();

@@ -2,9 +2,9 @@ import { Controller, Get, Res } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import prisma from '../clients/prisma';
-import { ErrorResponse } from '../types/api.types';
 import { ConversationRoleDto } from '../dtos/conversation-roles.dto';
 import { conversationRoleEntityToDto } from '../utils/entityToDtoMappers';
+import { ErrorResponseDto } from '../dtos/common.dto';
 
 @ApiTags('conversation-roles')
 @Controller('api/conversation-roles')
@@ -12,7 +12,7 @@ export class ConversationRolesController {
   @Get()
   @ApiOkResponse({ description: 'List all conversation roles', type: [ConversationRoleDto] })
   async getConversationRoles(
-    @Res() res: Response<ConversationRoleDto[] | ErrorResponse>,
+    @Res() res: Response<ConversationRoleDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const roles = await prisma.conversationRole.findMany({

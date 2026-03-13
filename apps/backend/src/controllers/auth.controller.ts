@@ -44,8 +44,8 @@ import {
   AuthTokensResponseDto,
   AuthMessageResponseDto,
 } from '../dtos/auth.dto';
-import { ErrorResponse } from '../types/api.types';
 import { profileEntityToDto } from '../utils/entityToDtoMappers';
+import { ErrorResponseDto } from '../dtos/common.dto';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -67,7 +67,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Current user profile', type: AuthProfileResponseDto })
   async me(
     @Req() req: Request,
-    @Res() res: Response<AuthProfileResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthProfileResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       if (!req.user) {
@@ -103,7 +103,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Registration accepted', type: AuthRegisterResponseDto })
   async register(
     @Body() body: RegisterUserDto,
-    @Res() res: Response<AuthRegisterResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthRegisterResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { email, password, fullName, gender } = body;
@@ -181,7 +181,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Email verification result', type: AuthEmailVerificationResponseDto })
   async verifyEmail(
     @Query('token') token: string | undefined,
-    @Res() res: Response<AuthEmailVerificationResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthEmailVerificationResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       if (!token) {
@@ -252,7 +252,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Login response with tokens', type: AuthLoginResponseDto })
   async login(
     @Body() body: LoginDto,
-    @Res() res: Response<AuthLoginResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthLoginResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { email, password } = body;
@@ -308,7 +308,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'New access token', type: AuthTokensResponseDto })
   async refresh(
     @Body() body: RefreshTokenDto,
-    @Res() res: Response<AuthTokensResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthTokensResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { refreshToken } = body;
@@ -355,7 +355,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Logout acknowledgement', type: AuthMessageResponseDto })
   async logout(
     @Body() body: LogoutDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { refreshToken } = body;
@@ -382,7 +382,7 @@ export class AuthController {
   async updatePassword(
     @Req() req: Request & { user?: { userId: string } },
     @Body() body: UpdatePasswordDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { currentPassword, newPassword } = body;
@@ -418,7 +418,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Password reset email queued', type: AuthMessageResponseDto })
   async requestPasswordReset(
     @Body() body: RequestPasswordResetDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { email } = body;
@@ -449,7 +449,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Password reset confirmation', type: AuthMessageResponseDto })
   async resetPassword(
     @Body() body: ResetPasswordDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { token, newPassword } = body;
@@ -484,7 +484,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'Verification email resent', type: AuthMessageResponseDto })
   async resendVerification(
     @Body() body: ResendVerificationDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponse>,
+    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { email } = body;

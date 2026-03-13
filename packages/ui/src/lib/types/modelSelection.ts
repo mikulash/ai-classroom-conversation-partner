@@ -1,11 +1,11 @@
 import {
-  RealtimeModel,
-  RealtimeTranscriptionModel,
-  ResponseModel,
-  TimestampedTranscriptionModel,
-  TtsModel,
-} from './db/entities';
-import { WithAvailability } from '../utils/filterModelsByApiKeyStatus';
+    RealtimeModel,
+    RealtimeTranscriptionModel,
+    ResponseModel,
+    TimestampedTranscriptionModel,
+    TtsModel,
+} from '@repo/shared/types/db/entities';
+import { WithAvailability } from '../filterModelsByApiKeyStatus';
 
 export interface ModelOptions {
     responseModels: ResponseModel[];
@@ -20,8 +20,8 @@ export interface ModelOptions {
  */
 export type ModelOptionsWithAvailability = {
     [K in keyof ModelOptions]: ModelOptions[K] extends (infer T)[]
-        ? WithAvailability<T>[]
-        : ModelOptions[K]
+    ? WithAvailability<T>[]
+    : ModelOptions[K]
 };
 
 

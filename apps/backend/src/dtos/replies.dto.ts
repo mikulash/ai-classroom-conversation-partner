@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsIn, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import type { Language } from '@repo/shared/enums/Language';
 
+import { API_KEY } from '@repo/shared/enums/ApiKey';
 import type { ApiKey } from '@repo/shared/enums/ApiKey';
 
 // ============================================================
@@ -8,91 +11,109 @@ import type { ApiKey } from '@repo/shared/enums/ApiKey';
 // sent by the frontend as part of reply-generation requests)
 // ============================================================
 
+export class LanguageDto {
+  @ApiProperty({ description: 'BCP47 language tag (e.g. en-US)', type: String })
+  @IsString()
+  BCP47!: string;
+
+  @ApiProperty({ description: 'ISO 639-1 language code (e.g. en)', type: String })
+  @IsString()
+  ISO639!: string;
+
+  @ApiProperty({ description: 'English display name of the language', type: String })
+  @IsString()
+  ENGLISH_NAME!: string;
+
+  @ApiProperty({ description: 'Native display name of the language', type: String })
+  @IsString()
+  NATIVE_NAME!: string;
+}
+
 export class ReplyPersonalityDto {
   @ApiProperty({ description: 'Personality ID' })
-    id!: number;
+  id!: number;
 
   @ApiProperty({ description: 'Personality name' })
-    name!: string;
+  name!: string;
 
   @ApiPropertyOptional({ description: 'Age', nullable: true, type: Number })
-    age?: number | null;
+  age?: number | null;
 
   @ApiPropertyOptional({ description: 'Sex', nullable: true, type: String })
-    sex?: string | null;
+  sex?: string | null;
 
   @ApiPropertyOptional({ description: 'Gender', type: String })
-    gender?: string;
+  gender?: string;
 
   @ApiPropertyOptional({ description: 'OpenAI voice name', type: String })
-    openaiVoiceName?: string;
+  openaiVoiceName?: string;
 
   @ApiPropertyOptional({ description: 'ElevenLabs voice ID', nullable: true, type: String })
-    elevenlabsVoiceId?: string | null;
+  elevenlabsVoiceId?: string | null;
 
   @ApiPropertyOptional({ description: 'Voice instructions', nullable: true, type: String })
-    voiceInstructions?: string | null;
+  voiceInstructions?: string | null;
 
   @ApiPropertyOptional({ description: 'Personality description in English', type: String })
-    personalityDescriptionEn?: string;
+  personalityDescriptionEn?: string;
 
   @ApiPropertyOptional({ description: 'Personality description in Czech', type: String })
-    personalityDescriptionCs?: string;
+  personalityDescriptionCs?: string;
 
   @ApiPropertyOptional({ description: 'Problem summary in English', type: String })
-    problemSummaryEn?: string;
+  problemSummaryEn?: string;
 
   @ApiPropertyOptional({ description: 'Problem summary in Czech', type: String })
-    problemSummaryCs?: string;
+  problemSummaryCs?: string;
 
   @ApiPropertyOptional({ description: 'Avatar URL', nullable: true, type: String })
-    avatarUrl?: string | null;
+  avatarUrl?: string | null;
 
   @ApiPropertyOptional({ description: 'Is hidden flag', type: Boolean })
-    isHidden?: boolean;
+  isHidden?: boolean;
 }
 
 export class ReplyScenarioDto {
   @ApiPropertyOptional({ description: 'Scenario ID', type: Number })
-    id?: number;
+  id?: number;
 
   @ApiPropertyOptional({ description: 'Involved personality ID', type: Number })
-    involvedPersonalityId?: number;
+  involvedPersonalityId?: number;
 
   @ApiPropertyOptional({ description: 'Setting in English', type: String })
-    settingEn?: string;
+  settingEn?: string;
 
   @ApiPropertyOptional({ description: 'Setting in Czech', type: String })
-    settingCs?: string;
+  settingCs?: string;
 
   @ApiPropertyOptional({ description: 'Situation description in English', type: String })
-    situationDescriptionEn?: string;
+  situationDescriptionEn?: string;
 
   @ApiPropertyOptional({ description: 'Situation description in Czech', type: String })
-    situationDescriptionCs?: string;
+  situationDescriptionCs?: string;
 }
 
 export class ReplyProfileDto {
   @ApiProperty({ description: 'User ID' })
-    id!: string;
+  id!: string;
 
   @ApiPropertyOptional({ description: 'Full name', type: String })
-    fullName?: string;
+  fullName?: string;
 
   @ApiPropertyOptional({ description: 'Gender', type: String })
-    gender?: string;
+  gender?: string;
 
   @ApiPropertyOptional({ description: 'Conversation role', type: String })
-    conversationRole?: string;
+  conversationRole?: string;
 
   @ApiPropertyOptional({ description: 'Bio', type: String })
-    bio?: string;
+  bio?: string;
 
   @ApiPropertyOptional({ description: 'Email address', type: String })
-    email?: string;
+  email?: string;
 
   @ApiPropertyOptional({ description: 'User role', type: String })
-    userRole?: string;
+  userRole?: string;
 }
 
 // ============================================================
@@ -102,113 +123,118 @@ export class ReplyProfileDto {
 export class GenerateReplyDto {
   @ApiProperty({ description: 'User input text' })
   @IsString()
-    inputText!: string;
+  inputText!: string;
 
   @ApiPropertyOptional({ description: 'Previous conversation messages', type: [Object] })
   @IsOptional()
   @IsArray()
-    previousMessages?: unknown[];
+  previousMessages?: unknown[];
 
   @ApiPropertyOptional({ description: 'Personality configuration', type: ReplyPersonalityDto })
   @IsOptional()
   @IsObject()
-    personality?: ReplyPersonalityDto;
+  personality?: ReplyPersonalityDto;
 
   @ApiPropertyOptional({ description: 'Conversation role (translated name string)', type: String })
   @IsOptional()
   @IsString()
-    conversationRole?: string;
+  conversationRole?: string;
 
-  @ApiPropertyOptional({ description: 'Language setting', type: String })
-  @IsOptional()
-  @IsString()
-    language?: string;
+  @ApiProperty({ description: 'Language setting', type: LanguageDto })
+  @IsObject()
+  @ValidateNested()
+  @Type(() => LanguageDto)
+  language!: Language;
 
   @ApiPropertyOptional({ description: 'Scenario configuration', type: ReplyScenarioDto, nullable: true })
   @IsOptional()
   @IsObject()
-    scenario?: ReplyScenarioDto | null;
+  scenario?: ReplyScenarioDto | null;
 
   @ApiPropertyOptional({ description: 'User profile information', type: ReplyProfileDto })
   @IsOptional()
   @IsObject()
-    userProfile?: ReplyProfileDto;
+  userProfile?: ReplyProfileDto;
 }
 
 export class TextToSpeechDto {
   @ApiProperty({ description: 'Text to convert to speech' })
   @IsString()
-    inputMessage!: string;
+  inputMessage!: string;
 
   @ApiPropertyOptional({ description: 'Personality for voice settings', type: ReplyPersonalityDto })
   @IsOptional()
   @IsObject()
-    personality?: ReplyPersonalityDto;
+  personality?: ReplyPersonalityDto;
 
-  @ApiPropertyOptional({ description: 'Language setting', type: String })
-  @IsOptional()
-  @IsString()
-    language?: string;
+  @ApiProperty({ description: 'Language setting', type: LanguageDto })
+  @IsObject()
+  @ValidateNested()
+  @Type(() => LanguageDto)
+  language!: Language;
 
   @ApiPropertyOptional({ description: 'Audio response format', type: String, enum: ['pcm', 'mp3'] })
   @IsOptional()
   @IsString()
   @IsIn(['pcm', 'mp3'])
-    responseFormat?: 'pcm' | 'mp3';
+  responseFormat?: 'pcm' | 'mp3';
 }
 
 export class TextToSpeechTimestampedDto {
   @ApiProperty({ description: 'Text to convert to speech' })
   @IsString()
-    inputMessage!: string;
+  inputMessage!: string;
 
   @ApiPropertyOptional({ description: 'Personality for voice settings', type: ReplyPersonalityDto })
   @IsOptional()
   @IsObject()
-    personality?: ReplyPersonalityDto;
+  personality?: ReplyPersonalityDto;
 
-  @ApiPropertyOptional({ description: 'Language setting', type: String })
-  @IsOptional()
-  @IsString()
-    language?: string;
+  @ApiProperty({ description: 'Language setting', type: LanguageDto })
+  @IsObject()
+  @ValidateNested()
+  @Type(() => LanguageDto)
+  language!: Language;
 }
 
 export class RealtimeVoiceDto {
   @ApiProperty({ description: 'SDP offer for WebRTC' })
   @IsString()
-    sdpOffer!: string;
+  sdpOffer!: string;
 
   @ApiPropertyOptional({ description: 'Personality configuration', type: ReplyPersonalityDto })
   @IsOptional()
   @IsObject()
-    personality?: ReplyPersonalityDto;
+  personality?: ReplyPersonalityDto;
 
   @ApiPropertyOptional({ description: 'Conversation role (translated name string)', type: String })
   @IsOptional()
   @IsString()
-    conversationRole?: string;
+  conversationRole?: string;
 
-  @ApiPropertyOptional({ description: 'Language setting', type: String })
-  @IsOptional()
-  @IsString()
-    language?: string;
+  @ApiProperty({ description: 'Language setting', type: LanguageDto })
+  @IsObject()
+  @ValidateNested()
+  @Type(() => LanguageDto)
+  language!: Language;
 
   @ApiPropertyOptional({ description: 'Scenario configuration', type: ReplyScenarioDto, nullable: true })
   @IsOptional()
   @IsObject()
-    scenario?: ReplyScenarioDto | null;
+  scenario?: ReplyScenarioDto | null;
 
   @ApiPropertyOptional({ description: 'User profile information', type: ReplyProfileDto })
   @IsOptional()
   @IsObject()
-    userProfile?: ReplyProfileDto;
+  userProfile?: ReplyProfileDto;
 }
 
 export class RealtimeTranscriptionDto {
-  @ApiPropertyOptional({ description: 'Language setting' })
-  @IsOptional()
-  @IsString()
-    language?: string;
+  @ApiProperty({ description: 'Language setting', type: LanguageDto })
+  @IsObject()
+  @ValidateNested()
+  @Type(() => LanguageDto)
+  language!: Language;
 }
 
 // ============================================================
@@ -217,112 +243,112 @@ export class RealtimeTranscriptionDto {
 
 export class TextToSpeechResponseDto {
   @ApiProperty({ description: 'Base64 encoded audio' })
-    audioBase64!: string;
+  audioBase64!: string;
 
   @ApiProperty({ description: 'Sample rate of the audio' })
   @IsNumber()
-    sampleRate!: number;
+  sampleRate!: number;
 }
 
 export class TextToSpeechTimestampedResponseDto {
   @ApiProperty({ description: 'Array of base64 encoded audio chunks', type: [String] })
-    audio!: string[];
+  audio!: string[];
 
   @ApiProperty({ description: 'Array of words spoken', type: [String] })
-    words!: string[];
+  words!: string[];
 
   @ApiProperty({ description: 'Array of start times for words', type: [Number] })
-    wtimes!: number[];
+  wtimes!: number[];
 
   @ApiProperty({ description: 'Array of durations for words', type: [Number] })
-    wdurations!: number[];
+  wdurations!: number[];
 }
 
 export class FullReplyPlainResponseDto {
   @ApiProperty({ description: 'Text reply from assistant' })
-    text!: string;
+  text!: string;
 
   @ApiProperty({ description: 'Generated speech audio response', type: TextToSpeechResponseDto })
-    speech!: TextToSpeechResponseDto;
+  speech!: TextToSpeechResponseDto;
 }
 
 export class FullReplyTimestampedResponseDto {
   @ApiProperty({ description: 'Text reply from assistant' })
-    text!: string;
+  text!: string;
 
   @ApiProperty({ description: 'Generated timestamped speech audio response', type: TextToSpeechTimestampedResponseDto })
-    speech!: TextToSpeechTimestampedResponseDto;
+  speech!: TextToSpeechTimestampedResponseDto;
 }
 
 export class WebRtcAnswerResponseDto {
   @ApiProperty({ description: 'WebRTC SDP answer' })
-    sdp!: string;
+  sdp!: string;
 }
 
 class TurnDetectionDto {
   @ApiProperty()
-    type!: string;
+  type!: string;
 
   @ApiProperty()
-    threshold!: number;
+  threshold!: number;
 
   @ApiProperty()
-    prefix_padding_ms!: number;
+  prefix_padding_ms!: number;
 
   @ApiProperty()
-    silence_duration_ms!: number;
+  silence_duration_ms!: number;
 }
 
 class InputAudioTranscriptionDto {
   @ApiProperty()
-    model!: string;
+  model!: string;
 
   @ApiProperty({ nullable: true, type: String })
-    language!: string | null;
+  language!: string | null;
 
   @ApiProperty()
-    prompt!: string;
+  prompt!: string;
 }
 
 class ClientSecretDto {
   @ApiProperty()
-    expires_at!: string;
+  expires_at!: string;
 
   @ApiProperty()
-    value!: string;
+  value!: string;
 }
 
 export class TranscriptionSessionCreateResponseDto {
   @ApiProperty()
-    id!: string;
+  id!: string;
 
   @ApiProperty()
-    object!: string;
+  object!: string;
 
   @ApiProperty({ type: [String] })
-    modalities!: string[];
+  modalities!: string[];
 
   @ApiProperty({ type: TurnDetectionDto })
-    turn_detection!: TurnDetectionDto;
+  turn_detection!: TurnDetectionDto;
 
   @ApiProperty()
-    input_audio_format!: string;
+  input_audio_format!: string;
 
   @ApiProperty({ type: InputAudioTranscriptionDto })
-    input_audio_transcription!: InputAudioTranscriptionDto;
+  input_audio_transcription!: InputAudioTranscriptionDto;
 
   @ApiPropertyOptional({ nullable: true, type: ClientSecretDto })
-    client_secret!: ClientSecretDto | null;
+  client_secret!: ClientSecretDto | null;
 
   @ApiPropertyOptional()
-    expires_at?: number;
+  expires_at?: number;
 }
 
 export class AiProviderStatusDto {
-  @ApiProperty({ description: 'API Key enumerator', type: String })
-    apiKey!: ApiKey;
+  @ApiProperty({ description: 'API Key enumerator', enum: API_KEY, enumName: 'ApiKey' })
+  apiKey!: ApiKey;
 
   @ApiProperty({ description: 'Whether the API is available / configured' })
-    isAvailable!: boolean;
+  isAvailable!: boolean;
 }
 

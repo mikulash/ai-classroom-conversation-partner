@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
+import { ModelOptionsWithAvailability, ModelSelection } from '../../lib/types/modelSelection';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSelectionForm, ModelSelectionSection } from '../../components/admin/ModelSelectionForm';
 import {
@@ -15,7 +15,7 @@ import {
   getAvailableResponseModels,
   getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
-} from '@repo/shared/utils/filterModelsByApiKeyStatus';
+} from '../../lib/filterModelsByApiKeyStatus';
 import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
 import { appConfigClient } from '@repo/frontend-utils/src/clients/db/appConfig.client';
 

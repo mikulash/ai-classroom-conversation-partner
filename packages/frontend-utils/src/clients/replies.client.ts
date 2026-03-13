@@ -1,15 +1,11 @@
 import {
-  FullReplyPlainResponseDto,
-  FullReplyTimestampedResponseDto,
   GenerateReplyDto,
   RepliesApiFp,
   RealtimeTranscriptionDto,
   RealtimeVoiceDto,
   TextToSpeechDto,
-  TextToSpeechResponseDto,
   TextToSpeechTimestampedDto,
-  TextToSpeechTimestampedResponseDto,
-  WebRtcAnswerResponseDto,
+  AiProviderStatusDto,
 } from './generated';
 import {
   GenerateReplyRequest,
@@ -22,7 +18,6 @@ import {
   WebRtcAnswerResponse,
 } from '../figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
-import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 import { api } from './api';
 
 const repliesApi = RepliesApiFp();
@@ -42,7 +37,7 @@ export class RepliesClient {
   async getSpeechAudio(params: TextToSpeechRequest): Promise<GetTTSAudioResponse> {
     const requestFn = await repliesApi.repliesControllerGenerateSpeech(params as unknown as TextToSpeechDto);
     const response = await requestFn(api);
-    const data = response.data as TextToSpeechResponseDto;
+    const data = response.data;
 
     const buffer = this.b64ToArrayBuffer(data.audioBase64);
     const blob = this.pcmArrayBufferToBlob(buffer, params.responseFormat);
@@ -58,7 +53,7 @@ export class RepliesClient {
   async getTimestampedSpeechAudio(params: TextToSpeechTimestampedRequest): Promise<LipSyncAudio> {
     const requestFn = await repliesApi.repliesControllerGenerateTimestampedSpeech(params as unknown as TextToSpeechTimestampedDto);
     const response = await requestFn(api);
-    const data = response.data as TextToSpeechTimestampedResponseDto;
+    const data = response.data;
 
     return {
       ...data,
@@ -69,7 +64,7 @@ export class RepliesClient {
   async getFullReplyPlain(request: GenerateReplyRequest): Promise<{ text: string; speech: GetTTSAudioResponse }> {
     const requestFn = await repliesApi.repliesControllerGenerateFullPlain(request as unknown as GenerateReplyDto);
     const response = await requestFn(api);
-    const data = response.data as FullReplyPlainResponseDto;
+    const data = response.data;
 
     const buffer = this.b64ToArrayBuffer(data.speech.audioBase64);
     const blob = this.pcmArrayBufferToBlob(buffer);
@@ -88,7 +83,7 @@ export class RepliesClient {
   async getFullReplyTimestamped(request: GenerateReplyRequest): Promise<{ text: string; speech: LipSyncAudio }> {
     const requestFn = await repliesApi.repliesControllerGenerateFullTimestamped(request as unknown as GenerateReplyDto);
     const response = await requestFn(api);
-    const data = response.data as FullReplyTimestampedResponseDto;
+    const data = response.data;
 
     return {
       text: data.text,
@@ -102,15 +97,15 @@ export class RepliesClient {
   async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerResponse> {
     const dto: RealtimeVoiceDto = {
       sdpOffer: request.sdp_offer,
-      personality: request.personality as object,
-      conversationRole: request.conversationRole as unknown as object,
-      language: request.language as unknown as string,
+      personality: request.personality,
+      conversationRole: request.conversationRole,
+      language: request.language,
       scenario: request.scenario as unknown as object,
-      userProfile: request.userProfile as object,
+      userProfile: request.userProfile,
     };
     const requestFn = await repliesApi.repliesControllerRealtimeVoice(dto);
     const response = await requestFn(api);
-    return response.data as WebRtcAnswerResponseDto;
+    return response.data;
   }
 
   async getTranscriptionEphemeralToken(
@@ -118,7 +113,7 @@ export class RepliesClient {
     language: RealtimeTranscriptionRequest['language'],
   ): Promise<TranscriptionSessionCreateResponse> {
     const body: RealtimeTranscriptionDto = {
-      language: language as unknown as string,
+      language: language,
     };
 
     const requestFn = await repliesApi.repliesControllerRealtimeTranscription(body);
@@ -126,10 +121,10 @@ export class RepliesClient {
     return response.data as unknown as TranscriptionSessionCreateResponse;
   }
 
-  async getAiProvidersAvailability(): Promise<AiProviderStatus[]> {
+  async getAiProvidersAvailability(): Promise<AiProviderStatusDto[]> {
     const requestFn = await repliesApi.repliesControllerGetProviders();
     const response = await requestFn(api);
-    return response.data as unknown as AiProviderStatus[];
+    return response.data;
   }
 
 

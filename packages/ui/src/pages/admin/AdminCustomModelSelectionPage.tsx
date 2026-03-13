@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
-import { ModelOptionsWithAvailability, ModelSelection } from '@repo/shared/types/modelSelection';
+import { ModelOptionsWithAvailability, ModelSelection } from '../../lib/types/modelSelection';
 import { useAuth } from '../../hooks/useAuth';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
@@ -15,7 +15,7 @@ import {
   getAvailableResponseModels,
   getAvailableTimestampedTranscriptionModels,
   getAvailableTtsModels,
-} from '@repo/shared/utils/filterModelsByApiKeyStatus';
+} from '../../lib/filterModelsByApiKeyStatus';
 import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
 
 export function AdminCustomModelSelectionPage() {

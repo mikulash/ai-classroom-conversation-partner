@@ -5,7 +5,6 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { ErrorResponse } from '../types/universalApi.types';
 
 import {
   UpdateCustomModelSelectionDto,
@@ -24,6 +23,7 @@ import {
   responseModelEntityToDto, timestampedTranscriptionModelEntityToDto,
   ttsModelEntityToDto,
 } from '../utils/entityToDtoMappers';
+import { ErrorResponseDto } from '../dtos/common.dto';
 
 @ApiTags('models')
 @Controller('api/models')
@@ -31,7 +31,7 @@ export class ModelsController {
   @Get('response')
   @ApiOkResponse({ description: 'List response models', type: [ResponseModelDto] })
   async getResponseModels(
-    @Res() res: Response<ResponseModelDto[] | ErrorResponse>,
+    @Res() res: Response<ResponseModelDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const models = await prisma.responseModel.findMany({
@@ -48,7 +48,7 @@ export class ModelsController {
   @Get('tts')
   @ApiOkResponse({ description: 'List TTS models', type: [TtsModelDto] })
   async getTtsModels(
-    @Res() res: Response<TtsModelDto[] | ErrorResponse>,
+    @Res() res: Response<TtsModelDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const models = await prisma.ttsModel.findMany({
@@ -65,7 +65,7 @@ export class ModelsController {
   @Get('realtime')
   @ApiOkResponse({ description: 'List realtime models', type: [RealtimeModelDto] })
   async getRealtimeModels(
-    @Res() res: Response<RealtimeModelDto[] | ErrorResponse>,
+    @Res() res: Response<RealtimeModelDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const models = await prisma.realtimeModel.findMany({
@@ -82,7 +82,7 @@ export class ModelsController {
   @Get('realtime-transcription')
   @ApiOkResponse({ description: 'List realtime transcription models', type: [RealtimeTranscriptionModelDto] })
   async getRealtimeTranscriptionModels(
-    @Res() res: Response<RealtimeTranscriptionModelDto[] | ErrorResponse>,
+    @Res() res: Response<RealtimeTranscriptionModelDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const models = await prisma.realtimeTranscriptionModel.findMany({
@@ -99,7 +99,7 @@ export class ModelsController {
   @Get('timestamped-transcription')
   @ApiOkResponse({ description: 'List timestamped transcription models', type: [TimestampedTranscriptionModelDto] })
   async getTimestampedTranscriptionModels(
-    @Res() res: Response<TimestampedTranscriptionModelDto[] | ErrorResponse>,
+    @Res() res: Response<TimestampedTranscriptionModelDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const models = await prisma.timestampedTranscriptionModel.findMany({
@@ -121,7 +121,7 @@ export class ModelsController {
   @ApiOkResponse({ description: 'Get custom model selection for user', type: CustomSelectionWithModelsDto })
   async getCustomSelection(
     @Param('userId') userId: string,
-    @Res() res: Response<CustomSelectionWithModelsDto | null | ErrorResponse>,
+    @Res() res: Response<CustomSelectionWithModelsDto | null | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const selection = await prisma.adminUserCustomModelSelection.findUnique({
@@ -152,7 +152,7 @@ export class ModelsController {
   async updateCustomSelection(
     @Param('userId') userId: string,
     @Body() body: UpdateCustomModelSelectionDto,
-    @Res() res: Response<CustomSelectionWithModelsDto | ErrorResponse>,
+    @Res() res: Response<CustomSelectionWithModelsDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const {
@@ -217,7 +217,7 @@ export class ModelsController {
   @ApiOkResponse({ description: 'Delete custom model selection for user', type: ModelsMessageResponseDto })
   async deleteCustomSelection(
     @Param('userId') userId: string,
-    @Res() res: Response<ModelsMessageResponseDto | ErrorResponse>,
+    @Res() res: Response<ModelsMessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       await prisma.adminUserCustomModelSelection.delete({

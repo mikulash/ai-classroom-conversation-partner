@@ -40,9 +40,7 @@ export function AdminScenariosPage() {
   async function fetchData() {
     setIsLoading(true);
 
-    const [scenariosRes] = await Promise.all([
-      scenarioClient.all(),
-    ]);
+    const scenariosRes = await scenarioClient.all();
 
     // Handle scenarios response
     if (scenariosRes.error) {
@@ -65,7 +63,7 @@ export function AdminScenariosPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm(t('admin.scenarios.deleteConfirm'))) return;
+    if (!globalThis.confirm(t('admin.scenarios.deleteConfirm'))) return;
 
     setIsProcessing(true);
     const { error } = await scenarioClient.delete(id);

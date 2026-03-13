@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Req, Res, UseGuards } from '@nestjs/common
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { universalApi } from '../ai-api/universalApi';
-import type { ErrorResponse } from '../types/api.types';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { getUserId } from '../utils/getUserId';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
@@ -20,6 +19,7 @@ import {
   TranscriptionSessionCreateResponseDto,
   AiProviderStatusDto,
 } from '../dtos/replies.dto';
+import { ErrorResponseDto } from '../dtos/common.dto';
 
 @ApiTags('replies')
 @ApiBearerAuth()
@@ -32,7 +32,7 @@ export class RepliesController {
   async generateText(
     @Body() body: GenerateReplyDto,
     @Req() req: Request,
-    @Res() res: Response<string | ErrorResponse>,
+    @Res() res: Response<string | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { inputText, previousMessages, personality, conversationRole, language, scenario, userProfile } = body;
@@ -61,7 +61,7 @@ export class RepliesController {
   async generateSpeech(
     @Body() body: TextToSpeechDto,
     @Req() req: Request,
-    @Res() res: Response<TextToSpeechResponseDto | ErrorResponse>,
+    @Res() res: Response<TextToSpeechResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { inputMessage, personality, language, responseFormat } = body;
@@ -71,7 +71,7 @@ export class RepliesController {
         inputMessage,
         personality: personality as never,
         language: language as never,
-        responseFormat: (responseFormat ?? 'pcm') as 'pcm' | 'mp3',
+        responseFormat: (responseFormat ?? 'pcm'),
       }, userId);
 
       const audioBase64 = Buffer
@@ -96,7 +96,7 @@ export class RepliesController {
   async generateTimestampedSpeech(
     @Body() body: TextToSpeechTimestampedDto,
     @Req() req: Request,
-    @Res() res: Response<TextToSpeechTimestampedResponseDto | ErrorResponse>,
+    @Res() res: Response<TextToSpeechTimestampedResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { inputMessage, personality, language } = body;
@@ -128,7 +128,7 @@ export class RepliesController {
   async generateFullPlain(
     @Body() body: GenerateReplyDto,
     @Req() req: Request,
-    @Res() res: Response<FullReplyPlainResponseDto | ErrorResponse>,
+    @Res() res: Response<FullReplyPlainResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const userId = getUserId(req);
@@ -170,7 +170,7 @@ export class RepliesController {
   async generateFullTimestamped(
     @Body() body: GenerateReplyDto,
     @Req() req: Request,
-    @Res() res: Response<FullReplyTimestampedResponseDto | ErrorResponse>,
+    @Res() res: Response<FullReplyTimestampedResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const userId = getUserId(req);
@@ -211,7 +211,7 @@ export class RepliesController {
   async realtimeVoice(
     @Body() body: RealtimeVoiceDto,
     @Req() req: Request,
-    @Res() res: Response<WebRtcAnswerResponseDto | ErrorResponse>,
+    @Res() res: Response<WebRtcAnswerResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const userId = getUserId(req);
@@ -219,7 +219,7 @@ export class RepliesController {
         openai_voice_name: '',
         personality: body.personality as never,
         conversationRole: body.conversationRole as never,
-        language: body.language as never,
+        language: body.language,
         scenario: body.scenario as never,
         userProfile: body.userProfile as never,
         sdp_offer: body.sdpOffer,
@@ -237,7 +237,7 @@ export class RepliesController {
   async realtimeTranscription(
     @Body() body: RealtimeTranscriptionDto,
     @Req() req: Request,
-    @Res() res: Response<TranscriptionSessionCreateResponseDto | ErrorResponse>,
+    @Res() res: Response<TranscriptionSessionCreateResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const userId = getUserId(req);
@@ -256,7 +256,7 @@ export class RepliesController {
       }
       const msg = status === 500 ? 'Internal server error' : 'OpenAI transcription session creation failed';
 
-      res.status(status).json({ message: msg, statusCode: status });
+      res.status(status).json({ message: msg });
     }
   }
 

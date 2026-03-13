@@ -2,10 +2,9 @@ import {
   AppConfigDto,
   AuthProfileResponseDto,
   ConversationRoleDto,
-  ConversationWithPersonalityResponseDto,
+  ConversationWithPersonalityDto,
   CustomSelectionWithModelsDto,
   PersonalityDto, RealtimeModelDto, RealtimeTranscriptionModelDto,
-  ProfileResponseDto,
   ResponseModelDto,
   ScenarioWithPersonalityDto, TimestampedTranscriptionModelDto, TtsModelDto,
 } from './clients/generated';
@@ -177,7 +176,7 @@ export function customSelectionWithModelsDtoToModel(dto: CustomSelectionWithMode
   };
 }
 
-export function profileDtoToModel(dto: ProfileResponseDto | AuthProfileResponseDto): ProfileModel {
+export function profileDtoToModel(dto: AuthProfileResponseDto): ProfileModel {
   return {
     id: dto.id,
     createdAt: stringToDate(dto.createdAt),
@@ -192,7 +191,7 @@ export function profileDtoToModel(dto: ProfileResponseDto | AuthProfileResponseD
   };
 }
 
-export function conversationDtoToModel(dto: ConversationWithPersonalityResponseDto): ConversationModel {
+export function conversationDtoToModel(dto: ConversationWithPersonalityDto): ConversationModel {
   return {
     id: dto.id,
     createdAt: stringToDate(dto.createdAt),

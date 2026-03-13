@@ -5,9 +5,9 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import type { ErrorResponse, MessageResponse } from '../types/api.types';
 import { CreateScenarioDto, UpdateScenarioDto, ScenarioWithPersonalityDto, ScenarioMessageResponseDto } from '../dtos/scenarios.dto';
 import { scenarioWithPersonalityEntityToDto } from '../utils/entityToDtoMappers';
+import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
 
 @ApiTags('scenarios')
 @Controller('api/scenarios')
@@ -15,7 +15,7 @@ export class ScenariosController {
   @Get()
   @ApiOkResponse({ description: 'List all scenarios', type: [ScenarioWithPersonalityDto] })
   async getScenarios(
-    @Res() res: Response<ScenarioWithPersonalityDto[] | ErrorResponse>,
+    @Res() res: Response<ScenarioWithPersonalityDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const scenarios = await prisma.scenario.findMany({
@@ -46,7 +46,7 @@ export class ScenariosController {
   @ApiOkResponse({ description: 'Created scenario', type: ScenarioWithPersonalityDto })
   async createScenario(
     @Body() body: CreateScenarioDto,
-    @Res() res: Response<ScenarioWithPersonalityDto | ErrorResponse>,
+    @Res() res: Response<ScenarioWithPersonalityDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = body;
@@ -101,7 +101,7 @@ export class ScenariosController {
   async updateScenario(
     @Param('id') id: string,
     @Body() body: UpdateScenarioDto,
-    @Res() res: Response<ScenarioWithPersonalityDto | ErrorResponse>,
+    @Res() res: Response<ScenarioWithPersonalityDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { involvedPersonalityId, situationDescriptionEn, settingEn, situationDescriptionCs, settingCs } = body;
@@ -152,7 +152,7 @@ export class ScenariosController {
   @ApiOkResponse({ description: 'Scenario deleted', type: ScenarioMessageResponseDto })
   async deleteScenario(
     @Param('id') id: string,
-    @Res() res: Response<MessageResponse | ErrorResponse>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       await prisma.scenario.delete({

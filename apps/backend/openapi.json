@@ -3536,6 +3536,33 @@
           "name"
         ]
       },
+      "LanguageDto": {
+        "type": "object",
+        "properties": {
+          "BCP47": {
+            "type": "string",
+            "description": "BCP47 language tag (e.g. en-US)"
+          },
+          "ISO639": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. en)"
+          },
+          "ENGLISH_NAME": {
+            "type": "string",
+            "description": "English display name of the language"
+          },
+          "NATIVE_NAME": {
+            "type": "string",
+            "description": "Native display name of the language"
+          }
+        },
+        "required": [
+          "BCP47",
+          "ISO639",
+          "ENGLISH_NAME",
+          "NATIVE_NAME"
+        ]
+      },
       "ReplyScenarioDto": {
         "type": "object",
         "properties": {
@@ -3628,8 +3655,12 @@
             "description": "Conversation role (translated name string)"
           },
           "language": {
-            "type": "string",
-            "description": "Language setting"
+            "description": "Language setting",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LanguageDto"
+              }
+            ]
           },
           "scenario": {
             "description": "Scenario configuration",
@@ -3650,7 +3681,8 @@
           }
         },
         "required": [
-          "inputText"
+          "inputText",
+          "language"
         ]
       },
       "TextToSpeechDto": {
@@ -3669,8 +3701,12 @@
             ]
           },
           "language": {
-            "type": "string",
-            "description": "Language setting"
+            "description": "Language setting",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LanguageDto"
+              }
+            ]
           },
           "responseFormat": {
             "type": "string",
@@ -3682,7 +3718,8 @@
           }
         },
         "required": [
-          "inputMessage"
+          "inputMessage",
+          "language"
         ]
       },
       "TextToSpeechResponseDto": {
@@ -3718,12 +3755,17 @@
             ]
           },
           "language": {
-            "type": "string",
-            "description": "Language setting"
+            "description": "Language setting",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LanguageDto"
+              }
+            ]
           }
         },
         "required": [
-          "inputMessage"
+          "inputMessage",
+          "language"
         ]
       },
       "TextToSpeechTimestampedResponseDto": {
@@ -3827,8 +3869,12 @@
             "description": "Conversation role (translated name string)"
           },
           "language": {
-            "type": "string",
-            "description": "Language setting"
+            "description": "Language setting",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LanguageDto"
+              }
+            ]
           },
           "scenario": {
             "description": "Scenario configuration",
@@ -3849,7 +3895,8 @@
           }
         },
         "required": [
-          "sdpOffer"
+          "sdpOffer",
+          "language"
         ]
       },
       "WebRtcAnswerResponseDto": {
@@ -3868,10 +3915,17 @@
         "type": "object",
         "properties": {
           "language": {
-            "type": "string",
-            "description": "Language setting"
+            "description": "Language setting",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LanguageDto"
+              }
+            ]
           }
-        }
+        },
+        "required": [
+          "language"
+        ]
       },
       "TurnDetectionDto": {
         "type": "object",
@@ -3976,12 +4030,21 @@
           "input_audio_transcription"
         ]
       },
+      "ApiKey": {
+        "type": "string",
+        "description": "API Key enumerator",
+        "enum": [
+          "OPENAI_API_KEY",
+          "ELEVENLABS_API_KEY",
+          "CLAUDE_API_KEY",
+          "GROK_API_KEY"
+        ]
+      },
       "AiProviderStatusDto": {
         "type": "object",
         "properties": {
           "apiKey": {
-            "type": "string",
-            "description": "API Key enumerator"
+            "$ref": "#/components/schemas/ApiKey"
           },
           "isAvailable": {
             "type": "boolean",

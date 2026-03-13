@@ -5,7 +5,7 @@ import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { Personality, Scenario } from '@repo/shared/types/db/entities';
 import { ConversationType } from '@repo/shared/types/generated/enums';
-import { CreateConversationDto } from '@repo/frontend-utils/src/clients/generated/index';
+import { CreateConversationDto } from '@repo/frontend-utils/src/clients/generated';
 import { ProfileModel } from '@repo/frontend-utils/src/models';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 

@@ -1,12 +1,12 @@
-import { AiProviderStatus } from '../types/apiKeyStatus';
-import { API_KEY, ApiKey } from '../enums/ApiKey';
+import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
+import { API_KEY, ApiKey } from '@repo/shared/enums/ApiKey';
 import {
   RealtimeModel,
   RealtimeTranscriptionModel,
   ResponseModel,
   TimestampedTranscriptionModel,
   TtsModel,
-} from '../types/db/entities';
+} from '@repo/shared/types/db/entities';
 
 import {
   RealtimeModelProvider,
@@ -14,7 +14,7 @@ import {
   TimestampedTranscriptionModelProvider,
   TranscriptionModelProvider,
   TtsModelProvider,
-} from '../types/generated/enums';
+} from '@repo/shared/types/generated/enums';
 
 
 export const realtimeProvidersApiKeys = {

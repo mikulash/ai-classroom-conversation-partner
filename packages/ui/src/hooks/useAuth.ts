@@ -3,7 +3,7 @@ import { ProfileModel } from '@repo/frontend-utils/src/models';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
-import { RegisterUserDto } from '@repo/frontend-utils/src/clients/generated/index';
+import { RegisterUserDto } from '@repo/frontend-utils/src/clients/generated';
 
 
 export interface Session {
@@ -63,13 +63,9 @@ const shouldSyncForKey = (key: string | null) =>
   key === 'access_token' || key === 'refresh_token' || key === 'user_profile';
 
 const readSessionFromStorage = (): Session | null => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
   try {
-    const accessToken = window.localStorage.getItem('access_token');
-    const userStr = window.localStorage.getItem('user_profile');
+    const accessToken = globalThis.localStorage.getItem('access_token');
+    const userStr = globalThis.localStorage.getItem('user_profile');
 
     if (!accessToken || !userStr) {
       return null;
@@ -97,7 +93,7 @@ const fetchSessionFromStorage = () => {
 let hasInitializedAuth = false;
 
 const initializeAuthSync = () => {
-  if (hasInitializedAuth || typeof window === 'undefined') {
+  if (hasInitializedAuth) {
     return;
   }
 
@@ -112,7 +108,7 @@ const initializeAuthSync = () => {
     fetchSessionFromStorage();
   };
 
-  window.addEventListener('storage', handleStorageChange);
+  globalThis.addEventListener('storage', handleStorageChange);
 };
 
 export const useAuth = () => {

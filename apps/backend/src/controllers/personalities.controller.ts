@@ -5,9 +5,9 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import type { ErrorResponse, MessageResponse } from '../types/api.types';
 import { CreatePersonalityDto, UpdatePersonalityDto, PersonalityDto, MessageResponseDto } from '../dtos/personalities.dto';
 import { personalityEntityToDto } from '../utils/entityToDtoMappers';
+import { ErrorResponseDto } from '../dtos/common.dto';
 
 @ApiTags('personalities')
 @Controller('api/personalities')
@@ -15,7 +15,7 @@ export class PersonalitiesController {
   @Get()
   @ApiOkResponse({ description: 'List all personalities', type: [PersonalityDto] })
   async getPersonalities(
-    @Res() res: Response<PersonalityDto[] | ErrorResponse>,
+    @Res() res: Response<PersonalityDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const personalities = await prisma.personality.findMany({
@@ -38,7 +38,7 @@ export class PersonalitiesController {
   @ApiOkResponse({ description: 'Created personality', type: PersonalityDto })
   async createPersonality(
     @Body() body: CreatePersonalityDto,
-    @Res() res: Response<PersonalityDto | ErrorResponse>,
+    @Res() res: Response<PersonalityDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const {
@@ -97,7 +97,7 @@ export class PersonalitiesController {
   async updatePersonality(
     @Param('id') id: string,
     @Body() body: UpdatePersonalityDto,
-    @Res() res: Response<PersonalityDto | ErrorResponse>,
+    @Res() res: Response<PersonalityDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const {
@@ -150,7 +150,7 @@ export class PersonalitiesController {
   @ApiOkResponse({ description: 'Personality deleted', type: MessageResponseDto })
   async deletePersonality(
     @Param('id') id: string,
-    @Res() res: Response<MessageResponse | ErrorResponse>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       await prisma.personality.delete({

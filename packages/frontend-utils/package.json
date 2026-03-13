@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "exports": {
+    "./src/clients/generated": "./src/clients/generated/index.ts",
     "./*": "./*.ts"
   },
   "scripts": {

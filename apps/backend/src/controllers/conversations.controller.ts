@@ -7,7 +7,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CreateConversationDto, ConversationWithPersonalityDto, ConversationMessageResponseDto } from '../dtos/conversations.dto';
 import { conversationWithPersonalityEntityToDto } from '../utils/entityToDtoMappers';
-import { ErrorResponse } from '../types/api.types';
+import { ErrorResponseDto } from '../dtos/common.dto';
 
 @ApiTags('conversations')
 @ApiBearerAuth()
@@ -18,7 +18,7 @@ export class ConversationsController {
   @ApiOkResponse({ description: 'List conversations for current user', type: [ConversationWithPersonalityDto] })
   async getConversations(
     @Req() req: Request,
-    @Res() res: Response<ConversationWithPersonalityDto[] | ErrorResponse>,
+    @Res() res: Response<ConversationWithPersonalityDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       if (!req.user) {
@@ -60,7 +60,7 @@ export class ConversationsController {
   async createConversation(
     @Body() body: CreateConversationDto,
     @Req() req: Request,
-    @Res() res: Response<ConversationWithPersonalityDto | ErrorResponse>,
+    @Res() res: Response<ConversationWithPersonalityDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType } = body;
@@ -119,7 +119,7 @@ export class ConversationsController {
   async deleteConversation(
     @Param('id') id: string,
     @Req() req: Request,
-    @Res() res: Response<ConversationMessageResponseDto | ErrorResponse>,
+    @Res() res: Response<ConversationMessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       if (!req.user) {
@@ -163,7 +163,7 @@ export class ConversationsController {
   @ApiOkResponse({ description: 'List conversations for specific user', type: [ConversationWithPersonalityDto] })
   async getUserConversations(
     @Param('userId') userId: string,
-    @Res() res: Response<ConversationWithPersonalityDto[] | ErrorResponse>,
+    @Res() res: Response<ConversationWithPersonalityDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const conversations = await prisma.conversation.findMany({

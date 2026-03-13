@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { ModelSelection } from '@repo/shared/types/modelSelection';
+import { ModelSelection } from '../../lib/types/modelSelection';
 
 interface BaseModel {
     id: number;
