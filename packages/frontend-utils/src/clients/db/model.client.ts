@@ -1,11 +1,11 @@
 import {
+  MessageResponseDto,
   ModelsApiFp,
   UpdateCustomModelSelectionDto,
 } from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
 import {
-
   CustomSelectionWithModelsModel,
   RealtimeModelModel,
   RealtimeTranscriptionModelModel,
@@ -21,7 +21,7 @@ import {
   timestampedTranscriptionModelDtoToModel,
   ttsModelDtoToModel,
 } from '../../dtoToModelMappers';
-import { ApiResponse, MessageResponse } from '../client.types';
+import { ApiResponse } from '../client.types';
 
 const modelsApi = ModelsApiFp();
 
@@ -125,11 +125,11 @@ export const modelClient = {
     }
   },
 
-  deleteCustomModelSelection: async (userId: string): Promise<ApiResponse<MessageResponse>> => {
+  deleteCustomModelSelection: async (userId: string): Promise<ApiResponse<MessageResponseDto>> => {
     try {
       const requestFn = await modelsApi.modelsControllerDeleteCustomSelection(userId);
       const response = await requestFn(api);
-      const data: MessageResponse = { message: response.data.message };
+      const data: MessageResponseDto = { message: response.data.message };
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;

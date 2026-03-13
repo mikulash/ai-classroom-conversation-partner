@@ -354,7 +354,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthMessageResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -386,7 +386,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthMessageResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -423,7 +423,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthMessageResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -455,7 +455,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthMessageResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -487,7 +487,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthMessageResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -699,7 +699,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConversationMessageResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -1009,7 +1009,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ScenarioMessageResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -1240,7 +1240,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ModelsMessageResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -2225,7 +2225,7 @@
           "refreshToken"
         ]
       },
-      "AuthMessageResponseDto": {
+      "MessageResponseDto": {
         "type": "object",
         "properties": {
           "message": {
@@ -2580,18 +2580,6 @@
           "conversationType"
         ]
       },
-      "ConversationMessageResponseDto": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "Response message"
-          }
-        },
-        "required": [
-          "message"
-        ]
-      },
       "PersonalityDto": {
         "type": "object",
         "properties": {
@@ -2805,18 +2793,6 @@
           }
         }
       },
-      "MessageResponseDto": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "Response message"
-          }
-        },
-        "required": [
-          "message"
-        ]
-      },
       "ScenarioPersonalityRefDto": {
         "type": "object",
         "properties": {
@@ -2942,18 +2918,6 @@
             "description": "Setting in Czech"
           }
         }
-      },
-      "ScenarioMessageResponseDto": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "Response message"
-          }
-        },
-        "required": [
-          "message"
-        ]
       },
       "ResponseModelDto": {
         "type": "object",
@@ -3314,18 +3278,6 @@
             "nullable": true
           }
         }
-      },
-      "ModelsMessageResponseDto": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "Response message"
-          }
-        },
-        "required": [
-          "message"
-        ]
       },
       "AppConfigDto": {
         "type": "object",

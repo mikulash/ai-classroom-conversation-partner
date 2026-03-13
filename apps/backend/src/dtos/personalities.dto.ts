@@ -118,7 +118,4 @@ export class PersonalityDto {
     isHidden!: boolean;
 }
 
-export class MessageResponseDto {
-  @ApiProperty({ description: 'Response message' })
-    message!: string;
-}
+

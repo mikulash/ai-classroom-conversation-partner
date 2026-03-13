@@ -108,8 +108,3 @@ export class ConversationWithPersonalityDto {
     @ApiPropertyOptional({ description: 'Scenario reference', type: ConversationScenarioRefDto, nullable: true })
       scenario?: ConversationScenarioRefDto | null;
 }
-
-export class ConversationMessageResponseDto {
-    @ApiProperty({ description: 'Response message' })
-      message!: string;
-}

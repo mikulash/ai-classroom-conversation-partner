@@ -91,7 +91,3 @@ export class ScenarioWithPersonalityDto {
     personality!: ScenarioPersonalityRefDto | null;
 }
 
-export class ScenarioMessageResponseDto {
-  @ApiProperty({ description: 'Response message' })
-    message!: string;
-}

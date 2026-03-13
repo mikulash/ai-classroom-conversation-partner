@@ -1,12 +1,12 @@
 import {
   ConversationsApiFp,
-  CreateConversationDto,
+  CreateConversationDto, MessageResponseDto,
 } from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
 import { ConversationModel } from '../../models';
 import { conversationDtoToModel } from '../../dtoToModelMappers';
-import { ApiResponse, MessageResponse } from '../client.types';
+import { ApiResponse } from '../client.types';
 
 const conversationsApi = ConversationsApiFp();
 
@@ -67,11 +67,11 @@ export const conversationClient = {
    * Delete conversation by id
    * @param id
    */
-  delete: async (id: number): Promise<ApiResponse<MessageResponse>> => {
+  delete: async (id: number): Promise<ApiResponse<MessageResponseDto>> => {
     try {
       const requestFn = await conversationsApi.conversationsControllerDeleteConversation(String(id));
       const response = await requestFn(api);
-      const data: MessageResponse = { message: response.data.message };
+      const data: MessageResponseDto = { message: response.data.message };
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;

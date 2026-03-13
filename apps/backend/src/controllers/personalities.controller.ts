@@ -5,9 +5,9 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { CreatePersonalityDto, UpdatePersonalityDto, PersonalityDto, MessageResponseDto } from '../dtos/personalities.dto';
+import { CreatePersonalityDto, UpdatePersonalityDto, PersonalityDto } from '../dtos/personalities.dto';
 import { personalityEntityToDto } from '../utils/entityToDtoMappers';
-import { ErrorResponseDto } from '../dtos/common.dto';
+import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
 
 @ApiTags('personalities')
 @Controller('api/personalities')

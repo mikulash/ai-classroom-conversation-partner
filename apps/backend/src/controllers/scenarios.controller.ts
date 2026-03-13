@@ -5,7 +5,7 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { CreateScenarioDto, UpdateScenarioDto, ScenarioWithPersonalityDto, ScenarioMessageResponseDto } from '../dtos/scenarios.dto';
+import { CreateScenarioDto, UpdateScenarioDto, ScenarioWithPersonalityDto } from '../dtos/scenarios.dto';
 import { scenarioWithPersonalityEntityToDto } from '../utils/entityToDtoMappers';
 import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
 
@@ -149,7 +149,7 @@ export class ScenariosController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin', 'owner')
   @ApiParam({ name: 'id', type: String })
-  @ApiOkResponse({ description: 'Scenario deleted', type: ScenarioMessageResponseDto })
+  @ApiOkResponse({ description: 'Scenario deleted', type: MessageResponseDto })
   async deleteScenario(
     @Param('id') id: string,
     @Res() res: Response<MessageResponseDto | ErrorResponseDto>,

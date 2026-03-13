@@ -14,7 +14,6 @@ import {
   RealtimeTranscriptionModelDto,
   TimestampedTranscriptionModelDto,
   CustomSelectionWithModelsDto,
-  ModelsMessageResponseDto,
 } from '../dtos/models.dto';
 import {
   customSelectionWithModelsToDto,
@@ -23,7 +22,7 @@ import {
   responseModelEntityToDto, timestampedTranscriptionModelEntityToDto,
   ttsModelEntityToDto,
 } from '../utils/entityToDtoMappers';
-import { ErrorResponseDto } from '../dtos/common.dto';
+import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
 
 @ApiTags('models')
 @Controller('api/models')
@@ -214,10 +213,10 @@ export class ModelsController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin', 'owner')
   @ApiParam({ name: 'userId', type: String })
-  @ApiOkResponse({ description: 'Delete custom model selection for user', type: ModelsMessageResponseDto })
+  @ApiOkResponse({ description: 'Delete custom model selection for user', type: MessageResponseDto })
   async deleteCustomSelection(
     @Param('userId') userId: string,
-    @Res() res: Response<ModelsMessageResponseDto | ErrorResponseDto>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       await prisma.adminUserCustomModelSelection.delete({

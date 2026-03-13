@@ -5,9 +5,9 @@ import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { CreateConversationDto, ConversationWithPersonalityDto, ConversationMessageResponseDto } from '../dtos/conversations.dto';
+import { CreateConversationDto, ConversationWithPersonalityDto } from '../dtos/conversations.dto';
 import { conversationWithPersonalityEntityToDto } from '../utils/entityToDtoMappers';
-import { ErrorResponseDto } from '../dtos/common.dto';
+import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
 
 @ApiTags('conversations')
 @ApiBearerAuth()
@@ -115,11 +115,11 @@ export class ConversationsController {
 
   @Delete(':id')
   @ApiParam({ name: 'id', type: String })
-  @ApiOkResponse({ description: 'Conversation deleted', type: ConversationMessageResponseDto })
+  @ApiOkResponse({ description: 'Conversation deleted', type: MessageResponseDto })
   async deleteConversation(
     @Param('id') id: string,
     @Req() req: Request,
-    @Res() res: Response<ConversationMessageResponseDto | ErrorResponseDto>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       if (!req.user) {

@@ -42,10 +42,9 @@ import {
   AuthEmailVerificationResponseDto,
   AuthLoginResponseDto,
   AuthTokensResponseDto,
-  AuthMessageResponseDto,
 } from '../dtos/auth.dto';
 import { profileEntityToDto } from '../utils/entityToDtoMappers';
-import { ErrorResponseDto } from '../dtos/common.dto';
+import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -352,10 +351,10 @@ export class AuthController {
 
   @Post('logout')
   @ApiBody({ description: 'Logout request', type: LogoutDto })
-  @ApiOkResponse({ description: 'Logout acknowledgement', type: AuthMessageResponseDto })
+  @ApiOkResponse({ description: 'Logout acknowledgement', type: MessageResponseDto })
   async logout(
     @Body() body: LogoutDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { refreshToken } = body;
@@ -378,11 +377,11 @@ export class AuthController {
   @Post('update-password')
   @ApiBearerAuth()
   @ApiBody({ description: 'Update password request', type: UpdatePasswordDto })
-  @ApiOkResponse({ description: 'Password updated', type: AuthMessageResponseDto })
+  @ApiOkResponse({ description: 'Password updated', type: MessageResponseDto })
   async updatePassword(
     @Req() req: Request & { user?: { userId: string } },
     @Body() body: UpdatePasswordDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { currentPassword, newPassword } = body;
@@ -415,10 +414,10 @@ export class AuthController {
 
   @Post('request-password-reset')
   @ApiBody({ description: 'Request password reset', type: RequestPasswordResetDto })
-  @ApiOkResponse({ description: 'Password reset email queued', type: AuthMessageResponseDto })
+  @ApiOkResponse({ description: 'Password reset email queued', type: MessageResponseDto })
   async requestPasswordReset(
     @Body() body: RequestPasswordResetDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { email } = body;
@@ -446,10 +445,10 @@ export class AuthController {
 
   @Post('reset-password')
   @ApiBody({ description: 'Reset password using token', type: ResetPasswordDto })
-  @ApiOkResponse({ description: 'Password reset confirmation', type: AuthMessageResponseDto })
+  @ApiOkResponse({ description: 'Password reset confirmation', type: MessageResponseDto })
   async resetPassword(
     @Body() body: ResetPasswordDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { token, newPassword } = body;
@@ -481,10 +480,10 @@ export class AuthController {
 
   @Post('resend-verification')
   @ApiBody({ description: 'Resend verification email', type: ResendVerificationDto })
-  @ApiOkResponse({ description: 'Verification email resent', type: AuthMessageResponseDto })
+  @ApiOkResponse({ description: 'Verification email resent', type: MessageResponseDto })
   async resendVerification(
     @Body() body: ResendVerificationDto,
-    @Res() res: Response<AuthMessageResponseDto | ErrorResponseDto>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { email } = body;

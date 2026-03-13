@@ -66,8 +66,3 @@ export class ProfileDto {
   @ApiPropertyOptional({ description: 'Email confirmed at timestamp', type: String, nullable: true })
     confirmedAt!: string | null;
 }
-
-export class ProfileMessageResponseDto {
-  @ApiProperty({ description: 'Response message' })
-    message!: string;
-}
