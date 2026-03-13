@@ -1,5 +1,4 @@
 import {
-  ConversationType,
   OpenAiVoiceName,
   RealtimeModelProvider,
   ResponseModelProvider,
@@ -9,36 +8,6 @@ import {
   TtsModelProvider,
   UserRole,
 } from '../generated/enums';
-import { ConversationLog } from '../conversationLog';
-import { ConversationMessage } from '../conversationMessage';
-
-
-export interface Conversation {
-    id: number
-    createdAt: Date
-    userId: string
-    personalityId: number | null
-    scenarioId: number | null
-    startTime: Date
-    endTime: Date
-    endedReason: string
-    messages: ConversationMessage[] | null
-    logs: ConversationLog[] | null
-    conversationType: ConversationType
-}
-
-export interface ConversationCreate {
-    createdAt?: Date | string
-    userId: string
-    personalityId?: number | null
-    scenarioId?: number | null
-    startTime: Date | string
-    endTime?: Date | string
-    endedReason?: string
-    messages?: ConversationMessage[] | null
-    logs?: ConversationLog[] | null
-    conversationType: ConversationType
-}
 
 export interface ConversationRole {
     id: number
@@ -46,7 +15,6 @@ export interface ConversationRole {
     nameEn: string
     nameCs: string
 }
-
 
 export interface Personality {
     id: number
@@ -100,15 +68,6 @@ export interface ScenarioCreate {
     settingEn?: string
     situationDescriptionCs?: string
     settingCs?: string
-}
-
-export interface User {
-    id: string
-    createdAt: Date
-    updatedAt: Date
-    email: string
-    password: string
-    userRole: UserRole
 }
 
 export interface Profile {

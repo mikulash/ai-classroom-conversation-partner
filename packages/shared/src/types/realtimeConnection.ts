@@ -7,6 +7,5 @@ export interface RealtimeConnection {
 
 export interface RealtimeEvent {
     type: string;
-
     [key: string]: unknown;
 }
