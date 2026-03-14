@@ -13,7 +13,7 @@ import {
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
-  TextToSpeechTimestampedRequest, WebRtcAnswerResponse,
+  TextToSpeechTimestampedRequest,
 } from '../figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { api } from './api';
@@ -92,7 +92,7 @@ export class RepliesClient {
     };
   }
 
-  async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerResponse> {
+  async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerResponseDto> {
     const dto: RealtimeVoiceDto = {
       sdpOffer: request.sdp_offer,
       personality: request.personality,

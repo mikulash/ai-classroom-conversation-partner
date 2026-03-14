@@ -1,6 +1,5 @@
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { ConfigProvider } from '../utils/configProvider';
-import { ElevenLabsTimestampedResponse } from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
 import {
@@ -9,6 +8,7 @@ import {
   SpeechAudioResult,
 } from '../types/universalApi.types';
 import { ELEVENLABS_FALLBACK_VOICE_ID_FEMALE, ELEVENLABS_FALLBACK_VOICE_ID_MALE } from '../constants/constants';
+import { ElevenLabsTimestampedResponse } from '../types/elevenlabs.types';
 
 const getTextToSpeech = async (
   params: GetTTSAudioParamsWithModelName,

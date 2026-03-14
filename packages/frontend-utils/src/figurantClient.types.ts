@@ -16,11 +16,6 @@ export interface GetTTSAudioResponse {
     sampleRate: number;
 }
 
-export interface TextToSpeechResponse {
-    audioBase64: string;
-    sampleRate: number;
-}
-
 export interface RealtimeTranscriptionRequest {
     input_audio_format: string;
     language: Language;
@@ -51,46 +46,3 @@ export interface GenerateReplyRequest {
     scenario: ScenarioModel | null;
     userProfile: ProfileModel;
 }
-
-export interface TextToSpeechTimestampedResponse {
-    audio: string[]; // Base64 encoded strings
-    words: string[];
-    wtimes: number[];
-    wdurations: number[];
-}
-
-
-export interface FullReplyTimestampedResponse {
-    text: string;
-    speech: TextToSpeechTimestampedResponse;
-}
-
-export interface FullReplyPlainResponse {
-    text: string;
-    speech: TextToSpeechResponse;
-}
-
-interface AlignmentInfo {
-    characters: string[];
-    character_start_times_seconds: number[];
-    character_end_times_seconds: number[];
-}
-
-export interface ElevenLabsTimestampedResponse {
-    audio_base64: string;
-    alignment?: AlignmentInfo;
-    normalized_alignment?: AlignmentInfo;
-}
-
-export interface ErrorResponse {
-    message: string;
-    statusCode?: number;
-
-    [key: string]: unknown; // additional properties
-}
-
-
-export interface WebRtcAnswerResponse {
-    sdp: string; // raw SDP ‘answer’
-}
-
