@@ -1,9 +1,9 @@
 import {
   AppConfigApiFp,
-  ConversationRolesApiFp,
+  ConversationRolesApiFp, ModelSelectionIdsDto,
   PersonalitiesApiFp,
   ScenariosApiFp,
-  UpdateAppConfigDto,
+
 } from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
@@ -22,7 +22,7 @@ const personalitiesApi = PersonalitiesApiFp();
 const scenariosApi = ScenariosApiFp();
 
 export const appConfigClient = {
-  updateAppConfigModels: async (payload: UpdateAppConfigDto): Promise<ApiResponse<AppConfigModel>> => {
+  updateAppConfigModels: async (payload: ModelSelectionIdsDto): Promise<ApiResponse<AppConfigModel>> => {
     try {
       const requestFn = await appConfigApi.appConfigControllerUpdateAppConfig(payload);
       const response = await requestFn(api);

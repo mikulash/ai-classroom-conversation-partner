@@ -74,6 +74,17 @@ export class CreatePersonalityDto {
 
 export class UpdatePersonalityDto extends PartialType(CreatePersonalityDto) { }
 
+export class PersonalityRefDto {
+  @ApiProperty({ description: 'Personality ID' })
+    id!: number;
+
+  @ApiProperty({ description: 'Personality name' })
+    name!: string;
+
+  @ApiProperty({ description: 'Avatar URL', type: String, nullable: true })
+    avatarUrl!: string | null;
+}
+
 export class PersonalityDto {
   @ApiProperty({ description: 'Personality ID' })
     id!: number;

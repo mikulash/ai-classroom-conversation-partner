@@ -1,7 +1,7 @@
 import {
   MessageResponseDto,
-  ModelsApiFp,
-  UpdateCustomModelSelectionDto,
+  ModelsApiFp, ModelSelectionIdsDto,
+
 } from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
@@ -109,7 +109,7 @@ export const modelClient = {
 
   upsertCustomModelSelection: async (
     userId: string,
-    payload: UpdateCustomModelSelectionDto,
+    payload: ModelSelectionIdsDto,
   ): Promise<ApiResponse<CustomSelectionWithModelsModel>> => {
     try {
       const requestFn = await modelsApi.modelsControllerUpdateCustomSelection(userId, payload);

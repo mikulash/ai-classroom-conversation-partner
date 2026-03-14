@@ -2,7 +2,6 @@ import { AxiosError } from 'axios';
 import {
   AuthApiFp,
   LoginDto,
-  LogoutDto,
   RefreshTokenDto,
   RegisterUserDto,
   RequestPasswordResetDto,
@@ -155,7 +154,7 @@ export const authClient = {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
-        const payload: LogoutDto = { refreshToken };
+        const payload: RefreshTokenDto = { refreshToken };
         const requestFn = await authApi.authControllerLogout(payload);
         await requestFn(api);
       }

@@ -30,20 +30,18 @@ import { AuthGuard } from '../common/guards/auth.guard';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   LoginDto,
-  LogoutDto,
   RefreshTokenDto,
   RegisterUserDto,
   RequestPasswordResetDto,
   ResendVerificationDto,
   ResetPasswordDto,
   UpdatePasswordDto,
-  AuthProfileResponseDto,
-  AuthRegisterResponseDto,
   AuthEmailVerificationResponseDto,
   AuthLoginResponseDto,
   AuthTokensResponseDto,
   VerifyEmailQueryDto,
 } from '../dtos/auth.dto';
+import { ProfileDto } from '../dtos/profiles.dto';
 import { profileEntityToDto } from '../utils/entityToDtoMappers';
 import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
 
@@ -74,10 +72,10 @@ export class AuthController {
   @Get('me')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @ApiOkResponse({ description: 'Current user profile', type: AuthProfileResponseDto })
+  @ApiOkResponse({ description: 'Current user profile', type: ProfileDto })
   async me(
     @Req() req: Request,
-    @Res() res: Response<AuthProfileResponseDto | ErrorResponseDto>,
+    @Res() res: Response<ProfileDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       if (!req.user) {
@@ -110,10 +108,10 @@ export class AuthController {
 
   @Post('register')
   @ApiBody({ description: 'Register a new user', type: RegisterUserDto })
-  @ApiOkResponse({ description: 'Registration accepted', type: AuthRegisterResponseDto })
+  @ApiOkResponse({ description: 'Registration accepted', type: MessageResponseDto })
   async register(
     @Body() body: RegisterUserDto,
-    @Res() res: Response<AuthRegisterResponseDto | ErrorResponseDto>,
+    @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
       const { email, password, fullName, gender } = body;
@@ -367,10 +365,10 @@ export class AuthController {
   }
 
   @Post('logout')
-  @ApiBody({ description: 'Logout request', type: LogoutDto })
+  @ApiBody({ description: 'Logout request', type: RefreshTokenDto })
   @ApiOkResponse({ description: 'Logout acknowledgement', type: MessageResponseDto })
   async logout(
-    @Body() body: LogoutDto,
+    @Body() body: RefreshTokenDto,
     @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {

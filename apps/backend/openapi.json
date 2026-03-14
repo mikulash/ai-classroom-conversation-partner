@@ -200,7 +200,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthProfileResponseDto"
+                  "$ref": "#/components/schemas/ProfileDto"
                 }
               }
             }
@@ -237,7 +237,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthRegisterResponseDto"
+                  "$ref": "#/components/schemas/MessageResponseDto"
                 }
               }
             }
@@ -353,7 +353,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LogoutDto"
+                "$ref": "#/components/schemas/RefreshTokenDto"
               }
             }
           }
@@ -1206,7 +1206,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateCustomModelSelectionDto"
+                "$ref": "#/components/schemas/ModelSelectionIdsDto"
               }
             }
           }
@@ -1294,7 +1294,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateAppConfigDto"
+                "$ref": "#/components/schemas/ModelSelectionIdsDto"
               }
             }
           }
@@ -2026,7 +2026,7 @@
           "checks"
         ]
       },
-      "AuthProfileResponseDto": {
+      "ProfileDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -2115,12 +2115,12 @@
           "gender"
         ]
       },
-      "AuthRegisterResponseDto": {
+      "MessageResponseDto": {
         "type": "object",
         "properties": {
           "message": {
             "type": "string",
-            "description": "Registration result message"
+            "description": "Response message"
           }
         },
         "required": [
@@ -2142,7 +2142,7 @@
             "description": "User profile",
             "allOf": [
               {
-                "$ref": "#/components/schemas/AuthProfileResponseDto"
+                "$ref": "#/components/schemas/ProfileDto"
               }
             ]
           }
@@ -2185,7 +2185,7 @@
             "description": "User profile",
             "allOf": [
               {
-                "$ref": "#/components/schemas/AuthProfileResponseDto"
+                "$ref": "#/components/schemas/ProfileDto"
               }
             ]
           }
@@ -2222,29 +2222,6 @@
         "required": [
           "accessToken",
           "refreshToken"
-        ]
-      },
-      "LogoutDto": {
-        "type": "object",
-        "properties": {
-          "refreshToken": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "refreshToken"
-        ]
-      },
-      "MessageResponseDto": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "Response message"
-          }
-        },
-        "required": [
-          "message"
         ]
       },
       "UpdatePasswordDto": {
@@ -2298,68 +2275,6 @@
           }
         },
         "required": [
-          "email"
-        ]
-      },
-      "ProfileDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "User ID"
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "Created at timestamp"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "Updated at timestamp"
-          },
-          "fullName": {
-            "type": "string",
-            "description": "Full name"
-          },
-          "gender": {
-            "type": "string",
-            "description": "Gender"
-          },
-          "userRole": {
-            "type": "string",
-            "description": "User role",
-            "enum": [
-              "basic",
-              "admin",
-              "owner"
-            ]
-          },
-          "conversationRole": {
-            "type": "string",
-            "description": "Conversation role"
-          },
-          "bio": {
-            "type": "string",
-            "description": "Bio"
-          },
-          "email": {
-            "type": "string",
-            "description": "Email address"
-          },
-          "confirmedAt": {
-            "type": "string",
-            "description": "Email confirmed at timestamp",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "createdAt",
-          "updatedAt",
-          "fullName",
-          "gender",
-          "userRole",
-          "conversationRole",
-          "bio",
           "email"
         ]
       },
@@ -2455,7 +2370,7 @@
           "message"
         ]
       },
-      "ConversationPersonalityRefDto": {
+      "PersonalityRefDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -2568,7 +2483,7 @@
             "nullable": true,
             "allOf": [
               {
-                "$ref": "#/components/schemas/ConversationPersonalityRefDto"
+                "$ref": "#/components/schemas/PersonalityRefDto"
               }
             ]
           },
@@ -2882,29 +2797,6 @@
           }
         }
       },
-      "ScenarioPersonalityRefDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Personality ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "Personality name"
-          },
-          "avatarUrl": {
-            "type": "string",
-            "description": "Avatar URL",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "avatarUrl"
-        ]
-      },
       "ScenarioWithPersonalityDto": {
         "type": "object",
         "properties": {
@@ -2942,7 +2834,7 @@
             "nullable": true,
             "allOf": [
               {
-                "$ref": "#/components/schemas/ScenarioPersonalityRefDto"
+                "$ref": "#/components/schemas/PersonalityRefDto"
               }
             ]
           }
@@ -3338,7 +3230,7 @@
           "createdAt"
         ]
       },
-      "UpdateCustomModelSelectionDto": {
+      "ModelSelectionIdsDto": {
         "type": "object",
         "properties": {
           "responseModelId": {
@@ -3449,36 +3341,6 @@
           "timestampedTranscriptionModelId",
           "maxConversationDurationInSeconds"
         ]
-      },
-      "UpdateAppConfigDto": {
-        "type": "object",
-        "properties": {
-          "responseModelId": {
-            "type": "number",
-            "description": "Response model ID",
-            "nullable": true
-          },
-          "ttsModelId": {
-            "type": "number",
-            "description": "TTS model ID",
-            "nullable": true
-          },
-          "realtimeModelId": {
-            "type": "number",
-            "description": "Realtime model ID",
-            "nullable": true
-          },
-          "realtimeTranscriptionModelId": {
-            "type": "number",
-            "description": "Realtime transcription model ID",
-            "nullable": true
-          },
-          "timestampedTranscriptionModelId": {
-            "type": "number",
-            "description": "Timestamped transcription model ID",
-            "nullable": true
-          }
-        }
       },
       "ConversationRoleDto": {
         "type": "object",

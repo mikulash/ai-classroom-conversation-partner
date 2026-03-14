@@ -1,6 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { UserRole } from '@repo/shared/types/generated/enums';
+import { ProfileDto } from './profiles.dto';
 
 export class RegisterUserDto {
   @ApiProperty({ example: 'student@example.edu' })
@@ -35,13 +35,6 @@ export class LoginDto {
 }
 
 export class RefreshTokenDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-    refreshToken!: string;
-}
-
-export class LogoutDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -95,43 +88,6 @@ export class VerifyEmailQueryDto {
 // Response DTOs
 // ============================================================
 
-export class AuthProfileResponseDto {
-  @ApiProperty({ description: 'User ID' })
-    id!: string;
-
-  @ApiProperty({ description: 'Created at timestamp' })
-    createdAt!: string;
-
-  @ApiProperty({ description: 'Updated at timestamp' })
-    updatedAt!: string;
-
-  @ApiProperty({ description: 'Full name' })
-    fullName!: string;
-
-  @ApiProperty({ description: 'Gender' })
-    gender!: string;
-
-  @ApiProperty({ description: 'User role', enum: UserRole })
-    userRole!: UserRole;
-
-  @ApiProperty({ description: 'Conversation role' })
-    conversationRole!: string;
-
-  @ApiProperty({ description: 'Bio' })
-    bio!: string;
-
-  @ApiProperty({ description: 'Email address' })
-    email!: string;
-
-  @ApiPropertyOptional({ description: 'Email confirmed at timestamp', type: String, nullable: true })
-    confirmedAt!: string | null;
-}
-
-export class AuthRegisterResponseDto {
-  @ApiProperty({ description: 'Registration result message' })
-    message!: string;
-}
-
 export class AuthEmailVerificationResponseDto {
   @ApiProperty({ description: 'Access token' })
     accessToken!: string;
@@ -139,8 +95,8 @@ export class AuthEmailVerificationResponseDto {
   @ApiProperty({ description: 'Refresh token' })
     refreshToken!: string;
 
-  @ApiProperty({ description: 'User profile', type: AuthProfileResponseDto })
-    user!: AuthProfileResponseDto;
+  @ApiProperty({ description: 'User profile', type: ProfileDto })
+    user!: ProfileDto;
 }
 
 export class AuthLoginResponseDto {
@@ -150,8 +106,8 @@ export class AuthLoginResponseDto {
   @ApiProperty({ description: 'Refresh token' })
     refreshToken!: string;
 
-  @ApiProperty({ description: 'User profile', type: AuthProfileResponseDto })
-    user!: AuthProfileResponseDto;
+  @ApiProperty({ description: 'User profile', type: ProfileDto })
+    user!: ProfileDto;
 }
 
 export class AuthTokensResponseDto {
@@ -160,9 +116,4 @@ export class AuthTokensResponseDto {
 
   @ApiProperty({ description: 'Refresh token' })
     refreshToken!: string;
-}
-
-export class AuthMessageResponseDto {
-  @ApiProperty({ description: 'Response message' })
-    message!: string;
 }

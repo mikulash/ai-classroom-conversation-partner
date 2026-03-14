@@ -1,32 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional } from 'class-validator';
-
-export class UpdateAppConfigDto {
-  @ApiPropertyOptional({ description: 'Response model ID', type: Number, nullable: true })
-  @IsOptional()
-  @IsInt()
-    responseModelId?: number | null;
-
-  @ApiPropertyOptional({ description: 'TTS model ID', type: Number, nullable: true })
-  @IsOptional()
-  @IsInt()
-    ttsModelId?: number | null;
-
-  @ApiPropertyOptional({ description: 'Realtime model ID', type: Number, nullable: true })
-  @IsOptional()
-  @IsInt()
-    realtimeModelId?: number | null;
-
-  @ApiPropertyOptional({ description: 'Realtime transcription model ID', type: Number, nullable: true })
-  @IsOptional()
-  @IsInt()
-    realtimeTranscriptionModelId?: number | null;
-
-  @ApiPropertyOptional({ description: 'Timestamped transcription model ID', type: Number, nullable: true })
-  @IsOptional()
-  @IsInt()
-    timestampedTranscriptionModelId?: number | null;
-}
+import { ApiProperty } from '@nestjs/swagger';
 
 export class AppConfigDto {
   @ApiProperty({ description: 'Config ID' })

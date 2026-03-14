@@ -6,9 +6,9 @@ import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ConfigProvider } from '../utils/configProvider';
-import { UpdateAppConfigDto, AppConfigDto } from '../dtos/app-config.dto';
+import { AppConfigDto } from '../dtos/app-config.dto';
 import { appConfigEntityToDto } from '../utils/entityToDtoMappers';
-import { ErrorResponseDto } from '../dtos/common.dto';
+import { ErrorResponseDto, ModelSelectionIdsDto } from '../dtos/common.dto';
 
 @ApiTags('app-config')
 @Controller('api/app-config')
@@ -33,10 +33,10 @@ export class AppConfigController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('owner')
-  @ApiBody({ type: UpdateAppConfigDto })
+  @ApiBody({ type: ModelSelectionIdsDto })
   @ApiOkResponse({ description: 'Update app configuration', type: AppConfigDto })
   async updateAppConfig(
-    @Body() body: UpdateAppConfigDto,
+    @Body() body: ModelSelectionIdsDto,
     @Req() req: Request,
     @Res() res: Response<AppConfigDto | ErrorResponseDto>,
   ): Promise<void> {

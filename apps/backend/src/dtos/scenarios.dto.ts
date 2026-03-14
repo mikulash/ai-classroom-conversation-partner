@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
+import { PersonalityRefDto } from './personalities.dto';
 
 export class CreateScenarioDto {
   @ApiPropertyOptional({ description: 'Personality ID' })
@@ -54,17 +55,6 @@ export class UpdateScenarioDto {
     settingCs?: string;
 }
 
-export class ScenarioPersonalityRefDto {
-  @ApiProperty({ description: 'Personality ID' })
-    id!: number;
-
-  @ApiProperty({ description: 'Personality name' })
-    name!: string;
-
-  @ApiProperty({ description: 'Avatar URL', type: String, nullable: true })
-    avatarUrl!: string | null;
-}
-
 export class ScenarioWithPersonalityDto {
   @ApiProperty({ description: 'Scenario ID' })
     id!: number;
@@ -87,7 +77,7 @@ export class ScenarioWithPersonalityDto {
   @ApiProperty({ description: 'Setting in Czech' })
     settingCs!: string;
 
-  @ApiProperty({ description: 'Associated personality', type: ScenarioPersonalityRefDto, nullable: true })
-    personality!: ScenarioPersonalityRefDto | null;
+  @ApiProperty({ description: 'Associated personality', type: PersonalityRefDto, nullable: true })
+    personality!: PersonalityRefDto | null;
 }
 

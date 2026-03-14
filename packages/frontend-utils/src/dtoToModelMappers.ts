@@ -1,10 +1,9 @@
 import {
   AppConfigDto,
-  AuthProfileResponseDto,
   ConversationRoleDto,
   ConversationWithPersonalityDto,
   CustomSelectionWithModelsDto,
-  PersonalityDto, RealtimeModelDto, RealtimeTranscriptionModelDto,
+  PersonalityDto, ProfileDto, RealtimeModelDto, RealtimeTranscriptionModelDto,
   ResponseModelDto,
   ScenarioWithPersonalityDto, TimestampedTranscriptionModelDto, TtsModelDto,
 } from './clients/generated';
@@ -176,7 +175,7 @@ export function customSelectionWithModelsDtoToModel(dto: CustomSelectionWithMode
   };
 }
 
-export function profileDtoToModel(dto: AuthProfileResponseDto): ProfileModel {
+export function profileDtoToModel(dto: ProfileDto): ProfileModel {
   return {
     id: dto.id,
     createdAt: stringToDate(dto.createdAt),

@@ -7,7 +7,6 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 
 import {
-  UpdateCustomModelSelectionDto,
   ResponseModelDto,
   TtsModelDto,
   RealtimeModelDto,
@@ -22,7 +21,7 @@ import {
   responseModelEntityToDto, timestampedTranscriptionModelEntityToDto,
   ttsModelEntityToDto,
 } from '../utils/entityToDtoMappers';
-import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
+import { ErrorResponseDto, MessageResponseDto, ModelSelectionIdsDto } from '../dtos/common.dto';
 
 @ApiTags('models')
 @Controller('api/models')
@@ -146,11 +145,11 @@ export class ModelsController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin', 'owner')
   @ApiParam({ name: 'userId', type: String })
-  @ApiBody({ type: UpdateCustomModelSelectionDto })
+  @ApiBody({ type: ModelSelectionIdsDto })
   @ApiOkResponse({ description: 'Update custom model selection for user', type: CustomSelectionWithModelsDto })
   async updateCustomSelection(
     @Param('userId') userId: string,
-    @Body() body: UpdateCustomModelSelectionDto,
+    @Body() body: ModelSelectionIdsDto,
     @Res() res: Response<CustomSelectionWithModelsDto | ErrorResponseDto>,
   ): Promise<void> {
     try {

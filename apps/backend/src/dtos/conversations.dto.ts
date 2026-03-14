@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 import { ConversationType } from '@repo/shared/types/generated/enums';
+import { PersonalityRefDto } from './personalities.dto';
 
 // ============================================================
 // Nested item DTOs
@@ -84,17 +85,6 @@ export class CreateConversationDto {
 // Response DTOs
 // ============================================================
 
-export class ConversationPersonalityRefDto {
-    @ApiProperty({ description: 'Personality ID' })
-      id!: number;
-
-    @ApiProperty({ description: 'Personality name' })
-      name!: string;
-
-    @ApiProperty({ description: 'Avatar URL', type: String, nullable: true })
-      avatarUrl!: string | null;
-}
-
 export class ConversationScenarioRefDto {
     @ApiProperty({ description: 'Scenario ID' })
       id!: number;
@@ -140,8 +130,8 @@ export class ConversationWithPersonalityDto {
     @ApiProperty({ description: 'Conversation type', enum: ConversationType })
       conversationType!: ConversationType;
 
-    @ApiPropertyOptional({ description: 'Personality reference', type: ConversationPersonalityRefDto, nullable: true })
-      personality!: ConversationPersonalityRefDto | null;
+    @ApiPropertyOptional({ description: 'Personality reference', type: PersonalityRefDto, nullable: true })
+      personality!: PersonalityRefDto | null;
 
     @ApiPropertyOptional({ description: 'Scenario reference', type: ConversationScenarioRefDto, nullable: true })
       scenario?: ConversationScenarioRefDto | null;
