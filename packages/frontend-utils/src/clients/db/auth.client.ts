@@ -38,7 +38,7 @@ export const authClient = {
    */
   verifyEmail: async (token: string) => {
     try {
-      const requestFn = await authApi.authControllerVerifyEmail({ params: { token } });
+      const requestFn = await authApi.authControllerVerifyEmail( token );
       const response = await requestFn(api);
       const { user: userDto, accessToken, refreshToken } = response.data;
       const user = profileDtoToModel(userDto);

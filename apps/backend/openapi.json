@@ -251,7 +251,17 @@
     "/api/auth/verify-email": {
       "get": {
         "operationId": "AuthController_verifyEmail",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "query",
+            "description": "Email verification token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Email verification result",
@@ -2738,6 +2748,27 @@
           "isHidden"
         ]
       },
+      "Sex": {
+        "type": "string",
+        "description": "Sex",
+        "enum": [
+          "F",
+          "M"
+        ]
+      },
+      "OpenAiVoiceName": {
+        "type": "string",
+        "description": "OpenAI voice name",
+        "enum": [
+          "alloy",
+          "ash",
+          "ballad",
+          "coral",
+          "echo",
+          "sage",
+          "shimmer"
+        ]
+      },
       "CreatePersonalityDto": {
         "type": "object",
         "properties": {
@@ -2758,8 +2789,7 @@
             "description": "Gender"
           },
           "sex": {
-            "type": "string",
-            "description": "Sex"
+            "$ref": "#/components/schemas/Sex"
           },
           "voiceInstructions": {
             "type": "string",
@@ -2770,8 +2800,7 @@
             "description": "ElevenLabs voice ID"
           },
           "openaiVoiceName": {
-            "type": "string",
-            "description": "OpenAI voice name"
+            "$ref": "#/components/schemas/OpenAiVoiceName"
           },
           "problemSummaryEn": {
             "type": "string",
@@ -2793,7 +2822,10 @@
             "type": "boolean",
             "description": "Whether personality is hidden"
           }
-        }
+        },
+        "required": [
+          "name"
+        ]
       },
       "UpdatePersonalityDto": {
         "type": "object",
@@ -2815,8 +2847,7 @@
             "description": "Gender"
           },
           "sex": {
-            "type": "string",
-            "description": "Sex"
+            "$ref": "#/components/schemas/Sex"
           },
           "voiceInstructions": {
             "type": "string",
@@ -2827,8 +2858,7 @@
             "description": "ElevenLabs voice ID"
           },
           "openaiVoiceName": {
-            "type": "string",
-            "description": "OpenAI voice name"
+            "$ref": "#/components/schemas/OpenAiVoiceName"
           },
           "problemSummaryEn": {
             "type": "string",
@@ -3494,17 +3524,15 @@
             "nullable": true
           },
           "sex": {
-            "type": "string",
-            "description": "Sex",
-            "nullable": true
+            "nullable": true,
+            "$ref": "#/components/schemas/Sex"
           },
           "gender": {
             "type": "string",
             "description": "Gender"
           },
           "openaiVoiceName": {
-            "type": "string",
-            "description": "OpenAI voice name"
+            "$ref": "#/components/schemas/OpenAiVoiceName"
           },
           "elevenlabsVoiceId": {
             "type": "string",
@@ -3544,7 +3572,8 @@
         },
         "required": [
           "id",
-          "name"
+          "name",
+          "openaiVoiceName"
         ]
       },
       "LanguageDto": {
@@ -3693,7 +3722,11 @@
         },
         "required": [
           "inputText",
-          "language"
+          "previousMessages",
+          "personality",
+          "conversationRole",
+          "language",
+          "userProfile"
         ]
       },
       "TextToSpeechDto": {
@@ -3730,6 +3763,7 @@
         },
         "required": [
           "inputMessage",
+          "personality",
           "language"
         ]
       },
@@ -3776,6 +3810,7 @@
         },
         "required": [
           "inputMessage",
+          "personality",
           "language"
         ]
       },
@@ -3907,7 +3942,10 @@
         },
         "required": [
           "sdpOffer",
-          "language"
+          "personality",
+          "conversationRole",
+          "language",
+          "userProfile"
         ]
       },
       "WebRtcAnswerResponseDto": {

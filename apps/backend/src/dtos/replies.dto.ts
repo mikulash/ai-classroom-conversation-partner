@@ -1,10 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import type { Language } from '@repo/shared/enums/Language';
 
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import type { ApiKey } from '@repo/shared/enums/ApiKey';
+import { OpenAiVoiceName, Sex } from '@repo/shared/types/generated/enums';
 import { ConversationMessageDto } from './conversations.dto';
 
 // ============================================================
@@ -32,22 +32,29 @@ export class LanguageDto {
 
 export class ReplyPersonalityDto {
   @ApiProperty({ description: 'Personality ID' })
+  @IsNumber()
     id!: number;
 
   @ApiProperty({ description: 'Personality name' })
+  @IsString()
     name!: string;
 
   @ApiPropertyOptional({ description: 'Age', nullable: true, type: Number })
     age?: number | null;
 
-  @ApiPropertyOptional({ description: 'Sex', nullable: true, type: String })
-    sex?: string | null;
+  @ApiPropertyOptional({ description: 'Sex', nullable: true, enum: Sex, enumName: 'Sex' })
+  @IsOptional()
+  @IsEnum(Sex)
+    sex?: Sex | null;
 
   @ApiPropertyOptional({ description: 'Gender', type: String })
+  @IsOptional()
+  @IsString()
     gender?: string;
 
-  @ApiPropertyOptional({ description: 'OpenAI voice name', type: String })
-    openaiVoiceName?: string;
+  @ApiProperty({ description: 'OpenAI voice name', enum: OpenAiVoiceName, enumName: 'OpenAiVoiceName' })
+  @IsEnum(OpenAiVoiceName)
+    openaiVoiceName!: OpenAiVoiceName;
 
   @ApiPropertyOptional({ description: 'ElevenLabs voice ID', nullable: true, type: String })
     elevenlabsVoiceId?: string | null;
@@ -126,36 +133,40 @@ export class GenerateReplyDto {
   @IsString()
     inputText!: string;
 
-  @ApiPropertyOptional({ description: 'Previous conversation messages', type: [ConversationMessageDto] })
-  @IsOptional()
+  @ApiProperty({ description: 'Previous conversation messages', type: [ConversationMessageDto] })
   @IsArray()
-    previousMessages?: ConversationMessageDto[];
+  @ValidateNested({ each: true })
+  @Type(() => ConversationMessageDto)
+    previousMessages!: ConversationMessageDto[];
 
-  @ApiPropertyOptional({ description: 'Personality configuration', type: ReplyPersonalityDto })
-  @IsOptional()
+  @ApiProperty({ description: 'Personality configuration', type: ReplyPersonalityDto })
   @IsObject()
-    personality?: ReplyPersonalityDto;
+  @ValidateNested()
+  @Type(() => ReplyPersonalityDto)
+    personality!: ReplyPersonalityDto;
 
-  @ApiPropertyOptional({ description: 'Conversation role (translated name string)', type: String })
-  @IsOptional()
+  @ApiProperty({ description: 'Conversation role (translated name string)', type: String })
   @IsString()
-    conversationRole?: string;
+    conversationRole!: string;
 
   @ApiProperty({ description: 'Language setting', type: LanguageDto })
   @IsObject()
   @ValidateNested()
   @Type(() => LanguageDto)
-    language!: Language;
+    language!: LanguageDto;
 
   @ApiPropertyOptional({ description: 'Scenario configuration', type: ReplyScenarioDto, nullable: true })
   @IsOptional()
   @IsObject()
-    scenario?: ReplyScenarioDto | null;
+  @ValidateNested()
+  @Type(() => ReplyScenarioDto)
+    scenario!: ReplyScenarioDto | null;
 
-  @ApiPropertyOptional({ description: 'User profile information', type: ReplyProfileDto })
-  @IsOptional()
+  @ApiProperty({ description: 'User profile information', type: ReplyProfileDto })
   @IsObject()
-    userProfile?: ReplyProfileDto;
+  @ValidateNested()
+  @Type(() => ReplyProfileDto)
+    userProfile!: ReplyProfileDto;
 }
 
 export class TextToSpeechDto {
@@ -163,16 +174,17 @@ export class TextToSpeechDto {
   @IsString()
     inputMessage!: string;
 
-  @ApiPropertyOptional({ description: 'Personality for voice settings', type: ReplyPersonalityDto })
-  @IsOptional()
+  @ApiProperty({ description: 'Personality for voice settings', type: ReplyPersonalityDto })
   @IsObject()
-    personality?: ReplyPersonalityDto;
+  @ValidateNested()
+  @Type(() => ReplyPersonalityDto)
+    personality!: ReplyPersonalityDto;
 
   @ApiProperty({ description: 'Language setting', type: LanguageDto })
   @IsObject()
   @ValidateNested()
   @Type(() => LanguageDto)
-    language!: Language;
+    language!: LanguageDto;
 
   @ApiPropertyOptional({ description: 'Audio response format', type: String, enum: ['pcm', 'mp3'] })
   @IsOptional()
@@ -186,16 +198,17 @@ export class TextToSpeechTimestampedDto {
   @IsString()
     inputMessage!: string;
 
-  @ApiPropertyOptional({ description: 'Personality for voice settings', type: ReplyPersonalityDto })
-  @IsOptional()
+  @ApiProperty({ description: 'Personality for voice settings', type: ReplyPersonalityDto })
   @IsObject()
-    personality?: ReplyPersonalityDto;
+  @ValidateNested()
+  @Type(() => ReplyPersonalityDto)
+    personality!: ReplyPersonalityDto;
 
   @ApiProperty({ description: 'Language setting', type: LanguageDto })
   @IsObject()
   @ValidateNested()
   @Type(() => LanguageDto)
-    language!: Language;
+    language!: LanguageDto;
 }
 
 export class RealtimeVoiceDto {
@@ -203,31 +216,34 @@ export class RealtimeVoiceDto {
   @IsString()
     sdpOffer!: string;
 
-  @ApiPropertyOptional({ description: 'Personality configuration', type: ReplyPersonalityDto })
-  @IsOptional()
+  @ApiProperty({ description: 'Personality configuration', type: ReplyPersonalityDto })
   @IsObject()
-    personality?: ReplyPersonalityDto;
+  @ValidateNested()
+  @Type(() => ReplyPersonalityDto)
+    personality!: ReplyPersonalityDto;
 
-  @ApiPropertyOptional({ description: 'Conversation role (translated name string)', type: String })
-  @IsOptional()
+  @ApiProperty({ description: 'Conversation role (translated name string)', type: String })
   @IsString()
-    conversationRole?: string;
+    conversationRole!: string;
 
   @ApiProperty({ description: 'Language setting', type: LanguageDto })
   @IsObject()
   @ValidateNested()
   @Type(() => LanguageDto)
-    language!: Language;
+    language!: LanguageDto;
 
   @ApiPropertyOptional({ description: 'Scenario configuration', type: ReplyScenarioDto, nullable: true })
   @IsOptional()
   @IsObject()
-    scenario?: ReplyScenarioDto | null;
+  @ValidateNested()
+  @Type(() => ReplyScenarioDto)
+    scenario!: ReplyScenarioDto | null;
 
-  @ApiPropertyOptional({ description: 'User profile information', type: ReplyProfileDto })
-  @IsOptional()
+  @ApiProperty({ description: 'User profile information', type: ReplyProfileDto })
   @IsObject()
-    userProfile?: ReplyProfileDto;
+  @ValidateNested()
+  @Type(() => ReplyProfileDto)
+    userProfile!: ReplyProfileDto;
 }
 
 export class RealtimeTranscriptionDto {
@@ -235,7 +251,7 @@ export class RealtimeTranscriptionDto {
   @IsObject()
   @ValidateNested()
   @Type(() => LanguageDto)
-    language!: Language;
+    language!: LanguageDto;
 }
 
 // ============================================================

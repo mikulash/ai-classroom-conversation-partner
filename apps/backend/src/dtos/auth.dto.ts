@@ -84,6 +84,13 @@ export class ResendVerificationDto {
     email!: string;
 }
 
+export class VerifyEmailQueryDto {
+  @ApiProperty({ description: 'Email verification token' })
+  @IsString()
+  @IsNotEmpty()
+    token!: string;
+}
+
 // ============================================================
 // Response DTOs
 // ============================================================

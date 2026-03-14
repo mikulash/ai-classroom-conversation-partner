@@ -1,39 +1,68 @@
-import {
-  RealtimeTranscriptionRequest,
-  RealtimeVoiceRequest,
-  TextToSpeechRequest,
-  TextToSpeechTimestampedRequest,
-} from '@repo/shared/types/figurantClient.types';
-import { Language } from '@repo/shared/enums/Language';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { Personality, Scenario } from '../generated/prisma/client';
-import { Profile } from '@repo/shared/types/db/entities';
+import { OpenAiVoiceName } from '@repo/shared/types/generated/enums';
+import { ConversationMessageDto } from '../dtos/conversations.dto';
+import { LanguageDto, ReplyPersonalityDto, ReplyProfileDto, ReplyScenarioDto } from '../dtos/replies.dto';
 
-type WithModelName<T, Extra extends object = object> = T & { modelApiName: string } & Extra;
+type WithModelName<T, Extra extends object = {}> = T & { modelApiName: string } & Extra;
 
 export interface GetResponseParams {
-    inputText: string;
-    previousMessages: ChatMessage[];
-    personality: Personality;
-    conversationRole: string;
-    language: Language;
-    scenario: Scenario | null;
-    userProfile: Profile
+  inputText: string;
+  previousMessages: ConversationMessageDto[];
+  personality: ReplyPersonalityDto;
+  conversationRole: string;
+  language: LanguageDto;
+  scenario: ReplyScenarioDto | null;
+  userProfile: ReplyProfileDto;
+}
+
+export interface GetSpeechAudioParams {
+  inputMessage: string;
+  personality: ReplyPersonalityDto;
+  language: LanguageDto;
+  responseFormat: 'pcm' | 'mp3';
+}
+
+export interface GetTimestampedSpeechAudioParams {
+  inputMessage: string;
+  personality: ReplyPersonalityDto;
+  language: LanguageDto;
+}
+
+export interface GetRealtimeTranscriptionParams {
+  inputAudioFormat: string;
+  language: LanguageDto;
+}
+
+export interface GetRealtimeVoiceParams {
+  openaiVoiceName: OpenAiVoiceName;
+  personality: ReplyPersonalityDto;
+  conversationRole: string;
+  language: LanguageDto;
+  scenario: ReplyScenarioDto | null;
+  userProfile: ReplyProfileDto;
+  sdpOffer: string;
 }
 
 export interface GetTimestampedTranscriptionParams {
-    audioFile: File;
-    language: Language;
+  audioFile: File;
+  language: LanguageDto;
 }
 
-export type GetTTSAudioParamsWithModelName = WithModelName<TextToSpeechRequest, { sampleRate: number }>;
+export interface SpeechAudioResult {
+  buffer: ArrayBuffer;
+  sampleRate: number;
+}
+
+export type GetTTSAudioParamsWithModelName = WithModelName<GetSpeechAudioParams, { sampleRate: number }>;
 
 export type GetResponseParamsWithModelName = WithModelName<GetResponseParams>;
 
 export type GetTimestampedTranscriptionParamsWithModelName = WithModelName<GetTimestampedTranscriptionParams>;
 
-export type GetRealtimeTranscriptionParamsWithModelName = WithModelName<RealtimeTranscriptionRequest>;
+export type GetRealtimeTranscriptionParamsWithModelName = WithModelName<GetRealtimeTranscriptionParams>;
 
-export type GetRealtimeVoiceParamsWithModelName = WithModelName<RealtimeVoiceRequest>;
+export type GetRealtimeVoiceParamsWithModelName = WithModelName<GetRealtimeVoiceParams>;
 
-export type GetTimestampedAudioParamsWithModelName = WithModelName<TextToSpeechTimestampedRequest, { sampleRate: number}>;
+export type GetTimestampedAudioParamsWithModelName = WithModelName<
+  GetTimestampedSpeechAudioParams,
+  { sampleRate: number }
+>;

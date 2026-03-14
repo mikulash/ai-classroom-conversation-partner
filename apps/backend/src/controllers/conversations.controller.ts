@@ -2,12 +2,30 @@ import { Controller, Delete, Get, Param, Post, Body, Req, Res, UseGuards } from 
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import prisma from '../clients/prisma';
+import type { Prisma } from '../generated/prisma/client';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CreateConversationDto, ConversationWithPersonalityDto } from '../dtos/conversations.dto';
 import { conversationWithPersonalityEntityToDto } from '../utils/entityToDtoMappers';
 import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
+
+const conversationRelations = {
+  personality: {
+    select: {
+      id: true,
+      name: true,
+      avatarUrl: true,
+    },
+  },
+  scenario: {
+    select: {
+      id: true,
+      situationDescriptionEn: true,
+      situationDescriptionCs: true,
+    },
+  },
+} satisfies Prisma.ConversationInclude;
 
 @ApiTags('conversations')
 @ApiBearerAuth()
@@ -28,22 +46,7 @@ export class ConversationsController {
 
       const conversations = await prisma.conversation.findMany({
         where: { userId: req.user.userId },
-        include: {
-          personality: {
-            select: {
-              id: true,
-              name: true,
-              avatarUrl: true,
-            },
-          },
-          scenario: {
-            select: {
-              id: true,
-              situationDescriptionEn: true,
-              situationDescriptionCs: true,
-            },
-          },
-        },
+        include: conversationRelations,
         orderBy: { startTime: 'desc' },
       });
 
@@ -64,6 +67,17 @@ export class ConversationsController {
   ): Promise<void> {
     try {
       const { personalityId, scenarioId, startTime, endTime, endedReason, messages, logs, conversationType } = body;
+      const messagePayload = messages?.map(({ role, content, timestamp }) => ({
+        role,
+        content,
+        timestamp,
+      }));
+      const logPayload = logs?.map(({ timestamp, level, message, data }) => ({
+        timestamp,
+        level,
+        message,
+        ...(data != null ? { data } : {}),
+      }));
 
       if (!req.user) {
         res.status(401).json({ message: 'Not authenticated' });
@@ -84,26 +98,11 @@ export class ConversationsController {
           startTime: new Date(startTime),
           endTime: endTime ? new Date(endTime) : undefined,
           endedReason: endedReason ?? undefined,
-          messages: (messages ?? []) as never,
-          logs: (logs ?? []) as never,
+          messages: messagePayload,
+          logs: logPayload,
           conversationType,
         },
-        include: {
-          personality: {
-            select: {
-              id: true,
-              name: true,
-              avatarUrl: true,
-            },
-          },
-          scenario: {
-            select: {
-              id: true,
-              situationDescriptionEn: true,
-              situationDescriptionCs: true,
-            },
-          },
-        },
+        include: conversationRelations,
       });
 
       res.status(201).json(conversationWithPersonalityEntityToDto(conversation));
@@ -168,22 +167,7 @@ export class ConversationsController {
     try {
       const conversations = await prisma.conversation.findMany({
         where: { userId },
-        include: {
-          personality: {
-            select: {
-              id: true,
-              name: true,
-              avatarUrl: true,
-            },
-          },
-          scenario: {
-            select: {
-              id: true,
-              situationDescriptionEn: true,
-              situationDescriptionCs: true,
-            },
-          },
-        },
+        include: conversationRelations,
         orderBy: { startTime: 'desc' },
       });
 

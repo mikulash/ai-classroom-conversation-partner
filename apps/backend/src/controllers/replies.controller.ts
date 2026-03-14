@@ -20,6 +20,7 @@ import {
   AiProviderStatusDto,
 } from '../dtos/replies.dto';
 import { ErrorResponseDto } from '../dtos/common.dto';
+import { HttpStatusError } from '../utils/httpStatusError';
 
 @ApiTags('replies')
 @ApiBearerAuth()
@@ -40,12 +41,12 @@ export class RepliesController {
 
       const response = await universalApi.getResponse({
         inputText,
-        previousMessages: previousMessages as never[],
-        personality: personality as never,
-        conversationRole: conversationRole as never,
-        language: language as never,
-        scenario: scenario as never,
-        userProfile: userProfile as never,
+        previousMessages: previousMessages,
+        personality: personality,
+        conversationRole: conversationRole,
+        language: language,
+        scenario: scenario,
+        userProfile: userProfile,
       }, userId);
 
       res.json(response);
@@ -69,8 +70,8 @@ export class RepliesController {
 
       const result = await universalApi.getSpeechAudio({
         inputMessage,
-        personality: personality as never,
-        language: language as never,
+        personality,
+        language,
         responseFormat: (responseFormat ?? 'pcm'),
       }, userId);
 
@@ -104,8 +105,8 @@ export class RepliesController {
 
       const speechAudio = await universalApi.getTimestampedSpeechAudio({
         inputMessage,
-        personality: personality as never,
-        language: language as never,
+        personality,
+        language,
       }, userId);
 
       const speechAudioForWire: TextToSpeechTimestampedResponseDto = {
@@ -135,18 +136,18 @@ export class RepliesController {
 
       const text = await universalApi.getResponse({
         inputText: body.inputText,
-        previousMessages: body.previousMessages as never[],
-        personality: body.personality as never,
-        conversationRole: body.conversationRole as never,
-        language: body.language as never,
-        scenario: body.scenario as never,
-        userProfile: body.userProfile as never,
+        previousMessages: body.previousMessages,
+        personality: body.personality,
+        conversationRole: body.conversationRole,
+        language: body.language,
+        scenario: body.scenario,
+        userProfile: body.userProfile,
       }, userId);
 
       const result = await universalApi.getSpeechAudio({
         inputMessage: text,
-        personality: body.personality as never,
-        language: body.language as never,
+        personality: body.personality,
+        language: body.language,
         responseFormat: 'pcm',
       }, userId);
 
@@ -177,18 +178,18 @@ export class RepliesController {
 
       const text = await universalApi.getResponse({
         inputText: body.inputText,
-        previousMessages: body.previousMessages as never[],
-        personality: body.personality as never,
-        conversationRole: body.conversationRole as never,
-        language: body.language as never,
-        scenario: body.scenario as never,
-        userProfile: body.userProfile as never,
+        previousMessages: body.previousMessages,
+        personality: body.personality,
+        conversationRole: body.conversationRole,
+        language: body.language,
+        scenario: body.scenario,
+        userProfile: body.userProfile,
       }, userId);
 
       const result = await universalApi.getTimestampedSpeechAudio({
         inputMessage: text,
-        personality: body.personality as never,
-        language: body.language as never,
+        personality: body.personality,
+        language: body.language,
       }, userId);
 
       const speech: TextToSpeechTimestampedResponseDto = {
@@ -216,13 +217,13 @@ export class RepliesController {
     try {
       const userId = getUserId(req);
       const answer = await universalApi.getRealtimeVoice({
-        openai_voice_name: '',
-        personality: body.personality as never,
-        conversationRole: body.conversationRole as never,
+        openaiVoiceName: body.personality.openaiVoiceName,
+        personality: body.personality,
+        conversationRole: body.conversationRole,
         language: body.language,
-        scenario: body.scenario as never,
-        userProfile: body.userProfile as never,
-        sdp_offer: body.sdpOffer,
+        scenario: body.scenario,
+        userProfile: body.userProfile,
+        sdpOffer: body.sdpOffer,
       }, userId);
       res.json(answer);
     } catch (error) {
@@ -242,18 +243,13 @@ export class RepliesController {
     try {
       const userId = getUserId(req);
       const transcriptionSessionCreateResponse = await universalApi.getRealtimeTranscription({
-        input_audio_format: 'pcm16',
-        language: body.language as never,
+        inputAudioFormat: 'pcm16',
+        language: body.language,
       }, userId);
       res.json(transcriptionSessionCreateResponse);
     } catch (err: unknown) {
       console.error(err);
-      let status = 500;
-      if (typeof err === 'object' && err !== null && 'status' in err && typeof (err as {
-        status: unknown
-      }).status === 'number') {
-        status = (err as { status: number }).status;
-      }
+      const status = err instanceof HttpStatusError ? err.status : 500;
       const msg = status === 500 ? 'Internal server error' : 'OpenAI transcription session creation failed';
 
       res.status(status).json({ message: msg });

@@ -35,6 +35,82 @@ function dateToString(date: Date | null): string | null {
   return date ? date.toISOString() : null;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isConversationMessage(value: unknown): value is ConversationMessageDto {
+  return (
+    isRecord(value) &&
+    (value.role === 'user' || value.role === 'assistant') &&
+    typeof value.content === 'string' &&
+    typeof value.timestamp === 'string'
+  );
+}
+
+function isConversationLog(value: unknown): value is ConversationLogDto {
+  return (
+    isRecord(value) &&
+    typeof value.timestamp === 'string' &&
+    (value.level === 'log' || value.level === 'error' || value.level === 'warn') &&
+    typeof value.message === 'string' &&
+    (
+      value.data === undefined ||
+      value.data === null ||
+      isRecord(value.data)
+    )
+  );
+}
+
+function mapConversationMessages(
+  messages: unknown,
+): ConversationMessageDto[] | null {
+  if (!Array.isArray(messages)) {
+    return null;
+  }
+
+  return messages.flatMap((message) => {
+    if (!isConversationMessage(message)) {
+      return [];
+    }
+
+    return [{
+      role: message.role,
+      content: message.content,
+      timestamp: message.timestamp,
+    }];
+  });
+}
+
+function mapConversationLogs(
+  logs: unknown,
+): ConversationLogDto[] | null {
+  if (!Array.isArray(logs)) {
+    return null;
+  }
+
+  return logs.flatMap((log) => {
+    if (!isConversationLog(log)) {
+      return [];
+    }
+
+    const mappedLog = {
+      timestamp: log.timestamp,
+      level: log.level,
+      message: log.message,
+    };
+
+    if (log.data === undefined) {
+      return [mappedLog];
+    }
+
+    return [{
+      ...mappedLog,
+      data: log.data,
+    }];
+  });
+}
+
 export function appConfigEntityToDto(config: AppConfig): AppConfigDto {
   return {
     id: config.id,
@@ -229,8 +305,8 @@ export function conversationWithPersonalityEntityToDto(
     startTime: dateToString(conversation.startTime),
     endTime: dateToString(conversation.endTime),
     endedReason: conversation.endedReason,
-    messages: (conversation.messages) as ConversationMessageDto[] | null,
-    logs: (conversation.logs) as ConversationLogDto[] | null,
+    messages: mapConversationMessages(conversation.messages),
+    logs: mapConversationLogs(conversation.logs),
     conversationType: conversation.conversationType,
     personality: conversation.personality,
     scenario: conversation.scenario,

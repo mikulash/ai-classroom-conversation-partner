@@ -42,9 +42,20 @@ import {
   AuthEmailVerificationResponseDto,
   AuthLoginResponseDto,
   AuthTokensResponseDto,
+  VerifyEmailQueryDto,
 } from '../dtos/auth.dto';
 import { profileEntityToDto } from '../utils/entityToDtoMappers';
 import { ErrorResponseDto, MessageResponseDto } from '../dtos/common.dto';
+
+function isEmailVerificationPayload(
+  payload: string | jwt.JwtPayload,
+): payload is jwt.JwtPayload & { userId: string; email: string } {
+  return (
+    typeof payload !== 'string' &&
+    typeof payload.userId === 'string' &&
+    typeof payload.email === 'string'
+  );
+}
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -179,18 +190,24 @@ export class AuthController {
   @Get('verify-email')
   @ApiOkResponse({ description: 'Email verification result', type: AuthEmailVerificationResponseDto })
   async verifyEmail(
-    @Query('token') token: string | undefined,
+    @Query() query: VerifyEmailQueryDto,
     @Res() res: Response<AuthEmailVerificationResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
+      const { token } = query;
       if (!token) {
         res.status(400).json({ message: 'Verification token is required' });
         return;
       }
 
-      let payload: { userId: string; email: string };
+      let payload: jwt.JwtPayload & { userId: string; email: string };
       try {
-        payload = jwt.verify(token, getJwtSecret()) as { userId: string; email: string };
+        const decodedToken = jwt.verify(token, getJwtSecret());
+        if (!isEmailVerificationPayload(decodedToken)) {
+          res.status(400).json({ message: 'Invalid or expired verification token' });
+          return;
+        }
+        payload = decodedToken;
       } catch {
         res.status(400).json({ message: 'Invalid or expired verification token' });
         return;

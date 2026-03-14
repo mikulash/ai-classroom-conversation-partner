@@ -1,11 +1,11 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { OpenAiVoiceName, Sex } from '@repo/shared/types/generated/enums';
 
 export class CreatePersonalityDto {
-  @ApiPropertyOptional({ description: 'Personality name' })
+  @ApiProperty({ description: 'Personality name' })
   @IsString()
-    name?: string;
+    name!: string;
 
   @ApiPropertyOptional({ description: 'Age of the personality' })
   @IsOptional()
@@ -22,10 +22,10 @@ export class CreatePersonalityDto {
   @IsString()
     gender?: string;
 
-  @ApiPropertyOptional({ description: 'Sex' })
+  @ApiPropertyOptional({ description: 'Sex', enum: Sex, enumName: 'Sex' })
   @IsOptional()
-  @IsString()
-    sex?: string;
+  @IsEnum(Sex)
+    sex?: Sex;
 
   @ApiPropertyOptional({ description: 'Voice instructions' })
   @IsOptional()
@@ -37,10 +37,14 @@ export class CreatePersonalityDto {
   @IsString()
     elevenlabsVoiceId?: string;
 
-  @ApiPropertyOptional({ description: 'OpenAI voice name' })
+  @ApiPropertyOptional({
+    description: 'OpenAI voice name',
+    enum: OpenAiVoiceName,
+    enumName: 'OpenAiVoiceName',
+  })
   @IsOptional()
-  @IsString()
-    openaiVoiceName?: string;
+  @IsEnum(OpenAiVoiceName)
+    openaiVoiceName?: OpenAiVoiceName;
 
   @ApiPropertyOptional({ description: 'Problem summary in English' })
   @IsOptional()
@@ -68,8 +72,7 @@ export class CreatePersonalityDto {
     isHidden?: boolean;
 }
 
-// UpdatePersonalityDto is identical but all fields are optional
-export class UpdatePersonalityDto extends CreatePersonalityDto { }
+export class UpdatePersonalityDto extends PartialType(CreatePersonalityDto) { }
 
 export class PersonalityDto {
   @ApiProperty({ description: 'Personality ID' })
@@ -91,7 +94,7 @@ export class PersonalityDto {
     gender!: string;
 
   @ApiProperty({ description: 'Sex', enum: Sex })
-    sex!: string;
+    sex!: Sex;
 
   @ApiProperty({ description: 'Voice instructions', type: String, nullable: true })
     voiceInstructions!: string | null;
@@ -100,7 +103,7 @@ export class PersonalityDto {
     elevenlabsVoiceId!: string | null;
 
   @ApiProperty({ description: 'OpenAI voice name', enum: OpenAiVoiceName })
-    openaiVoiceName!: string;
+    openaiVoiceName!: OpenAiVoiceName;
 
   @ApiProperty({ description: 'Problem summary in English' })
     problemSummaryEn!: string;

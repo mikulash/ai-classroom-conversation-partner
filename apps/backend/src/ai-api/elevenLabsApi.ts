@@ -1,14 +1,18 @@
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { ConfigProvider } from '../utils/configProvider';
-import { ElevenLabsTimestampedResponse, GetTTSAudioResponse } from '@repo/shared/types/figurantClient.types';
+import { ElevenLabsTimestampedResponse } from '@repo/shared/types/figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
-import { GetTimestampedAudioParamsWithModelName, GetTTSAudioParamsWithModelName } from '../types/universalApi.types';
+import {
+  GetTimestampedAudioParamsWithModelName,
+  GetTTSAudioParamsWithModelName,
+  SpeechAudioResult,
+} from '../types/universalApi.types';
 import { ELEVENLABS_FALLBACK_VOICE_ID_FEMALE, ELEVENLABS_FALLBACK_VOICE_ID_MALE } from '../constants/constants';
 
 const getTextToSpeech = async (
   params: GetTTSAudioParamsWithModelName,
-): Promise<GetTTSAudioResponse> => {
+): Promise<SpeechAudioResult> => {
   const {
     inputMessage,
     personality,
@@ -59,20 +63,14 @@ const getTextToSpeech = async (
       console.error('ElevenLabs API failed: ', response.status, response.statusText);
 
       return {
-        blob: new Blob([], { type: `audio/${responseFormat}` }),
-        objectUrl: '',
         buffer: new ArrayBuffer(0),
         sampleRate: 0,
       };
     }
 
     const arrayBuffer = await response.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: `audio/${responseFormat}` });
-    const objectUrl = URL.createObjectURL(blob);
 
     return {
-      blob,
-      objectUrl,
       buffer: arrayBuffer,
       sampleRate: sampleRate,
     };
@@ -80,8 +78,6 @@ const getTextToSpeech = async (
     console.error('Error converting text to speech using ElevenLabs:', error);
 
     return {
-      blob: new Blob([], { type: `audio/${responseFormat}` }),
-      objectUrl: '',
       buffer: new ArrayBuffer(0),
       sampleRate: 0,
     };

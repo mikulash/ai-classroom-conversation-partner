@@ -2,8 +2,9 @@ import { ConfigProvider } from '../utils/configProvider';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { getOpenAIClient } from '../clients/openAi';
-import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
+import { createPersonalityPrompt } from '../utils/createPersonalityPrompt';
 import { getPreciseLipSyncAudio } from '../utils/lipsyncUtils';
+import { TranscriptionSessionCreateResponseDto, WebRtcAnswerResponseDto } from '../dtos/replies.dto';
 import {
   GetRealtimeTranscriptionParamsWithModelName,
   GetRealtimeVoiceParamsWithModelName,
@@ -11,24 +12,34 @@ import {
   GetTimestampedAudioParamsWithModelName,
   GetTimestampedTranscriptionParamsWithModelName,
   GetTTSAudioParamsWithModelName,
+  SpeechAudioResult,
 } from '../types/universalApi.types';
-import {
-  EphemeralTokenResponse,
-  GetTTSAudioResponse,
-  TranscriptionSessionCreateResponse,
-  WebRtcAnswerResponse,
-} from '@repo/shared/types/figurantClient.types';
+import { HttpStatusError } from '../utils/httpStatusError';
 
 const realtimeBaseUrl = 'https://api.openai.com/v1/realtime';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isClientSecretEnvelope(
+  value: unknown,
+): value is { client_secret: { value: string } } {
+  return (
+    isRecord(value) &&
+    isRecord(value.client_secret) &&
+    typeof value.client_secret.value === 'string'
+  );
+}
+
 async function getRealtimeTranscriptionToken(
   params: GetRealtimeTranscriptionParamsWithModelName,
-): Promise<TranscriptionSessionCreateResponse> {
+): Promise<TranscriptionSessionCreateResponseDto> {
   const apiKeysProvider = await ConfigProvider.getInstance();
   const apiKey = apiKeysProvider.getApiKey(API_KEY.OPENAI);
 
   const payload = {
-    input_audio_format: params.input_audio_format,
+    input_audio_format: params.inputAudioFormat,
     input_audio_transcription: {
       model: params.modelApiName,
       language: params.language.ISO639,
@@ -53,20 +64,19 @@ async function getRealtimeTranscriptionToken(
 
   if (!res.ok) {
     const text = await res.text();
-    const err = new Error(
+    throw new HttpStatusError(
       `OpenAI transcription session creation failed (${res.status}): ${text}`,
+      res.status,
     );
-    (err as Error & { status?: number }).status = res.status;
-    throw err;
   }
 
-  return (await res.json()) as TranscriptionSessionCreateResponse;
+  return (await res.json()) as TranscriptionSessionCreateResponseDto;
 }
 
 const getRealtimeVoice = async (
   params: GetRealtimeVoiceParamsWithModelName,
   userId: string,
-): Promise<WebRtcAnswerResponse> => {
+): Promise<WebRtcAnswerResponseDto> => {
   const configProvider = await ConfigProvider.getInstance();
   const { realtimeTranscriptionModel } = await configProvider.getModelsForUser(userId);
   if (!realtimeTranscriptionModel) {
@@ -93,8 +103,8 @@ const getRealtimeVoice = async (
       create_response: boolean;
     };
   } = { model: params.modelApiName };
-  if (params.openai_voice_name.trim()) {
-    sessionBody.voice = params.openai_voice_name;
+  if (params.openaiVoiceName.trim()) {
+    sessionBody.voice = params.openaiVoiceName;
     sessionBody.modalities = ['audio', 'text'];
     sessionBody.instructions = createPersonalityPrompt({
       personality,
@@ -130,7 +140,10 @@ const getRealtimeVoice = async (
     throw new Error(`Failed to create Realtime session: ${sessionResp.status}`);
   }
 
-  const ephemeralTokenResponse = (await sessionResp.json()) as EphemeralTokenResponse;
+  const ephemeralTokenResponse = await sessionResp.json();
+  if (!isClientSecretEnvelope(ephemeralTokenResponse)) {
+    throw new Error('OpenAI session response did not include a client secret');
+  }
   const ephemeralToken = ephemeralTokenResponse.client_secret.value;
 
   const sdpResp = await fetch(`${realtimeBaseUrl}?model=${params.modelApiName}`, {
@@ -139,7 +152,7 @@ const getRealtimeVoice = async (
       'Authorization': `Bearer ${ephemeralToken}`,
       'Content-Type': 'application/sdp',
     },
-    body: params.sdp_offer,
+    body: params.sdpOffer,
   });
 
   const sdpAnswer = await sdpResp.text();
@@ -185,7 +198,7 @@ const getResponse = async ({
 
 const getTextToSpeech = async (
   params: GetTTSAudioParamsWithModelName,
-): Promise<GetTTSAudioResponse> => {
+): Promise<SpeechAudioResult> => {
   const {
     inputMessage,
     personality,
@@ -206,11 +219,7 @@ const getTextToSpeech = async (
     });
 
     const arrayBuffer = await speechResponse.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: `audio/${responseFormat}` });
-    const objectUrl = URL.createObjectURL(blob);
     return {
-      blob,
-      objectUrl,
       buffer: arrayBuffer,
       sampleRate: sampleRate, // https://platform.openai.com/docs/guides/text-to-speech
     };
@@ -218,8 +227,6 @@ const getTextToSpeech = async (
     console.error('Error converting text to speech using OpenAI:', error);
 
     return {
-      blob: new Blob([], { type: `audio/${responseFormat}` }),
-      objectUrl: '',
       buffer: new ArrayBuffer(0),
       sampleRate: 0,
     };

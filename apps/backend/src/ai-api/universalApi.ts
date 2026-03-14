@@ -1,24 +1,24 @@
 import { ConfigProvider } from '../utils/configProvider';
 import {
-  GetTTSAudioResponse,
-  RealtimeTranscriptionRequest,
-  RealtimeVoiceRequest,
-  TextToSpeechRequest,
-  TextToSpeechTimestampedRequest,
-  TranscriptionSessionCreateResponse,
-  WebRtcAnswerResponse,
-} from '@repo/shared/types/figurantClient.types';
+  GetRealtimeTranscriptionParams,
+  GetRealtimeVoiceParams,
+  GetResponseParams,
+  GetSpeechAudioParams,
+  GetTimestampedSpeechAudioParams,
+  GetTimestampedTranscriptionParams,
+  SpeechAudioResult,
+} from '../types/universalApi.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
-import { GetResponseParams, GetTimestampedTranscriptionParams } from '../types/universalApi.types';
+import { TranscriptionSessionCreateResponseDto, WebRtcAnswerResponseDto } from '../dtos/replies.dto';
 import { openAiApi } from './openAiApi';
 import { anthropicApi } from './anthropicApi';
 import { xAiApi } from './xAiApi';
 import { elevenLabsApi } from './elevenLabsApi';
 
 const getRealtimeTranscription = async (
-  params: RealtimeTranscriptionRequest,
+  params: GetRealtimeTranscriptionParams,
   userId: string,
-): Promise<TranscriptionSessionCreateResponse> => {
+): Promise<TranscriptionSessionCreateResponseDto> => {
   const configProvider = await ConfigProvider.getInstance();
   const { realtimeTranscriptionModel } = await configProvider.getModelsForUser(userId);
   if (!realtimeTranscriptionModel) {
@@ -33,9 +33,9 @@ const getRealtimeTranscription = async (
 };
 
 const getRealtimeVoice = async (
-  params: RealtimeVoiceRequest,
+  params: GetRealtimeVoiceParams,
   userId: string,
-): Promise<WebRtcAnswerResponse> => {
+): Promise<WebRtcAnswerResponseDto> => {
   const configProvider = await ConfigProvider.getInstance();
   const { realtimeModel } = await configProvider.getModelsForUser(userId);
   if (!realtimeModel) {
@@ -70,9 +70,9 @@ const getResponse = async (
 };
 
 const getTextToSpeech = async (
-  params: TextToSpeechRequest,
+  params: GetSpeechAudioParams,
   userId: string,
-): Promise<GetTTSAudioResponse> => {
+): Promise<SpeechAudioResult> => {
   const configProvider = await ConfigProvider.getInstance();
   const { ttsModel } = await configProvider.getModelsForUser(userId);
   if (!ttsModel) {
@@ -96,7 +96,7 @@ const getTextToSpeech = async (
 };
 
 const getTextToSpeechTimestamped = async (
-  params: TextToSpeechTimestampedRequest,
+  params: GetTimestampedSpeechAudioParams,
   userId: string,
 ): Promise<LipSyncAudio> => {
   const configProvider = await ConfigProvider.getInstance();

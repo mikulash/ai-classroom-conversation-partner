@@ -1,5 +1,5 @@
 import { getClaudeClient } from '../clients/claude';
-import { createPersonalityPrompt } from '@repo/shared/utils/createPersonalityPrompt';
+import { createPersonalityPrompt } from '../utils/createPersonalityPrompt';
 import { GetResponseParamsWithModelName } from '../types/universalApi.types';
 
 const getResponse = async ({

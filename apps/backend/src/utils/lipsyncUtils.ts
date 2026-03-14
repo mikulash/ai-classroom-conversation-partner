@@ -1,6 +1,6 @@
 ﻿import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { encodeWAV } from '@repo/shared/utils/encodeWav';
-import { Language } from '@repo/shared/enums/Language';
+import { LanguageDto } from '../dtos/replies.dto';
 import { universalApi } from '../ai-api/universalApi';
 
 /**
@@ -62,7 +62,7 @@ export async function getPreciseLipSyncAudio(
   bytesPerSample = 2,
   channels = 1,
   userId: string,
-  language: Language,
+  language: LanguageDto,
 ): Promise<LipSyncAudio> {
   // Convert the raw PCM ArrayBuffer into a WAV file
   const wavBuffer = encodeWAV(

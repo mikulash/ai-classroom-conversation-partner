@@ -5,7 +5,7 @@ import {
   RealtimeVoiceDto,
   TextToSpeechDto,
   TextToSpeechTimestampedDto,
-  AiProviderStatusDto,
+  AiProviderStatusDto, TranscriptionSessionCreateResponseDto, WebRtcAnswerResponseDto,
 } from './generated';
 import {
   GenerateReplyRequest,
@@ -13,9 +13,7 @@ import {
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
-  TextToSpeechTimestampedRequest,
-  TranscriptionSessionCreateResponse,
-  WebRtcAnswerResponse,
+  TextToSpeechTimestampedRequest, WebRtcAnswerResponse,
 } from '../figurantClient.types';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { api } from './api';
@@ -111,14 +109,14 @@ export class RepliesClient {
   async getTranscriptionEphemeralToken(
     inputAudioFormat: string,
     language: RealtimeTranscriptionRequest['language'],
-  ): Promise<TranscriptionSessionCreateResponse> {
+  ): Promise<TranscriptionSessionCreateResponseDto> {
     const body: RealtimeTranscriptionDto = {
       language: language,
     };
 
     const requestFn = await repliesApi.repliesControllerRealtimeTranscription(body);
     const response = await requestFn(api);
-    return response.data as unknown as TranscriptionSessionCreateResponse;
+    return response.data;
   }
 
   async getAiProvidersAvailability(): Promise<AiProviderStatusDto[]> {

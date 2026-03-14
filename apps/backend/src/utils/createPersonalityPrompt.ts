@@ -1,12 +1,11 @@
-import { Language } from '../enums/Language';
-import { Personality, Profile, Scenario } from '../types/db/entities';
+import { LanguageDto, ReplyPersonalityDto, ReplyProfileDto, ReplyScenarioDto } from '../dtos/replies.dto';
 
 interface GetPersonalityPromptParams {
-    personality: Personality;
+    personality: ReplyPersonalityDto;
     conversationRole: string;
-    language: Language;
-    scenario: Scenario | null | undefined;
-    userProfile: Profile;
+    language: LanguageDto;
+    scenario: ReplyScenarioDto | null;
+    userProfile: ReplyProfileDto;
 }
 
 export function createPersonalityPrompt({
@@ -21,7 +20,7 @@ export function createPersonalityPrompt({
     prompt += 'The situation is as follows: "' + scenario.situationDescriptionEn + '". It happened here "' + scenario.settingEn + '". ';
   }
 
-  const ageText = personality.age !== null ? `, a ${personality.age.toString()}-year-old` : '';
+  const ageText = personality.age != null ? `, a ${personality.age.toString()}-year-old` : '';
   prompt += `You are roleplaying as ${personality.name}${ageText}. Your gender is ${personality.gender} with the following problem: "${personality.problemSummaryEn}". 
             Additional context about you: "${personality.personalityDescriptionEn}". 
             Respond in first person as if you are ${personality.name}. Keep your messages brief and conversational, like in a chat.
