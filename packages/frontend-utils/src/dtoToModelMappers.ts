@@ -1,21 +1,65 @@
 import {
+  AiProviderStatusDto,
   AppConfigDto,
+  AuthEmailVerificationResponseDto,
+  AuthLoginResponseDto,
+  AuthTokensResponseDto,
+  ClientSecretDto,
+  ConversationLogDto,
+  ConversationMessageDto,
   ConversationRoleDto,
+  ConversationScenarioRefDto,
   ConversationWithPersonalityDto,
   CustomSelectionWithModelsDto,
-  PersonalityDto, ProfileDto, RealtimeModelDto, RealtimeTranscriptionModelDto,
+  FullReplyPlainResponseDto,
+  FullReplyTimestampedResponseDto,
+  InputAudioTranscriptionDto,
+  MessageResponseDto,
+  PersonalityDto,
+  PersonalityRefDto,
+  ProfileDto,
+  RealtimeModelDto,
+  RealtimeTranscriptionModelDto,
   ResponseModelDto,
-  ScenarioWithPersonalityDto, TimestampedTranscriptionModelDto, TtsModelDto,
+  ScenarioWithPersonalityDto,
+  TextToSpeechResponseDto,
+  TextToSpeechTimestampedResponseDto,
+  TimestampedTranscriptionModelDto,
+  TranscriptionSessionCreateResponseDto,
+  TurnDetectionDto,
+  TtsModelDto,
+  WebRtcAnswerResponseDto,
 } from './clients/generated';
 import {
+  AiProviderStatusModel,
   AppConfigModel,
+  AuthenticatedUserModel,
+  AuthTokensModel,
+  ClientSecretModel,
+  ConversationLogModel,
+  ConversationMessageModel,
   ConversationModel,
   ConversationRoleModel,
   CustomSelectionWithModelsModel,
-  PersonalityModel, ProfileModel, RealtimeModelModel, RealtimeTranscriptionModelModel,
+  FullReplyPlainModel,
+  FullReplyTimestampedModel,
+  InputAudioTranscriptionModel,
+  MessageModel,
+  PersonalityModel,
+  PersonalityRefModel,
+  ProfileModel,
+  RealtimeModelModel,
+  RealtimeTranscriptionModelModel,
   ResponseModelModel,
-  ScenarioModel, TimestampedTranscriptionModelModel,
+  ScenarioRefModel,
+  ScenarioWithPersonalityModel,
+  SpeechAudioModel,
+  TimestampedSpeechAudioModel,
+  TimestampedTranscriptionModelModel,
+  TranscriptionSessionModel,
+  TurnDetectionModel,
   TtsModelModel,
+  WebRtcAnswerModel,
 } from './models';
 
 function stringToDate(dateStr: string): Date;
@@ -24,9 +68,65 @@ function stringToDate(dateStr: string | null): Date | null {
   return dateStr ? new Date(dateStr) : null;
 }
 
+function b64ToArrayBuffer(b64: string): ArrayBuffer {
+  const binary = atob(b64);
+  const length = binary.length;
+  const buffer = new ArrayBuffer(length);
+  const view = new Uint8Array(buffer);
+
+  for (let index = 0; index < length; index += 1) {
+    view[index] = binary.charCodeAt(index);
+  }
+
+  return buffer;
+}
+
+function arrayBufferToAudioBlob(buffer: ArrayBuffer, format: 'pcm' | 'mp3' = 'pcm'): Blob {
+  return new Blob([buffer], { type: `audio/${format}` });
+}
+
+export function messageDtoToModel(dto: MessageResponseDto): MessageModel {
+  return {
+    message: dto.message,
+  };
+}
+
+export function personalityRefDtoToModel(dto: PersonalityRefDto): PersonalityRefModel {
+  return {
+    id: dto.id,
+    name: dto.name,
+    avatarUrl: dto.avatarUrl ?? null,
+  };
+}
+
+export function scenarioRefDtoToModel(dto: ConversationScenarioRefDto): ScenarioRefModel {
+  return {
+    id: dto.id,
+    situationDescriptionEn: dto.situationDescriptionEn,
+    situationDescriptionCs: dto.situationDescriptionCs,
+  };
+}
+
+export function conversationMessageDtoToModel(dto: ConversationMessageDto): ConversationMessageModel {
+  return {
+    role: dto.role,
+    content: dto.content,
+    timestamp: stringToDate(dto.timestamp),
+  };
+}
+
+export function conversationLogDtoToModel(dto: ConversationLogDto): ConversationLogModel {
+  return {
+    timestamp: stringToDate(dto.timestamp),
+    level: dto.level,
+    message: dto.message,
+    data: dto.data ?? null,
+  };
+}
+
 export function scenarioWithPersonalityDtoToModel(
   dto: ScenarioWithPersonalityDto,
-): ScenarioModel & { personality: { id: number; name: string; avatarUrl: string | null } | null } {
+): ScenarioWithPersonalityModel {
   return {
     id: dto.id,
     createdAt: stringToDate(dto.createdAt),
@@ -35,7 +135,7 @@ export function scenarioWithPersonalityDtoToModel(
     settingEn: dto.settingEn,
     situationDescriptionCs: dto.situationDescriptionCs,
     settingCs: dto.settingCs,
-    personality: dto.personality,
+    personality: dto.personality ? personalityRefDtoToModel(dto.personality) : null,
   };
 }
 
@@ -86,11 +186,6 @@ export function conversationRoleDtoToModel(dto: ConversationRoleDto): Conversati
   };
 }
 
-
-// ============================================================
-// Model Mappers
-// ============================================================
-
 export function responseModelDtoToModel(dto: ResponseModelDto): ResponseModelModel {
   return {
     id: dto.id,
@@ -139,7 +234,7 @@ export function realtimeTranscriptionModelDtoToModel(
     provider: dto.provider,
     apiName: dto.apiName,
     docsUrl: dto.docsUrl ?? null,
-    isEnabled: dto.isEnabled ?? false,
+    isEnabled: dto.isEnabled ?? null,
     allowsWordLevelTimestamps: dto.allowsWordLevelTimestamps,
   };
 }
@@ -170,8 +265,12 @@ export function customSelectionWithModelsDtoToModel(dto: CustomSelectionWithMode
     responseModel: dto.responseModel ? responseModelDtoToModel(dto.responseModel) : null,
     ttsModel: dto.ttsModel ? ttsModelDtoToModel(dto.ttsModel) : null,
     realtimeModel: dto.realtimeModel ? realtimeModelDtoToModel(dto.realtimeModel) : null,
-    realtimeTranscriptionModel: dto.realtimeTranscriptionModel ? realtimeTranscriptionModelDtoToModel(dto.realtimeTranscriptionModel) : null,
-    timestampedTranscriptionModel: dto.timestampedTranscriptionModel ? timestampedTranscriptionModelDtoToModel(dto.timestampedTranscriptionModel) : null,
+    realtimeTranscriptionModel: dto.realtimeTranscriptionModel ?
+      realtimeTranscriptionModelDtoToModel(dto.realtimeTranscriptionModel) :
+      null,
+    timestampedTranscriptionModel: dto.timestampedTranscriptionModel ?
+      timestampedTranscriptionModelDtoToModel(dto.timestampedTranscriptionModel) :
+      null,
   };
 }
 
@@ -200,11 +299,127 @@ export function conversationDtoToModel(dto: ConversationWithPersonalityDto): Con
     startTime: stringToDate(dto.startTime),
     endTime: stringToDate(dto.endTime),
     endedReason: dto.endedReason,
-    messages: (dto.messages) ?? null,
-    logs: (dto.logs) ?? null,
+    messages: dto.messages?.map(conversationMessageDtoToModel) ?? null,
+    logs: dto.logs?.map(conversationLogDtoToModel) ?? null,
     conversationType: dto.conversationType,
-    personality: dto.personality ? { id: dto.personality.id, name: dto.personality.name, avatarUrl: dto.personality.avatarUrl } : null,
-    scenario: dto.scenario ? { id: dto.scenario.id, situationDescriptionEn: dto.scenario.situationDescriptionEn, situationDescriptionCs: dto.scenario.situationDescriptionCs } : null,
+    personality: dto.personality ? personalityRefDtoToModel(dto.personality) : null,
+    scenario: dto.scenario ? scenarioRefDtoToModel(dto.scenario) : null,
   };
 }
 
+export function authResponseDtoToModel(
+  dto: AuthEmailVerificationResponseDto | AuthLoginResponseDto,
+): AuthenticatedUserModel {
+  const user = profileDtoToModel(dto.user);
+
+  return {
+    user,
+    session: {
+      access_token: dto.accessToken,
+      user,
+    },
+  };
+}
+
+export function authTokensDtoToModel(dto: AuthTokensResponseDto): AuthTokensModel {
+  return {
+    accessToken: dto.accessToken,
+    refreshToken: dto.refreshToken,
+  };
+}
+
+export function speechAudioDtoToModel(
+  dto: TextToSpeechResponseDto,
+  format: 'pcm' | 'mp3' = 'pcm',
+): SpeechAudioModel {
+  const buffer = b64ToArrayBuffer(dto.audioBase64);
+  const blob = arrayBufferToAudioBlob(buffer, format);
+
+  return {
+    blob,
+    objectUrl: URL.createObjectURL(blob),
+    buffer,
+    sampleRate: dto.sampleRate,
+  };
+}
+
+export function timestampedSpeechAudioDtoToModel(
+  dto: TextToSpeechTimestampedResponseDto,
+): TimestampedSpeechAudioModel {
+  return {
+    audio: dto.audio.map(b64ToArrayBuffer),
+    words: dto.words,
+    wtimes: dto.wtimes,
+    wdurations: dto.wdurations,
+  };
+}
+
+export function fullReplyPlainResponseDtoToModel(dto: FullReplyPlainResponseDto): FullReplyPlainModel {
+  return {
+    text: dto.text,
+    speech: speechAudioDtoToModel(dto.speech),
+  };
+}
+
+export function fullReplyTimestampedResponseDtoToModel(
+  dto: FullReplyTimestampedResponseDto,
+): FullReplyTimestampedModel {
+  return {
+    text: dto.text,
+    speech: timestampedSpeechAudioDtoToModel(dto.speech),
+  };
+}
+
+export function webRtcAnswerDtoToModel(dto: WebRtcAnswerResponseDto): WebRtcAnswerModel {
+  return {
+    sdp: dto.sdp,
+  };
+}
+
+export function turnDetectionDtoToModel(dto: TurnDetectionDto): TurnDetectionModel {
+  return {
+    type: dto.type,
+    threshold: dto.threshold,
+    prefix_padding_ms: dto.prefix_padding_ms,
+    silence_duration_ms: dto.silence_duration_ms,
+  };
+}
+
+export function inputAudioTranscriptionDtoToModel(
+  dto: InputAudioTranscriptionDto,
+): InputAudioTranscriptionModel {
+  return {
+    model: dto.model,
+    language: dto.language ?? null,
+    prompt: dto.prompt,
+  };
+}
+
+export function clientSecretDtoToModel(dto: ClientSecretDto): ClientSecretModel {
+  return {
+    expires_at: dto.expires_at,
+    value: dto.value,
+  };
+}
+
+export function transcriptionSessionDtoToModel(
+  dto: TranscriptionSessionCreateResponseDto,
+): TranscriptionSessionModel {
+  return {
+    id: dto.id,
+    object: dto.object,
+    modalities: dto.modalities,
+    turn_detection: turnDetectionDtoToModel(dto.turn_detection),
+    input_audio_format: dto.input_audio_format,
+    input_audio_transcription: inputAudioTranscriptionDtoToModel(dto.input_audio_transcription),
+    client_secret: dto.client_secret ? clientSecretDtoToModel(dto.client_secret) : null,
+    expires_at: dto.expires_at,
+  };
+}
+
+export function aiProviderStatusDtoToModel(dto: AiProviderStatusDto): AiProviderStatusModel {
+  return {
+    apiKey: dto.apiKey,
+    isAvailable: dto.isAvailable,
+  };
+}

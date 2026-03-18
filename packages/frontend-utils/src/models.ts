@@ -1,9 +1,28 @@
 import {
+  ConversationType,
   OpenAiVoiceName,
   RealtimeModelProvider, ResponseModelProvider,
   Sex, TimestampedTranscriptionModelProvider,
   TranscriptionModelProvider, TtsModelProvider,
+  UserRole,
 } from '@repo/shared/types/generated/enums';
+import type { ApiKey } from '@repo/shared/enums/ApiKey';
+
+export interface MessageModel {
+    message: string
+}
+
+export interface PersonalityRefModel {
+    id: number
+    name: string
+    avatarUrl: string | null
+}
+
+export interface ScenarioRefModel {
+    id: number
+    situationDescriptionEn: string
+    situationDescriptionCs: string
+}
 
 export interface ScenarioModel {
     id: number
@@ -16,7 +35,7 @@ export interface ScenarioModel {
 }
 
 export interface ScenarioWithPersonalityModel extends ScenarioModel {
-    personality: { id: number; name: string; avatarUrl: string | null } | null
+    personality: PersonalityRefModel | null
 }
 
 export interface AppConfigModel {
@@ -142,11 +161,26 @@ export interface ProfileModel {
     updatedAt: Date
     fullName: string
     gender: string
-    userRole: string
+    userRole: UserRole
     conversationRole: string
     bio: string
     email: string
     confirmedAt: Date | null
+}
+
+export interface ConversationMessageModel {
+    role: 'user' | 'assistant'
+    content: string
+    timestamp: Date
+}
+
+export type ConversationLogLevelModel = 'log' | 'error' | 'warn';
+
+export interface ConversationLogModel {
+    timestamp: Date
+    level: ConversationLogLevelModel
+    message: string
+    data?: Record<string, unknown> | null
 }
 
 export interface ConversationModel {
@@ -158,11 +192,87 @@ export interface ConversationModel {
     startTime: Date
     endTime: Date
     endedReason: string
-    messages: object[] | null
-    logs: object[] | null
-    conversationType: string
-    personality: { id: number; name: string; avatarUrl: string | null } | null
-    scenario: { id: number; situationDescriptionEn: string; situationDescriptionCs: string } | null
+    messages: ConversationMessageModel[] | null
+    logs: ConversationLogModel[] | null
+    conversationType: ConversationType
+    personality: PersonalityRefModel | null
+    scenario: ScenarioRefModel | null
 }
 
+export interface AuthSessionModel {
+    access_token: string
+    user: ProfileModel
+}
+
+export interface AuthenticatedUserModel {
+    user: ProfileModel
+    session: AuthSessionModel
+}
+
+export interface AuthTokensModel {
+    accessToken: string
+    refreshToken: string
+}
+
+export interface SpeechAudioModel {
+    blob: Blob
+    objectUrl: string
+    buffer: ArrayBuffer
+    sampleRate: number
+}
+
+export interface TimestampedSpeechAudioModel {
+    audio: ArrayBuffer[]
+    words: string[]
+    wtimes: number[]
+    wdurations: number[]
+}
+
+export interface FullReplyPlainModel {
+    text: string
+    speech: SpeechAudioModel
+}
+
+export interface FullReplyTimestampedModel {
+    text: string
+    speech: TimestampedSpeechAudioModel
+}
+
+export interface WebRtcAnswerModel {
+    sdp: string
+}
+
+export interface TurnDetectionModel {
+    type: string
+    threshold: number
+    prefix_padding_ms: number
+    silence_duration_ms: number
+}
+
+export interface InputAudioTranscriptionModel {
+    model: string
+    language: string | null
+    prompt: string
+}
+
+export interface ClientSecretModel {
+    expires_at: string
+    value: string
+}
+
+export interface TranscriptionSessionModel {
+    id: string
+    object: string
+    modalities: string[]
+    turn_detection: TurnDetectionModel
+    input_audio_format: string
+    input_audio_transcription: InputAudioTranscriptionModel
+    client_secret?: ClientSecretModel | null
+    expires_at?: number
+}
+
+export interface AiProviderStatusModel {
+    apiKey: ApiKey
+    isAvailable: boolean
+}
 

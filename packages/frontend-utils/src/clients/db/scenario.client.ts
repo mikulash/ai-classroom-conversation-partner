@@ -1,14 +1,14 @@
 
 import {
-  CreateScenarioDto, MessageResponseDto,
+  CreateScenarioDto,
   ScenariosApiFp,
   UpdateScenarioDto,
 } from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
-import { scenarioWithPersonalityDtoToModel } from '../../dtoToModelMappers';
+import { messageDtoToModel, scenarioWithPersonalityDtoToModel } from '../../dtoToModelMappers';
 import { ApiResponse } from '../client.types';
-import { ScenarioWithPersonalityModel } from '../../models';
+import { MessageModel, ScenarioWithPersonalityModel } from '../../models';
 
 const scenariosApi = ScenariosApiFp();
 
@@ -55,11 +55,11 @@ export const scenarioClient = {
     }
   },
 
-  delete: async (id: number): Promise<ApiResponse<MessageResponseDto>> => {
+  delete: async (id: number): Promise<ApiResponse<MessageModel>> => {
     try {
       const requestFn = await scenariosApi.scenariosControllerDeleteScenario(String(id));
       const response = await requestFn(api);
-      const data: MessageResponseDto = { message: response.data.message };
+      const data = messageDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -70,4 +70,3 @@ export const scenarioClient = {
     }
   },
 };
-

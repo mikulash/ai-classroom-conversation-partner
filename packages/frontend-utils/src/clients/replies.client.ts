@@ -1,24 +1,147 @@
 import {
+  ConversationMessageDto,
   GenerateReplyDto,
+  LanguageDto,
+  ReplyPersonalityDto,
+  ReplyProfileDto,
+  ReplyScenarioDto,
   RepliesApiFp,
   RealtimeTranscriptionDto,
   RealtimeVoiceDto,
   TextToSpeechDto,
   TextToSpeechTimestampedDto,
-  AiProviderStatusDto, TranscriptionSessionCreateResponseDto, WebRtcAnswerResponseDto,
 } from './generated';
 import {
   GenerateReplyRequest,
-  GetTTSAudioResponse,
   RealtimeTranscriptionRequest,
   RealtimeVoiceRequest,
   TextToSpeechRequest,
   TextToSpeechTimestampedRequest,
 } from '../figurantClient.types';
-import { LipSyncAudio } from '@repo/shared/types/talkingHead';
+import {
+  aiProviderStatusDtoToModel,
+  fullReplyPlainResponseDtoToModel,
+  fullReplyTimestampedResponseDtoToModel,
+  speechAudioDtoToModel,
+  timestampedSpeechAudioDtoToModel,
+  transcriptionSessionDtoToModel,
+  webRtcAnswerDtoToModel,
+} from '../dtoToModelMappers';
+import {
+  AiProviderStatusModel,
+  FullReplyPlainModel,
+  FullReplyTimestampedModel,
+  SpeechAudioModel,
+  TimestampedSpeechAudioModel,
+  TranscriptionSessionModel,
+  WebRtcAnswerModel,
+} from '../models';
 import { api } from './api';
 
 const repliesApi = RepliesApiFp();
+
+function toLanguageDto(language: GenerateReplyRequest['language']): LanguageDto {
+  return {
+    BCP47: language.BCP47,
+    ISO639: language.ISO639,
+    ENGLISH_NAME: language.ENGLISH_NAME,
+    NATIVE_NAME: language.NATIVE_NAME,
+  };
+}
+
+function toReplyPersonalityDto(personality: GenerateReplyRequest['personality']): ReplyPersonalityDto {
+  return {
+    id: personality.id,
+    name: personality.name,
+    age: personality.age,
+    sex: personality.sex,
+    gender: personality.gender,
+    openaiVoiceName: personality.openaiVoiceName,
+    elevenlabsVoiceId: personality.elevenlabsVoiceId,
+    voiceInstructions: personality.voiceInstructions,
+    personalityDescriptionEn: personality.personalityDescriptionEn,
+    personalityDescriptionCs: personality.personalityDescriptionCs,
+    problemSummaryEn: personality.problemSummaryEn,
+    problemSummaryCs: personality.problemSummaryCs,
+    avatarUrl: personality.avatarUrl,
+    isHidden: personality.isHidden,
+  };
+}
+
+function toReplyScenarioDto(scenario: GenerateReplyRequest['scenario']): ReplyScenarioDto | null {
+  if (!scenario) {
+    return null;
+  }
+
+  return {
+    id: scenario.id,
+    involvedPersonalityId: scenario.involvedPersonalityId ?? undefined,
+    settingEn: scenario.settingEn,
+    settingCs: scenario.settingCs,
+    situationDescriptionEn: scenario.situationDescriptionEn,
+    situationDescriptionCs: scenario.situationDescriptionCs,
+  };
+}
+
+function toReplyProfileDto(profile: GenerateReplyRequest['userProfile']): ReplyProfileDto {
+  return {
+    id: profile.id,
+    fullName: profile.fullName,
+    gender: profile.gender,
+    conversationRole: profile.conversationRole,
+    bio: profile.bio,
+    email: profile.email,
+    userRole: profile.userRole,
+  };
+}
+
+function toConversationMessageDto(message: GenerateReplyRequest['previousMessages'][number]): ConversationMessageDto {
+  return {
+    role: message.role,
+    content: message.content,
+    timestamp: message.timestamp?.toISOString() ?? new Date().toISOString(),
+  };
+}
+
+function toGenerateReplyDto(request: GenerateReplyRequest): GenerateReplyDto {
+  return {
+    inputText: request.inputText,
+    previousMessages: request.previousMessages.map(toConversationMessageDto),
+    personality: toReplyPersonalityDto(request.personality),
+    conversationRole: request.conversationRole,
+    language: toLanguageDto(request.language),
+    scenario: toReplyScenarioDto(request.scenario),
+    userProfile: toReplyProfileDto(request.userProfile),
+  };
+}
+
+function toTextToSpeechDto(params: TextToSpeechRequest): TextToSpeechDto {
+  return {
+    inputMessage: params.inputMessage,
+    personality: toReplyPersonalityDto(params.personality),
+    language: toLanguageDto(params.language),
+    responseFormat: params.responseFormat,
+  };
+}
+
+function toTextToSpeechTimestampedDto(params: TextToSpeechTimestampedRequest): TextToSpeechTimestampedDto {
+  return {
+    inputMessage: params.inputMessage,
+    personality: toReplyPersonalityDto(params.personality),
+    language: toLanguageDto(params.language),
+  };
+}
+
+function toRealtimeVoiceDto(request: RealtimeVoiceRequest): RealtimeVoiceDto {
+  return {
+    sdpOffer: request.sdp_offer,
+    personality: toReplyPersonalityDto(request.personality),
+    conversationRole: request.conversationRole,
+    language: toLanguageDto(request.language),
+    scenario: toReplyScenarioDto(request.scenario),
+    userProfile: toReplyProfileDto(request.userProfile),
+  };
+}
 
 /**
  * Client for interacting with the Figurant backend API.
@@ -27,117 +150,59 @@ const repliesApi = RepliesApiFp();
  */
 export class RepliesClient {
   async getResponse(request: GenerateReplyRequest): Promise<string> {
-    const requestFn = await repliesApi.repliesControllerGenerateText(request as unknown as GenerateReplyDto);
+    const requestFn = await repliesApi.repliesControllerGenerateText(toGenerateReplyDto(request));
     const response = await requestFn(api);
     return response.data;
   }
 
-  async getSpeechAudio(params: TextToSpeechRequest): Promise<GetTTSAudioResponse> {
-    const requestFn = await repliesApi.repliesControllerGenerateSpeech(params as unknown as TextToSpeechDto);
+  async getSpeechAudio(params: TextToSpeechRequest): Promise<SpeechAudioModel> {
+    const requestFn = await repliesApi.repliesControllerGenerateSpeech(toTextToSpeechDto(params));
     const response = await requestFn(api);
-    const data = response.data;
-
-    const buffer = this.b64ToArrayBuffer(data.audioBase64);
-    const blob = this.pcmArrayBufferToBlob(buffer, params.responseFormat);
-
-    return {
-      blob,
-      objectUrl: URL.createObjectURL(blob),
-      buffer,
-      sampleRate: data.sampleRate,
-    };
+    return speechAudioDtoToModel(response.data, params.responseFormat);
   }
 
-  async getTimestampedSpeechAudio(params: TextToSpeechTimestampedRequest): Promise<LipSyncAudio> {
-    const requestFn = await repliesApi.repliesControllerGenerateTimestampedSpeech(params as unknown as TextToSpeechTimestampedDto);
+  async getTimestampedSpeechAudio(params: TextToSpeechTimestampedRequest): Promise<TimestampedSpeechAudioModel> {
+    const requestFn = await repliesApi.repliesControllerGenerateTimestampedSpeech(toTextToSpeechTimestampedDto(params));
     const response = await requestFn(api);
-    const data = response.data;
-
-    return {
-      ...data,
-      audio: data.audio.map(this.b64ToArrayBuffer.bind(this)),
-    };
+    return timestampedSpeechAudioDtoToModel(response.data);
   }
 
-  async getFullReplyPlain(request: GenerateReplyRequest): Promise<{ text: string; speech: GetTTSAudioResponse }> {
-    const requestFn = await repliesApi.repliesControllerGenerateFullPlain(request as unknown as GenerateReplyDto);
+  async getFullReplyPlain(request: GenerateReplyRequest): Promise<FullReplyPlainModel> {
+    const requestFn = await repliesApi.repliesControllerGenerateFullPlain(toGenerateReplyDto(request));
     const response = await requestFn(api);
-    const data = response.data;
-
-    const buffer = this.b64ToArrayBuffer(data.speech.audioBase64);
-    const blob = this.pcmArrayBufferToBlob(buffer);
-
-    return {
-      text: data.text,
-      speech: {
-        blob,
-        objectUrl: URL.createObjectURL(blob),
-        buffer,
-        sampleRate: data.speech.sampleRate,
-      },
-    };
+    return fullReplyPlainResponseDtoToModel(response.data);
   }
 
-  async getFullReplyTimestamped(request: GenerateReplyRequest): Promise<{ text: string; speech: LipSyncAudio }> {
-    const requestFn = await repliesApi.repliesControllerGenerateFullTimestamped(request as unknown as GenerateReplyDto);
+  async getFullReplyTimestamped(request: GenerateReplyRequest): Promise<FullReplyTimestampedModel> {
+    const requestFn = await repliesApi.repliesControllerGenerateFullTimestamped(toGenerateReplyDto(request));
     const response = await requestFn(api);
-    const data = response.data;
-
-    return {
-      text: data.text,
-      speech: {
-        ...data.speech,
-        audio: data.speech.audio.map(this.b64ToArrayBuffer.bind(this)),
-      },
-    };
+    return fullReplyTimestampedResponseDtoToModel(response.data);
   }
 
-  async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerResponseDto> {
-    const dto: RealtimeVoiceDto = {
-      sdpOffer: request.sdp_offer,
-      personality: request.personality,
-      conversationRole: request.conversationRole,
-      language: request.language,
-      scenario: request.scenario as unknown as object,
-      userProfile: request.userProfile,
-    };
-    const requestFn = await repliesApi.repliesControllerRealtimeVoice(dto);
+  async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerModel> {
+    const requestFn = await repliesApi.repliesControllerRealtimeVoice(toRealtimeVoiceDto(request));
     const response = await requestFn(api);
-    return response.data;
+    return webRtcAnswerDtoToModel(response.data);
   }
 
   async getTranscriptionEphemeralToken(
     inputAudioFormat: string,
     language: RealtimeTranscriptionRequest['language'],
-  ): Promise<TranscriptionSessionCreateResponseDto> {
+  ): Promise<TranscriptionSessionModel> {
+    void inputAudioFormat;
     const body: RealtimeTranscriptionDto = {
-      language: language,
+      language,
     };
 
     const requestFn = await repliesApi.repliesControllerRealtimeTranscription(body);
     const response = await requestFn(api);
-    return response.data;
+    return transcriptionSessionDtoToModel(response.data);
   }
 
-  async getAiProvidersAvailability(): Promise<AiProviderStatusDto[]> {
+  async getAiProvidersAvailability(): Promise<AiProviderStatusModel[]> {
     const requestFn = await repliesApi.repliesControllerGetProviders();
     const response = await requestFn(api);
-    return response.data;
-  }
-
-
-  /** Base‑64 → ArrayBuffer */
-  private b64ToArrayBuffer(b64: string): ArrayBuffer {
-    const binary = atob(b64);
-    const len = binary.length;
-    const buf = new ArrayBuffer(len);
-    const view = new Uint8Array(buf);
-    for (let i = 0; i < len; i++) view[i] = binary.charCodeAt(i);
-    return buf;
-  }
-
-  private pcmArrayBufferToBlob(buf: ArrayBuffer, format: 'pcm' | 'mp3' = 'pcm'): Blob {
-    return new Blob([buf], { type: `audio/${format}` });
+    return response.data.map(aiProviderStatusDtoToModel);
   }
 }
 

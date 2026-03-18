@@ -9,13 +9,6 @@ export interface TextToSpeechRequest {
     responseFormat: 'pcm' | 'mp3';
 }
 
-export interface GetTTSAudioResponse {
-    blob: Blob;
-    objectUrl: string;
-    buffer: ArrayBuffer;
-    sampleRate: number;
-}
-
 export interface RealtimeTranscriptionRequest {
     input_audio_format: string;
     language: Language;

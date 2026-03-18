@@ -1,12 +1,12 @@
 import {
-  MessageResponseDto,
-  ModelsApiFp, ModelSelectionIdsDto,
-
+  ModelsApiFp,
+  ModelSelectionIdsDto,
 } from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
 import {
   CustomSelectionWithModelsModel,
+  MessageModel,
   RealtimeModelModel,
   RealtimeTranscriptionModelModel,
   ResponseModelModel,
@@ -15,6 +15,7 @@ import {
 } from '../../models';
 import {
   customSelectionWithModelsDtoToModel,
+  messageDtoToModel,
   realtimeModelDtoToModel,
   realtimeTranscriptionModelDtoToModel,
   responseModelDtoToModel,
@@ -34,7 +35,10 @@ export const modelClient = {
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch response models' } };
+      return {
+        data: null,
+        error: { message: axiosError.response?.data.message ?? 'Failed to fetch response models' },
+      };
     }
   },
 
@@ -58,7 +62,10 @@ export const modelClient = {
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
-      return { data: null, error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime models' } };
+      return {
+        data: null,
+        error: { message: axiosError.response?.data.message ?? 'Failed to fetch realtime models' },
+      };
     }
   },
 
@@ -96,7 +103,8 @@ export const modelClient = {
     try {
       const requestFn = await modelsApi.modelsControllerGetCustomSelection(userId);
       const response = await requestFn(api);
-      const data = response.data ? customSelectionWithModelsDtoToModel(response.data) : null;
+      const rawData = response.data as (typeof response.data | null);
+      const data = rawData ? customSelectionWithModelsDtoToModel(rawData) : null;
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -125,11 +133,11 @@ export const modelClient = {
     }
   },
 
-  deleteCustomModelSelection: async (userId: string): Promise<ApiResponse<MessageResponseDto>> => {
+  deleteCustomModelSelection: async (userId: string): Promise<ApiResponse<MessageModel>> => {
     try {
       const requestFn = await modelsApi.modelsControllerDeleteCustomSelection(userId);
       const response = await requestFn(api);
-      const data: MessageResponseDto = { message: response.data.message };
+      const data = messageDtoToModel(response.data);
       return { data };
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
@@ -140,4 +148,3 @@ export const modelClient = {
     }
   },
 };
-
