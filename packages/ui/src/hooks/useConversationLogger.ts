@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react';
-import { ConversationLog, logLevel } from '@repo/shared/types/conversationLog';
+import { ConversationLogDto, ConversationLogDtoLevelEnum } from '@repo/frontend-utils/src/clients/generated';
 
 export const useConversationLogger = () => {
-  const [conversationLogs, setConversationLogs] = useState<ConversationLog[]>([]);
+  const [conversationLogs, setConversationLogs] = useState<ConversationLogDto[]>([]);
 
   const isDevelopment = import.meta.env.MODE === 'development';
 
   const logMessage = useCallback((
-    level: logLevel,
+    level: ConversationLogDtoLevelEnum,
     message: string,
     data?: Record<string, unknown>,
     includeInRecord = true,
@@ -22,7 +22,7 @@ export const useConversationLogger = () => {
 
     if (!includeInRecord) return;
     // Add to conversation logs
-    setConversationLogs((prev): ConversationLog[] => [...prev, {
+    setConversationLogs((prev): ConversationLogDto[] => [...prev, {
       timestamp: new Date().toISOString(),
       level,
       message,

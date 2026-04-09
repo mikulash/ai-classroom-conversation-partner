@@ -15,7 +15,6 @@ import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
 import { initRealtimeTranscriptionConnection } from '../../lib/initRealtimeTranscriptionConnection';
-import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
@@ -27,6 +26,7 @@ import {
   processRealtimeTranscriptionEvent,
 } from '../../lib/videoCallPageUtils';
 import { ChatPageWrapper } from '../../components/ChatPageWrapper';
+import { ConversationLogDto } from '@repo/frontend-utils/src/clients/generated';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
@@ -226,7 +226,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       const silenceSystemPrompt = t('chat.silencePromptGoodbye');
 
       // Add a log entry for the goodbye message
-      const goodbyeLog: ConversationLog = {
+      const goodbyeLog: ConversationLogDto = {
         timestamp: new Date().toISOString(),
         level: 'log',
         message: silenceSystemPrompt,
@@ -324,7 +324,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   };
 
   // Handler for ending chat with a specific reason
-  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLog[]) => {
+  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLogDto[]) => {
     logMessage('log', `Ending chat with reason: ${reason}`);
 
     connection?.close();

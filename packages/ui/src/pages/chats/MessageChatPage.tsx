@@ -19,7 +19,6 @@ import { Button } from '../../components/ui/button';
 import { getLanguage } from '@repo/shared/enums/Language';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
@@ -27,6 +26,7 @@ import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { Personality } from '@repo/shared/types/db/entities';
 import { ChatPageWrapper } from '../../components/ChatPageWrapper';
+import { ConversationLogDto } from '@repo/frontend-utils/src/clients/generated';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
@@ -321,7 +321,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     };
   }, [isAiTyping, pendingAiMessage, messages, consecutiveSilencePrompts]);
 
-  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLog[]) => {
+  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLogDto[]) => {
     stopAudio();
     stopRecognition();
 
@@ -395,7 +395,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       setMessages(finalMessages);
 
       // Add a log entry for the goodbye message
-      const goodbyeLog: ConversationLog = {
+      const goodbyeLog: ConversationLogDto = {
         timestamp: new Date().toISOString(),
         level: 'log',
         message: 'Chat ending due to silence - sending goodbye message',

@@ -1,8 +1,8 @@
 import { useCallback, useRef } from 'react';
-import { logLevel } from '@repo/shared/types/conversationLog';
+import { ConversationLogDtoLevelEnum } from '@repo/frontend-utils/src/clients/generated';
 
 export const useActivityTracker = (
-  logMessage: (level: logLevel, message: string, data?: Record<string, unknown>) => void,
+  logMessage: (level: ConversationLogDtoLevelEnum, message: string, data?: Record<string, unknown>) => void,
   onReset: () => void) => {
   const lastActivityRef = useRef<number>(Date.now());
   const silenceTriggeredRef = useRef<boolean>(false);

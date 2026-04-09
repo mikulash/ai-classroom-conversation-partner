@@ -1,12 +1,12 @@
 import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
-import type { logLevel } from '@repo/shared/types/conversationLog';
 import type { TFunction } from 'i18next';
 import type { SetStateAction } from 'react';
+import { ConversationLogDtoLevelEnum } from '@repo/frontend-utils/src/clients/generated';
 
 interface ProcessRealtimeTranscriptionEventParams {
     setIsTranscribing: (value: SetStateAction<boolean>) => void;
     handleTranscriptionCompleted: (transcript: string) => void;
-    logMessage: (level: logLevel, message: string, data?: Record<string, unknown>, includeInRecord?: boolean) => void;
+    logMessage: (level: ConversationLogDtoLevelEnum, message: string, data?: Record<string, unknown>, includeInRecord?: boolean) => void;
     setError: (value: SetStateAction<string | null>) => void;
     setCurrentTranscript: (value: SetStateAction<string>) => void;
     onUserActivity: () => void;

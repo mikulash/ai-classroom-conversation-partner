@@ -1,10 +1,9 @@
-import { ConversationLog } from '@repo/shared/types/conversationLog';
-import { ConversationMessage } from '@repo/shared/types/conversationMessage';
+import {ConversationLogDto, ConversationMessageDto} from "../src/dtos/conversations.dto";
 
 declare global {
   namespace PrismaJson {
-    type ConversationMessages = ConversationMessage[];
-    type ConversationLogs = ConversationLog[];
+    type ConversationMessages = ConversationMessageDto[];
+    type ConversationLogs = ConversationLogDto[];
   }
 }
 

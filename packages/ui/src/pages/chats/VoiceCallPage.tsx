@@ -11,12 +11,12 @@ import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { useAppStore } from '../../hooks/useAppStore';
-import { ConversationLog } from '@repo/shared/types/conversationLog';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { Personality } from '@repo/shared/types/db/entities';
 import { ChatPageWrapper } from '../../components/ChatPageWrapper';
+import { ConversationLogDto } from '@repo/frontend-utils/src/clients/generated';
 
 const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversationRoleName, scenario }) => {
   const navigate = useNavigate();
@@ -193,7 +193,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   const handleEndCallWithReason = useCallback(async (
     reason?: 'timeLimit' | 'manual',
     messagesToSave?: ChatMessage[],
-    logsToSave?: ConversationLog[],
+    logsToSave?: ConversationLogDto[],
   ) => {
     logMessage('log', `Ending call with reason: ${reason}`);
 
