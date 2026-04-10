@@ -1,5 +1,5 @@
 import { Language } from '@repo/shared/enums/Language';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { ChatMessage } from './chatMessage';
 import { PersonalityModel, ProfileModel, ScenarioModel } from './models';
 
 export interface TextToSpeechRequest {

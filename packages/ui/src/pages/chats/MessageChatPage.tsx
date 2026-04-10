@@ -1,4 +1,4 @@
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Input } from '../../components/ui/input';

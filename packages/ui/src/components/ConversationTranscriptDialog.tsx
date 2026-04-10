@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';

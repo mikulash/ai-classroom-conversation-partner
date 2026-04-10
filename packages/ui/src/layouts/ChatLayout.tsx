@@ -5,7 +5,7 @@ import { Loading } from '../components/Loading';
 import { Dialog, DialogContent } from '@radix-ui/react-dialog';
 import { DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import React from 'react';
 import { ChatPageProps } from '../lib/types/ChatPageProps';
 

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MdCallEnd } from 'react-icons/md';
 import { FaPlay } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { AvatarTalkingHead, AvatarTalkingHeadHandle } from '../../components/AvatarTalkingHead';
 import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';

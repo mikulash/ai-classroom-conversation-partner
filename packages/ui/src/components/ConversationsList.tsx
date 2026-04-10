@@ -1,6 +1,6 @@
 import React from 'react';
 import { MessageSquare } from 'lucide-react';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { formatIsoStringToLocaleString } from '../lib/timeFormatting';
 

@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useTypedTranslation } from './useTypedTranslation';
 import { toast } from 'sonner';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { ConversationLogDto, ConversationType, CreateConversationDto } from '@repo/frontend-utils/src/clients/generated';
 import { ProfileModel } from '@repo/frontend-utils/src/models';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';

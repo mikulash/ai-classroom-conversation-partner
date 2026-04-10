@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ChatMessage } from '@repo/shared/types/chatMessage';
+import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { IoVolumeMediumOutline, IoVolumeOffOutline } from 'react-icons/io5';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 
