@@ -39,13 +39,8 @@ export class ConversationsController {
     @Res() res: Response<ConversationWithPersonalityDto[] | ErrorResponseDto>,
   ): Promise<void> {
     try {
-      if (!req.user) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
       const conversations = await prisma.conversation.findMany({
-        where: { userId: req.user.userId },
+        where: { userId: req.user!.userId },
         include: conversationRelations,
         orderBy: { startTime: 'desc' },
       });
@@ -79,11 +74,6 @@ export class ConversationsController {
         ...(data != null ? { data } : {}),
       }));
 
-      if (!req.user) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (!startTime || !conversationType) {
         res.status(400).json({ message: 'personalityId, startTime, and conversationType are required' });
@@ -92,7 +82,7 @@ export class ConversationsController {
 
       const conversation = await prisma.conversation.create({
         data: {
-          userId: req.user.userId,
+          userId: req.user!.userId,
           personalityId,
           scenarioId,
           startTime: new Date(startTime),
@@ -121,11 +111,6 @@ export class ConversationsController {
     @Res() res: Response<MessageResponseDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
-      if (!req.user) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
       const conversation = await prisma.conversation.findUnique({
         where: { id: parseInt(id) },
       });
@@ -136,7 +121,7 @@ export class ConversationsController {
       }
 
       if (
-        conversation.userId !== req.user.userId &&
+        conversation.userId !== req.user!.userId &&
         req.user.userRole !== 'admin' &&
         req.user.userRole !== 'owner'
       ) {

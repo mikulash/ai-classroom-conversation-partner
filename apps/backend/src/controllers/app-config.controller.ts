@@ -49,11 +49,6 @@ export class AppConfigController {
         timestampedTranscriptionModelId,
       } = body;
 
-      if (!req.user) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
       const now = new Date();
       const configProvider = await ConfigProvider.getInstance();
       const currentConfig = configProvider.getAppConfig();

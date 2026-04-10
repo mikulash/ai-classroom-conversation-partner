@@ -78,13 +78,8 @@ export class AuthController {
     @Res() res: Response<ProfileDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
-      if (!req.user) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
       const user = await prisma.user.findUnique({
-        where: { id: req.user.userId },
+        where: { id: req.user!.userId },
         include: { profile: true },
       });
 
@@ -401,12 +396,7 @@ export class AuthController {
     try {
       const { currentPassword, newPassword } = body;
 
-      if (!req.user?.userId) {
-        res.status(401).json({ message: 'Not authenticated' });
-        return;
-      }
-
-      const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+      const user = await prisma.user.findUnique({ where: { id: req.user!.userId } });
 
       if (!user || !(await comparePassword(currentPassword, user.password))) {
         res.status(401).json({ message: 'Current password is incorrect' });
@@ -416,7 +406,7 @@ export class AuthController {
       const hashedPassword = await hashPassword(newPassword);
 
       await prisma.user.update({
-        where: { id: req.user.userId },
+        where: { id: req.user!.userId },
         data: { password: hashedPassword },
       });
 

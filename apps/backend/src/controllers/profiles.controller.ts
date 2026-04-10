@@ -57,7 +57,7 @@ export class ProfilesController {
     try {
       const { fullName, gender, conversationRole, bio } = body;
 
-      if (req.user?.userId !== id && req.user?.userRole !== 'admin' && req.user?.userRole !== 'owner') {
+      if (req.user!.userId !== id && req.user!.userRole !== 'admin' && req.user!.userRole !== 'owner') {
         res.status(403).json({ message: 'Insufficient permissions' });
         return;
       }
