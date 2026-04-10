@@ -1,10 +1,10 @@
 import React from 'react';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { LANGUAGE } from '@repo/shared/enums/Language';
-import { Personality } from '@repo/shared/types/db/entities';
+import { PersonalityModel } from '@repo/frontend-utils/src/models';
 
 interface PersonalityInfoProps {
-    personality: Personality;
+    personality: PersonalityModel;
     conversationRole: string;
     connectionStatus?: React.ReactNode;
     className: string;

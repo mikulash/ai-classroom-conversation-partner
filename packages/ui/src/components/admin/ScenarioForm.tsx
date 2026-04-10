@@ -4,11 +4,12 @@ import { Label } from '@radix-ui/react-label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { LANGUAGE } from '@repo/shared/enums/Language';
-import { Personality, Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
+import { ScenarioCreate } from '@repo/shared/types/db/entities';
+import { PersonalityModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
 interface ScenarioFormProps {
-    scenario: Scenario | ScenarioCreate;
-    personalities: Personality[];
+    scenario: ScenarioModel | ScenarioCreate;
+    personalities: PersonalityModel[];
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onSelectChange: (field: string, value: string) => void;
 }

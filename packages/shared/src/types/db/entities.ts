@@ -9,25 +9,6 @@ import {
   UserRole,
 } from '../generated/enums';
 
-
-export interface Personality {
-    id: number
-    createdAt: Date
-    name: string
-    age: number | null
-    avatarUrl: string | null
-    gender: string
-    sex: Sex
-    voiceInstructions: string | null
-    elevenlabsVoiceId: string | null
-    openaiVoiceName: OpenAiVoiceName
-    problemSummaryEn: string
-    personalityDescriptionEn: string
-    problemSummaryCs: string
-    personalityDescriptionCs: string
-    isHidden: boolean
-}
-
 export interface PersonalityCreate {
     createdAt?: Date | string
     name: string

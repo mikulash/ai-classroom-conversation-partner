@@ -11,10 +11,11 @@ import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { OpenAiVoiceName } from '@repo/shared/types/generated/enums';
-import { Personality, PersonalityCreate } from '@repo/shared/types/db/entities';
+import { PersonalityCreate } from '@repo/shared/types/db/entities';
 import { personalityClient } from '@repo/frontend-utils/src/clients/db/personality.client';
+import { PersonalityModel } from '@repo/frontend-utils/src/models';
 
-type PersonalityForm = PersonalityCreate | Personality;
+type PersonalityForm = PersonalityCreate | PersonalityModel;
 
 export function AdminPersonalitiesPage() {
   const { t } = useTypedTranslation();
@@ -79,7 +80,7 @@ export function AdminPersonalitiesPage() {
     setIsLoading(false);
   }
 
-  const handleEdit = (personality: Personality) => {
+  const handleEdit = (personality: PersonalityModel) => {
     // 👇 this now fits the union
     setCurrentPersonality(personality);
     setIsEditDialogOpen(true);

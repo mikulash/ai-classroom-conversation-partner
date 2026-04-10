@@ -14,7 +14,7 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
-import { Personality } from '@repo/shared/types/db/entities';
+import { PersonalityModel } from '@repo/frontend-utils/src/models';
 import { ChatPageWrapper } from '../../components/ChatPageWrapper';
 import { ConversationLogDto } from '@repo/frontend-utils/src/clients/generated';
 
@@ -126,7 +126,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     }
   }, [logMessage]);
 
-  const initializeWebRTC = useCallback(async (personality: Personality) => {
+  const initializeWebRTC = useCallback(async (personality: PersonalityModel) => {
     if (isConnected || isConnectingRef.current || !userProfile) return;
     try {
       isConnectingRef.current = true;

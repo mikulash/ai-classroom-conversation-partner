@@ -2,17 +2,17 @@ import { useCallback, useRef, useState } from 'react';
 import { useTypedTranslation } from './useTypedTranslation';
 import { toast } from 'sonner';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
-import { Personality, Scenario } from '@repo/shared/types/db/entities';
 import { ConversationType } from '@repo/shared/types/generated/enums';
 import { ConversationLogDto, CreateConversationDto } from '@repo/frontend-utils/src/clients/generated';
 import { ProfileModel } from '@repo/frontend-utils/src/models';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
+import { PersonalityModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
 
 interface ConversationSaverParams {
   userProfile?: ProfileModel | null;
-  personality: Personality;
-  scenario?: Scenario | null;
+  personality: PersonalityModel;
+  scenario?: ScenarioModel | null;
   chatStartTime: number;
   logMessage: (level: 'log' | 'error' | 'warn', message: string, data?: Record<string, unknown>) => void;
 }

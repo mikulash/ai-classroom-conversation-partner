@@ -24,9 +24,9 @@ import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
 import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
-import { Personality } from '@repo/shared/types/db/entities';
 import { ChatPageWrapper } from '../../components/ChatPageWrapper';
 import { ConversationLogDto } from '@repo/frontend-utils/src/clients/generated';
+import { PersonalityModel } from '@repo/frontend-utils/src/models';
 
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
@@ -468,7 +468,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
   }
 
   const sendInitialAIMessage = async (
-    personality: Personality,
+    personality: PersonalityModel,
     conversationRole: string,
   ) => {
     if (messages.length > 0) return;

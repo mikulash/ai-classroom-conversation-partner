@@ -1,7 +1,7 @@
-import { Personality, Scenario } from '@repo/shared/types/db/entities';
+import { PersonalityModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
 export interface ChatPageProps {
-    personality: Personality;
+    personality: PersonalityModel;
     conversationRoleName: string;
-    scenario: Scenario | null
+    scenario: ScenarioModel | null
 }

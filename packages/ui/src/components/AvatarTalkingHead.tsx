@@ -3,11 +3,11 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { Loader } from 'lucide-react';
 import { AVATAR_MODELS, TalkingHead } from '@repo/assets';
 import { Language } from '@repo/shared/enums/Language';
-import { Personality } from '@repo/shared/types/db/entities';
+import { PersonalityModel } from '@repo/frontend-utils/src/models';
 
 interface AvatarTalkingHeadProps {
     language: Language;
-    personality: Personality
+    personality: PersonalityModel
 }
 
 export interface AvatarTalkingHeadHandle {
@@ -32,7 +32,7 @@ export const AvatarTalkingHead = forwardRef<
     },
   }));
 
-  const getDefaultAvatarUrl = (personality: Personality): string => {
+  const getDefaultAvatarUrl = (personality: PersonalityModel): string => {
     return personality.sex === 'M' ? AVATAR_MODELS.MALE_TEEN : AVATAR_MODELS.FEMALE_TEEN;
   };
 

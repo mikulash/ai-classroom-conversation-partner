@@ -1,7 +1,7 @@
 import { LANGUAGE, Language } from '@repo/shared/enums/Language';
-import { Personality, Scenario } from '@repo/shared/types/db/entities';
+import { PersonalityModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
-export const universalDescriptionForScenario = (s: Scenario, lang: Language): {
+export const universalDescriptionForScenario = (s: ScenarioModel, lang: Language): {
     situationDescription: string;
     setting: string;
 } => {
@@ -16,7 +16,7 @@ export const universalDescriptionForScenario = (s: Scenario, lang: Language): {
   };
 };
 
-export const universalDescriptionForPersonality = (p: Personality, lang: Language): {
+export const universalDescriptionForPersonality = (p: PersonalityModel, lang: Language): {
     problemSummary: string,
     personalityDescription: string,
 
