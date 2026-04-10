@@ -1,4 +1,3 @@
-import { AiProviderStatus } from '@repo/shared/types/apiKeyStatus';
 import { API_KEY, ApiKey } from '@repo/shared/enums/ApiKey';
 import {
   RealtimeModel,
@@ -16,6 +15,10 @@ import {
   TtsModelProvider,
 } from '@repo/shared/types/generated/enums';
 
+export interface AiProviderStatus {
+  apiKey: ApiKey;
+  isAvailable: boolean;
+}
 
 export const realtimeProvidersApiKeys = {
   'OpenAi': API_KEY.OPENAI,
