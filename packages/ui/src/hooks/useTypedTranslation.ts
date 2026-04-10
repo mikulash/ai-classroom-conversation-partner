@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { getLanguage, LANGUAGE } from '@repo/shared/enums/Language';
+import { getLanguage, LANGUAGE } from '@repo/frontend-utils/src/enums/Language';
 
 
 export function useTypedTranslation() {

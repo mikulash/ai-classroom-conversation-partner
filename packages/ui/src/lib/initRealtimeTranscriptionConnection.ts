@@ -1,4 +1,4 @@
-import { Language } from '@repo/shared/enums/Language';
+import { Language } from '@repo/frontend-utils/src/enums/Language';
 import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
 

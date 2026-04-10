@@ -16,7 +16,7 @@ import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Button } from '../../components/ui/button';
-import { getLanguage } from '@repo/shared/enums/Language';
+import { getLanguage } from '@repo/frontend-utils/src/enums/Language';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { useConversationLogger } from '../../hooks/useConversationLogger';

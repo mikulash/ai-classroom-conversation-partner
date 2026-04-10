@@ -1,4 +1,4 @@
-import { Language } from '@repo/shared/enums/Language';
+import { Language } from './enums/Language';
 import { ChatMessage } from './chatMessage';
 import { PersonalityModel, ProfileModel, ScenarioModel } from './models';
 

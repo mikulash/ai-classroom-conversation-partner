@@ -2,7 +2,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Loader } from 'lucide-react';
 import { AVATAR_MODELS, TalkingHead } from '@repo/assets';
-import { Language } from '@repo/shared/enums/Language';
+import { Language } from '@repo/frontend-utils/src/enums/Language';
 import { PersonalityModel } from '@repo/frontend-utils/src/models';
 
 interface AvatarTalkingHeadProps {

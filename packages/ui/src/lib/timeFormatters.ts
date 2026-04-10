@@ -1,4 +1,4 @@
-import { Language } from '@repo/shared/enums/Language';
+import { Language } from '@repo/frontend-utils/src/enums/Language';
 
 export const getLocalizedDateTimeString = (dateString: string) => {
   return new Date(dateString).toLocaleString();

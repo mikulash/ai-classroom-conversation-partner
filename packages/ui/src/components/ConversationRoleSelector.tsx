@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { LANGUAGE } from '@repo/shared/enums/Language';
+import { LANGUAGE } from '@repo/frontend-utils/src/enums/Language';
 import { ConversationRoleModel } from '@repo/frontend-utils/src/models';
 
 /**

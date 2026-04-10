@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { LANGUAGE, Language } from '@repo/shared/enums/Language';
+import { LANGUAGE, Language } from '@repo/frontend-utils/src/enums/Language';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../hooks/useAppStore';

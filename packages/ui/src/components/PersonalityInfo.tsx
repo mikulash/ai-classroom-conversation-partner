@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { LANGUAGE } from '@repo/shared/enums/Language';
+import { LANGUAGE } from '@repo/frontend-utils/src/enums/Language';
 import { PersonalityModel } from '@repo/frontend-utils/src/models';
 
 interface PersonalityInfoProps {

@@ -3,7 +3,7 @@ import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { Label } from '@radix-ui/react-label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { LANGUAGE } from '@repo/shared/enums/Language';
+import { LANGUAGE } from '@repo/frontend-utils/src/enums/Language';
 import { PersonalityModel, ScenarioCreateModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
 interface ScenarioFormProps {

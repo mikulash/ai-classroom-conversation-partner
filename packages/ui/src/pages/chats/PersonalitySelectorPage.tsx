@@ -13,7 +13,7 @@ import { ConversationRoleSelector } from '../../components/ConversationRoleSelec
 import { useAppStore } from '../../hooks/useAppStore';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { LANGUAGE } from '@repo/shared/enums/Language';
+import { LANGUAGE } from '@repo/frontend-utils/src/enums/Language';
 import {
   createCustomPersonality,
   getScenario,

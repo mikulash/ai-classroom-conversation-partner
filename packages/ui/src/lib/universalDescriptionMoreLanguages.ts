@@ -1,4 +1,4 @@
-import { LANGUAGE, Language } from '@repo/shared/enums/Language';
+import { LANGUAGE, Language } from '@repo/frontend-utils/src/enums/Language';
 import { PersonalityModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
 export const universalDescriptionForScenario = (s: ScenarioModel, lang: Language): {
