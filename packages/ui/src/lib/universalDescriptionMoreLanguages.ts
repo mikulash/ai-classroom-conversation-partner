@@ -1,5 +1,5 @@
-import { LANGUAGE, Language } from '../enums/Language';
-import { Personality, Scenario } from '../types/db/entities';
+import { LANGUAGE, Language } from '@repo/shared/enums/Language';
+import { Personality, Scenario } from '@repo/shared/types/db/entities';
 
 export const universalDescriptionForScenario = (s: Scenario, lang: Language): {
     situationDescription: string;

@@ -72,7 +72,7 @@ export interface PersonalityModel {
     isHidden: boolean
 }
 
-export interface InitialConversationOptions {
+export interface InitialConversationOptionsModel {
     personalities: PersonalityModel[];
     scenarios: ScenarioWithPersonalityModel[];
     conversationRoles: ConversationRoleModel[];

@@ -1,9 +1,9 @@
-import { LANGUAGE, Language } from '../enums/Language';
-import { ConversationRole, Personality, Scenario } from '../types/db/entities';
+import { LANGUAGE, Language } from '@repo/shared/enums/Language';
+import { PersonalityModel, ScenarioModel, ConversationRoleModel } from '@repo/frontend-utils/src/models';
 
 export type PersonalityTabKey = 'predefined' | 'custom';
 export type ScenarioTabKey = 'none' | 'predefined' | 'custom';
-export const DEFAULT_PERSONALITY: Omit<Personality, 'createdAt'> = {
+export const DEFAULT_PERSONALITY: Omit<PersonalityModel, 'createdAt'> = {
   id: 0,
   name: '',
   personalityDescriptionCs: '',
@@ -21,13 +21,13 @@ export const DEFAULT_PERSONALITY: Omit<Personality, 'createdAt'> = {
 };
 
 
-export const createCustomPersonality = (customData: Partial<Personality>): Personality => ({
+export const createCustomPersonality = (customData: Partial<PersonalityModel>): PersonalityModel => ({
   ...DEFAULT_PERSONALITY,
   ...customData,
   createdAt: new Date(),
 });
 
-const createCustomScenario = (customData: Partial<Scenario>): Scenario => ({
+const createCustomScenario = (customData: Partial<ScenarioModel>): ScenarioModel => ({
   id: customData.id ?? 0,
   involvedPersonalityId: customData.involvedPersonalityId ?? 0,
   settingCs: customData.settingCs ?? '',
@@ -38,7 +38,7 @@ const createCustomScenario = (customData: Partial<Scenario>): Scenario => ({
 });
 
 export const getUserRoleName = (
-  selectedRole: ConversationRole | undefined,
+  selectedRole: ConversationRoleModel | undefined,
   customName: string,
   currentLanguage: Language,
 ): string => {
@@ -48,9 +48,9 @@ export const getUserRoleName = (
 
 export const getScenario = (
   activeTab: ScenarioTabKey,
-  selectedScenario: Scenario | undefined,
-  customScenario: Partial<Scenario>,
-): Scenario | null => {
+  selectedScenario: ScenarioModel | undefined,
+  customScenario: Partial<ScenarioModel>,
+): ScenarioModel | null => {
   if (activeTab === 'none') return null;
   if (activeTab === 'predefined' && selectedScenario) return selectedScenario;
   return createCustomScenario(customScenario);

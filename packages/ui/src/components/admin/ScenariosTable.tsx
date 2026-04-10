@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
+import { universalDescriptionForScenario } from '../../lib/universalDescriptionMoreLanguages';
 import { Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
 
 interface ScenariosTableProps {

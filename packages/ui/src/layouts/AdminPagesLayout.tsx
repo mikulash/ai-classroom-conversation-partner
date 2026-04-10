@@ -2,7 +2,7 @@ import { AdminNavigation } from '../components/AdminNavigation';
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router';
 import { useAuth } from '../hooks/useAuth';
-import { isProfileAdmin } from '@repo/shared/utils/access';
+import { isProfileAdmin } from '../lib/access';
 
 export const AdminPagesLayout = () => {
   const { profile } = useAuth();

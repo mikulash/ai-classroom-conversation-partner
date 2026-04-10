@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { universalDescriptionForScenario } from '@repo/shared/utils/universalDescriptionMoreLanguages';
+import { universalDescriptionForScenario } from '../lib/universalDescriptionMoreLanguages';
 import { Scenario } from '@repo/shared/types/db/entities';
 
 

@@ -1,18 +1,17 @@
 import { create } from 'zustand';
-import { ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
-import { AppConfigModel, InitialConversationOptions } from '@repo/frontend-utils/src/models';
+import { AppConfigModel, InitialConversationOptionsModel, PersonalityModel, ScenarioModel, ConversationRoleModel } from '@repo/frontend-utils/src/models';
 
 interface AppState {
     isLoaded: boolean,
-    personalities: Personality[];
-    scenarios: Scenario[];
-    conversationRoles: ConversationRole[];
+    personalities: PersonalityModel[];
+    scenarios: ScenarioModel[];
+    conversationRoles: ConversationRoleModel[];
     appConfig: AppConfigModel;
-    setPersonalities: (p: Personality[]) => void;
-    setScenarios: (s: Scenario[]) => void;
-    setConversationRoles: (r: ConversationRole[]) => void;
+    setPersonalities: (p: PersonalityModel[]) => void;
+    setScenarios: (s: ScenarioModel[]) => void;
+    setConversationRoles: (r: ConversationRoleModel[]) => void;
     setAppConfig: (appConfig: AppConfigModel) => void;
-    setInitialConversationOptions: (options: InitialConversationOptions) => void;
+    setInitialConversationOptions: (options: InitialConversationOptionsModel) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -47,7 +46,7 @@ export const useAppStore = create<AppState>((set) => ({
   setConversationRoles: (conversationRoles) => {
     set({ conversationRoles: conversationRoles.sort((a, b) => a.id - b.id) });
   },
-  setInitialConversationOptions: (options: InitialConversationOptions) => {
+  setInitialConversationOptions: (options: InitialConversationOptionsModel) => {
     set(() => ({
       personalities: options.personalities.sort((a, b) => a.id - b.id),
       scenarios: options.scenarios.sort((a, b) => a.id - b.id),

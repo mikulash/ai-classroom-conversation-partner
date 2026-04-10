@@ -20,12 +20,12 @@ import {
   getUserRoleName,
   PersonalityTabKey,
   ScenarioTabKey,
-} from '@repo/shared/utils/customConversationOptions';
+} from '../../lib/customConversationOptions';
 import {
   universalDescriptionForPersonality,
   universalDescriptionForScenario,
-} from '@repo/shared/utils/universalDescriptionMoreLanguages';
-import { ConversationRole, Personality, Scenario } from '@repo/shared/types/db/entities';
+} from '../../lib/universalDescriptionMoreLanguages';
+import { ConversationRoleModel, PersonalityModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
 
 export const PersonalitySelectorPage: React.FC = () => {
@@ -37,13 +37,13 @@ export const PersonalitySelectorPage: React.FC = () => {
   const predefinedScenarios = useAppStore((s) => s.scenarios);
   const { appConfig } = useAppStore((s) => s);
   const navigate = useNavigate();
-  const [customPersonality, setCustomPersonality] = useState<Partial<Personality>>({});
-  const [selectedPersonality, setSelectedPersonality] = useState<Personality>(
+  const [customPersonality, setCustomPersonality] = useState<Partial<PersonalityModel>>({});
+  const [selectedPersonality, setSelectedPersonality] = useState<PersonalityModel>(
     predefinedPersonalities[0],
   );
   const [activePersonalityTab, setActivePersonalityTab] = useState<PersonalityTabKey>('predefined');
-  const [customScenario, setCustomScenario] = useState<Partial<Scenario>>({});
-  const [selectedScenario, setSelectedScenario] = useState<Scenario>();
+  const [customScenario, setCustomScenario] = useState<Partial<ScenarioModel>>({});
+  const [selectedScenario, setSelectedScenario] = useState<ScenarioModel>();
   const [activeScenarioTab, setActiveScenarioTab] = useState<ScenarioTabKey>('none');
   const isVoiceCallEnabled = appConfig.realtimeModelId !== null;
   const isVideoCallEnabled = appConfig.realtimeTranscriptionModelId !== null && appConfig.responseModelId !== null && appConfig.ttsModelId !== null && appConfig.timestampedTranscriptionModelId !== null;
@@ -66,7 +66,7 @@ export const PersonalitySelectorPage: React.FC = () => {
   };
 
   const [customUserRoleName, setCustomUserRoleName] = useState<string>('');
-  const [selectedUserRole, setSelectedUserRole] = useState<ConversationRole | undefined>(
+  const [selectedUserRole, setSelectedUserRole] = useState<ConversationRoleModel | undefined>(
     predefinedConversationRoles[0],
   );
 
@@ -85,7 +85,7 @@ export const PersonalitySelectorPage: React.FC = () => {
     }
   };
 
-  const selectPersonality = (p: Personality) => {
+  const selectPersonality = (p: PersonalityModel) => {
     setSelectedPersonality(p);
     setSelectedScenario(undefined);
     setCustomScenario({ ...customScenario, involvedPersonalityId: p.id });

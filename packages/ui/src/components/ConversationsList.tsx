@@ -2,7 +2,7 @@ import React from 'react';
 import { MessageSquare } from 'lucide-react';
 import { ChatMessage } from '@repo/shared/types/chatMessage';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { formatIsoStringToLocaleString } from '@repo/shared/utils/timeFormatting';
+import { formatIsoStringToLocaleString } from '../lib/timeFormatting';
 
 interface Conversation {
     id: number;

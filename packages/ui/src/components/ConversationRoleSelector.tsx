@@ -3,14 +3,14 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { LANGUAGE } from '@repo/shared/enums/Language';
-import { ConversationRole } from '@repo/shared/types/db/entities';
+import { ConversationRoleModel } from '@repo/frontend-utils/src/models';
 
 /**
  * Props for the role selector (rewritten to work with role **names**, not objects).
  */
 interface ConversationRoleSelectorProps {
     /** Predefined conversation roles coming from DB */
-    predefinedRoles: ConversationRole[];
+    predefinedRoles: ConversationRoleModel[];
     /** Currently selected role name (translated) */
     value: string;
     onChange: (roleName: string) => void;
@@ -24,14 +24,14 @@ export const ConversationRoleSelector: React.FC<ConversationRoleSelectorProps> =
 }) => {
   const { t, language } = useTypedTranslation();
 
-  const translatedName = (r: ConversationRole) =>
+  const translatedName = (r: ConversationRoleModel) =>
     language === LANGUAGE.EN ? r.nameEn : r.nameCs;
 
   const matchedPredefined = predefinedRoles.find((r) => translatedName(r) === value);
 
   const [customRoleName, setCustomRoleName] = useState<string>(matchedPredefined ? '' : value);
 
-  const selectUserRole = (conversationRole: ConversationRole) => {
+  const selectUserRole = (conversationRole: ConversationRoleModel) => {
     onChange(translatedName(conversationRole));
     setCustomRoleName('');
   };

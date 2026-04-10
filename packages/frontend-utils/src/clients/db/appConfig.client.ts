@@ -3,11 +3,10 @@ import {
   ConversationRolesApiFp, ModelSelectionIdsDto,
   PersonalitiesApiFp,
   ScenariosApiFp,
-
 } from '../generated';
 import { api } from '../api';
 import { AxiosError } from 'axios';
-import { AppConfigModel, InitialConversationOptions } from '../../models';
+import { AppConfigModel, InitialConversationOptionsModel } from '../../models';
 import {
   appConfigDtoToModel,
   conversationRoleDtoToModel,
@@ -15,7 +14,6 @@ import {
   scenarioWithPersonalityDtoToModel,
 } from '../../dtoToModelMappers';
 import { ApiResponse } from '../client.types';
-
 const appConfigApi = AppConfigApiFp();
 const conversationRolesApi = ConversationRolesApiFp();
 const personalitiesApi = PersonalitiesApiFp();
@@ -37,7 +35,7 @@ export const appConfigClient = {
     }
   },
 
-  fetchInitialConversationOptions: async (): Promise<InitialConversationOptions> => {
+  fetchInitialConversationOptions: async (): Promise<InitialConversationOptionsModel> => {
     try {
       const [personalitiesFn, scenariosFn, conversationRolesFn, appConfigFn] = await Promise.all([
         personalitiesApi.personalitiesControllerGetPersonalities(),

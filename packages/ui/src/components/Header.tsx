@@ -6,9 +6,9 @@ import { LANGUAGE, Language } from '@repo/shared/enums/Language';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../hooks/useAppStore';
-import { isProfileAdmin } from '@repo/shared/utils/access';
+import { isProfileAdmin } from '../lib/access';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { createInitials } from '@repo/shared/utils/usernameUtils';
+import { createInitials } from '../lib/usernameUtils';
 
 export function Header() {
   const { i18n } = useTypedTranslation();

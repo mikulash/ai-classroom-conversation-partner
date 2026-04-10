@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 import { useLocation, useNavigate } from 'react-router';
-import { isProfileOwner } from '@repo/shared/utils/access';
+import { isProfileOwner } from '../lib/access';
 import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 

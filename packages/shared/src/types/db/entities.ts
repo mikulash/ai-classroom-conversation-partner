@@ -9,12 +9,6 @@ import {
   UserRole,
 } from '../generated/enums';
 
-export interface ConversationRole {
-    id: number
-    createdAt: Date
-    nameEn: string
-    nameCs: string
-}
 
 export interface Personality {
     id: number
