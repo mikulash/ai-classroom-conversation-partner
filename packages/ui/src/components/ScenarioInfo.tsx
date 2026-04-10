@@ -1,11 +1,11 @@
 import React from 'react';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { universalDescriptionForScenario } from '../lib/universalDescriptionMoreLanguages';
-import { Scenario } from '@repo/shared/types/db/entities';
+import { ScenarioModel } from '@repo/frontend-utils/src/models';
 
 
 interface ScenarioInfoProps {
-    scenario: Scenario | null;
+    scenario: ScenarioModel | null;
 }
 
 export const ScenarioInfo: React.FC<ScenarioInfoProps> = ({

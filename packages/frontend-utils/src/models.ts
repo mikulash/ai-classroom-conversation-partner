@@ -34,6 +34,16 @@ export interface ScenarioModel {
     settingCs: string
 }
 
+
+export interface ScenarioCreateModel {
+    createdAt?: Date | string
+    involvedPersonalityId: number | null
+    situationDescriptionEn?: string
+    settingEn?: string
+    situationDescriptionCs?: string
+    settingCs?: string
+}
+
 export interface ScenarioWithPersonalityModel extends ScenarioModel {
     personality: PersonalityRefModel | null
 }
@@ -72,6 +82,22 @@ export interface PersonalityModel {
     isHidden: boolean
 }
 
+export interface PersonalityCreateModel {
+    createdAt?: Date | string
+    name: string
+    age?: number | null
+    avatarUrl?: string | null
+    gender?: string
+    sex?: Sex
+    voiceInstructions?: string | null
+    elevenlabsVoiceId?: string | null
+    openaiVoiceName: OpenAiVoiceName
+    problemSummaryEn?: string
+    personalityDescriptionEn?: string
+    problemSummaryCs?: string
+    personalityDescriptionCs?: string
+    isHidden?: boolean
+}
 
 export interface InitialConversationOptionsModel {
     personalities: PersonalityModel[];
@@ -276,4 +302,3 @@ export interface AiProviderStatusModel {
     apiKey: ApiKey
     isAvailable: boolean
 }
-

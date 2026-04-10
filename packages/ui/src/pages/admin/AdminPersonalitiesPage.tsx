@@ -11,11 +11,10 @@ import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { OpenAiVoiceName } from '@repo/shared/types/generated/enums';
-import { PersonalityCreate } from '@repo/shared/types/db/entities';
 import { personalityClient } from '@repo/frontend-utils/src/clients/db/personality.client';
-import { PersonalityModel } from '@repo/frontend-utils/src/models';
+import { PersonalityCreateModel, PersonalityModel } from '@repo/frontend-utils/src/models';
 
-type PersonalityForm = PersonalityCreate | PersonalityModel;
+type PersonalityForm = PersonalityCreateModel | PersonalityModel;
 
 export function AdminPersonalitiesPage() {
   const { t } = useTypedTranslation();
@@ -28,7 +27,7 @@ export function AdminPersonalitiesPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   // A clean template for new personalities
-  const emptyPersonality: PersonalityCreate = {
+  const emptyPersonality: PersonalityCreateModel = {
     name: '',
     problemSummaryEn: '',
     problemSummaryCs: '',
@@ -45,7 +44,7 @@ export function AdminPersonalitiesPage() {
     void fetchPersonalities();
   }, []);
 
-  const validateRequiredFields = (personality: PersonalityCreate): string | null => {
+  const validateRequiredFields = (personality: PersonalityCreateModel): string | null => {
     // 👇 use camelCase keys, not snake_case
     const requiredFields = [
       { field: 'name', label: t('personalities.name') },
@@ -110,7 +109,7 @@ export function AdminPersonalitiesPage() {
     setCurrentPersonality((prev) => ({ ...prev, [name]: value } as PersonalityForm));
   };
 
-  const handleSelectChange = (field: keyof PersonalityCreate, value: string) => {
+  const handleSelectChange = (field: keyof PersonalityCreateModel, value: string) => {
     setCurrentPersonality((prev) => ({ ...prev, [field]: value } as PersonalityForm));
   };
 
@@ -159,7 +158,7 @@ export function AdminPersonalitiesPage() {
 
   const handleAddSubmit = async () => {
     // currentPersonality here is of create shape (no id)
-    const validationError = validateRequiredFields(currentPersonality as PersonalityCreate);
+    const validationError = validateRequiredFields(currentPersonality as PersonalityCreateModel);
     if (validationError) {
       toast.error('Validation Error', { description: validationError });
       return;

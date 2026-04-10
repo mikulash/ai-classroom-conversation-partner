@@ -7,10 +7,10 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
-import { Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
 import { scenarioClient } from '@repo/frontend-utils/src/clients/db/scenario.client';
+import { ScenarioCreateModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
-type ScenarioFormData = Scenario | ScenarioCreate;
+type ScenarioFormData = ScenarioModel | ScenarioCreateModel;
 
 export function AdminScenariosPage() {
   const { t } = useTypedTranslation();
@@ -23,7 +23,7 @@ export function AdminScenariosPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  const emptyScenario: ScenarioCreate = {
+  const emptyScenario: ScenarioCreateModel = {
     settingEn: '',
     settingCs: '',
     situationDescriptionCs: '',

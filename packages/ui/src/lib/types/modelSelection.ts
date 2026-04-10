@@ -1,18 +1,18 @@
 import {
-    RealtimeModel,
-    RealtimeTranscriptionModel,
-    ResponseModel,
-    TimestampedTranscriptionModel,
-    TtsModel,
-} from '@repo/shared/types/db/entities';
+    RealtimeModelModel,
+    RealtimeTranscriptionModelModel,
+    ResponseModelModel,
+    TimestampedTranscriptionModelModel,
+    TtsModelModel,
+} from '@repo/frontend-utils/src/models';
 import { WithAvailability } from '../filterModelsByApiKeyStatus';
 
 export interface ModelOptions {
-    responseModels: ResponseModel[];
-    ttsModels: TtsModel[];
-    realtimeModels: RealtimeModel[];
-    timestampedTranscriptionModels: TimestampedTranscriptionModel[];
-    realtimeTranscriptionModels: RealtimeTranscriptionModel[];
+    responseModels: ResponseModelModel[];
+    ttsModels: TtsModelModel[];
+    realtimeModels: RealtimeModelModel[];
+    timestampedTranscriptionModels: TimestampedTranscriptionModelModel[];
+    realtimeTranscriptionModels: RealtimeTranscriptionModelModel[];
 }
 
 /**
@@ -26,9 +26,9 @@ export type ModelOptionsWithAvailability = {
 
 
 export interface ModelSelection {
-    responseModel: ResponseModel;
-    ttsModel: TtsModel;
-    realtimeModel: RealtimeModel;
-    timestampedTranscriptionModel: TimestampedTranscriptionModel;
-    realtimeTranscriptionModel: RealtimeTranscriptionModel;
+    responseModel: ResponseModelModel;
+    ttsModel: TtsModelModel;
+    realtimeModel: RealtimeModelModel;
+    timestampedTranscriptionModel: TimestampedTranscriptionModelModel;
+    realtimeTranscriptionModel: RealtimeTranscriptionModelModel;
 }

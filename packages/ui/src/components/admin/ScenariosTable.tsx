@@ -3,12 +3,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Button } from '../ui/button';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { universalDescriptionForScenario } from '../../lib/universalDescriptionMoreLanguages';
-import { Scenario, ScenarioCreate } from '@repo/shared/types/db/entities';
+import { ScenarioModel } from '@repo/frontend-utils/src/models';
 
 interface ScenariosTableProps {
-    scenarios: Scenario[];
+    scenarios: ScenarioModel[];
     isProcessing: boolean;
-    onEdit: (scenario: ScenarioCreate) => void;
+    onEdit: (scenario: ScenarioModel) => void;
     onDelete: (id: number) => void;
     getPersonalityName: (id: number | null) => string;
 }

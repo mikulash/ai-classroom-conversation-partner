@@ -1,11 +1,11 @@
 import { API_KEY, ApiKey } from '@repo/shared/enums/ApiKey';
 import {
-  RealtimeModel,
-  RealtimeTranscriptionModel,
-  ResponseModel,
-  TimestampedTranscriptionModel,
-  TtsModel,
-} from '@repo/shared/types/db/entities';
+  RealtimeModelModel,
+  RealtimeTranscriptionModelModel,
+  ResponseModelModel,
+  TimestampedTranscriptionModelModel,
+  TtsModelModel,
+} from '@repo/frontend-utils/src/models';
 
 import {
   RealtimeModelProvider,
@@ -73,24 +73,22 @@ const getAvailableModels = <
   });
 };
 
-export const getAvailableRealtimeTranscriptionModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeTranscriptionModel[]): WithAvailability<RealtimeTranscriptionModel>[] => {
+export const getAvailableRealtimeTranscriptionModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeTranscriptionModelModel[]): WithAvailability<RealtimeTranscriptionModelModel>[] => {
   return getAvailableModels(availabilities, modelOptions, realtimeTranscriptionProvidersApiKeys);
 };
 
-export const getAvailableResponseModels = (availabilities: AiProviderStatus[], modelOptions: ResponseModel[]): WithAvailability<ResponseModel>[] => {
+export const getAvailableResponseModels = (availabilities: AiProviderStatus[], modelOptions: ResponseModelModel[]): WithAvailability<ResponseModelModel>[] => {
   return getAvailableModels(availabilities, modelOptions, responseProvidersApiKeys);
 };
 
-export const getAvailableRealtimeModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeModel[]): WithAvailability<RealtimeModel>[] => {
+export const getAvailableRealtimeModels = (availabilities: AiProviderStatus[], modelOptions: RealtimeModelModel[]): WithAvailability<RealtimeModelModel>[] => {
   return getAvailableModels(availabilities, modelOptions, realtimeProvidersApiKeys);
 };
 
-export const getAvailableTimestampedTranscriptionModels = (availabilities: AiProviderStatus[], modelOptions: TimestampedTranscriptionModel[]): WithAvailability<TimestampedTranscriptionModel>[] => {
+export const getAvailableTimestampedTranscriptionModels = (availabilities: AiProviderStatus[], modelOptions: TimestampedTranscriptionModelModel[]): WithAvailability<TimestampedTranscriptionModelModel>[] => {
   return getAvailableModels(availabilities, modelOptions, timestampedTranscriptionProvidersApiKeys);
 };
 
-export const getAvailableTtsModels = (availabilities: AiProviderStatus[], modelOptions: TtsModel[]): WithAvailability<TtsModel>[] => {
+export const getAvailableTtsModels = (availabilities: AiProviderStatus[], modelOptions: TtsModelModel[]): WithAvailability<TtsModelModel>[] => {
   return getAvailableModels(availabilities, modelOptions, ttsProvidersApiKeys);
 };
-
-
