@@ -5,7 +5,7 @@ import {
   TimestampedTranscriptionModelProvider,
   TranscriptionModelProvider,
   TtsModelProvider,
-} from '@repo/shared/types/generated/enums';
+} from '../generated/prisma/enums';
 
 // ============================================================
 // Response DTOs

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { OpenAiVoiceName, Sex } from '@repo/shared/types/generated/enums';
+import { OpenAiVoiceName, Sex } from '../generated/prisma/enums';
 
 export class CreatePersonalityDto {
   @ApiProperty({ description: 'Personality name' })

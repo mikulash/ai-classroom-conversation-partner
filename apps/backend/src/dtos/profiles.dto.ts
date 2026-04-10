@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { UserRole } from '@repo/shared/types/generated/enums';
+import { UserRole } from '../generated/prisma/enums';
 
 export class UpdateProfileDto {
   @ApiPropertyOptional({ type: String, nullable: true })

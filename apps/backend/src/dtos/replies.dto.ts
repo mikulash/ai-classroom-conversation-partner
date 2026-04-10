@@ -4,8 +4,8 @@ import { Type } from 'class-transformer';
 
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import type { ApiKey } from '@repo/shared/enums/ApiKey';
-import { OpenAiVoiceName, Sex } from '@repo/shared/types/generated/enums';
 import { ConversationMessageDto } from './conversations.dto';
+import { OpenAiVoiceName, Sex } from '../generated/prisma/enums';
 
 // ============================================================
 // Nested input DTOs (personality / scenario / profile shapes

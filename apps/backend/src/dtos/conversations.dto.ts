@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
-import { ConversationType } from '@repo/shared/types/generated/enums';
+import { ConversationType } from '../generated/prisma/enums';
 import { PersonalityRefDto } from './personalities.dto';
 
 // ============================================================

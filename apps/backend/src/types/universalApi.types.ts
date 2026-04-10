@@ -1,4 +1,4 @@
-import { OpenAiVoiceName } from '@repo/shared/types/generated/enums';
+import { OpenAiVoiceName } from '../generated/prisma/enums';
 import { ConversationMessageDto } from '../dtos/conversations.dto';
 import { LanguageDto, ReplyPersonalityDto, ReplyProfileDto, ReplyScenarioDto } from '../dtos/replies.dto';
 
