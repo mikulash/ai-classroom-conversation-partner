@@ -136,7 +136,7 @@ export function AdminPersonalitiesPage() {
       problemSummaryCs: currentPersonality.problemSummaryCs,
       personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
       personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
-      gender: currentPersonality.gender ?? undefined,
+      gender: currentPersonality.gender,
       age: currentPersonality.age ?? undefined,
       avatarUrl: currentPersonality.avatarUrl ?? undefined,
       openaiVoiceName: currentPersonality.openaiVoiceName,

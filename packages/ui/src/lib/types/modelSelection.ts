@@ -1,9 +1,9 @@
 import {
-    RealtimeModelModel,
-    RealtimeTranscriptionModelModel,
-    ResponseModelModel,
-    TimestampedTranscriptionModelModel,
-    TtsModelModel,
+  RealtimeModelModel,
+  RealtimeTranscriptionModelModel,
+  ResponseModelModel,
+  TimestampedTranscriptionModelModel,
+  TtsModelModel,
 } from '@repo/frontend-utils/src/models';
 import { WithAvailability } from '../filterModelsByApiKeyStatus';
 
@@ -32,3 +32,4 @@ export interface ModelSelection {
     timestampedTranscriptionModel: TimestampedTranscriptionModelModel;
     realtimeTranscriptionModel: RealtimeTranscriptionModelModel;
 }
+
