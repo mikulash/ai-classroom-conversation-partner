@@ -104,7 +104,7 @@ export class PersonalityDto {
   @ApiProperty({ description: 'Gender' })
     gender!: string;
 
-  @ApiProperty({ description: 'Sex', enum: Sex })
+  @ApiProperty({ description: 'Sex', enum: Sex, enumName: 'Sex' })
     sex!: Sex;
 
   @ApiProperty({ description: 'Voice instructions', type: String, nullable: true })
@@ -113,7 +113,7 @@ export class PersonalityDto {
   @ApiProperty({ description: 'ElevenLabs voice ID', type: String, nullable: true })
     elevenlabsVoiceId!: string | null;
 
-  @ApiProperty({ description: 'OpenAI voice name', enum: OpenAiVoiceName })
+  @ApiProperty({ description: 'OpenAI voice name', enum: OpenAiVoiceName, enumName: 'OpenAiVoiceName' })
     openaiVoiceName!: OpenAiVoiceName;
 
   @ApiProperty({ description: 'Problem summary in English' })

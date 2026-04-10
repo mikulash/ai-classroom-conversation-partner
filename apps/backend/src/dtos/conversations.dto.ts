@@ -76,7 +76,7 @@ export class CreateConversationDto {
     @IsArray()
       logs?: ConversationLogDto[];
 
-    @ApiProperty({ description: 'Conversation type', enum: ConversationType })
+    @ApiProperty({ description: 'Conversation type', enum: ConversationType, enumName: 'ConversationType' })
     @IsString()
       conversationType!: ConversationType;
 }
@@ -127,7 +127,7 @@ export class ConversationWithPersonalityDto {
     @ApiPropertyOptional({ description: 'Conversation logs', type: [ConversationLogDto], nullable: true })
       logs!: ConversationLogDto[] | null;
 
-    @ApiProperty({ description: 'Conversation type', enum: ConversationType })
+    @ApiProperty({ description: 'Conversation type', enum: ConversationType, enumName: 'ConversationType' })
       conversationType!: ConversationType;
 
     @ApiPropertyOptional({ description: 'Personality reference', type: PersonalityRefDto, nullable: true })

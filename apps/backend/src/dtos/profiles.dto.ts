@@ -25,7 +25,7 @@ export class UpdateProfileDto {
 }
 
 export class UpdateUserRoleDto {
-  @ApiPropertyOptional({ enum: UserRole })
+  @ApiPropertyOptional({ enum: UserRole, enumName: 'UserRole' })
   @IsEnum(UserRole)
     userRole!: UserRole;
 }
@@ -51,7 +51,7 @@ export class ProfileDto {
   @ApiProperty({ description: 'Gender' })
     gender!: string;
 
-  @ApiProperty({ description: 'User role', enum: UserRole })
+  @ApiProperty({ description: 'User role', enum: UserRole, enumName: 'UserRole' })
     userRole!: UserRole;
 
   @ApiProperty({ description: 'Conversation role' })

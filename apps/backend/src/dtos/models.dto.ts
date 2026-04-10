@@ -30,7 +30,7 @@ export class ResponseModelDto {
   @ApiProperty({ description: 'Whether model is enabled' })
     isEnabled!: boolean;
 
-  @ApiProperty({ description: 'Model provider', enum: ResponseModelProvider })
+  @ApiProperty({ description: 'Model provider', enum: ResponseModelProvider, enumName: 'ResponseModelProvider' })
     provider!: ResponseModelProvider;
 }
 
@@ -56,7 +56,7 @@ export class TtsModelDto {
   @ApiProperty({ description: 'Whether model is enabled' })
     isEnabled!: boolean;
 
-  @ApiProperty({ description: 'Model provider', enum: TtsModelProvider })
+  @ApiProperty({ description: 'Model provider', enum: TtsModelProvider, enumName: 'TtsModelProvider' })
     provider!: TtsModelProvider;
 
   @ApiProperty({ description: 'Whether model allows word-level timestamped transcripts' })
@@ -82,7 +82,7 @@ export class RealtimeModelDto {
   @ApiProperty({ description: 'Whether model is enabled' })
     isEnabled!: boolean;
 
-  @ApiProperty({ description: 'Model provider', enum: RealtimeModelProvider })
+  @ApiProperty({ description: 'Model provider', enum: RealtimeModelProvider, enumName: 'RealtimeModelProvider' })
     provider!: RealtimeModelProvider;
 }
 
@@ -96,7 +96,7 @@ export class RealtimeTranscriptionModelDto {
   @ApiProperty({ description: 'Friendly name' })
     friendlyName!: string;
 
-  @ApiProperty({ description: 'Model provider', enum: TranscriptionModelProvider })
+  @ApiProperty({ description: 'Model provider', enum: TranscriptionModelProvider, enumName: 'TranscriptionModelProvider' })
     provider!: TranscriptionModelProvider;
 
   @ApiProperty({ description: 'API name' })
@@ -122,7 +122,7 @@ export class TimestampedTranscriptionModelDto {
   @ApiProperty({ description: 'Friendly name' })
     friendlyName!: string;
 
-  @ApiProperty({ description: 'Model provider', enum: TimestampedTranscriptionModelProvider })
+  @ApiProperty({ description: 'Model provider', enum: TimestampedTranscriptionModelProvider, enumName: 'TimestampedTranscriptionModelProvider' })
     provider!: TimestampedTranscriptionModelProvider;
 
   @ApiProperty({ description: 'API name' })

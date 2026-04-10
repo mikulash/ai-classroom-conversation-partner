@@ -4,10 +4,10 @@ import { TableCell, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { ProfileModel } from '@repo/frontend-utils/src/models';
-import { UserRole } from '@repo/shared/types/generated/enums';
 import { MyConversation } from '@repo/shared/types/myConversation';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ConversationsList } from './ConversationsList';
+import { UserRole } from '@repo/frontend-utils/src/clients/generated';
 
 interface UserProfileRowProps {
   profile: ProfileModel;

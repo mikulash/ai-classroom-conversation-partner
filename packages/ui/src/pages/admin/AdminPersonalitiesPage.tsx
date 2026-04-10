@@ -10,9 +10,9 @@ import { Label } from '../../components/ui/label';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { OpenAiVoiceName } from '@repo/shared/types/generated/enums';
 import { personalityClient } from '@repo/frontend-utils/src/clients/db/personality.client';
 import { PersonalityCreateModel, PersonalityModel } from '@repo/frontend-utils/src/models';
+import { OpenAiVoiceName } from '@repo/frontend-utils/src/clients/generated';
 
 type PersonalityForm = PersonalityCreateModel | PersonalityModel;
 

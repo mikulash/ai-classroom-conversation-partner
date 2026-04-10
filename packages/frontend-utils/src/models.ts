@@ -1,12 +1,10 @@
+import type { ApiKey } from '@repo/shared/enums/ApiKey';
 import {
-  ConversationType,
-  OpenAiVoiceName,
+  UserRole, ConversationType, OpenAiVoiceName,
   RealtimeModelProvider, ResponseModelProvider,
   Sex, TimestampedTranscriptionModelProvider,
   TranscriptionModelProvider, TtsModelProvider,
-  UserRole,
-} from '@repo/shared/types/generated/enums';
-import type { ApiKey } from '@repo/shared/enums/ApiKey';
+} from './clients/generated';
 
 export interface MessageModel {
     message: string

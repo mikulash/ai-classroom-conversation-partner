@@ -6,18 +6,18 @@ import {
   TimestampedTranscriptionModelModel,
   TtsModelModel,
 } from '@repo/frontend-utils/src/models';
-
 import {
   RealtimeModelProvider,
   ResponseModelProvider,
   TimestampedTranscriptionModelProvider,
   TranscriptionModelProvider,
   TtsModelProvider,
-} from '@repo/shared/types/generated/enums';
+} from '@repo/frontend-utils/src/clients/generated';
+
 
 export interface AiProviderStatus {
-  apiKey: ApiKey;
-  isAvailable: boolean;
+    apiKey: ApiKey;
+    isAvailable: boolean;
 }
 
 export const realtimeProvidersApiKeys = {

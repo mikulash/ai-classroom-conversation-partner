@@ -2026,6 +2026,15 @@
           "checks"
         ]
       },
+      "UserRole": {
+        "type": "string",
+        "description": "User role",
+        "enum": [
+          "basic",
+          "admin",
+          "owner"
+        ]
+      },
       "ProfileDto": {
         "type": "object",
         "properties": {
@@ -2050,13 +2059,7 @@
             "description": "Gender"
           },
           "userRole": {
-            "type": "string",
-            "description": "User role",
-            "enum": [
-              "basic",
-              "admin",
-              "owner"
-            ]
+            "$ref": "#/components/schemas/UserRole"
           },
           "conversationRole": {
             "type": "string",
@@ -2302,12 +2305,7 @@
         "type": "object",
         "properties": {
           "userRole": {
-            "type": "string",
-            "enum": [
-              "basic",
-              "admin",
-              "owner"
-            ]
+            "$ref": "#/components/schemas/UserRole"
           }
         }
       },
@@ -2368,6 +2366,16 @@
           "timestamp",
           "level",
           "message"
+        ]
+      },
+      "ConversationType": {
+        "type": "string",
+        "description": "Conversation type",
+        "enum": [
+          "VoiceOnly",
+          "Video",
+          "TextOnly",
+          "TextWithAudio"
         ]
       },
       "PersonalityRefDto": {
@@ -2469,14 +2477,7 @@
             }
           },
           "conversationType": {
-            "type": "string",
-            "description": "Conversation type",
-            "enum": [
-              "VoiceOnly",
-              "Video",
-              "TextOnly",
-              "TextWithAudio"
-            ]
+            "$ref": "#/components/schemas/ConversationType"
           },
           "personality": {
             "description": "Personality reference",
@@ -2549,19 +2550,33 @@
             }
           },
           "conversationType": {
-            "type": "string",
-            "description": "Conversation type",
-            "enum": [
-              "VoiceOnly",
-              "Video",
-              "TextOnly",
-              "TextWithAudio"
-            ]
+            "$ref": "#/components/schemas/ConversationType"
           }
         },
         "required": [
           "startTime",
           "conversationType"
+        ]
+      },
+      "Sex": {
+        "type": "string",
+        "description": "Sex",
+        "enum": [
+          "F",
+          "M"
+        ]
+      },
+      "OpenAiVoiceName": {
+        "type": "string",
+        "description": "OpenAI voice name",
+        "enum": [
+          "alloy",
+          "ash",
+          "ballad",
+          "coral",
+          "echo",
+          "sage",
+          "shimmer"
         ]
       },
       "PersonalityDto": {
@@ -2594,12 +2609,7 @@
             "description": "Gender"
           },
           "sex": {
-            "type": "string",
-            "description": "Sex",
-            "enum": [
-              "F",
-              "M"
-            ]
+            "$ref": "#/components/schemas/Sex"
           },
           "voiceInstructions": {
             "type": "string",
@@ -2612,17 +2622,7 @@
             "nullable": true
           },
           "openaiVoiceName": {
-            "type": "string",
-            "description": "OpenAI voice name",
-            "enum": [
-              "alloy",
-              "ash",
-              "ballad",
-              "coral",
-              "echo",
-              "sage",
-              "shimmer"
-            ]
+            "$ref": "#/components/schemas/OpenAiVoiceName"
           },
           "problemSummaryEn": {
             "type": "string",
@@ -2661,27 +2661,6 @@
           "problemSummaryCs",
           "personalityDescriptionCs",
           "isHidden"
-        ]
-      },
-      "Sex": {
-        "type": "string",
-        "description": "Sex",
-        "enum": [
-          "F",
-          "M"
-        ]
-      },
-      "OpenAiVoiceName": {
-        "type": "string",
-        "description": "OpenAI voice name",
-        "enum": [
-          "alloy",
-          "ash",
-          "ballad",
-          "coral",
-          "echo",
-          "sage",
-          "shimmer"
         ]
       },
       "CreatePersonalityDto": {
@@ -2900,6 +2879,15 @@
           }
         }
       },
+      "ResponseModelProvider": {
+        "type": "string",
+        "description": "Model provider",
+        "enum": [
+          "OpenAi",
+          "xAi",
+          "Anthropic"
+        ]
+      },
       "ResponseModelDto": {
         "type": "object",
         "properties": {
@@ -2929,13 +2917,7 @@
             "description": "Whether model is enabled"
           },
           "provider": {
-            "type": "string",
-            "description": "Model provider",
-            "enum": [
-              "OpenAi",
-              "xAi",
-              "Anthropic"
-            ]
+            "$ref": "#/components/schemas/ResponseModelProvider"
           }
         },
         "required": [
@@ -2945,6 +2927,14 @@
           "apiName",
           "isEnabled",
           "provider"
+        ]
+      },
+      "TtsModelProvider": {
+        "type": "string",
+        "description": "Model provider",
+        "enum": [
+          "OpenAi",
+          "ElevenLabs"
         ]
       },
       "TtsModelDto": {
@@ -2979,12 +2969,7 @@
             "description": "Whether model is enabled"
           },
           "provider": {
-            "type": "string",
-            "description": "Model provider",
-            "enum": [
-              "OpenAi",
-              "ElevenLabs"
-            ]
+            "$ref": "#/components/schemas/TtsModelProvider"
           },
           "allowsWordLevelTimestampedTranscript": {
             "type": "boolean",
@@ -3001,6 +2986,13 @@
           "isEnabled",
           "provider",
           "allowsWordLevelTimestampedTranscript"
+        ]
+      },
+      "RealtimeModelProvider": {
+        "type": "string",
+        "description": "Model provider",
+        "enum": [
+          "OpenAi"
         ]
       },
       "RealtimeModelDto": {
@@ -3032,11 +3024,7 @@
             "description": "Whether model is enabled"
           },
           "provider": {
-            "type": "string",
-            "description": "Model provider",
-            "enum": [
-              "OpenAi"
-            ]
+            "$ref": "#/components/schemas/RealtimeModelProvider"
           }
         },
         "required": [
@@ -3046,6 +3034,13 @@
           "apiName",
           "isEnabled",
           "provider"
+        ]
+      },
+      "TranscriptionModelProvider": {
+        "type": "string",
+        "description": "Model provider",
+        "enum": [
+          "OpenAi"
         ]
       },
       "RealtimeTranscriptionModelDto": {
@@ -3064,11 +3059,7 @@
             "description": "Friendly name"
           },
           "provider": {
-            "type": "string",
-            "description": "Model provider",
-            "enum": [
-              "OpenAi"
-            ]
+            "$ref": "#/components/schemas/TranscriptionModelProvider"
           },
           "apiName": {
             "type": "string",
@@ -3098,6 +3089,13 @@
           "allowsWordLevelTimestamps"
         ]
       },
+      "TimestampedTranscriptionModelProvider": {
+        "type": "string",
+        "description": "Model provider",
+        "enum": [
+          "OpenAi"
+        ]
+      },
       "TimestampedTranscriptionModelDto": {
         "type": "object",
         "properties": {
@@ -3114,11 +3112,7 @@
             "description": "Friendly name"
           },
           "provider": {
-            "type": "string",
-            "description": "Model provider",
-            "enum": [
-              "OpenAi"
-            ]
+            "$ref": "#/components/schemas/TimestampedTranscriptionModelProvider"
           },
           "apiName": {
             "type": "string",
