@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
-import { universalApi } from '../ai-api/universalApi';
+import { UniversalApiService } from '../ai-api/universalApi';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { getUserId } from '../utils/getUserId';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
@@ -27,6 +27,8 @@ import { HttpStatusError } from '../utils/httpStatusError';
 @UseGuards(AuthGuard)
 @Controller('api/replies')
 export class RepliesController {
+  constructor(private readonly universalApi: UniversalApiService) {}
+
   @Post('text')
   @ApiBody({ type: GenerateReplyDto })
   @ApiOkResponse({ description: 'AI-generated text response', type: String })
@@ -39,7 +41,7 @@ export class RepliesController {
       const { inputText, previousMessages, personality, conversationRole, language, scenario, userProfile } = body;
       const userId = getUserId(req);
 
-      const response = await universalApi.getResponse({
+      const response = await this.universalApi.getResponse({
         inputText,
         previousMessages: previousMessages,
         personality: personality,
@@ -68,7 +70,7 @@ export class RepliesController {
       const { inputMessage, personality, language, responseFormat } = body;
       const userId = getUserId(req);
 
-      const result = await universalApi.getSpeechAudio({
+      const result = await this.universalApi.getSpeechAudio({
         inputMessage,
         personality,
         language,
@@ -103,7 +105,7 @@ export class RepliesController {
       const { inputMessage, personality, language } = body;
       const userId = getUserId(req);
 
-      const speechAudio = await universalApi.getTimestampedSpeechAudio({
+      const speechAudio = await this.universalApi.getTimestampedSpeechAudio({
         inputMessage,
         personality,
         language,
@@ -134,7 +136,7 @@ export class RepliesController {
     try {
       const userId = getUserId(req);
 
-      const text = await universalApi.getResponse({
+      const text = await this.universalApi.getResponse({
         inputText: body.inputText,
         previousMessages: body.previousMessages,
         personality: body.personality,
@@ -144,7 +146,7 @@ export class RepliesController {
         userProfile: body.userProfile,
       }, userId);
 
-      const result = await universalApi.getSpeechAudio({
+      const result = await this.universalApi.getSpeechAudio({
         inputMessage: text,
         personality: body.personality,
         language: body.language,
@@ -176,7 +178,7 @@ export class RepliesController {
     try {
       const userId = getUserId(req);
 
-      const text = await universalApi.getResponse({
+      const text = await this.universalApi.getResponse({
         inputText: body.inputText,
         previousMessages: body.previousMessages,
         personality: body.personality,
@@ -186,7 +188,7 @@ export class RepliesController {
         userProfile: body.userProfile,
       }, userId);
 
-      const result = await universalApi.getTimestampedSpeechAudio({
+      const result = await this.universalApi.getTimestampedSpeechAudio({
         inputMessage: text,
         personality: body.personality,
         language: body.language,
@@ -216,7 +218,7 @@ export class RepliesController {
   ): Promise<void> {
     try {
       const userId = getUserId(req);
-      const answer = await universalApi.getRealtimeVoice({
+      const answer = await this.universalApi.getRealtimeVoice({
         openaiVoiceName: body.personality.openaiVoiceName,
         personality: body.personality,
         conversationRole: body.conversationRole,
@@ -242,7 +244,7 @@ export class RepliesController {
   ): Promise<void> {
     try {
       const userId = getUserId(req);
-      const transcriptionSessionCreateResponse = await universalApi.getRealtimeTranscription({
+      const transcriptionSessionCreateResponse = await this.universalApi.getRealtimeTranscription({
         inputAudioFormat: 'pcm16',
         language: body.language,
       }, userId);

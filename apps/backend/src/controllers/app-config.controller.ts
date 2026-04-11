@@ -13,14 +13,15 @@ import { ErrorResponseDto, ModelSelectionIdsDto } from '../dtos/common.dto';
 @ApiTags('app-config')
 @Controller('api/app-config')
 export class AppConfigController {
+  constructor(private readonly configProvider: ConfigProvider) {}
+
   @Get()
   @ApiOkResponse({ description: 'Get app configuration', type: AppConfigDto })
   async getAppConfig(
     @Res() res: Response<AppConfigDto | ErrorResponseDto>,
   ): Promise<void> {
     try {
-      const configProvider = await ConfigProvider.getInstance();
-      const config = configProvider.getAppConfig();
+      const config = await this.configProvider.getAppConfig();
 
       res.status(200).json(appConfigEntityToDto(config));
     } catch (error) {
@@ -50,8 +51,7 @@ export class AppConfigController {
       } = body;
 
       const now = new Date();
-      const configProvider = await ConfigProvider.getInstance();
-      const currentConfig = configProvider.getAppConfig();
+      const currentConfig = await this.configProvider.getAppConfig();
 
       const config = await prisma.$transaction(async (tx) => {
         await tx.appConfig.update({
@@ -80,7 +80,7 @@ export class AppConfigController {
         });
       });
 
-      await configProvider.refreshAppConfig();
+      await this.configProvider.refreshAppConfig();
 
       res.status(200).json(appConfigEntityToDto(config));
     } catch (error) {

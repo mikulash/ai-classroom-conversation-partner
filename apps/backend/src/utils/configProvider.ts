@@ -1,12 +1,16 @@
+import { Injectable } from '@nestjs/common';
 import { API_KEY, ApiKey } from '@repo/shared/enums/ApiKey';
 import { getUserCustomModelConfig } from './getUserCustomModelSelection';
 import { fetchAppConfig, fetchModelOptions } from './databaseService';
-import type { AppConfig, RealtimeModel,
+import type {
+  AppConfig,
+  RealtimeModel,
   RealtimeTranscriptionModel,
   ResponseModel,
   TimestampedTranscriptionModel,
-  TtsModel } from '../generated/prisma/client';
-import { OPENAI_API_KEY, ELEVENLABS_API_KEY, CLAUDE_API_KEY, GROK_API_KEY } from '../constants/constants';
+  TtsModel,
+} from '../generated/prisma/client';
+import { CLAUDE_API_KEY, ELEVENLABS_API_KEY, GROK_API_KEY, OPENAI_API_KEY } from '../constants/constants';
 
 /**
  * Fetches all secrets once and caches them for the lifetime of the process.
@@ -22,42 +26,57 @@ export interface ModelOptions {
     realtimeTranscriptionModels: RealtimeTranscriptionModel[];
 }
 
+@Injectable()
 export class ConfigProvider {
-  private static instance?: ConfigProvider;
   private readonly secrets: Secrets;
-  private appConfig: AppConfig;
-  private readonly modelOptions: ModelOptions;
+  private appConfig?: AppConfig;
+  private modelOptions?: ModelOptions;
+  private loadPromise?: Promise<void>;
 
-  /**
-     * Private constructor; use getInstance() instead.
-     */
-  private constructor(secrets: Secrets, appConfig: AppConfig, modelOptions: ModelOptions) {
-    this.secrets = secrets;
-    this.appConfig = appConfig;
-    this.modelOptions = modelOptions;
+  constructor() {
+    this.secrets = {
+      [API_KEY.OPENAI]: OPENAI_API_KEY,
+      [API_KEY.ELEVENLABS]: ELEVENLABS_API_KEY,
+      [API_KEY.CLAUDE]: CLAUDE_API_KEY,
+      [API_KEY.GROK]: GROK_API_KEY,
+    };
   }
 
-  /**
-     * Returns the singleton instance, initializing it on the first call.
-     */
-  public static async getInstance(): Promise<ConfigProvider> {
-    if (!ConfigProvider.instance) {
-      const secrets: Secrets = {
-        [API_KEY.OPENAI]: OPENAI_API_KEY,
-        [API_KEY.ELEVENLABS]: ELEVENLABS_API_KEY,
-        [API_KEY.CLAUDE]: CLAUDE_API_KEY,
-        [API_KEY.GROK]: GROK_API_KEY,
-      };
-
-      const completeConfiguration = await ConfigProvider.loadCompleteConfig();
-
-      ConfigProvider.instance = new ConfigProvider(secrets, completeConfiguration.appConfig, completeConfiguration.modelOptions);
+  private async ensureLoaded(): Promise<void> {
+    if (this.appConfig && this.modelOptions) {
+      return;
     }
 
-    return ConfigProvider.instance;
+    this.loadPromise ??= this.loadCompleteConfig()
+      .then(({ appConfig, modelOptions }) => {
+        this.appConfig = appConfig;
+        this.modelOptions = modelOptions;
+      })
+      .catch((error: unknown) => {
+        this.loadPromise = undefined;
+        throw error;
+      });
+
+    await this.loadPromise;
   }
 
-  private static async loadCompleteConfig(): Promise<{
+  private async getLoadedState(): Promise<{
+        appConfig: AppConfig;
+        modelOptions: ModelOptions;
+    }> {
+    await this.ensureLoaded();
+
+    if (!this.appConfig || !this.modelOptions) {
+      throw new Error('Configuration failed to load.');
+    }
+
+    return {
+      appConfig: this.appConfig,
+      modelOptions: this.modelOptions,
+    };
+  }
+
+  private async loadCompleteConfig(): Promise<{
         appConfig: AppConfig;
         modelOptions: ModelOptions;
     }> {
@@ -71,12 +90,12 @@ export class ConfigProvider {
   }
 
   /**
-     * Refreshes the cached app config from the database.
-     * Call this after updating the app config to invalidate the cache.
-     */
+   * Refreshes the cached app config from the database.
+   * Call this after updating the app config to invalidate the cache.
+   */
   public async refreshAppConfig(): Promise<void> {
-    const newConfig = await fetchAppConfig();
-    this.appConfig = newConfig;
+    await this.ensureLoaded();
+    this.appConfig = await fetchAppConfig();
   }
 
 
@@ -88,38 +107,44 @@ export class ConfigProvider {
     return key;
   }
 
-  public getSelectedModels() {
+  public async getSelectedModels() {
+    const { appConfig, modelOptions } = await this.getLoadedState();
+
     return {
-      responseModel: this.modelOptions.responseModels.find((model) => model.id === this.appConfig.responseModelId),
-      ttsModel: this.modelOptions.ttsModels.find((model) => model.id === this.appConfig.ttsModelId),
-      realtimeModel: this.modelOptions.realtimeModels.find((model) => model.id === this.appConfig.realtimeModelId),
-      timestampedTranscriptionModel: this.modelOptions.timestampedTranscriptionModels.find((model) => model.id === this.appConfig.timestampedTranscriptionModelId),
-      realtimeTranscriptionModel: this.modelOptions.realtimeTranscriptionModels.find((model) => model.id === this.appConfig.realtimeTranscriptionModelId),
+      responseModel: modelOptions.responseModels.find((model) => model.id === appConfig.responseModelId),
+      ttsModel: modelOptions.ttsModels.find((model) => model.id === appConfig.ttsModelId),
+      realtimeModel: modelOptions.realtimeModels.find((model) => model.id === appConfig.realtimeModelId),
+      timestampedTranscriptionModel: modelOptions.timestampedTranscriptionModels.find((model) => model.id === appConfig.timestampedTranscriptionModelId),
+      realtimeTranscriptionModel: modelOptions.realtimeTranscriptionModels.find((model) => model.id === appConfig.realtimeTranscriptionModelId),
     };
   }
 
   public async getModelsForUser(userId: string) {
+    const [selectedModels, { modelOptions }] = await Promise.all([
+      this.getSelectedModels(),
+      this.getLoadedState(),
+    ]);
     const userCustomModelConfig = await getUserCustomModelConfig(userId);
 
     const responseModel = userCustomModelConfig?.responseModelId ?
-      this.getResponseModelById(userCustomModelConfig.responseModelId) :
-      this.getSelectedModels().responseModel;
+      modelOptions.responseModels.find((model) => model.id === userCustomModelConfig.responseModelId) :
+      selectedModels.responseModel;
 
     const ttsModel = userCustomModelConfig?.ttsModelId ?
-      this.getTtsModelById(userCustomModelConfig.ttsModelId) :
-      this.getSelectedModels().ttsModel;
+      modelOptions.ttsModels.find((model) => model.id === userCustomModelConfig.ttsModelId) :
+      selectedModels.ttsModel;
 
     const realtimeModel = userCustomModelConfig?.realtimeModelId ?
-      this.getRealtimeModelById(userCustomModelConfig.realtimeModelId) :
-      this.getSelectedModels().realtimeModel;
+      modelOptions.realtimeModels.find((model) => model.id === userCustomModelConfig.realtimeModelId) :
+      selectedModels.realtimeModel;
 
     const timestampedTranscriptionModel = userCustomModelConfig?.timestampedTranscriptionModelId ?
-      this.getTimestampedTranscriptionModelById(userCustomModelConfig.timestampedTranscriptionModelId) :
-      this.getSelectedModels().timestampedTranscriptionModel;
+      modelOptions.timestampedTranscriptionModels.find((model) => model.id === userCustomModelConfig.timestampedTranscriptionModelId) :
+      selectedModels.timestampedTranscriptionModel;
 
     const realtimeTranscriptionModel = userCustomModelConfig?.realtimeTranscriptionModelId ?
-      this.getRealtimeTranscriptionModelById(userCustomModelConfig.realtimeTranscriptionModelId) :
-      this.getSelectedModels().realtimeTranscriptionModel;
+      modelOptions.realtimeTranscriptionModels.find((model) => model.id === userCustomModelConfig.realtimeTranscriptionModelId) :
+      selectedModels.realtimeTranscriptionModel;
 
     return {
       responseModel,
@@ -130,32 +155,36 @@ export class ConfigProvider {
     };
   }
 
-  public getResponseModelById(id: number): ResponseModel | undefined {
-    return this.modelOptions.responseModels.find((model) => model.id === id);
+  public async getResponseModelById(id: number): Promise<ResponseModel | undefined> {
+    const { modelOptions } = await this.getLoadedState();
+    return modelOptions.responseModels.find((model) => model.id === id);
   }
 
-  public getTtsModelById(id: number): TtsModel | undefined {
-    return this.modelOptions.ttsModels.find((model) => model.id === id);
+  public async getTtsModelById(id: number): Promise<TtsModel | undefined> {
+    const { modelOptions } = await this.getLoadedState();
+    return modelOptions.ttsModels.find((model) => model.id === id);
   }
 
-  public getRealtimeModelById(id: number): RealtimeModel | undefined {
-    return this.modelOptions.realtimeModels.find((model) => model.id === id);
+  public async getRealtimeModelById(id: number): Promise<RealtimeModel | undefined> {
+    const { modelOptions } = await this.getLoadedState();
+    return modelOptions.realtimeModels.find((model) => model.id === id);
   }
 
-  public getRealtimeTranscriptionModelById(id: number): RealtimeTranscriptionModel | undefined {
-    return this.modelOptions.realtimeTranscriptionModels.find((model) => model.id === id);
+  public async getRealtimeTranscriptionModelById(id: number): Promise<RealtimeTranscriptionModel | undefined> {
+    const { modelOptions } = await this.getLoadedState();
+    return modelOptions.realtimeTranscriptionModels.find((model) => model.id === id);
   }
 
-  public getTimestampedTranscriptionModelById(id: number): TimestampedTranscriptionModel | undefined {
-    return this.modelOptions.timestampedTranscriptionModels.find((model) => model.id === id);
+  public async getTimestampedTranscriptionModelById(id: number): Promise<TimestampedTranscriptionModel | undefined> {
+    const { modelOptions } = await this.getLoadedState();
+    return modelOptions.timestampedTranscriptionModels.find((model) => model.id === id);
   }
 
   /**
    * Returns the cached app config.
    */
-  public getAppConfig(): AppConfig {
-    return this.appConfig;
+  public async getAppConfig(): Promise<AppConfig> {
+    const { appConfig } = await this.getLoadedState();
+    return appConfig;
   }
 }
-
-

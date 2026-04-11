@@ -1,38 +1,42 @@
-import { getGrokClient } from '../clients/grok';
+import { Injectable } from '@nestjs/common';
+import { GrokClientProvider } from '../clients/grok';
 import { createPersonalityPrompt } from '../utils/createPersonalityPrompt';
 import { GetResponseParamsWithModelName } from '../types/universalApi.types';
 
-const getResponse = async ({
-  inputText,
-  previousMessages,
-  personality,
-  conversationRole,
-  language,
-  scenario,
-  modelApiName,
-  userProfile,
-}: GetResponseParamsWithModelName): Promise<string> => {
-  const grok = await getGrokClient();
+@Injectable()
+export class XAiApiService {
+  constructor(private readonly grokClientProvider: GrokClientProvider) {}
 
-  const completion = await grok.chat.completions.create({
-    model: modelApiName,
-    messages: [
-      {
-        role: 'system',
-        content: createPersonalityPrompt({
-          personality,
-          conversationRole,
-          language,
-          scenario,
-          userProfile,
-        }),
-      },
-      ...previousMessages,
-      { role: 'user', content: inputText },
-    ],
-  });
+  public async getResponse({
+    inputText,
+    previousMessages,
+    personality,
+    conversationRole,
+    language,
+    scenario,
+    modelApiName,
+    userProfile,
+  }: GetResponseParamsWithModelName): Promise<string> {
+    const grok = this.grokClientProvider.getClient();
 
-  return completion.choices[0]?.message.content ?? '';
-};
+    const completion = await grok.chat.completions.create({
+      model: modelApiName,
+      messages: [
+        {
+          role: 'system',
+          content: createPersonalityPrompt({
+            personality,
+            conversationRole,
+            language,
+            scenario,
+            userProfile,
+          }),
+        },
+        ...previousMessages,
+        { role: 'user', content: inputText },
+      ],
+    });
 
-export const xAiApi = { getResponse };
+    return completion.choices[0]?.message.content ?? '';
+  }
+}

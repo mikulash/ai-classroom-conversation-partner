@@ -1,23 +1,28 @@
+import { Injectable } from '@nestjs/common';
 import Anthropic from '@anthropic-ai/sdk';
-import { ConfigProvider } from '../utils/configProvider';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
+import { ConfigProvider } from '../utils/configProvider';
 
-let claudeInstance: Anthropic | null = null;
+@Injectable()
+export class ClaudeClientProvider {
+  private claudeInstance: Anthropic | null = null;
 
-export const getClaudeClient = async () => {
-  if (!claudeInstance) {
-    const apiKeysProvider = await ConfigProvider.getInstance();
-    const apiKey = apiKeysProvider.getApiKey(API_KEY.CLAUDE);
+  constructor(private readonly configProvider: ConfigProvider) {}
 
-    claudeInstance = new Anthropic({
-      apiKey,
-      dangerouslyAllowBrowser: true,
-    });
+  public getClient(): Anthropic {
+    if (!this.claudeInstance) {
+      const apiKey = this.configProvider.getApiKey(API_KEY.CLAUDE);
+
+      this.claudeInstance = new Anthropic({
+        apiKey,
+        dangerouslyAllowBrowser: true,
+      });
+    }
+
+    return this.claudeInstance;
   }
 
-  return claudeInstance;
-};
-
-export const resetClaudeClient = () => {
-  claudeInstance = null;
-};
+  public resetClient(): void {
+    this.claudeInstance = null;
+  }
+}

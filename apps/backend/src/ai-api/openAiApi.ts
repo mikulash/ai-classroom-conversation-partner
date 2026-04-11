@@ -1,9 +1,9 @@
-import { ConfigProvider } from '../utils/configProvider';
+import { Injectable } from '@nestjs/common';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { LipSyncAudio } from '@repo/shared/types/talkingHead';
-import { getOpenAIClient } from '../clients/openAi';
+import { OpenAiClientProvider } from '../clients/openAi';
+import { ConfigProvider } from '../utils/configProvider';
 import { createPersonalityPrompt } from '../utils/createPersonalityPrompt';
-import { getPreciseLipSyncAudio } from '../utils/lipsyncUtils';
 import { TranscriptionSessionCreateResponseDto, WebRtcAnswerResponseDto } from '../dtos/replies.dto';
 import {
   GetRealtimeTranscriptionParamsWithModelName,
@@ -15,6 +15,7 @@ import {
   SpeechAudioResult,
 } from '../types/universalApi.types';
 import { HttpStatusError } from '../utils/httpStatusError';
+import { getPreciseLipSyncAudio } from '../utils/lipsyncUtils';
 
 const realtimeBaseUrl = 'https://api.openai.com/v1/realtime';
 
@@ -32,252 +33,258 @@ function isClientSecretEnvelope(
   );
 }
 
-async function getRealtimeTranscriptionToken(
-  params: GetRealtimeTranscriptionParamsWithModelName,
-): Promise<TranscriptionSessionCreateResponseDto> {
-  const apiKeysProvider = await ConfigProvider.getInstance();
-  const apiKey = apiKeysProvider.getApiKey(API_KEY.OPENAI);
+@Injectable()
+export class OpenAiApiService {
+  constructor(
+    private readonly configProvider: ConfigProvider,
+    private readonly openAiClientProvider: OpenAiClientProvider,
+  ) {}
 
-  const payload = {
-    input_audio_format: params.inputAudioFormat,
-    input_audio_transcription: {
-      model: params.modelApiName,
-      language: params.language.ISO639,
-      prompt: '',
-    },
-    turn_detection: {
-      type: 'server_vad',
-      threshold: 0.5,
-      prefix_padding_ms: 300,
-      silence_duration_ms: 500,
-    },
-  } as const;
+  public async getRealtimeTranscriptionToken(
+    params: GetRealtimeTranscriptionParamsWithModelName,
+  ): Promise<TranscriptionSessionCreateResponseDto> {
+    const apiKey = this.configProvider.getApiKey(API_KEY.OPENAI);
 
-  const res = await fetch(`${realtimeBaseUrl}/transcription_sessions`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
+    const payload = {
+      input_audio_format: params.inputAudioFormat,
+      input_audio_transcription: {
+        model: params.modelApiName,
+        language: params.language.ISO639,
+        prompt: '',
+      },
+      turn_detection: {
+        type: 'server_vad',
+        threshold: 0.5,
+        prefix_padding_ms: 300,
+        silence_duration_ms: 500,
+      },
+    } as const;
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new HttpStatusError(
-      `OpenAI transcription session creation failed (${res.status}): ${text}`,
-      res.status,
+    const res = await fetch(`${realtimeBaseUrl}/transcription_sessions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new HttpStatusError(
+        `OpenAI transcription session creation failed (${res.status}): ${text}`,
+        res.status,
+      );
+    }
+
+    return (await res.json()) as TranscriptionSessionCreateResponseDto;
+  }
+
+  public async getRealtimeVoice(
+    params: GetRealtimeVoiceParamsWithModelName,
+    userId: string,
+  ): Promise<WebRtcAnswerResponseDto> {
+    const { realtimeTranscriptionModel } = await this.configProvider.getModelsForUser(userId);
+    if (!realtimeTranscriptionModel) {
+      throw new Error('No models loaded');
+    }
+
+    const apiKey = this.configProvider.getApiKey(API_KEY.OPENAI);
+    const { personality, language, scenario, userProfile, conversationRole } = params;
+    const sessionBody: {
+      model: string;
+      voice?: string;
+      modalities?: string[];
+      instructions?: string;
+      input_audio_transcription?: {
+        model: string;
+        language: string;
+      };
+      output_audio_format?: string;
+      turn_detection?: {
+        type: string;
+        threshold: number;
+        prefix_padding_ms: number;
+        silence_duration_ms: number;
+        create_response: boolean;
+      };
+    } = { model: params.modelApiName };
+    if (params.openaiVoiceName.trim()) {
+      sessionBody.voice = params.openaiVoiceName;
+      sessionBody.modalities = ['audio', 'text'];
+      sessionBody.instructions = createPersonalityPrompt({
+        personality,
+        conversationRole,
+        language,
+        scenario,
+        userProfile,
+      });
+      sessionBody.input_audio_transcription = {
+        model: realtimeTranscriptionModel.apiName,
+        language: language.ISO639,
+      };
+      sessionBody.output_audio_format = 'pcm16';
+      sessionBody.turn_detection = {
+        type: 'server_vad',
+        threshold: 0.5,
+        prefix_padding_ms: 300,
+        silence_duration_ms: 500,
+        create_response: true,
+      };
+    }
+    const sessionResp = await fetch(`${realtimeBaseUrl}/sessions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sessionBody),
+    });
+    if (!sessionResp.ok) {
+      const errorPayload = await sessionResp.text();
+      console.error('OpenAI session error:', errorPayload);
+      throw new Error(`Failed to create Realtime session: ${sessionResp.status}`);
+    }
+
+    const ephemeralTokenResponse = await sessionResp.json();
+    if (!isClientSecretEnvelope(ephemeralTokenResponse)) {
+      throw new Error('OpenAI session response did not include a client secret');
+    }
+    const ephemeralToken = ephemeralTokenResponse.client_secret.value;
+
+    const sdpResp = await fetch(`${realtimeBaseUrl}?model=${params.modelApiName}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${ephemeralToken}`,
+        'Content-Type': 'application/sdp',
+      },
+      body: params.sdpOffer,
+    });
+
+    const sdpAnswer = await sdpResp.text();
+    if (!sdpResp.ok) {
+      console.error('OpenAI SDP error:', sdpAnswer);
+      throw new Error(`Failed to get SDP answer: ${sdpResp.status}`);
+    }
+
+    return { sdp: sdpAnswer };
+  }
+
+  public async getResponse({
+    inputText,
+    previousMessages,
+    personality,
+    conversationRole,
+    language,
+    scenario,
+    modelApiName,
+    userProfile,
+  }: GetResponseParamsWithModelName): Promise<string> {
+    const openai = this.openAiClientProvider.getClient();
+    const completion = await openai.chat.completions.create({
+      model: modelApiName,
+      messages: [
+        {
+          role: 'system',
+          content: createPersonalityPrompt({
+            personality,
+            conversationRole,
+            language,
+            scenario,
+            userProfile,
+          }),
+        },
+        ...previousMessages,
+        { role: 'user', content: inputText },
+      ],
+    });
+
+    return completion.choices[0]?.message.content ?? '';
+  }
+
+  public async getTextToSpeech(
+    params: GetTTSAudioParamsWithModelName,
+  ): Promise<SpeechAudioResult> {
+    const {
+      inputMessage,
+      personality,
+      language,
+      responseFormat,
+      modelApiName,
+      sampleRate,
+    } = params;
+
+    try {
+      const openai = this.openAiClientProvider.getClient();
+      const speechResponse = await openai.audio.speech.create({
+        model: modelApiName,
+        voice: personality.openaiVoiceName,
+        input: inputMessage,
+        instructions: (personality.voiceInstructions ?? '') + `Speak in ${language.ENGLISH_NAME}.`,
+        response_format: responseFormat,
+      });
+
+      const arrayBuffer = await speechResponse.arrayBuffer();
+      return {
+        buffer: arrayBuffer,
+        sampleRate: sampleRate,
+      };
+    } catch (error) {
+      console.error('Error converting text to speech using OpenAI:', error);
+
+      return {
+        buffer: new ArrayBuffer(0),
+        sampleRate: 0,
+      };
+    }
+  }
+
+  public async getTextToSpeechTimestamped(
+    params: GetTimestampedAudioParamsWithModelName,
+    userId: string,
+  ): Promise<LipSyncAudio> {
+    const { inputMessage, personality, language, modelApiName, sampleRate } = params;
+    const audioResponse = await this.getTextToSpeech({
+      inputMessage,
+      personality,
+      language,
+      responseFormat: 'pcm',
+      modelApiName,
+      sampleRate,
+    });
+
+    const { timestampedTranscriptionModel } = await this.configProvider.getModelsForUser(userId);
+    if (!timestampedTranscriptionModel) {
+      throw new Error('No models loaded');
+    }
+
+    return getPreciseLipSyncAudio(
+      audioResponse.buffer,
+      audioResponse.sampleRate,
+      2,
+      1,
+      userId,
+      language,
+      ({ audioFile, language: transcriptionLanguage }) =>
+        this.createTimestampedTranscription({
+          audioFile,
+          language: transcriptionLanguage,
+          modelApiName: timestampedTranscriptionModel.apiName,
+        }),
     );
   }
 
-  return (await res.json()) as TranscriptionSessionCreateResponseDto;
-}
+  public async createTimestampedTranscription(
+    params: GetTimestampedTranscriptionParamsWithModelName,
+  ) {
+    const openai = this.openAiClientProvider.getClient();
 
-const getRealtimeVoice = async (
-  params: GetRealtimeVoiceParamsWithModelName,
-  userId: string,
-): Promise<WebRtcAnswerResponseDto> => {
-  const configProvider = await ConfigProvider.getInstance();
-  const { realtimeTranscriptionModel } = await configProvider.getModelsForUser(userId);
-  if (!realtimeTranscriptionModel) {
-    throw new Error('No models loaded');
-  }
-
-  const apiKey = configProvider.getApiKey(API_KEY.OPENAI);
-  const { personality, language, scenario, userProfile, conversationRole } = params;
-  const sessionBody: {
-    model: string;
-    voice?: string;
-    modalities?: string[];
-    instructions?: string;
-    input_audio_transcription?: {
-      model: string;
-      language: string;
-    };
-    output_audio_format?: string;
-    turn_detection?: {
-      type: string;
-      threshold: number;
-      prefix_padding_ms: number;
-      silence_duration_ms: number;
-      create_response: boolean;
-    };
-  } = { model: params.modelApiName };
-  if (params.openaiVoiceName.trim()) {
-    sessionBody.voice = params.openaiVoiceName;
-    sessionBody.modalities = ['audio', 'text'];
-    sessionBody.instructions = createPersonalityPrompt({
-      personality,
-      conversationRole,
-      language,
-      scenario,
-      userProfile,
+    return openai.audio.transcriptions.create({
+      file: params.audioFile,
+      model: params.modelApiName,
+      language: params.language.ISO639,
+      response_format: 'verbose_json',
+      timestamp_granularities: ['word'],
     });
-    sessionBody.input_audio_transcription = {
-      model: realtimeTranscriptionModel.apiName,
-      language: language.ISO639,
-    };
-    sessionBody.output_audio_format = 'pcm16';
-    sessionBody.turn_detection = {
-      type: 'server_vad',
-      threshold: 0.5,
-      prefix_padding_ms: 300,
-      silence_duration_ms: 500,
-      create_response: true,
-    };
   }
-  const sessionResp = await fetch(`${realtimeBaseUrl}/sessions`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(sessionBody),
-  });
-  if (!sessionResp.ok) {
-    const errorPayload = await sessionResp.text();
-    console.error('OpenAI session error:', errorPayload);
-    throw new Error(`Failed to create Realtime session: ${sessionResp.status}`);
-  }
-
-  const ephemeralTokenResponse = await sessionResp.json();
-  if (!isClientSecretEnvelope(ephemeralTokenResponse)) {
-    throw new Error('OpenAI session response did not include a client secret');
-  }
-  const ephemeralToken = ephemeralTokenResponse.client_secret.value;
-
-  const sdpResp = await fetch(`${realtimeBaseUrl}?model=${params.modelApiName}`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${ephemeralToken}`,
-      'Content-Type': 'application/sdp',
-    },
-    body: params.sdpOffer,
-  });
-
-  const sdpAnswer = await sdpResp.text();
-  if (!sdpResp.ok) {
-    console.error('OpenAI SDP error:', sdpAnswer);
-    throw new Error(`Failed to get SDP answer: ${sdpResp.status}`);
-  }
-
-  return { sdp: sdpAnswer };
-};
-
-const getResponse = async ({
-  inputText,
-  previousMessages,
-  personality,
-  conversationRole,
-  language,
-  scenario,
-  modelApiName,
-  userProfile,
-}: GetResponseParamsWithModelName): Promise<string> => {
-  const openai = await getOpenAIClient();
-  const completion = await openai.chat.completions.create({
-    model: modelApiName,
-    messages: [
-      {
-        role: 'system',
-        content: createPersonalityPrompt({
-          personality,
-          conversationRole,
-          language,
-          scenario,
-          userProfile,
-        }),
-      },
-      ...previousMessages,
-      { role: 'user', content: inputText },
-    ],
-  });
-
-  return completion.choices[0]?.message.content ?? '';
-};
-
-const getTextToSpeech = async (
-  params: GetTTSAudioParamsWithModelName,
-): Promise<SpeechAudioResult> => {
-  const {
-    inputMessage,
-    personality,
-    language,
-    responseFormat,
-    modelApiName,
-    sampleRate,
-  } = params;
-
-  try {
-    const openai = await getOpenAIClient();
-    const speechResponse = await openai.audio.speech.create({
-      model: modelApiName,
-      voice: personality.openaiVoiceName,
-      input: inputMessage,
-      instructions: (personality.voiceInstructions ?? '') + `Speak in ${language.ENGLISH_NAME}.`,
-      response_format: responseFormat,
-    });
-
-    const arrayBuffer = await speechResponse.arrayBuffer();
-    return {
-      buffer: arrayBuffer,
-      sampleRate: sampleRate, // https://platform.openai.com/docs/guides/text-to-speech
-    };
-  } catch (error) {
-    console.error('Error converting text to speech using OpenAI:', error);
-
-    return {
-      buffer: new ArrayBuffer(0),
-      sampleRate: 0,
-    };
-  }
-};
-
-async function getTextToSpeechTimestamped(
-  params: GetTimestampedAudioParamsWithModelName,
-  userId: string,
-): Promise<LipSyncAudio> {
-  const { inputMessage, personality, language, modelApiName, sampleRate } = params;
-  const audioResponse = await getTextToSpeech({
-    inputMessage,
-    personality,
-    language,
-    responseFormat: 'pcm',
-    modelApiName: modelApiName,
-    sampleRate: sampleRate,
-  });
-
-  const lipSyncAudio = await getPreciseLipSyncAudio(
-    audioResponse.buffer,
-    audioResponse.sampleRate,
-    2,
-    1,
-    userId,
-    language,
-  );
-
-  return lipSyncAudio;
 }
-
-const createTimestampedTranscription = async (
-  params: GetTimestampedTranscriptionParamsWithModelName,
-) => {
-  const openai = await getOpenAIClient();
-
-  return openai.audio.transcriptions.create({
-    file: params.audioFile,
-    model: params.modelApiName,
-    language: params.language.ISO639,
-    response_format: 'verbose_json',
-    timestamp_granularities: ['word'],
-  });
-};
-
-export const openAiApi = {
-  getRealtimeTranscriptionToken,
-  getRealtimeVoice,
-  getResponse,
-  getTextToSpeech,
-  getTextToSpeechTimestamped,
-  createTimestampedTranscription,
-};

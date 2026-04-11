@@ -1,6 +1,15 @@
-﻿import { LipSyncAudio } from '@repo/shared/types/talkingHead';
+import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { LanguageDto } from '../dtos/replies.dto';
-import { universalApi } from '../ai-api/universalApi';
+
+interface TimestampedTranscriptionWord {
+  word: string;
+  start: number;
+  end: number;
+}
+
+interface TimestampedTranscriptionResult {
+  words?: TimestampedTranscriptionWord[];
+}
 
 /**
  * Encodes raw PCM data as a WAV file.
@@ -138,6 +147,11 @@ export async function getPreciseLipSyncAudio(
   channels = 1,
   userId: string,
   language: LanguageDto,
+  createTimestampedTranscription: (params: {
+    audioFile: File;
+    language: LanguageDto;
+    userId?: string;
+  }) => Promise<TimestampedTranscriptionResult>,
 ): Promise<LipSyncAudio> {
   // Convert the raw PCM ArrayBuffer into a WAV file
   const wavBuffer = encodeWAV(
@@ -150,10 +164,11 @@ export async function getPreciseLipSyncAudio(
   const audioFile = new File([wavBlob], 'audio.wav', { type: 'audio/wav' });
 
   // The transcription API is called with word-level granularity for precise timings.
-  const transcription = await universalApi.getTimestampedTranscription({
+  const transcription = await createTimestampedTranscription({
     audioFile: audioFile,
     language: language,
-  }, userId);
+    userId,
+  });
 
   // Prepare arrays to store words and timing data.
   const words: string[] = [];

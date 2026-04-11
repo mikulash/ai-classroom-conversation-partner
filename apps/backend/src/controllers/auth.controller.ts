@@ -58,6 +58,8 @@ function isEmailVerificationPayload(
 @ApiTags('auth')
 @Controller('api/auth')
 export class AuthController {
+  constructor(private readonly configProvider: ConfigProvider) {}
+
   /**
    * Validate if email belongs to allowed domains
    */
@@ -116,8 +118,7 @@ export class AuthController {
         return;
       }
 
-      const configProvider = await ConfigProvider.getInstance();
-      const { allowedDomains } = configProvider.getAppConfig();
+      const { allowedDomains } = await this.configProvider.getAppConfig();
 
       if (allowedDomains.length > 0 && !isValidUniversityEmail(email, allowedDomains)) {
         res.status(400).json({

@@ -1,25 +1,29 @@
+import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
-import { ConfigProvider } from '../utils/configProvider';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
+import { ConfigProvider } from '../utils/configProvider';
 
-let grokInstance: OpenAI | null = null;
+@Injectable()
+export class GrokClientProvider {
+  private grokInstance: OpenAI | null = null;
 
-export const getGrokClient = async () => {
-  if (!grokInstance) {
-    const apiKeysProvider = await ConfigProvider.getInstance();
+  constructor(private readonly configProvider: ConfigProvider) {}
 
-    const apiKey = apiKeysProvider.getApiKey(API_KEY.GROK);
+  public getClient(): OpenAI {
+    if (!this.grokInstance) {
+      const apiKey = this.configProvider.getApiKey(API_KEY.GROK);
 
-    grokInstance = new OpenAI({
-      apiKey,
-      baseURL: 'https://api.x.ai/v1',
-      dangerouslyAllowBrowser: true,
-    });
+      this.grokInstance = new OpenAI({
+        apiKey,
+        baseURL: 'https://api.x.ai/v1',
+        dangerouslyAllowBrowser: true,
+      });
+    }
+
+    return this.grokInstance;
   }
 
-  return grokInstance;
-};
-
-export const resetGrokClient = () => {
-  grokInstance = null;
-};
+  public resetClient(): void {
+    this.grokInstance = null;
+  }
+}

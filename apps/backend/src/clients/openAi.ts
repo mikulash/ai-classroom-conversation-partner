@@ -1,24 +1,28 @@
-﻿import OpenAI from 'openai';
-import { ConfigProvider } from '../utils/configProvider';
+import { Injectable } from '@nestjs/common';
+import OpenAI from 'openai';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
+import { ConfigProvider } from '../utils/configProvider';
 
-let openaiInstance: OpenAI | null = null;
+@Injectable()
+export class OpenAiClientProvider {
+  private openaiInstance: OpenAI | null = null;
 
-export const getOpenAIClient = async () => {
-  if (!openaiInstance) {
-    const apiKeysProvider = await ConfigProvider.getInstance();
+  constructor(private readonly configProvider: ConfigProvider) {}
 
-    const apiKey = apiKeysProvider.getApiKey(API_KEY.OPENAI);
+  public getClient(): OpenAI {
+    if (!this.openaiInstance) {
+      const apiKey = this.configProvider.getApiKey(API_KEY.OPENAI);
 
-    openaiInstance = new OpenAI({
-      apiKey,
-      dangerouslyAllowBrowser: true,
-    });
+      this.openaiInstance = new OpenAI({
+        apiKey,
+        dangerouslyAllowBrowser: true,
+      });
+    }
+
+    return this.openaiInstance;
   }
 
-  return openaiInstance;
-};
-
-export const resetOpenAIClient = () => {
-  openaiInstance = null;
-};
+  public resetClient(): void {
+    this.openaiInstance = null;
+  }
+}
