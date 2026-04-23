@@ -1,5 +1,6 @@
 import {
   ConversationMessageDto,
+  FullReplyTimestampedResponseDto,
   GenerateReplyDto,
   LanguageDto,
   ReplyPersonalityDto,
@@ -10,6 +11,7 @@ import {
   RealtimeVoiceDto,
   TextToSpeechDto,
   TextToSpeechTimestampedDto,
+  TextToSpeechTimestampedResponseDto,
 } from './generated';
 import {
   GenerateReplyRequest,
@@ -21,18 +23,14 @@ import {
 import {
   aiProviderStatusDtoToModel,
   fullReplyPlainResponseDtoToModel,
-  fullReplyTimestampedResponseDtoToModel,
   speechAudioDtoToModel,
-  timestampedSpeechAudioDtoToModel,
   transcriptionSessionDtoToModel,
   webRtcAnswerDtoToModel,
 } from '../dtoToModelMappers';
 import {
   AiProviderStatusModel,
   FullReplyPlainModel,
-  FullReplyTimestampedModel,
   SpeechAudioModel,
-  TimestampedSpeechAudioModel,
   TranscriptionSessionModel,
   WebRtcAnswerModel,
 } from '../models';
@@ -161,10 +159,10 @@ export class RepliesClient {
     return speechAudioDtoToModel(response.data, params.responseFormat);
   }
 
-  async getTimestampedSpeechAudio(params: TextToSpeechTimestampedRequest): Promise<TimestampedSpeechAudioModel> {
+  async getTimestampedSpeechAudio(params: TextToSpeechTimestampedRequest): Promise<TextToSpeechTimestampedResponseDto> {
     const requestFn = await repliesApi.repliesControllerGenerateTimestampedSpeech(toTextToSpeechTimestampedDto(params));
     const response = await requestFn(api);
-    return timestampedSpeechAudioDtoToModel(response.data);
+    return response.data;
   }
 
   async getFullReplyPlain(request: GenerateReplyRequest): Promise<FullReplyPlainModel> {
@@ -173,10 +171,10 @@ export class RepliesClient {
     return fullReplyPlainResponseDtoToModel(response.data);
   }
 
-  async getFullReplyTimestamped(request: GenerateReplyRequest): Promise<FullReplyTimestampedModel> {
+  async getFullReplyTimestamped(request: GenerateReplyRequest): Promise<FullReplyTimestampedResponseDto> {
     const requestFn = await repliesApi.repliesControllerGenerateFullTimestamped(toGenerateReplyDto(request));
     const response = await requestFn(api);
-    return fullReplyTimestampedResponseDtoToModel(response.data);
+    return response.data;
   }
 
   async getWebRtcAnswer(request: RealtimeVoiceRequest): Promise<WebRtcAnswerModel> {

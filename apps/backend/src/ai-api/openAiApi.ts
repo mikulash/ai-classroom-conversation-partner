@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
-import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { OpenAiClientProvider } from '../clients/openAi';
 import { ConfigProvider } from '../utils/configProvider';
 import { createPersonalityPrompt } from '../utils/createPersonalityPrompt';
-import { TranscriptionSessionCreateResponseDto, WebRtcAnswerResponseDto } from '../dtos/replies.dto';
+import {
+  TextToSpeechTimestampedResponseDto,
+  TranscriptionSessionCreateResponseDto,
+  WebRtcAnswerResponseDto,
+} from '../dtos/replies.dto';
 import {
   GetRealtimeTranscriptionParamsWithModelName,
   GetRealtimeVoiceParamsWithModelName,
@@ -15,7 +18,7 @@ import {
   SpeechAudioResult,
 } from '../types/universalApi.types';
 import { HttpStatusError } from '../utils/httpStatusError';
-import { getPreciseLipSyncAudio } from '../utils/lipsyncUtils';
+import { getPreciseTimestampedSpeech } from '../utils/lipsyncUtils';
 
 const realtimeBaseUrl = 'https://api.openai.com/v1/realtime';
 
@@ -242,7 +245,7 @@ export class OpenAiApiService {
   public async getTextToSpeechTimestamped(
     params: GetTimestampedAudioParamsWithModelName,
     userId: string,
-  ): Promise<LipSyncAudio> {
+  ): Promise<TextToSpeechTimestampedResponseDto> {
     const { inputMessage, personality, language, modelApiName, sampleRate } = params;
     const audioResponse = await this.getTextToSpeech({
       inputMessage,
@@ -258,7 +261,7 @@ export class OpenAiApiService {
       throw new Error('No models loaded');
     }
 
-    return getPreciseLipSyncAudio(
+    return getPreciseTimestampedSpeech(
       audioResponse.buffer,
       audioResponse.sampleRate,
       2,

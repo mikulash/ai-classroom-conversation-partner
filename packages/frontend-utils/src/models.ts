@@ -246,21 +246,9 @@ export interface SpeechAudioModel {
     sampleRate: number
 }
 
-export interface TimestampedSpeechAudioModel {
-    audio: ArrayBuffer[]
-    words: string[]
-    wtimes: number[]
-    wdurations: number[]
-}
-
 export interface FullReplyPlainModel {
     text: string
     speech: SpeechAudioModel
-}
-
-export interface FullReplyTimestampedModel {
-    text: string
-    speech: TimestampedSpeechAudioModel
 }
 
 export interface WebRtcAnswerModel {

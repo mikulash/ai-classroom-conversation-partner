@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { AnthropicApiService } from './anthropicApi';
 import { ElevenLabsApiService } from './elevenLabsApi';
 import { OpenAiApiService } from './openAiApi';
 import { XAiApiService } from './xAiApi';
-import { TranscriptionSessionCreateResponseDto, WebRtcAnswerResponseDto } from '../dtos/replies.dto';
+import {
+  TextToSpeechTimestampedResponseDto,
+  TranscriptionSessionCreateResponseDto,
+  WebRtcAnswerResponseDto,
+} from '../dtos/replies.dto';
 import {
   GetRealtimeTranscriptionParams,
   GetRealtimeVoiceParams,
@@ -105,7 +108,7 @@ export class UniversalApiService {
   public async getTimestampedSpeechAudio(
     params: GetTimestampedSpeechAudioParams,
     userId: string,
-  ): Promise<LipSyncAudio> {
+  ): Promise<TextToSpeechTimestampedResponseDto> {
     const { ttsModel } = await this.configProvider.getModelsForUser(userId);
     if (!ttsModel) {
       throw new Error('No models loaded');

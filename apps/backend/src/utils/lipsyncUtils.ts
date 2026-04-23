@@ -1,5 +1,4 @@
-import { LipSyncAudio } from '@repo/shared/types/talkingHead';
-import { LanguageDto } from '../dtos/replies.dto';
+import { LanguageDto, TextToSpeechTimestampedResponseDto } from '../dtos/replies.dto';
 
 interface TimestampedTranscriptionWord {
   word: string;
@@ -9,6 +8,10 @@ interface TimestampedTranscriptionWord {
 
 interface TimestampedTranscriptionResult {
   words?: TimestampedTranscriptionWord[];
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  return Buffer.from(new Uint8Array(buffer)).toString('base64');
 }
 
 /**
@@ -97,12 +100,12 @@ export function encodeWAV(
  * @param bytesPerSample
  * @returns
  */
-export function getLipSyncAudioApproximately(
+export function getApproximateTimestampedSpeech(
   arrayBuffer: ArrayBuffer,
   response: string,
   sampleRate: number,
   bytesPerSample = 2,
-): LipSyncAudio {
+): TextToSpeechTimestampedResponseDto {
   const words = response.split(/\s+/);
   const totalDuration =
         (arrayBuffer.byteLength / bytesPerSample / sampleRate) * 1000; // ms
@@ -124,7 +127,7 @@ export function getLipSyncAudioApproximately(
   }
 
   return {
-    audio: [arrayBuffer],
+    audio: [arrayBufferToBase64(arrayBuffer)],
     words,
     wtimes,
     wdurations,
@@ -140,7 +143,7 @@ export function getLipSyncAudioApproximately(
  * @param userId
  * @param language
  */
-export async function getPreciseLipSyncAudio(
+export async function getPreciseTimestampedSpeech(
   arrayBuffer: ArrayBuffer,
   sampleRate: number,
   bytesPerSample = 2,
@@ -152,7 +155,7 @@ export async function getPreciseLipSyncAudio(
     language: LanguageDto;
     userId?: string;
   }) => Promise<TimestampedTranscriptionResult>,
-): Promise<LipSyncAudio> {
+): Promise<TextToSpeechTimestampedResponseDto> {
   // Convert the raw PCM ArrayBuffer into a WAV file
   const wavBuffer = encodeWAV(
     arrayBuffer,
@@ -192,55 +195,9 @@ export async function getPreciseLipSyncAudio(
   }
 
   return {
-    audio: [arrayBuffer],
+    audio: [arrayBufferToBase64(arrayBuffer)],
     words,
     wtimes,
     wdurations,
   };
-}
-
-/**
- * copied from talking head class to avoid necessary reference to the instance passing
- * @param chunk
- */
-export function b64ToArrayBuffer(chunk: string) {
-  const b64Chars =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  const b64Lookup =
-        typeof Uint8Array === 'undefined' ? [] : new Uint8Array(256);
-  for (let i = 0; i < b64Chars.length; i++) {
-    b64Lookup[b64Chars.charCodeAt(i)] = i;
-  }
-
-  // Calculate the needed total buffer length
-  let bufLen = (3 * chunk.length) / 4;
-  if (chunk.endsWith('=')) {
-    bufLen--;
-    if (chunk[chunk.length - 2] === '=') {
-      bufLen--;
-    }
-  }
-
-  // Create the ArrayBuffer
-  const arrBuf = new ArrayBuffer(bufLen);
-  const arr = new Uint8Array(arrBuf);
-  let i;
-  let p = 0;
-  let c1;
-  let c2;
-  let c3;
-  let c4;
-
-  // Populate the buffer
-  for (i = 0; i < chunk.length; i += 4) {
-    c1 = b64Lookup[chunk.charCodeAt(i)] ?? 0;
-    c2 = b64Lookup[chunk.charCodeAt(i + 1)] ?? 0;
-    c3 = b64Lookup[chunk.charCodeAt(i + 2)] ?? 0;
-    c4 = b64Lookup[chunk.charCodeAt(i + 3)] ?? 0;
-    arr[p++] = (c1 << 2) | (c2 >> 4);
-    arr[p++] = ((c2 & 15) << 4) | (c3 >> 2);
-    arr[p++] = ((c3 & 3) << 6) | (c4 & 63);
-  }
-
-  return arrBuf;
 }

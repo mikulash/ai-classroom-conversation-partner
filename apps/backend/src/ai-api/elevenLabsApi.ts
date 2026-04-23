@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
-import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { ELEVENLABS_FALLBACK_VOICE_ID_FEMALE, ELEVENLABS_FALLBACK_VOICE_ID_MALE } from '../constants/constants';
+import { TextToSpeechTimestampedResponseDto } from '../dtos/replies.dto';
 import { ConfigProvider } from '../utils/configProvider';
-import { b64ToArrayBuffer } from '../utils/lipsyncUtils';
 import {
   GetTimestampedAudioParamsWithModelName,
   GetTTSAudioParamsWithModelName,
@@ -90,7 +89,7 @@ export class ElevenLabsApiService {
 
   public async getTextToSpeechTimestamped(
     params: GetTimestampedAudioParamsWithModelName,
-  ): Promise<LipSyncAudio> {
+  ): Promise<TextToSpeechTimestampedResponseDto> {
     const { inputMessage, personality, language, modelApiName, sampleRate } = params;
 
     const elevenLabsApiKey = this.configProvider.getApiKey(API_KEY.ELEVENLABS);
@@ -139,7 +138,7 @@ export class ElevenLabsApiService {
 
       const jsonResponse =
               (await response.json()) as ElevenLabsTimestampedResponse;
-      const lipSyncAudio: LipSyncAudio = {
+      const timestampedSpeech: TextToSpeechTimestampedResponseDto = {
         audio: [],
         words: [],
         wtimes: [],
@@ -147,7 +146,7 @@ export class ElevenLabsApiService {
       };
 
       if (jsonResponse.audio_base64) {
-        lipSyncAudio.audio.push(b64ToArrayBuffer(jsonResponse.audio_base64));
+        timestampedSpeech.audio.push(jsonResponse.audio_base64);
       }
 
       const alignment =
@@ -165,9 +164,9 @@ export class ElevenLabsApiService {
             time = startTime * 1000;
           }
           if (word.length > 0 && char === ' ') {
-            lipSyncAudio.words.push(word);
-            lipSyncAudio.wtimes.push(time);
-            lipSyncAudio.wdurations.push(duration);
+            timestampedSpeech.words.push(word);
+            timestampedSpeech.wtimes.push(time);
+            timestampedSpeech.wdurations.push(duration);
             word = '';
             duration = 0;
           } else if (char !== ' ') {
@@ -179,13 +178,13 @@ export class ElevenLabsApiService {
         }
 
         if (word.length > 0) {
-          lipSyncAudio.words.push(word);
-          lipSyncAudio.wtimes.push(time);
-          lipSyncAudio.wdurations.push(duration);
+          timestampedSpeech.words.push(word);
+          timestampedSpeech.wtimes.push(time);
+          timestampedSpeech.wdurations.push(duration);
         }
       }
 
-      return lipSyncAudio;
+      return timestampedSpeech;
     } catch (error) {
       console.error('Error converting text to speech using ElevenLabs:', error);
 

@@ -12,7 +12,6 @@ import {
   ConversationWithPersonalityDto,
   CustomSelectionWithModelsDto,
   FullReplyPlainResponseDto,
-  FullReplyTimestampedResponseDto,
   InputAudioTranscriptionDto,
   MessageResponseDto,
   PersonalityDto,
@@ -23,7 +22,6 @@ import {
   ResponseModelDto,
   ScenarioWithPersonalityDto,
   TextToSpeechResponseDto,
-  TextToSpeechTimestampedResponseDto,
   TimestampedTranscriptionModelDto,
   TranscriptionSessionCreateResponseDto,
   TurnDetectionDto,
@@ -42,7 +40,6 @@ import {
   ConversationRoleModel,
   CustomSelectionWithModelsModel,
   FullReplyPlainModel,
-  FullReplyTimestampedModel,
   InputAudioTranscriptionModel,
   MessageModel,
   PersonalityModel,
@@ -54,7 +51,6 @@ import {
   ScenarioRefModel,
   ScenarioWithPersonalityModel,
   SpeechAudioModel,
-  TimestampedSpeechAudioModel,
   TimestampedTranscriptionModelModel,
   TranscriptionSessionModel,
   TurnDetectionModel,
@@ -343,30 +339,10 @@ export function speechAudioDtoToModel(
   };
 }
 
-export function timestampedSpeechAudioDtoToModel(
-  dto: TextToSpeechTimestampedResponseDto,
-): TimestampedSpeechAudioModel {
-  return {
-    audio: dto.audio.map(b64ToArrayBuffer),
-    words: dto.words,
-    wtimes: dto.wtimes,
-    wdurations: dto.wdurations,
-  };
-}
-
 export function fullReplyPlainResponseDtoToModel(dto: FullReplyPlainResponseDto): FullReplyPlainModel {
   return {
     text: dto.text,
     speech: speechAudioDtoToModel(dto.speech),
-  };
-}
-
-export function fullReplyTimestampedResponseDtoToModel(
-  dto: FullReplyTimestampedResponseDto,
-): FullReplyTimestampedModel {
-  return {
-    text: dto.text,
-    speech: timestampedSpeechAudioDtoToModel(dto.speech),
   };
 }
 

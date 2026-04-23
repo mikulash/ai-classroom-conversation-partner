@@ -111,14 +111,7 @@ export class RepliesController {
         language,
       }, userId);
 
-      const speechAudioForWire: TextToSpeechTimestampedResponseDto = {
-        ...speechAudio,
-        audio: speechAudio.audio.map((ab) =>
-          Buffer.from(new Uint8Array(ab)).toString('base64'),
-        ),
-      };
-
-      res.json(speechAudioForWire);
+      res.json(speechAudio);
     } catch (error) {
       console.error('Error getting speech:', error);
       res.status(500).json({ message: 'Failed to get response' });
@@ -194,12 +187,7 @@ export class RepliesController {
         language: body.language,
       }, userId);
 
-      const speech: TextToSpeechTimestampedResponseDto = {
-        ...result,
-        audio: result.audio.map((ab) => Buffer.from(new Uint8Array(ab)).toString('base64')),
-      };
-
-      const payload: FullReplyTimestampedResponseDto = { text, speech };
+      const payload: FullReplyTimestampedResponseDto = { text, speech: result };
 
       res.json(payload);
     } catch (error) {

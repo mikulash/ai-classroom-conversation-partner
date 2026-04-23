@@ -1,7 +1,7 @@
-﻿import { LipSyncAudio } from '@repo/shared/types/talkingHead';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Loader } from 'lucide-react';
 import { AVATAR_MODELS, TalkingHead } from '@repo/assets';
+import { TextToSpeechTimestampedResponseDto } from '@repo/frontend-utils/src/clients/generated';
 import { Language } from '@repo/frontend-utils/src/enums/Language';
 import { PersonalityModel } from '@repo/frontend-utils/src/models';
 
@@ -10,8 +10,32 @@ interface AvatarTalkingHeadProps {
     personality: PersonalityModel
 }
 
+type TalkingHeadSpeechAudio = Omit<TextToSpeechTimestampedResponseDto, 'audio'> & {
+    audio: ArrayBuffer[];
+};
+
 export interface AvatarTalkingHeadHandle {
-    speakAudio: (audio: LipSyncAudio) => void;
+    speakAudio: (audio: TextToSpeechTimestampedResponseDto) => void;
+}
+
+function b64ToArrayBuffer(b64: string): ArrayBuffer {
+  const binary = atob(b64);
+  const length = binary.length;
+  const buffer = new ArrayBuffer(length);
+  const view = new Uint8Array(buffer);
+
+  for (let index = 0; index < length; index += 1) {
+    view[index] = binary.charCodeAt(index);
+  }
+
+  return buffer;
+}
+
+function toTalkingHeadSpeechAudio(audio: TextToSpeechTimestampedResponseDto): TalkingHeadSpeechAudio {
+  return {
+    ...audio,
+    audio: audio.audio.map(b64ToArrayBuffer),
+  };
 }
 
 export const AvatarTalkingHead = forwardRef<
@@ -25,9 +49,9 @@ export const AvatarTalkingHead = forwardRef<
 
   // Expose the speakAudio function to the parent
   useImperativeHandle(ref, () => ({
-    speakAudio: (audio: LipSyncAudio) => {
+    speakAudio: (audio: TextToSpeechTimestampedResponseDto) => {
       if (headRef.current) {
-        headRef.current.speakAudio(audio);
+        headRef.current.speakAudio(toTalkingHeadSpeechAudio(audio));
       }
     },
   }));
