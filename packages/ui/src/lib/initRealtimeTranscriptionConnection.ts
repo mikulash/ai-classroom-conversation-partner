@@ -1,6 +1,6 @@
 import { Language } from '@repo/frontend-utils/src/enums/Language';
 import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
-import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
+import type { RealtimeConnection, RealtimeEvent } from './types/realtimeConnection';
 
 export async function initRealtimeTranscriptionConnection(
   onEvent: (e: RealtimeEvent) => void,

@@ -13,7 +13,7 @@ import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { useAppStore } from '../../hooks/useAppStore';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
+import type { RealtimeConnection, RealtimeEvent } from '../../lib/types/realtimeConnection';
 import { initRealtimeTranscriptionConnection } from '../../lib/initRealtimeTranscriptionConnection';
 import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';

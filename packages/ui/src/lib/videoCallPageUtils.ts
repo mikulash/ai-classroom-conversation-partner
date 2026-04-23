@@ -1,4 +1,4 @@
-import { RealtimeConnection, RealtimeEvent } from '@repo/shared/types/realtimeConnection';
+import type { RealtimeConnection, RealtimeEvent } from './types/realtimeConnection';
 import type { TFunction } from 'i18next';
 import type { SetStateAction } from 'react';
 import { ConversationLogDtoLevelEnum } from '@repo/frontend-utils/src/clients/generated';
