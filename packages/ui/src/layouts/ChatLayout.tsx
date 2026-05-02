@@ -1,17 +1,13 @@
-import { useLocation, useNavigate } from 'react-router';
+import React from 'react';
+import { useNavigate } from 'react-router';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { useAuth } from '../hooks/useAuth';
-import { Loading } from '../components/Loading';
 import { Dialog, DialogContent } from '@radix-ui/react-dialog';
 import { DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
 import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
-import React from 'react';
-import { ChatPageProps } from '../lib/types/ChatPageProps';
 
 interface ChatLayoutProps {
     children: React.ReactNode;
-    isLoading: boolean;
     isBrowserDialogVisible: boolean;
     setIsBrowserDialogVisible: (show: boolean) => void;
     isTranscriptDialogVisible: boolean;
@@ -19,13 +15,16 @@ interface ChatLayoutProps {
     hasEndedDueToTimeLimit: boolean;
     isSavingConversation: boolean;
     messages: ChatMessage[];
+    personalityName: string;
     onGoToPersonalitySelector: () => void;
     mode: 'chat' | 'admin';
 }
 
+/**
+ * Layout shell for all chat pages.
+ */
 export const ChatLayout: React.FC<ChatLayoutProps> = ({
   children,
-  isLoading,
   isBrowserDialogVisible,
   setIsBrowserDialogVisible,
   isTranscriptDialogVisible,
@@ -33,40 +32,12 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   hasEndedDueToTimeLimit,
   isSavingConversation,
   messages,
+  personalityName,
   onGoToPersonalitySelector,
   mode,
 }) => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTypedTranslation();
-  const { profile: userProfile } = useAuth();
-
-  const state = location.state as ChatPageProps | undefined;
-  const personality = state?.personality;
-
-  if (userProfile === null) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        {t('cannotLoadUserProfile')}
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loading/>
-      </div>
-    );
-  }
-
-  if (!personality) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        {t('noPersonalitySelected')}
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col flex-grow p-4 sm:p-6">
@@ -85,7 +56,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
         hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
         isSavingConversation={isSavingConversation}
         messages={messages}
-        personalityName={personality.name}
+        personalityName={personalityName}
         onGoToPersonalitySelector={onGoToPersonalitySelector}
         mode={mode}
         onClose={() => {

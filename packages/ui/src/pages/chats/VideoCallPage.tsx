@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MdCallEnd } from 'react-icons/md';
 import { FaPlay } from 'react-icons/fa';
-import { useNavigate } from 'react-router';
 import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { AvatarTalkingHead, AvatarTalkingHeadHandle } from '../../components/AvatarTalkingHead';
 import { PersonalityInfo } from '../../components/PersonalityInfo';
@@ -15,10 +14,8 @@ import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import type { RealtimeConnection, RealtimeEvent } from '../../lib/types/realtimeConnection';
 import { initRealtimeTranscriptionConnection } from '../../lib/initRealtimeTranscriptionConnection';
-import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
-import { useConversationSaver } from '../../hooks/useConversationSaver';
 import {
   getVoiceChatEmptyStateMessage,
   getVoiceChatStatusLabel,
@@ -26,14 +23,12 @@ import {
   processRealtimeTranscriptionEvent,
 } from '../../lib/videoCallPageUtils';
 import { ChatPageWrapper } from '../../components/ChatPageWrapper';
-import { ConversationLogDto } from '@repo/frontend-utils/src/clients/generated';
-
-const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
+import { useChatSession } from '../../hooks/useChatSession';
+import { useChatTimeLimitMonitor } from '../../hooks/useChatTimeLimitMonitor';
+import { useSilenceMonitor } from '../../hooks/useSilenceMonitor';
 
 const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversationRoleName, scenario }) => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [hasConversationStarted, setHasConversationStarted] = useState(false);
@@ -42,223 +37,48 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   const [error, setError] = useState<string | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isBrowserDialogVisible, setIsBrowserDialogVisible] = useState(false);
-
-  // Transcript dialog and time limit states
-  const [isTranscriptDialogVisible, setIsTranscriptDialogVisible] = useState(false);
   const [chatStartTime] = useState<number>(Date.now());
-  const [hasEndedDueToTimeLimit, setHasEndedDueToTimeLimit] = useState(false);
-  const hasChatEndedRef = useRef<boolean>(false);
-  const [consecutiveSilencePromptsCount, setConsecutiveSilencePromptsCount] = useState(0);
-  const resetConsecutiveSilencePrompts = useCallback(() => {
-    setConsecutiveSilencePromptsCount(0);
-  }, [setConsecutiveSilencePromptsCount]);
 
   const appConfig = useAppStore((state) => state.appConfig);
   const { silenceTimeoutInSeconds, maxConversationDurationInSeconds } = appConfig;
 
   const { t, language } = useTypedTranslation();
-
   const avatarRef = useRef<AvatarTalkingHeadHandle>(null);
   const { profile: userProfile } = useAuth();
-  const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
-  const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage, resetConsecutiveSilencePrompts);
 
-  const { isSavingConversation, conversationSavedRef, saveConversationToDatabase } = useConversationSaver({
-    userProfile,
-    personality,
-    scenario,
-    chatStartTime,
+  // ── Composed hooks ─────────────────────────────────────────────────
+
+  const {
+    messages, setMessages,
+    conversationLogs, setConversationLogs,
     logMessage,
-  });
+    hasChatEndedRef,
+    hasEndedDueToTimeLimit,
+    isTranscriptDialogVisible, setIsTranscriptDialogVisible,
+    isSavingConversation,
+    conversationSavedRef,
+    saveConversationToDatabase,
+    handleEndChatWithReason,
+    handleGoToPersonalitySelector,
+  } = useChatSession({ userProfile, personality, scenario, chatStartTime });
 
-
-  const handleTranscriptionCompleted = useCallback((transcript: string) => {
-    setCurrentTranscript('');
-    markActivity();
-    resetSilenceCounter(); // Reset silence counter on user activity
-
-    if (transcript.trim().length > 0 && !isAiProcessing) {
-      void sendMessage(transcript);
-    }
-  }, [isAiProcessing]);
-
-  const handleRealtimeEvent = useCallback((ev: RealtimeEvent) => {
-    processRealtimeTranscriptionEvent(ev, {
-      setIsTranscribing,
-      handleTranscriptionCompleted,
-      logMessage,
-      setError,
-      setCurrentTranscript,
-      onUserActivity: markActivity,
+  const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } =
+    useActivityTracker(logMessage, () => {
+      silenceMonitor.resetSilencePrompts();
     });
-  }, [handleTranscriptionCompleted]);
 
-  useEffect(() => {
-    setIsLoading(false);
+  // ── Silence handling callbacks ─────────────────────────────────────
 
-    return () => {
-      // Close any active connections
-      connection?.close();
-      // Save conversation on component unmount if not already saved
-      if (!conversationSavedRef.current && messages.length > 0) {
-        void saveConversationToDatabase('manual', 'Video', messages, conversationLogs);
-      }
-    };
-  }, [personality, conversationRoleName, navigate]);
-
-  useEffect(() => () => connection?.close(), [connection]);
-
-  useEffect(() => {
-    const timeLimit = maxConversationDurationInSeconds * 1000;
-    const interval = setInterval(() => {
-      if (hasChatEndedRef.current) {
-        clearInterval(interval);
-        return;
-      }
-
-      const now = Date.now();
-      const chatDuration = now - chatStartTime;
-
-      if (chatDuration > timeLimit) {
-        logMessage('log', 'Time limit reached - ending chat');
-        clearInterval(interval);
-        // Get current messages and logs before ending
-        setMessages((currentMessages) => {
-          setConversationLogs((currentLogs) => {
-            void handleEndChatWithReason('timeLimit', currentMessages, currentLogs);
-            return currentLogs;
-          });
-          return currentMessages;
-        });
-      }
-    }, 10000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [chatStartTime]);
-
-  useEffect(() => {
-    if (!hasConversationStarted) return;
-
-    const interval = setInterval(() => {
-      if (isAiProcessing) return;
-      if (hasChatEndedRef.current) {
-        clearInterval(interval);
-        return;
-      }
-
-      const now = Date.now();
-      const elapsed = now - lastActivityRef.current;
-      if (elapsed > silenceTimeoutInSeconds * 1000 && !silenceTriggeredRef.current) {
-        silenceTriggeredRef.current = true;
-
-        logMessage('log', 'sendSilencePrompt: Sending silence prompt due to user inactivity');
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (!personality || !userProfile) return;
-
-        if (consecutiveSilencePromptsCount >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
-          void handleSilencePromptLimitReached();
-          return;
-        }
-
-        void sendSilenceReminderPrompt();
-      }
-    }, 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [hasConversationStarted, isAiProcessing, silenceTimeoutInSeconds]);
-
-  const startConversation = async () => {
-    logMessage('log', 'startConversation: Starting conversation with personality', {
-      personalityName: personality.name,
-      conversationRole: conversationRoleName,
-    });
-    setHasConversationStarted(true);
-    setIsConnecting(true);
-    setError(null);
-    markActivity();
-
-    try {
-      const conn = await initRealtimeTranscriptionConnection(
-        handleRealtimeEvent,
-        language,
-      );
-      setConnection(conn);
-    } catch (e) {
-      logMessage('error', 'Failed to start conversation', {
-        error: e instanceof Error ? e.message : String(e),
-      });
-      setError((e as Error).message);
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  const handleSilencePromptLimitReached = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!personality || !userProfile || hasChatEndedRef.current) {
-      setIsAiProcessing(false);
-      return;
-    }
-    logMessage('log', 'Maximum consecutive silence prompts reached - ending chat');
-
-    setIsAiProcessing(true);
-    try {
-      const { text: reply, speech } = await repliesClient.getFullReplyTimestamped({
-        inputText: 'The user has been silent for too long. Respond with a short goodbye.',
-        previousMessages: messages,
-        personality,
-        conversationRole: conversationRoleName,
-        language,
-        scenario,
-        userProfile,
-      });
-
-      const finalMessage = { content: reply, role: 'assistant', timestamp: new Date() } as ChatMessage;
-      const finalMessages = [...messages, finalMessage];
-
-      setMessages(finalMessages);
-
-      avatarRef.current?.speakAudio(speech);
-      const silenceSystemPrompt = t('chat.silencePromptGoodbye');
-
-      // Add a log entry for the goodbye message
-      const goodbyeLog: ConversationLogDto = {
-        timestamp: new Date().toISOString(),
-        level: 'log',
-        message: silenceSystemPrompt,
-        data: { consecutiveSilencePrompts: consecutiveSilencePromptsCount, reply },
-      };
-      const finalLogs = [...conversationLogs, goodbyeLog];
-      setConversationLogs(finalLogs);
-
-      // Wait a moment before ending the chat, then pass the final messages and logs
-      setTimeout(() => handleEndChatWithReason('silence', finalMessages, finalLogs), 2000);
-    } catch (err) {
-      logMessage('error', 'Error during final silence prompt', {
-        error: err instanceof Error ? err.message : String(err),
-      });
-    } finally {
-      setIsAiProcessing(false);
-    }
-  };
-
-  const sendSilenceReminderPrompt = async () => {
-    setConsecutiveSilencePromptsCount((prev) => prev + 1);
-    setIsAiProcessing(true);
-
+  const handleSilencePrompt = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!personality || !userProfile || hasChatEndedRef.current) {
       setIsAiProcessing(false);
       return;
     }
 
+    setIsAiProcessing(true);
     try {
       const silenceSystemPrompt = t('chat.silencePrompt');
-
       const { text: reply, speech } = await repliesClient.getFullReplyTimestamped({
         inputText: silenceSystemPrompt,
         previousMessages: messages,
@@ -279,19 +99,119 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       setIsAiProcessing(false);
       markActivity();
     }
-  };
+  }, [personality, userProfile, hasChatEndedRef, messages, conversationRoleName, language, scenario, t, logMessage, setMessages, markActivity]);
+
+  const handleSilenceLimitReached = useCallback(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!personality || !userProfile || hasChatEndedRef.current) {
+      setIsAiProcessing(false);
+      return;
+    }
+    logMessage('log', 'Maximum consecutive silence prompts reached — ending chat');
+
+    setIsAiProcessing(true);
+    try {
+      const { text: reply, speech } = await repliesClient.getFullReplyTimestamped({
+        inputText: 'The user has been silent for too long. Respond with a short goodbye.',
+        previousMessages: messages,
+        personality,
+        conversationRole: conversationRoleName,
+        language,
+        scenario,
+        userProfile,
+      });
+
+      const finalMessage = { content: reply, role: 'assistant', timestamp: new Date() } as ChatMessage;
+      const finalMessages = [...messages, finalMessage];
+      setMessages(finalMessages);
+      avatarRef.current?.speakAudio(speech);
+
+      const silenceSystemPrompt = t('chat.silencePromptGoodbye');
+      const goodbyeLog = {
+        timestamp: new Date().toISOString(),
+        level: 'log' as const,
+        message: silenceSystemPrompt,
+        data: { reply },
+      };
+      const finalLogs = [...conversationLogs, goodbyeLog];
+      setConversationLogs(finalLogs);
+
+      setTimeout(() => {
+        connection?.close();
+        setConnection(null);
+        void handleEndChatWithReason('silence', 'Video', finalMessages, finalLogs);
+      }, 2000);
+    } catch (err) {
+      logMessage('error', 'Error during final silence prompt', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    } finally {
+      setIsAiProcessing(false);
+    }
+  }, [personality, userProfile, hasChatEndedRef, messages, conversationRoleName, language, scenario, logMessage, t, conversationLogs, setMessages, setConversationLogs, connection, handleEndChatWithReason]);
+
+  const silenceMonitor = useSilenceMonitor({
+    enabled: hasConversationStarted,
+    silenceTimeoutMs: silenceTimeoutInSeconds * 1000,
+    isAiProcessing,
+    hasChatEndedRef,
+    lastActivityRef,
+    silenceTriggeredRef,
+    onSilencePrompt: handleSilencePrompt,
+    onSilenceLimitReached: handleSilenceLimitReached,
+  });
+
+  // ── Time limit ─────────────────────────────────────────────────────
+
+  useChatTimeLimitMonitor({
+    chatStartTime,
+    maxDurationMs: maxConversationDurationInSeconds * 1000,
+    hasChatEndedRef,
+    onTimeLimitReached: useCallback((currentMessages, currentLogs) => {
+      logMessage('log', 'Time limit reached — ending chat');
+      connection?.close();
+      setConnection(null);
+      void handleEndChatWithReason('timeLimit', 'Video', currentMessages, currentLogs);
+    }, [logMessage, connection, handleEndChatWithReason]),
+    setMessages,
+    setConversationLogs,
+  });
+
+  // ── Transcription event handling ───────────────────────────────────
+
+  const handleTranscriptionCompleted = useCallback((transcript: string) => {
+    setCurrentTranscript('');
+    markActivity();
+    resetSilenceCounter();
+
+    if (transcript.trim().length > 0 && !isAiProcessing) {
+      void sendMessage(transcript);
+    }
+  }, [isAiProcessing]);
+
+  const handleRealtimeEvent = useCallback((ev: RealtimeEvent) => {
+    processRealtimeTranscriptionEvent(ev, {
+      setIsTranscribing,
+      handleTranscriptionCompleted,
+      logMessage,
+      setError,
+      setCurrentTranscript,
+      onUserActivity: markActivity,
+    });
+  }, [handleTranscriptionCompleted, logMessage, markActivity]);
+
+  // ── Send message ───────────────────────────────────────────────────
 
   const sendMessage = async (messageToSend: string) => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!messageToSend.trim() || !personality) return;
 
-    // Don't stop the WebRTC connection, just mark that we're processing
     const userMsg: ChatMessage = { content: messageToSend, role: 'user', timestamp: new Date() };
     setMessages((m) => [...m, userMsg]);
     setCurrentTranscript('');
     setIsAiProcessing(true);
     markActivity();
-    resetSilenceCounter(); // Reset silence counter when the user sends a message
+    resetSilenceCounter();
     if (!userProfile) return;
 
     try {
@@ -323,40 +243,53 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     }
   };
 
-  // Handler for ending chat with a specific reason
-  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLogDto[]) => {
-    logMessage('log', `Ending chat with reason: ${reason}`);
+  // ── Start / end conversation ───────────────────────────────────────
 
-    connection?.close();
-    setConnection(null);
+  const startConversation = async () => {
+    logMessage('log', 'startConversation: Starting conversation with personality', {
+      personalityName: personality.name,
+      conversationRole: conversationRoleName,
+    });
+    setHasConversationStarted(true);
+    setIsConnecting(true);
+    setError(null);
+    markActivity();
 
-    const finalMessages = messagesToSave ?? messages;
-    const finalLogs = logsToSave ?? conversationLogs;
-
-    hasChatEndedRef.current = true;
-
-    if (reason === 'timeLimit') {
-      setHasEndedDueToTimeLimit(true);
+    try {
+      const conn = await initRealtimeTranscriptionConnection(handleRealtimeEvent, language);
+      setConnection(conn);
+    } catch (e) {
+      logMessage('error', 'Failed to start conversation', {
+        error: e instanceof Error ? e.message : String(e),
+      });
+      setError((e as Error).message);
+    } finally {
+      setIsConnecting(false);
     }
-
-    // Save conversation to a database
-    if (reason) {
-      await saveConversationToDatabase(reason, 'Video', finalMessages, finalLogs);
-    }
-
-    setIsTranscriptDialogVisible(true);
-  };
-
-  // Handler for going to personality selector after viewing transcript
-  const handleGoToPersonalitySelector = () => {
-    setIsTranscriptDialogVisible(false);
-    void navigate('/chat');
   };
 
   const handleEndCall = () => {
     logMessage('log', 'handleEndCall: Ending call and showing transcript');
-    void handleEndChatWithReason('manual');
+    connection?.close();
+    setConnection(null);
+    void handleEndChatWithReason('manual', 'Video');
   };
+
+  // ── Lifecycle ──────────────────────────────────────────────────────
+
+  useEffect(() => {
+    setIsLoading(false);
+    return () => {
+      connection?.close();
+      if (!conversationSavedRef.current && messages.length > 0) {
+        void saveConversationToDatabase('manual', 'Video', messages, conversationLogs);
+      }
+    };
+  }, [personality, conversationRoleName]);
+
+  useEffect(() => () => connection?.close(), [connection]);
+
+  // ── Early returns ──────────────────────────────────────────────────
 
   if (userProfile === null) {
     return (
@@ -373,6 +306,8 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       </div>
     );
   }
+
+  // ── Status helpers ─────────────────────────────────────────────────
 
   const emptyStateMessage = getVoiceChatEmptyStateMessage({
     hasConversationStarted,
@@ -414,9 +349,10 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     </div>
   );
 
+  // ── Render ─────────────────────────────────────────────────────────
+
   return (
     <ChatLayout
-      isLoading={isLoading}
       isBrowserDialogVisible={isBrowserDialogVisible}
       setIsBrowserDialogVisible={setIsBrowserDialogVisible}
       isTranscriptDialogVisible={isTranscriptDialogVisible}
@@ -424,6 +360,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
       isSavingConversation={isSavingConversation}
       messages={messages}
+      personalityName={personality.name}
       onGoToPersonalitySelector={handleGoToPersonalitySelector}
       mode="chat"
     >

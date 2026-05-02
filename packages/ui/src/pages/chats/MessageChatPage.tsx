@@ -1,6 +1,5 @@
-import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { Input } from '../../components/ui/input';
 import { ChatMessages } from '../../components/ChatMessages';
 import { PersonalityInfo } from '../../components/PersonalityInfo';
@@ -9,7 +8,6 @@ import { Label } from '../../components/ui/label';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
 import { IoMdSend } from 'react-icons/io';
 import { MdCallEnd } from 'react-icons/md';
-import { TextToSpeechRequest } from '@repo/frontend-utils/src/figurantClient.types';
 import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
@@ -19,128 +17,166 @@ import { Button } from '../../components/ui/button';
 import { getLanguage } from '@repo/frontend-utils/src/enums/Language';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
-import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { ChatPageWrapper } from '../../components/ChatPageWrapper';
-import { ConversationLogDto } from '@repo/frontend-utils/src/clients/generated';
-import { PersonalityModel } from '@repo/frontend-utils/src/models';
-
-const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
-
-const SpeechRecognitionClass: typeof SpeechRecognition | undefined = (() => {
-  if ('SpeechRecognition' in globalThis) {
-    return globalThis.SpeechRecognition;
-  }
-  if ('webkitSpeechRecognition' in globalThis) {
-    return (globalThis as { webkitSpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition;
-  }
-  return undefined;
-})();
+import { useChatSession } from '../../hooks/useChatSession';
+import { useChatTimeLimitMonitor } from '../../hooks/useChatTimeLimitMonitor';
+import { useSilenceMonitor } from '../../hooks/useSilenceMonitor';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
+import { useAudioPlayback } from '../../hooks/useAudioPlayback';
 
 const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversationRoleName, scenario }) => {
-  const navigate = useNavigate();
   const { t, i18n } = useTypedTranslation();
-
+  const { profile: userProfile } = useAuth();
   const appConfig = useAppStore((state) => state.appConfig);
   const { silenceTimeoutInSeconds, maxConversationDurationInSeconds } = appConfig;
+
+  const language = getLanguage(i18n.language);
   const [isLoading, setIsLoading] = useState(true);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [pendingAiMessage, setPendingAiMessage] = useState<ChatMessage | null>(null);
-  const [consecutiveSilencePrompts, setConsecutiveSilencePrompts] = useState(0);
-  const resetConsecutiveSilencePrompts = useCallback(() => {
-    setConsecutiveSilencePrompts(0);
-  }, [setConsecutiveSilencePrompts]);
-  const [isTranscriptDialogVisible, setIsTranscriptDialogVisible] = useState(false);
-
-  const { profile: userProfile } = useAuth();
-
   const [inputMessage, setInputMessage] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
   const isInitialMessageSentRef = useRef(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const language = getLanguage(i18n.language);
-  const [isBrowserDialogVisible, setIsBrowserDialogVisible] = useState(false);
   const [chatStartTime] = useState<number>(Date.now());
-  const chatEndedRef = useRef<boolean>(false);
 
-  const conversationType = isAudioEnabled ? 'TextWithAudio' : 'TextOnly';
-
-  const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
-  const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } = useActivityTracker(logMessage, resetConsecutiveSilencePrompts);
-
-  const { isSavingConversation, conversationSavedRef, saveConversationToDatabase } = useConversationSaver({
-    userProfile,
-    personality,
-    scenario,
-    chatStartTime,
+  const {
+    messages, setMessages,
+    conversationLogs, setConversationLogs,
     logMessage,
+    hasChatEndedRef,
+    hasEndedDueToTimeLimit,
+    isTranscriptDialogVisible, setIsTranscriptDialogVisible,
+    isSavingConversation,
+    conversationSavedRef,
+    saveConversationToDatabase,
+    handleEndChatWithReason,
+    handleGoToPersonalitySelector,
+  } = useChatSession({ userProfile, personality, scenario, chatStartTime });
+
+  const { markActivity, resetSilenceCounter, lastActivityRef, silenceTriggeredRef } =
+    useActivityTracker(logMessage, () => {
+      silenceMonitor.resetSilencePrompts();
+    });
+
+  const audio = useAudioPlayback({
+    personality,
+    language,
+    logMessage,
+    markActivity,
+    setMessages,
   });
 
-  const [hasEndedDueToTimeLimit, setHasEndedDueToTimeLimit] = useState(false);
+  const conversationType = audio.isAudioEnabled ? 'TextWithAudio' : 'TextOnly';
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [srSupported, setSrSupported] = useState(Boolean(SpeechRecognitionClass));
+  const sr = useSpeechRecognition({
+    languageBCP47: language.BCP47,
+    logMessage,
+    markActivity,
+    onTranscriptChange: setInputMessage,
+  });
 
-  // Init SpeechRecognition
-  useEffect(() => {
-    if (!srSupported || !SpeechRecognitionClass) return;
+  // ── Silence handling callbacks ─────────────────────────────────────
 
-    const recognition = new SpeechRecognitionClass();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = language.BCP47;
+  const handleSilencePrompt = useCallback(async () => {
+    if (!personality || !userProfile || hasChatEndedRef.current) return;
+    logMessage('log', 'Sending silence prompt');
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let transcript = '';
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
-        transcript += event.results[i][0].transcript;
-      }
-      markActivity();
-      setInputMessage(transcript);
-    };
-
-    recognition.onerror = (ev: SpeechRecognitionErrorEvent) => {
-      logMessage('error', 'Speech recognition error', { error: ev.error });
-      toast.error('Speech recognition failed; returning to chat list…');
-      if (ev.error === 'network') {
-        setIsBrowserDialogVisible(true);
-        setSrSupported(false);
-        setIsRecording(false);
-      }
-      stopRecognition();
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      recognition.stop();
-    };
-  }, [language.BCP47, srSupported]);
-
-  const startRecognition = () => {
-    if (!recognitionRef.current || isRecording) return;
+    setIsAiTyping(true);
     try {
-      recognitionRef.current.lang = language.BCP47;
-      recognitionRef.current.start();
-      setIsRecording(true);
+      const silenceSystemPrompt = t('chat.silencePrompt');
+      const aiText = await repliesClient.getResponse({
+        inputText: silenceSystemPrompt,
+        previousMessages: messages,
+        personality,
+        conversationRole: conversationRoleName,
+        language,
+        scenario,
+        userProfile,
+      });
+
+      if (aiText) {
+        await audio.processAiResponse(aiText);
+      } else {
+        logMessage('error', 'Error during silence prompt', { error: 'Empty response from AI' });
+        const fallback = t('chat.silencePromptFallback');
+        setMessages((prev) => [...prev, { content: fallback, role: 'assistant', timestamp: new Date() }]);
+        markActivity();
+      }
     } catch (err) {
-      logMessage('error', 'Failed to start recognition', {
+      logMessage('error', 'Error during silence prompt', {
         error: err instanceof Error ? err.message : String(err),
       });
+      const fallback = t('chat.silencePromptFallback');
+      setMessages((prev) => [...prev, { content: fallback, role: 'assistant', timestamp: new Date() }]);
+      markActivity();
+    } finally {
+      setIsAiTyping(false);
     }
-  };
+  }, [personality, userProfile, hasChatEndedRef, messages, conversationRoleName, language, scenario, logMessage, t, audio, setMessages, markActivity]);
 
-  const stopRecognition = () => {
-    if (!recognitionRef.current || !isRecording) return;
-    recognitionRef.current.stop();
-    setIsRecording(false);
-  };
+  const handleSilenceLimitReached = useCallback(async () => {
+    if (!personality || !userProfile || hasChatEndedRef.current) return;
+    logMessage('log', 'Maximum consecutive silence prompts reached — ending chat');
+
+    const silenceSystemPrompt = t('chat.silencePromptGoodbye');
+    const aiText = await repliesClient.getResponse({
+      inputText: silenceSystemPrompt,
+      previousMessages: messages,
+      personality,
+      conversationRole: conversationRoleName,
+      language,
+      scenario,
+      userProfile,
+    });
+
+    const finalMessage = { content: aiText, role: 'assistant', timestamp: new Date() } as ChatMessage;
+    const finalMessages = [...messages, finalMessage];
+    setMessages(finalMessages);
+
+    const goodbyeLog = {
+      timestamp: new Date().toISOString(),
+      level: 'log' as const,
+      message: 'Chat ending due to silence — sending goodbye message',
+      data: { aiText },
+    };
+    const finalLogs = [...conversationLogs, goodbyeLog];
+    setConversationLogs(finalLogs);
+
+    setTimeout(() => {
+      audio.stopAudio();
+      sr.stopRecognition();
+      void handleEndChatWithReason('silence', conversationType, finalMessages, finalLogs);
+    }, 2000);
+  }, [personality, userProfile, hasChatEndedRef, messages, conversationRoleName, language, scenario, logMessage, t, conversationLogs, setMessages, setConversationLogs, audio, sr, handleEndChatWithReason, conversationType]);
+
+  const silenceMonitor = useSilenceMonitor({
+    enabled: true,
+    silenceTimeoutMs: silenceTimeoutInSeconds * 1000,
+    isAiProcessing: isAiTyping || audio.pendingAiMessage !== null,
+    hasChatEndedRef,
+    lastActivityRef,
+    silenceTriggeredRef,
+    onSilencePrompt: handleSilencePrompt,
+    onSilenceLimitReached: handleSilenceLimitReached,
+  });
+
+  // ── Time limit ─────────────────────────────────────────────────────
+
+  useChatTimeLimitMonitor({
+    chatStartTime,
+    maxDurationMs: maxConversationDurationInSeconds * 1000,
+    hasChatEndedRef,
+    onTimeLimitReached: useCallback((currentMessages, currentLogs) => {
+      audio.stopAudio();
+      sr.stopRecognition();
+      void handleEndChatWithReason('timeLimit', conversationType, currentMessages, currentLogs);
+    }, [audio, sr, handleEndChatWithReason, conversationType]),
+    setMessages,
+    setConversationLogs,
+  });
+
+  // ── AI messaging ───────────────────────────────────────────────────
 
   const handleAiError = (error: unknown, fallbackMessage: string) => {
     logMessage('error', 'Error generating message', {
@@ -149,371 +185,35 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     return fallbackMessage;
   };
 
-  // Audio event handlers
-  const handleAudioEnded = () => {
-    setIsAudioPlaying(false);
-    audioRef.current = null;
-  };
-
-  const handleAudioError = (error: Event) => {
-    logMessage('warn', 'Audio playback error (non-critical)', {
-      error: error.type,
-    });
-    setIsAudioPlaying(false);
-    audioRef.current = null;
-  };
-
-  const stopAudio = () => {
-    if (audioRef.current) {
-      try {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current.removeEventListener('ended', handleAudioEnded);
-        audioRef.current.removeEventListener('error', handleAudioError);
-      } catch (error) {
-        logMessage('warn', 'Error stopping audio', {
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-      audioRef.current = null;
-      setIsAudioPlaying(false);
-    }
-  };
-
-  const generateAudio = async (text: string): Promise<string | null> => {
-    try {
-      const ttsParams: TextToSpeechRequest = {
-        inputMessage: text,
-        personality,
-        language,
-        responseFormat: 'mp3',
-      };
-      const audio = await repliesClient.getSpeechAudio(ttsParams);
-      return audio.objectUrl;
-    } catch (error) {
-      logMessage('error', 'Error generating audio', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-      return null;
-    }
-  };
-
-  const playAudio = async (audioUrl: string): Promise<void> => {
-    try {
-      // Stop any existing audio before starting new one
-      stopAudio();
-
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-
-      audio.addEventListener('ended', handleAudioEnded);
-      audio.addEventListener('error', handleAudioError);
-
-      setIsAudioPlaying(true);
-      await audio.play();
-    } catch (error) {
-      // Handle play() promise rejection gracefully
-      if (error instanceof Error && error.name === 'AbortError') {
-        logMessage('log', 'Audio playback was interrupted (normal behavior)');
-      } else {
-        logMessage('warn', 'Audio playback failed', {
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-      setIsAudioPlaying(false);
-      audioRef.current = null;
-    }
-  };
-
-  const playMessageAudio = async (message: ChatMessage, index: number) => {
-    if (isAudioPlaying) {
-      stopAudio();
-      return;
-    }
-
-    let audioUrl = message.audioUrl;
-
-    if (!audioUrl && message.role === 'assistant') {
-      setIsAudioPlaying(true);
-      try {
-        audioUrl = await generateAudio(message.content);
-
-        if (audioUrl) {
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[index] = { ...updated[index], audioUrl } as ChatMessage;
-            return updated;
-          });
-        }
-      } catch (error) {
-        logMessage('warn', 'Failed to generate audio for message', {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        setIsAudioPlaying(false);
-        return;
-      }
-    }
-
-    if (audioUrl) {
-      await playAudio(audioUrl);
-    } else {
-      setIsAudioPlaying(false);
-    }
-  };
-
-  const processAiResponse = async (
-    responseText: string,
-    addToMessages = true,
-    existingMessages: ChatMessage[] = [],
-  ): Promise<ChatMessage> => {
-    const newMsg: ChatMessage = {
-      content: responseText,
-      role: 'assistant',
-      timestamp: new Date(),
-    };
-
-    if (isAudioEnabled) {
-      setPendingAiMessage(newMsg);
-      try {
-        const audioUrl = await generateAudio(responseText);
-        if (audioUrl) {
-          const withAudio = { ...newMsg, audioUrl };
-          if (addToMessages) {
-            setMessages(existingMessages.length ? [...existingMessages, withAudio] : (prev) => [...prev, withAudio]);
-          }
-          setPendingAiMessage(null);
-
-          // Only try to play audio if the component is still mounted
-          await playAudio(audioUrl);
-          markActivity();
-          return withAudio;
-        }
-      } catch (error) {
-        logMessage('warn', 'Audio generation failed, continuing with text only', {
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
-    if (addToMessages) {
-      setMessages(existingMessages.length ? [...existingMessages, newMsg] : (prev) => [...prev, newMsg]);
-    }
-    setPendingAiMessage(null);
-    markActivity();
-    return newMsg;
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Skip if chat has ended or AI is currently processing
-      if (chatEndedRef.current || isAiTyping || pendingAiMessage !== null) return;
-
-      const now = Date.now();
-      const elapsed = now - lastActivityRef.current;
-      if (elapsed > silenceTimeoutInSeconds * 1000 && !silenceTriggeredRef.current) {
-        silenceTriggeredRef.current = true;
-        void sendSilencePrompt();
-      }
-    }, 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [isAiTyping, pendingAiMessage, messages, consecutiveSilencePrompts]);
-
-  const handleEndChatWithReason = async (reason?: 'timeLimit' | 'silence' | 'manual', messagesToSave?: ChatMessage[], logsToSave?: ConversationLogDto[]) => {
-    stopAudio();
-    stopRecognition();
-
-    // Use passed messages and logs or the current state
-    const finalMessages = messagesToSave ?? messages;
-    const finalLogs = logsToSave ?? conversationLogs;
-    // Mark the chat as ended
-    chatEndedRef.current = true;
-
-    if (reason === 'timeLimit') {
-      setHasEndedDueToTimeLimit(true);
-    }
-
-    // Save conversation to database
-    if (reason) {
-      await saveConversationToDatabase(reason, conversationType, finalMessages, finalLogs);
-    }
-
-    setIsTranscriptDialogVisible(true);
-  };
-
-  useEffect(() => {
-    const timeLimit = maxConversationDurationInSeconds * 1000;
-    const interval = setInterval(() => {
-      // Skip if chat has already ended
-      if (chatEndedRef.current) return;
-
-      const now = Date.now();
-      const chatDuration = now - chatStartTime;
-
-      if (chatDuration > timeLimit) {
-        clearInterval(interval);
-        // Get current messages and logs before ending
-        setMessages((currentMessages) => {
-          setConversationLogs((currentLogs) => {
-            void handleEndChatWithReason('timeLimit', currentMessages, currentLogs);
-            return currentLogs;
-          });
-          return currentMessages;
-        });
-      }
-    }, 10000); // Check every 10 seconds
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [chatStartTime]);
-
-  const sendSilencePrompt = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!personality || !userProfile || chatEndedRef.current) return;
-    logMessage('log', 'Sending silence prompt', { counter: consecutiveSilencePrompts });
-
-    // Check if we've reached the maximum number of consecutive silence prompts
-    if (consecutiveSilencePrompts >= MAX_CONSECUTIVE_SILENCE_PROMPTS) {
-      const silenceSystemPrompt = t('chat.silencePromptGoodbye');
-      // 'The user has been silent for too long. Respond with a short goodbye.';
-      const aiText = await repliesClient.getResponse({
-        inputText: silenceSystemPrompt,
-        previousMessages: messages,
-        personality,
-        conversationRole: conversationRoleName,
-        language,
-        scenario,
-        userProfile,
-      });
-
-      const finalMessage = { content: aiText, role: 'assistant', timestamp: new Date() } as ChatMessage;
-      const finalMessages = [...messages, finalMessage];
-
-      setMessages(finalMessages);
-
-      // Add a log entry for the goodbye message
-      const goodbyeLog: ConversationLogDto = {
-        timestamp: new Date().toISOString(),
-        level: 'log',
-        message: 'Chat ending due to silence - sending goodbye message',
-        data: { consecutiveSilencePrompts, aiText },
-      };
-      const finalLogs = [...conversationLogs, goodbyeLog];
-      setConversationLogs(finalLogs);
-
-      // Wait a moment before ending the chat, then pass the final messages and logs
-      setTimeout(() => void handleEndChatWithReason('silence', finalMessages, finalLogs), 2000);
-      return;
-    }
-
-    setConsecutiveSilencePrompts((prev) => prev + 1);
-    setIsAiTyping(true);
-
-    try {
-      const silenceSystemPrompt = t('chat.silencePrompt');
-      // 'The user has been silent for a few seconds. Respond with a short follow‑up.';
-      const aiText = await repliesClient.getResponse({
-        inputText: silenceSystemPrompt,
-        previousMessages: messages,
-        personality,
-        conversationRole: conversationRoleName,
-        language,
-        scenario,
-        userProfile,
-      });
-
-      if (aiText) {
-        await processAiResponse(aiText);
-      } else {
-        logMessage('error', 'Error during silence prompt', {
-          error: 'Empty response from AI',
-        });
-        const fallback = t('chat.silencePromptFallback');
-        setMessages((prev) => [
-          ...prev,
-          { content: fallback, role: 'assistant', timestamp: new Date() },
-        ]);
-        markActivity();
-      }
-    } catch (err) {
-      logMessage('error', 'Error during silence prompt', {
-        error: err instanceof Error ? err.message : String(err),
-      });
-      const fallback = t('chat.silencePromptFallback');
-      setMessages((prev) => [
-        ...prev,
-        { content: fallback, role: 'assistant', timestamp: new Date() },
-      ]);
-      markActivity();
-    } finally {
-      setIsAiTyping(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!isInitialMessageSentRef.current) {
-      isInitialMessageSentRef.current = true;
-      setTimeout(() => sendInitialAIMessage(personality, conversationRoleName), 1000);
-    }
-    setIsLoading(false);
-    return () => {
-      stopAudio();
-      stopRecognition();
-      // Save conversation on component unmount if not already saved
-      if (!conversationSavedRef.current && messages.length > 0) {
-        void saveConversationToDatabase('manual', conversationType, messages, conversationLogs);
-      }
-    };
-    // eslint‑disable‑next‑line react‑hooks/exhaustive‑deps
-  }, []);
-
-  if (userProfile === null) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        {t('chat.profileError')}
-      </div>
-    );
-  }
-
-  const sendInitialAIMessage = async (
-    personality: PersonalityModel,
-    conversationRole: string,
-  ) => {
-    if (messages.length > 0) return;
+  const sendInitialAIMessage = async () => {
+    if (messages.length > 0 || !userProfile) return;
     setIsAiTyping(true);
     try {
       const aiText = await repliesClient.getResponse({
         inputText: 'Just say hi',
         previousMessages: [],
         personality,
-        conversationRole,
+        conversationRole: conversationRoleName,
         language,
         scenario,
         userProfile,
       });
       if (aiText) {
-        await processAiResponse(aiText, true, []);
+        await audio.processAiResponse(aiText, true, []);
       } else {
-        setMessages([
-          {
-            content: handleAiError(new Error('Empty response from AI'), t('chat.fallbackGreeting')),
-            role: 'assistant',
-            timestamp: new Date(),
-          },
-        ]);
+        setMessages([{
+          content: handleAiError(new Error('Empty response from AI'), t('chat.fallbackGreeting')),
+          role: 'assistant',
+          timestamp: new Date(),
+        }]);
         markActivity();
       }
     } catch (error) {
-      setMessages([
-        {
-          content: handleAiError(error, t('chat.fallbackGreeting')),
-          role: 'assistant',
-          timestamp: new Date(),
-        },
-      ]);
+      setMessages([{
+        content: handleAiError(error, t('chat.fallbackGreeting')),
+        role: 'assistant',
+        timestamp: new Date(),
+      }]);
       markActivity();
     } finally {
       setIsAiTyping(false);
@@ -521,21 +221,18 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
   };
 
   const sendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || !userProfile) return;
     resetSilenceCounter();
-    const userMsg: ChatMessage = {
-      content: inputMessage,
-      role: 'user',
-      timestamp: new Date(),
-    };
+
+    const userMsg: ChatMessage = { content: inputMessage, role: 'user', timestamp: new Date() };
     setMessages((prev) => [...prev, userMsg]);
     setInputMessage('');
     setIsAiTyping(true);
-    stopRecognition();
-    markActivity(); // This will reset the silence counter
+    sr.stopRecognition();
+    markActivity();
 
     try {
-      const requestMessage = {
+      const aiText = await repliesClient.getResponse({
         inputText: userMsg.content,
         previousMessages: messages,
         personality,
@@ -543,73 +240,49 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
         language,
         scenario,
         userProfile,
-      };
-
-      const aiText = await repliesClient.getResponse(requestMessage);
+      });
       if (aiText) {
-        await processAiResponse(aiText);
+        await audio.processAiResponse(aiText);
       } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            content: handleAiError(new Error('Empty response from AI'), t('chat.errors.aiResponseError')),
-            role: 'assistant',
-            timestamp: new Date(),
-          },
-        ]);
+        setMessages((prev) => [...prev, {
+          content: handleAiError(new Error('Empty response from AI'), t('chat.errors.aiResponseError')),
+          role: 'assistant',
+          timestamp: new Date(),
+        }]);
         markActivity();
       }
     } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          content: handleAiError(error, t('chat.errors.aiResponseError')),
-          role: 'assistant',
-          timestamp: new Date(),
-        },
-      ]);
+      setMessages((prev) => [...prev, {
+        content: handleAiError(error, t('chat.errors.aiResponseError')),
+        role: 'assistant',
+        timestamp: new Date(),
+      }]);
       markActivity();
     } finally {
       setIsAiTyping(false);
     }
   };
 
-  const handleAudioToggle = (checked: boolean) => {
-    setIsAudioEnabled(checked);
-    if (!checked) {
-      stopAudio();
-      if (pendingAiMessage) {
-        setMessages((prev) => [...prev, pendingAiMessage]);
-        setPendingAiMessage(null);
-      }
-    }
-    markActivity(); // Reset silence counter
-  };
+  // ── User actions ───────────────────────────────────────────────────
 
   const toggleRecording = () => {
-    if (!srSupported) {
+    if (!sr.srSupported) {
       toast.error(t('chat.errors.browserNotSupported'));
       return;
     }
-
-    if (isRecording) {
-      stopRecognition();
+    if (sr.isRecording) {
+      sr.stopRecognition();
     } else {
       setInputMessage('');
-      startRecognition();
+      sr.startRecognition();
     }
-    markActivity(); // Reset silence counter
+    markActivity();
   };
 
   const handleEndChat = () => {
-    stopAudio();
-    stopRecognition();
-    void handleEndChatWithReason('manual');
-  };
-
-  const handleGoToPersonalitySelector = () => {
-    setIsTranscriptDialogVisible(false);
-    void navigate('/chat');
+    audio.stopAudio();
+    sr.stopRecognition();
+    void handleEndChatWithReason('manual', conversationType);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -619,6 +292,33 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     }
   };
 
+  // ── Lifecycle ──────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!isInitialMessageSentRef.current) {
+      isInitialMessageSentRef.current = true;
+      setTimeout(() => void sendInitialAIMessage(), 1000);
+    }
+    setIsLoading(false);
+    return () => {
+      audio.stopAudio();
+      sr.stopRecognition();
+      if (!conversationSavedRef.current && messages.length > 0) {
+        void saveConversationToDatabase('manual', conversationType, messages, conversationLogs);
+      }
+    };
+  }, []);
+
+  // ── Early returns ──────────────────────────────────────────────────
+
+  if (userProfile === null) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        {t('chat.profileError')}
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -627,16 +327,18 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     );
   }
 
+  // ── Render ─────────────────────────────────────────────────────────
+
   return (
     <ChatLayout
-      isLoading={isLoading}
-      isBrowserDialogVisible={isBrowserDialogVisible}
-      setIsBrowserDialogVisible={setIsBrowserDialogVisible}
+      isBrowserDialogVisible={sr.isBrowserDialogVisible}
+      setIsBrowserDialogVisible={sr.setIsBrowserDialogVisible}
       isTranscriptDialogVisible={isTranscriptDialogVisible}
       setIsTranscriptDialogVisible={setIsTranscriptDialogVisible}
       hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
       isSavingConversation={isSavingConversation}
       messages={messages}
+      personalityName={personality.name}
       onGoToPersonalitySelector={handleGoToPersonalitySelector}
       mode="chat"
     >
@@ -649,12 +351,12 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
             </h1>
             <div className="flex items-center gap-2">
               <Label htmlFor="audio-toggle" className="text-sm text-gray-600">
-                {isAudioEnabled ? t('chat.audioOn') : t('chat.audioOff')}
+                {audio.isAudioEnabled ? t('chat.audioOn') : t('chat.audioOff')}
               </Label>
               <Switch
                 id="audio-toggle"
-                checked={isAudioEnabled}
-                onCheckedChange={handleAudioToggle}
+                checked={audio.isAudioEnabled}
+                onCheckedChange={audio.handleAudioToggle}
               />
             </div>
           </div>
@@ -669,12 +371,12 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
 
         <ChatMessages
           messages={messages}
-          isAiTyping={isAiTyping || (isAudioEnabled && pendingAiMessage !== null)}
+          isAiTyping={isAiTyping || (audio.isAudioEnabled && audio.pendingAiMessage !== null)}
           assistantName={personality.name}
-          onPlayAudio={(url, index) => {
-            void playMessageAudio(url, index);
+          onPlayAudio={(msg, index) => {
+            void audio.playMessageAudio(msg, index);
           }}
-          isAudioPlaying={isAudioPlaying}
+          isAudioPlaying={audio.isAudioPlaying}
           chatStyle="text"
           className="flex-grow overflow-y-auto mb-4 p-3 border rounded-md"
         />
@@ -689,19 +391,19 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
             onKeyDown={handleKeyPress}
             placeholder={t('chat.inputPlaceholder')}
             className="flex-grow mr-2"
-            disabled={isAiTyping || isRecording || pendingAiMessage !== null}
+            disabled={isAiTyping || sr.isRecording || audio.pendingAiMessage !== null}
           />
 
           <Button
             onClick={toggleRecording}
             className={`mr-2 p-2 rounded-full ${
-              isRecording ?
+              sr.isRecording ?
                 'bg-red-600 hover:bg-red-700' :
                 'bg-purple-600 hover:bg-purple-700'
             } text-white`}
-            disabled={!srSupported || isAiTyping || pendingAiMessage !== null}
+            disabled={!sr.srSupported || isAiTyping || audio.pendingAiMessage !== null}
           >
-            {isRecording ? (
+            {sr.isRecording ? (
               <>
                 <FaStop size={20}/>
                 <span className="ml-1 text-xs">{t('chat.stopRecording')}</span>
@@ -722,8 +424,8 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
             disabled={
               inputMessage.trim() === '' ||
                             isAiTyping ||
-                            isRecording ||
-                            pendingAiMessage !== null
+                            sr.isRecording ||
+                            audio.pendingAiMessage !== null
             }
           >
             <IoMdSend size={20}/>
@@ -741,7 +443,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
           </Button>
         </div>
 
-        {isAudioEnabled && (
+        {audio.isAudioEnabled && (
           <div className="mt-2 text-xs text-center text-gray-500">
             {t('chat.aiVoiceNote')}
           </div>

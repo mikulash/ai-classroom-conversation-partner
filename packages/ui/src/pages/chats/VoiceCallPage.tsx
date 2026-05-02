@@ -1,41 +1,30 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MdCallEnd } from 'react-icons/md';
-import { useNavigate } from 'react-router';
 import { PersonalityInfo } from '../../components/PersonalityInfo';
 import { ChatMessages } from '../../components/ChatMessages';
 import { Button } from '../../components/ui/button';
-import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { useAuth } from '../../hooks/useAuth';
 import { ScenarioInfo } from '../../components/ScenarioInfo';
 import { ChatPageProps } from '../../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { useAppStore } from '../../hooks/useAppStore';
-import { useConversationLogger } from '../../hooks/useConversationLogger';
 import { ChatLayout } from '../../layouts/ChatLayout';
-import { useConversationSaver } from '../../hooks/useConversationSaver';
 import { PersonalityModel } from '@repo/frontend-utils/src/models';
 import { ChatPageWrapper } from '../../components/ChatPageWrapper';
-import { ConversationLogDto } from '@repo/frontend-utils/src/clients/generated';
+import { useChatSession } from '../../hooks/useChatSession';
+import { useChatTimeLimitMonitor } from '../../hooks/useChatTimeLimitMonitor';
 
 const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversationRoleName, scenario }) => {
-  const navigate = useNavigate();
-
-  const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isProcessingInput, setIsProcessingInput] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [assistantTranscript, setAssistantTranscript] = useState('');
-
   const [isBrowserDialogVisible, setIsBrowserDialogVisible] = useState(false);
-  const [isTranscriptDialogVisible, setIsTranscriptDialogVisible] = useState(false);
   const [chatStartTime, setChatStartTime] = useState<number | null>(null);
-  const [hasEndedDueToTimeLimit, setHasEndedDueToTimeLimit] = useState(false);
-  const hasChatEndedRef = useRef<boolean>(false);
   const isConnectingRef = useRef(false);
 
   const { t, language } = useTypedTranslation();
@@ -43,17 +32,24 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   const appConfig = useAppStore((state) => state.appConfig);
   const { maxConversationDurationInSeconds } = appConfig;
 
-  const { conversationLogs, setConversationLogs, logMessage } = useConversationLogger();
+  // ── Composed hooks ─────────────────────────────────────────────────
 
-  const { isSavingConversation, conversationSavedRef, saveConversationToDatabase } = useConversationSaver({
-    userProfile,
-    personality,
-    scenario,
-    chatStartTime: chatStartTime ?? Date.now(),
+  const {
+    messages, setMessages,
+    setConversationLogs,
     logMessage,
-  });
+    hasChatEndedRef,
+    hasEndedDueToTimeLimit,
+    isTranscriptDialogVisible, setIsTranscriptDialogVisible,
+    isSavingConversation,
+    conversationSavedRef,
+    saveConversationToDatabase,
+    handleEndChatWithReason,
+    handleGoToPersonalitySelector,
+  } = useChatSession({ userProfile, personality, scenario, chatStartTime });
 
-  // WebRTC refs
+  // ── WebRTC refs ────────────────────────────────────────────────────
+
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -73,9 +69,10 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     setCurrentTranscript('');
     setAssistantTranscript('');
     setIsProcessingInput(false);
-    // Reset chat start time when disconnecting
     setChatStartTime(null);
-  }, [logMessage]);
+  }, []);
+
+  // ── Server event handling ──────────────────────────────────────────
 
   const handleServerEvent = useCallback((e: MessageEvent) => {
     try {
@@ -124,7 +121,9 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
         error: err instanceof Error ? err.message : String(err),
       });
     }
-  }, [logMessage]);
+  }, [logMessage, setMessages]);
+
+  // ── WebRTC connection ──────────────────────────────────────────────
 
   const initializeWebRTC = useCallback(async (personality: PersonalityModel) => {
     if (isConnected || isConnectingRef.current || !userProfile) return;
@@ -147,7 +146,6 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
         logMessage('log', 'Data channel opened - connection established');
         setIsConnected(true);
         setIsConnecting(false);
-        // Start the conversation timer after the connection is established
         setChatStartTime(Date.now());
       };
 
@@ -191,90 +189,46 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       setIsConnecting(false);
       disconnect();
     } finally {
-      isConnectingRef.current = false; // release guard
+      isConnectingRef.current = false;
       setIsConnecting(false);
     }
-  }, [isConnected, isConnecting, userProfile, logMessage, handleServerEvent, conversationRoleName, language, scenario]);
+  }, [isConnected, userProfile, logMessage, handleServerEvent, conversationRoleName, language, scenario, disconnect]);
 
-  const handleEndCallWithReason = useCallback(async (
-    reason?: 'timeLimit' | 'manual',
-    messagesToSave?: ChatMessage[],
-    logsToSave?: ConversationLogDto[],
-  ) => {
-    logMessage('log', `Ending call with reason: ${reason}`);
-
-    disconnect();
-
-    const finalMessages = messagesToSave ?? messages;
-    const finalLogs = logsToSave ?? conversationLogs;
-
-    // Mark the chat as ended
-    hasChatEndedRef.current = true;
-
-    if (reason === 'timeLimit') {
-      setHasEndedDueToTimeLimit(true);
-    }
-
-    if (reason) {
-      await saveConversationToDatabase(reason, 'VoiceOnly', finalMessages, finalLogs);
-    }
-
-    setIsTranscriptDialogVisible(true);
-  }, [logMessage, messages, conversationLogs, saveConversationToDatabase]);
-
-  const handleGoToPersonalitySelector = useCallback(() => {
-    setIsTranscriptDialogVisible(false);
-    void navigate('/chat');
-  }, [navigate]);
+  // ── End call ───────────────────────────────────────────────────────
 
   const handleEndCall = useCallback(() => {
     logMessage('log', 'handleEndCall: Ending call and showing transcript');
-    void handleEndCallWithReason('manual');
-  }, [logMessage, handleEndCallWithReason]);
+    disconnect();
+    void handleEndChatWithReason('manual', 'VoiceOnly');
+  }, [logMessage, disconnect, handleEndChatWithReason]);
+
+  // ── Time limit ─────────────────────────────────────────────────────
+
+  useChatTimeLimitMonitor({
+    chatStartTime,
+    maxDurationMs: maxConversationDurationInSeconds * 1000,
+    hasChatEndedRef,
+    onTimeLimitReached: useCallback((currentMessages, currentLogs) => {
+      logMessage('log', 'Time limit reached - ending call');
+      disconnect();
+      void handleEndChatWithReason('timeLimit', 'VoiceOnly', currentMessages, currentLogs);
+    }, [logMessage, disconnect, handleEndChatWithReason]),
+    setMessages,
+    setConversationLogs,
+  });
+
+  // ── Lifecycle ──────────────────────────────────────────────────────
 
   useEffect(() => {
-    setIsLoading(false);
     return () => {
       disconnect();
-      // Save conversation on component unmount if not already saved
       if (!conversationSavedRef.current && messages.length > 0) {
         void saveConversationToDatabase('manual', 'VoiceOnly');
       }
     };
   }, []);
 
-  useEffect(() => {
-    if (!chatStartTime) return;
-
-    const timeLimit = maxConversationDurationInSeconds * 1000;
-    const interval = setInterval(() => {
-      // Skip if chat has already ended
-      if (hasChatEndedRef.current) {
-        clearInterval(interval);
-        return;
-      }
-
-      const now = Date.now();
-      const chatDuration = now - chatStartTime;
-
-      if (chatDuration > timeLimit) {
-        logMessage('log', 'Time limit reached - ending call');
-        clearInterval(interval);
-        // Get current messages and logs before ending
-        setMessages((currentMessages) => {
-          setConversationLogs((currentLogs) => {
-            void handleEndCallWithReason('timeLimit', currentMessages, currentLogs);
-            return currentLogs;
-          });
-          return currentMessages;
-        });
-      }
-    }, 10000); // Check every 10 seconds
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [chatStartTime, maxConversationDurationInSeconds, hasChatEndedRef, logMessage, handleEndCallWithReason]);
+  // ── Render ─────────────────────────────────────────────────────────
 
   const connectionStatusMessage = isConnecting ?
     'Connecting...' :
@@ -297,7 +251,6 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
 
   return (
     <ChatLayout
-      isLoading={isLoading}
       isBrowserDialogVisible={isBrowserDialogVisible}
       setIsBrowserDialogVisible={setIsBrowserDialogVisible}
       isTranscriptDialogVisible={isTranscriptDialogVisible}
@@ -305,6 +258,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       hasEndedDueToTimeLimit={hasEndedDueToTimeLimit}
       isSavingConversation={isSavingConversation}
       messages={messages}
+      personalityName={personality.name}
       onGoToPersonalitySelector={handleGoToPersonalitySelector}
       mode="chat"
     >
