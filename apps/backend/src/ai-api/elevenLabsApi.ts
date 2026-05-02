@@ -32,13 +32,14 @@ export class ElevenLabsApiService {
 
     const elevenLabsApiKey = this.configProvider.getApiKey(API_KEY.ELEVENLABS);
 
-    try {
-      const outputFormat =
-              responseFormat === 'pcm' ? `pcm_${sampleRate}` : `mp3_${sampleRate}_32`;
-      let voiceId = personality.elevenlabsVoiceId;
-      voiceId ??= this.getFallbackVoiceId(personality.sex);
+    const outputFormat =
+            responseFormat === 'pcm' ? `pcm_${sampleRate}` : `mp3_${sampleRate}_32`;
+    let voiceId = personality.elevenlabsVoiceId;
+    voiceId ??= this.getFallbackVoiceId(personality.sex);
 
-      const response = await fetch(
+    let response: Response;
+    try {
+      response = await fetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=${outputFormat}`,
         {
           method: 'POST',
@@ -54,28 +55,25 @@ export class ElevenLabsApiService {
               stability: 0,
               similarity_boost: 0,
               style: 0,
-              speed: 1.0,
+              speed: 1,
             },
           }),
         },
       );
-
-      if (!response.ok) {
-        throw new HttpStatusError(`ElevenLabs API failed: ${response.statusText}`, response.status);
-      }
-
-      const arrayBuffer = await response.arrayBuffer();
-
-      return {
-        buffer: arrayBuffer,
-        sampleRate: sampleRate,
-      };
-    } catch (error) {
-      if (error instanceof HttpStatusError) {
-        throw error;
-      }
+    } catch {
       throw new HttpStatusError('Error converting text to speech using ElevenLabs', 502);
     }
+
+    if (!response.ok) {
+      throw new HttpStatusError(`ElevenLabs API failed: ${response.statusText}`, response.status);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+
+    return {
+      buffer: arrayBuffer,
+      sampleRate: sampleRate,
+    };
   }
 
   public async getTextToSpeechTimestamped(
@@ -85,10 +83,12 @@ export class ElevenLabsApiService {
 
     const elevenLabsApiKey = this.configProvider.getApiKey(API_KEY.ELEVENLABS);
 
+    let voiceId = personality.elevenlabsVoiceId;
+    voiceId ??= this.getFallbackVoiceId(personality.sex);
+
+    let response: Response;
     try {
-      let voiceId = personality.elevenlabsVoiceId;
-      voiceId ??= this.getFallbackVoiceId(personality.sex);
-      const response = await fetch(
+      response = await fetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=pcm_${sampleRate}`,
         {
           method: 'POST',
@@ -104,71 +104,68 @@ export class ElevenLabsApiService {
               stability: 0,
               similarity_boost: 0,
               style: 0,
-              speed: 1.0,
+              speed: 1,
             },
           }),
         },
       );
+    } catch {
+      throw new HttpStatusError('Error converting text to speech using ElevenLabs', 502);
+    }
 
-      if (!response.ok) {
-        throw new HttpStatusError(`ElevenLabs API failed: ${response.statusText}`, response.status);
-      }
+    if (!response.ok) {
+      throw new HttpStatusError(`ElevenLabs API failed: ${response.statusText}`, response.status);
+    }
 
-      const jsonResponse =
-              (await response.json()) as ElevenLabsTimestampedResponse;
-      const timestampedSpeech: TextToSpeechTimestampedResponseDto = {
-        audio: [],
-        words: [],
-        wtimes: [],
-        wdurations: [],
-      };
+    const jsonResponse =
+            (await response.json()) as ElevenLabsTimestampedResponse;
+    const timestampedSpeech: TextToSpeechTimestampedResponseDto = {
+      audio: [],
+      words: [],
+      wtimes: [],
+      wdurations: [],
+    };
 
-      if (jsonResponse.audio_base64) {
-        timestampedSpeech.audio.push(jsonResponse.audio_base64);
-      }
+    if (jsonResponse.audio_base64) {
+      timestampedSpeech.audio.push(jsonResponse.audio_base64);
+    }
 
-      const alignment =
-              jsonResponse.alignment ?? jsonResponse.normalized_alignment;
+    const alignment =
+            jsonResponse.alignment ?? jsonResponse.normalized_alignment;
 
-      if (alignment) {
-        let word = '';
-        let time = 0;
-        let duration = 0;
+    if (alignment) {
+      let word = '';
+      let time = 0;
+      let duration = 0;
 
-        for (let i = 0; i < alignment.characters.length; i++) {
-          const startTime = alignment.character_start_times_seconds[i] ?? 0;
-          const char = alignment.characters[i];
-          if (word.length === 0) {
-            time = startTime * 1000;
-          }
-          if (word.length > 0 && char === ' ') {
-            timestampedSpeech.words.push(word);
-            timestampedSpeech.wtimes.push(time);
-            timestampedSpeech.wdurations.push(duration);
-            word = '';
-            duration = 0;
-          } else if (char !== ' ') {
-            const endTime = alignment.character_end_times_seconds[i] ?? 0;
-            const charDuration = (endTime - startTime) * 1000;
-            duration += charDuration;
-            word += char;
-          }
+      for (let i = 0; i < alignment.characters.length; i++) {
+        const startTime = alignment.character_start_times_seconds[i] ?? 0;
+        const char = alignment.characters[i];
+        if (word.length === 0) {
+          time = startTime * 1000;
         }
-
-        if (word.length > 0) {
+        if (word.length > 0 && char === ' ') {
           timestampedSpeech.words.push(word);
           timestampedSpeech.wtimes.push(time);
           timestampedSpeech.wdurations.push(duration);
+          word = '';
+          duration = 0;
+        } else if (char !== ' ') {
+          const endTime = alignment.character_end_times_seconds[i] ?? 0;
+          const charDuration = (endTime - startTime) * 1000;
+          duration += charDuration;
+          word += char;
         }
       }
 
-      return timestampedSpeech;
-    } catch (error) {
-      if (error instanceof HttpStatusError) {
-        throw error;
+      if (word.length > 0) {
+        timestampedSpeech.words.push(word);
+        timestampedSpeech.wtimes.push(time);
+        timestampedSpeech.wdurations.push(duration);
       }
-      throw new HttpStatusError('Error converting text to speech using ElevenLabs', 502);
     }
+
+    return timestampedSpeech;
   }
 
   private getFallbackVoiceId(sex?: string | null): string {

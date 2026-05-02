@@ -425,8 +425,19 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
         userProfile,
       });
 
-      if (aiText) await processAiResponse(aiText);
-      else throw new Error('Empty response from AI');
+      if (aiText) {
+        await processAiResponse(aiText);
+      } else {
+        logMessage('error', 'Error during silence prompt', {
+          error: 'Empty response from AI',
+        });
+        const fallback = t('chat.silencePromptFallback');
+        setMessages((prev) => [
+          ...prev,
+          { content: fallback, role: 'assistant', timestamp: new Date() },
+        ]);
+        markActivity();
+      }
     } catch (err) {
       logMessage('error', 'Error during silence prompt', {
         error: err instanceof Error ? err.message : String(err),
@@ -485,7 +496,16 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       });
       if (aiText) {
         await processAiResponse(aiText, true, []);
-      } else throw new Error('Empty response from AI');
+      } else {
+        setMessages([
+          {
+            content: handleAiError(new Error('Empty response from AI'), t('chat.fallbackGreeting')),
+            role: 'assistant',
+            timestamp: new Date(),
+          },
+        ]);
+        markActivity();
+      }
     } catch (error) {
       setMessages([
         {
@@ -526,8 +546,19 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       };
 
       const aiText = await repliesClient.getResponse(requestMessage);
-      if (aiText) await processAiResponse(aiText);
-      else throw new Error('Empty response from AI');
+      if (aiText) {
+        await processAiResponse(aiText);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            content: handleAiError(new Error('Empty response from AI'), t('chat.errors.aiResponseError')),
+            role: 'assistant',
+            timestamp: new Date(),
+          },
+        ]);
+        markActivity();
+      }
     } catch (error) {
       setMessages((prev) => [
         ...prev,

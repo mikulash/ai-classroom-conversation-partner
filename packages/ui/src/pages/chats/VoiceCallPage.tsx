@@ -165,7 +165,13 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      if (!offer.sdp) throw new Error('No SDP offer received from server.');
+      if (!offer.sdp) {
+        logMessage('error', 'Connection error', { error: 'No SDP offer received from server.' });
+        setError('No SDP offer received from server.');
+        setIsConnecting(false);
+        disconnect();
+        return;
+      }
 
       const response = await repliesClient.getWebRtcAnswer({
         openai_voice_name: personality.openaiVoiceName,

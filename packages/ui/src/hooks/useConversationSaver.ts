@@ -59,7 +59,11 @@ export const useConversationSaver = ({
       const { error } = await conversationClient.insert(conversationData);
 
       if (error) {
-        throw new Error(`Failed to save conversation: ${error.message}`);
+        logMessage('error', 'Failed to save conversation', {
+          error: `Failed to save conversation: ${error.message}`,
+        });
+        toast.error(t('chat.errors.saveConversationError', { defaultValue: 'Failed to save conversation' }));
+        return;
       }
 
       logMessage('log', 'Conversation saved successfully');

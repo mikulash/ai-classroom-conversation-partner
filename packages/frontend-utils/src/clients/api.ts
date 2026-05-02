@@ -46,7 +46,9 @@ const createApiClient = (): AxiosInstance => {
       }
       return config;
     },
-    (error: Error) => Promise.reject(error),
+    (error: Error) => {
+      throw error;
+    },
   );
 
   // Response interceptor to handle token refresh on 401
@@ -70,13 +72,17 @@ const createApiClient = (): AxiosInstance => {
         originalRequest._retry = true;
         isRefreshing = true;
 
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        if (!refreshToken) {
+          isRefreshing = false;
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user_profile');
+          throw new Error('No refresh token available');
+        }
+
         try {
-          const refreshToken = localStorage.getItem('refresh_token');
-
-          if (!refreshToken) {
-            throw new Error('No refresh token available');
-          }
-
           // Call refresh endpoint
           const response = await axios.post<RefreshTokenResponse>(`${baseURL}/api/auth/refresh`, {
             refreshToken,
@@ -104,11 +110,11 @@ const createApiClient = (): AxiosInstance => {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_profile');
-          return Promise.reject(refreshError instanceof Error ? refreshError : new Error('Token refresh failed'));
+          throw refreshError instanceof Error ? refreshError : new Error('Token refresh failed');
         }
       }
 
-      return Promise.reject(error);
+      throw error;
     },
   );
 

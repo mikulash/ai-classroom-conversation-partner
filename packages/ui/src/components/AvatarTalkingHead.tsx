@@ -133,11 +133,12 @@ export const AvatarTalkingHead = forwardRef<
                 setIsAvatarLoaded(true);
               } catch (fallbackError) {
                 console.error('Failed to load fallback avatar:', fallbackError);
-                throw new Error(`Failed to load both custom and default avatars. Primary: ${String(primaryError)}. Fallback: ${String(fallbackError)}`);
+                setLoadingMessage(`Failed to load avatar: Failed to load both custom and default avatars. Primary: ${String(primaryError)}. Fallback: ${String(fallbackError)}`);
               }
             } else {
-              // If we already tried the default avatar and it failed, throw the error
-              throw primaryError;
+              // If we already tried the default avatar and it failed, show error
+              console.error('Error initializing avatar:', primaryError);
+              setLoadingMessage(`Failed to load avatar: ${String(primaryError)}`);
             }
           }
         } catch (error) {

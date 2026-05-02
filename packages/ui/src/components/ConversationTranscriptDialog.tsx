@@ -64,7 +64,18 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
       setIsDeleting(true);
       const { error } = await conversationClient.delete(conversationId);
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error('Error deleting conversation:', error.message);
+        toast.error(
+          t('admin.conversations.deleteError', {
+            defaultValue: 'Failed to delete conversation',
+          }),
+          {
+            description: error.message,
+          },
+        );
+        return;
+      }
 
       toast.success(t('admin.conversations.deleteSuccess', {
         defaultValue: 'Conversation deleted successfully',

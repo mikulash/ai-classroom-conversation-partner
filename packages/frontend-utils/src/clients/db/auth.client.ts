@@ -131,7 +131,12 @@ export const authClient = {
   refreshToken: async (): Promise<ApiResponse<AuthTokensModel>> => {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
-      if (!refreshToken) throw new Error('No refresh token available');
+      if (!refreshToken) {
+        return {
+          data: null,
+          error: { message: 'No refresh token available' },
+        };
+      }
 
       const payload: RefreshTokenDto = { refreshToken };
       const requestFn = await authApi.authControllerRefresh(payload);

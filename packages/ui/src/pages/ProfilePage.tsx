@@ -53,7 +53,13 @@ export function UserProfilePage() {
 
       const { data, error } = await conversationClient.getCurrentUserConversations();
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error('Error loading conversations:', error.message);
+        toast.error('Failed to load conversations', {
+          description: error.message,
+        });
+        return;
+      }
 
       const toIsoString = (value: Date | string | null | undefined): string => {
         if (!value) return '';

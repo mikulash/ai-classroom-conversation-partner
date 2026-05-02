@@ -44,10 +44,12 @@ export function AdminProfilesPage() {
       const { data, error: profileError } = await profileClient.getAll();
 
       if (profileError) {
-        if (profileError instanceof Error) {
-          throw profileError;
-        }
-        throw new Error(profileError.message);
+        const errorMessage = profileError instanceof Error ? profileError.message : profileError.message;
+        console.error(errorMessage);
+        toast.error(t('admin.profiles.notifications.loadFailed'), {
+          description: errorMessage,
+        });
+        return;
       }
 
       // Show all profiles including the current admin's profile
@@ -75,7 +77,18 @@ export function AdminProfilesPage() {
 
       const { data, error } = await conversationClient.getByUserId(userId);
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error('Error loading conversations:', error.message);
+        toast.error('Failed to load conversations', {
+          description: error.message,
+        });
+        // Set empty array to prevent retrying
+        setUserConversations((prev) => ({
+          ...prev,
+          [userId]: [],
+        }));
+        return;
+      }
 
       const toIsoString = (value: Date | string | null | undefined): string => {
         if (!value) return '';
@@ -152,7 +165,13 @@ export function AdminProfilesPage() {
       setIsProcessing(true);
       const { error } = await profileClient.updateRole(profileId, newRole);
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error(error.message);
+        toast.error(t('admin.profiles.notifications.updateFailed'), {
+          description: error.message,
+        });
+        return;
+      }
 
       toast.success(t('admin.profiles.notifications.updateSuccess'));
       setProfiles((prev) =>
