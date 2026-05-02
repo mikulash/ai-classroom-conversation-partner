@@ -145,6 +145,7 @@ export function getApproximateTimestampedSpeech(
  * @param channels
  * @param userId
  * @param language
+ * @param createTimestampedTranscription
  */
 export async function getPreciseTimestampedSpeech(
   arrayBuffer: ArrayBuffer,

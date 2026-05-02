@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { ProfileModel } from '@repo/frontend-utils/src/models';
+import { ConversationModel, ProfileModel } from '@repo/frontend-utils/src/models';
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
@@ -83,7 +83,7 @@ export function AdminProfilesPage() {
         return Number.isNaN(date.getTime()) ? '' : date.toISOString();
       };
 
-      const conversations: MyConversation[] = data.map((conv: any) => ({
+      const conversations: MyConversation[] = data.map((conv: ConversationModel) => ({
         id: conv.id,
         start_time: toIsoString(conv.startTime),
         end_time: toIsoString(conv.endTime),

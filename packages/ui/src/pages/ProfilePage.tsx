@@ -15,6 +15,7 @@ import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversa
 import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 import { UpdateProfileDto } from '@repo/frontend-utils/src/clients/generated';
+import { ConversationModel } from '@repo/frontend-utils/src/models';
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
@@ -60,7 +61,7 @@ export function UserProfilePage() {
         return Number.isNaN(date.getTime()) ? '' : date.toISOString();
       };
 
-      const conversationsData: MyConversation[] = data.map((conv: any) => ({
+      const conversationsData: MyConversation[] = data.map((conv: ConversationModel) => ({
         id: conv.id,
         start_time: toIsoString(conv.startTime),
         end_time: toIsoString(conv.endTime),
