@@ -69,7 +69,7 @@ export const conversationClient = {
    */
   delete: async (id: number): Promise<ApiResponse<MessageModel>> => {
     try {
-      const requestFn = await conversationsApi.conversationsControllerDeleteConversation(String(id));
+      const requestFn = await conversationsApi.conversationsControllerDeleteConversation(id);
       const response = await requestFn(api);
       const data = messageDtoToModel(response.data);
       return { data };

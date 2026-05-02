@@ -1,5 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsEnum, IsIn, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 import { API_KEY } from '@repo/shared/enums/ApiKey';
@@ -40,6 +51,8 @@ export class ReplyPersonalityDto {
     name!: string;
 
   @ApiPropertyOptional({ description: 'Age', nullable: true, type: Number })
+  @IsOptional()
+  @IsInt()
     age?: number | null;
 
   @ApiPropertyOptional({ description: 'Sex', nullable: true, enum: Sex, enumName: 'Sex' })
@@ -57,70 +70,111 @@ export class ReplyPersonalityDto {
     openaiVoiceName!: OpenAiVoiceName;
 
   @ApiPropertyOptional({ description: 'ElevenLabs voice ID', nullable: true, type: String })
+  @IsOptional()
+  @IsString()
     elevenlabsVoiceId?: string | null;
 
   @ApiPropertyOptional({ description: 'Voice instructions', nullable: true, type: String })
+  @IsOptional()
+  @IsString()
     voiceInstructions?: string | null;
 
   @ApiPropertyOptional({ description: 'Personality description in English', type: String })
+  @IsOptional()
+  @IsString()
     personalityDescriptionEn?: string;
 
   @ApiPropertyOptional({ description: 'Personality description in Czech', type: String })
+  @IsOptional()
+  @IsString()
     personalityDescriptionCs?: string;
 
   @ApiPropertyOptional({ description: 'Problem summary in English', type: String })
+  @IsOptional()
+  @IsString()
     problemSummaryEn?: string;
 
   @ApiPropertyOptional({ description: 'Problem summary in Czech', type: String })
+  @IsOptional()
+  @IsString()
     problemSummaryCs?: string;
 
   @ApiPropertyOptional({ description: 'Avatar URL', nullable: true, type: String })
+  @IsOptional()
+  @IsString()
     avatarUrl?: string | null;
 
   @ApiPropertyOptional({ description: 'Is hidden flag', type: Boolean })
+  @IsOptional()
+  @IsBoolean()
     isHidden?: boolean;
 }
 
 export class ReplyScenarioDto {
   @ApiPropertyOptional({ description: 'Scenario ID', type: Number })
+  @IsOptional()
+  @IsInt()
     id?: number;
 
   @ApiPropertyOptional({ description: 'Involved personality ID', type: Number })
+  @IsOptional()
+  @IsInt()
     involvedPersonalityId?: number;
 
   @ApiPropertyOptional({ description: 'Setting in English', type: String })
+  @IsOptional()
+  @IsString()
     settingEn?: string;
 
   @ApiPropertyOptional({ description: 'Setting in Czech', type: String })
+  @IsOptional()
+  @IsString()
     settingCs?: string;
 
   @ApiPropertyOptional({ description: 'Situation description in English', type: String })
+  @IsOptional()
+  @IsString()
     situationDescriptionEn?: string;
 
   @ApiPropertyOptional({ description: 'Situation description in Czech', type: String })
+  @IsOptional()
+  @IsString()
     situationDescriptionCs?: string;
 }
 
 export class ReplyProfileDto {
   @ApiProperty({ description: 'User ID' })
+  @IsString()
     id!: string;
 
   @ApiPropertyOptional({ description: 'Full name', type: String })
+  @IsOptional()
+  @IsString()
     fullName?: string;
 
   @ApiPropertyOptional({ description: 'Gender', type: String })
+  @IsOptional()
+  @IsString()
     gender?: string;
 
   @ApiPropertyOptional({ description: 'Conversation role', type: String })
+  @IsOptional()
+  @IsString()
     conversationRole?: string;
 
   @ApiPropertyOptional({ description: 'Bio', type: String })
+  @IsOptional()
+  @IsString()
     bio?: string;
 
   @ApiPropertyOptional({ description: 'Email address', type: String })
+  @IsOptional()
+  @IsString()
     email?: string;
 
   @ApiPropertyOptional({ description: 'User role', type: String })
+  @IsOptional()
+  @IsString()
     userRole?: string;
 }
 

@@ -42,7 +42,7 @@ export const scenarioClient = {
 
   update: async (id: number, scenario: UpdateScenarioDto): Promise<ApiResponse<ScenarioWithPersonalityModel>> => {
     try {
-      const requestFn = await scenariosApi.scenariosControllerUpdateScenario(String(id), scenario);
+      const requestFn = await scenariosApi.scenariosControllerUpdateScenario(id, scenario);
       const response = await requestFn(api);
       const data = scenarioWithPersonalityDtoToModel(response.data);
       return { data };
@@ -57,7 +57,7 @@ export const scenarioClient = {
 
   delete: async (id: number): Promise<ApiResponse<MessageModel>> => {
     try {
-      const requestFn = await scenariosApi.scenariosControllerDeleteScenario(String(id));
+      const requestFn = await scenariosApi.scenariosControllerDeleteScenario(id);
       const response = await requestFn(api);
       const data = messageDtoToModel(response.data);
       return { data };

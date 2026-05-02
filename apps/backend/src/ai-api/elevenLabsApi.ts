@@ -1,18 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
-import { ELEVENLABS_FALLBACK_VOICE_ID_FEMALE, ELEVENLABS_FALLBACK_VOICE_ID_MALE } from '../constants/constants';
 import { TextToSpeechTimestampedResponseDto } from '../dtos/replies.dto';
 import { ConfigProvider } from '../utils/configProvider';
+import { EnvConfigService } from '../core/config/env-config.service';
 import {
   GetTimestampedAudioParamsWithModelName,
   GetTTSAudioParamsWithModelName,
   SpeechAudioResult,
 } from '../types/universalApi.types';
 import { ElevenLabsTimestampedResponse } from '../types/elevenlabs.types';
+import { HttpStatusError } from '../utils/httpStatusError';
 
 @Injectable()
 export class ElevenLabsApiService {
-  constructor(private readonly configProvider: ConfigProvider) {}
+  constructor(
+    private readonly configProvider: ConfigProvider,
+    private readonly envConfig: EnvConfigService,
+  ) {}
 
   public async textToSpeech(
     params: GetTTSAudioParamsWithModelName,
@@ -32,13 +36,7 @@ export class ElevenLabsApiService {
       const outputFormat =
               responseFormat === 'pcm' ? `pcm_${sampleRate}` : `mp3_${sampleRate}_32`;
       let voiceId = personality.elevenlabsVoiceId;
-      if (!voiceId) {
-        if (personality.sex == 'F') {
-          voiceId = ELEVENLABS_FALLBACK_VOICE_ID_FEMALE;
-        } else {
-          voiceId = ELEVENLABS_FALLBACK_VOICE_ID_MALE;
-        }
-      }
+      voiceId ??= this.getFallbackVoiceId(personality.sex);
 
       const response = await fetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=${outputFormat}`,
@@ -63,12 +61,7 @@ export class ElevenLabsApiService {
       );
 
       if (!response.ok) {
-        console.error('ElevenLabs API failed: ', response.status, response.statusText);
-
-        return {
-          buffer: new ArrayBuffer(0),
-          sampleRate: 0,
-        };
+        throw new HttpStatusError(`ElevenLabs API failed: ${response.statusText}`, response.status);
       }
 
       const arrayBuffer = await response.arrayBuffer();
@@ -78,12 +71,10 @@ export class ElevenLabsApiService {
         sampleRate: sampleRate,
       };
     } catch (error) {
-      console.error('Error converting text to speech using ElevenLabs:', error);
-
-      return {
-        buffer: new ArrayBuffer(0),
-        sampleRate: 0,
-      };
+      if (error instanceof HttpStatusError) {
+        throw error;
+      }
+      throw new HttpStatusError('Error converting text to speech using ElevenLabs', 502);
     }
   }
 
@@ -96,13 +87,7 @@ export class ElevenLabsApiService {
 
     try {
       let voiceId = personality.elevenlabsVoiceId;
-      if (!voiceId) {
-        if (personality.sex == 'F') {
-          voiceId = ELEVENLABS_FALLBACK_VOICE_ID_FEMALE;
-        } else {
-          voiceId = ELEVENLABS_FALLBACK_VOICE_ID_MALE;
-        }
-      }
+      voiceId ??= this.getFallbackVoiceId(personality.sex);
       const response = await fetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=pcm_${sampleRate}`,
         {
@@ -126,14 +111,7 @@ export class ElevenLabsApiService {
       );
 
       if (!response.ok) {
-        console.error('ElevenLabs API failed: ', response.status, response.statusText);
-
-        return {
-          audio: [],
-          words: [],
-          wtimes: [],
-          wdurations: [],
-        };
+        throw new HttpStatusError(`ElevenLabs API failed: ${response.statusText}`, response.status);
       }
 
       const jsonResponse =
@@ -186,14 +164,20 @@ export class ElevenLabsApiService {
 
       return timestampedSpeech;
     } catch (error) {
-      console.error('Error converting text to speech using ElevenLabs:', error);
-
-      return {
-        audio: [],
-        words: [],
-        wtimes: [],
-        wdurations: [],
-      };
+      if (error instanceof HttpStatusError) {
+        throw error;
+      }
+      throw new HttpStatusError('Error converting text to speech using ElevenLabs', 502);
     }
+  }
+
+  private getFallbackVoiceId(sex?: string | null): string {
+    const voiceId = sex === 'F' ?
+      this.envConfig.elevenLabsFallbackVoiceIdFemale :
+      this.envConfig.elevenLabsFallbackVoiceIdMale;
+    if (!voiceId) {
+      throw new HttpStatusError('No ElevenLabs fallback voice configured', 500);
+    }
+    return voiceId;
   }
 }

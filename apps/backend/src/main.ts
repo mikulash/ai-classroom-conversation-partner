@@ -1,26 +1,25 @@
 import 'reflect-metadata';
 import 'dotenv/config';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import cors from 'cors';
 import { AppModule } from './app.module';
-import { APP_FRONTEND_URL, NODE_ENV, PORT } from './constants/constants';
-import { writeFileSync } from 'fs';
+import { EnvConfigService } from './core/config/env-config.service';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap(): Promise<void> {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get(EnvConfigService);
 
-  app.use(
-    cors({
-      origin: APP_FRONTEND_URL,
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-      maxAge: 86400,
-    }),
-  );
+  app.enableCors({
+    origin: configService.appFrontendUrl,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 86400,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -28,6 +27,8 @@ async function bootstrap(): Promise<void> {
       transform: true,
     }),
   );
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.enableShutdownHooks();
 
   const config = new DocumentBuilder()
     .setTitle('AI Classroom Conversation Partner API')
@@ -39,18 +40,14 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(PORT);
-  console.log(`Backend server listening on port ${PORT}`);
-  console.log(`Environment: ${NODE_ENV}`);
-
-  try {
-    const outPath = 'openapi.json';
-    writeFileSync(outPath, JSON.stringify(document, null, 2), 'utf8');
-    console.log(`Wrote OpenAPI JSON to ${outPath}`);
-  } catch (err) {
-    console.error('Failed to write OpenAPI JSON', err);
-  }
+  await app.listen(configService.port);
+  logger.log(`Backend server listening on port ${configService.port}`);
+  logger.log(`Environment: ${configService.nodeEnv}`);
 }
 
 
-bootstrap();
+void bootstrap().catch((error: unknown) => {
+  const logger = new Logger('Bootstrap');
+  logger.error('Backend failed to start', error instanceof Error ? error.stack : String(error));
+  process.exit(1);
+});

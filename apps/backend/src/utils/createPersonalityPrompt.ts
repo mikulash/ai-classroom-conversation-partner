@@ -17,7 +17,9 @@ export function createPersonalityPrompt({
 }: GetPersonalityPromptParams): string {
   let prompt = '';
   if (scenario) {
-    prompt += 'The situation is as follows: "' + scenario.situationDescriptionEn + '". It happened here "' + scenario.settingEn + '". ';
+    const situationDescription = scenario.situationDescriptionEn ?? '';
+    const setting = scenario.settingEn ?? '';
+    prompt += `The situation is as follows: "${situationDescription}". It happened here "${setting}". `;
   }
 
   const ageText = personality.age != null ? `, a ${personality.age.toString()}-year-old` : '';

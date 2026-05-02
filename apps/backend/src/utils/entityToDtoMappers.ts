@@ -180,7 +180,7 @@ export function realtimeTranscriptionModelEntityToDto(
     provider: model.provider,
     apiName: model.apiName,
     docsUrl: model.docsUrl,
-    isEnabled: model.isEnabled ?? false,
+    isEnabled: model.isEnabled,
     allowsWordLevelTimestamps: model.allowsWordLevelTimestamps,
   };
 }

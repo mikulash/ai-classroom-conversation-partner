@@ -1,33 +1,23 @@
-import { Controller, Get, Put, Body, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import type { Request, Response } from 'express';
-import prisma from '../clients/prisma';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { ConfigProvider } from '../utils/configProvider';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AppConfigDto } from '../dtos/app-config.dto';
-import { appConfigEntityToDto } from '../utils/entityToDtoMappers';
-import { ErrorResponseDto, ModelSelectionIdsDto } from '../dtos/common.dto';
+import { ModelSelectionIdsDto } from '../dtos/common.dto';
+import { AppConfigService } from '../services/app-config.service';
+import type { JWTPayload } from '../utils/auth';
 
 @ApiTags('app-config')
 @Controller('api/app-config')
 export class AppConfigController {
-  constructor(private readonly configProvider: ConfigProvider) {}
+  constructor(private readonly appConfigService: AppConfigService) {}
 
   @Get()
   @ApiOkResponse({ description: 'Get app configuration', type: AppConfigDto })
-  async getAppConfig(
-    @Res() res: Response<AppConfigDto | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const config = await this.configProvider.getAppConfig();
-
-      res.status(200).json(appConfigEntityToDto(config));
-    } catch (error) {
-      console.error('Get app config error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
+  getAppConfig(): Promise<AppConfigDto> {
+    return this.appConfigService.getAppConfig();
   }
 
   @Put()
@@ -36,56 +26,10 @@ export class AppConfigController {
   @Roles('owner')
   @ApiBody({ type: ModelSelectionIdsDto })
   @ApiOkResponse({ description: 'Update app configuration', type: AppConfigDto })
-  async updateAppConfig(
+  updateAppConfig(
     @Body() body: ModelSelectionIdsDto,
-    @Req() req: Request,
-    @Res() res: Response<AppConfigDto | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const {
-        responseModelId,
-        ttsModelId,
-        realtimeModelId,
-        realtimeTranscriptionModelId,
-        timestampedTranscriptionModelId,
-      } = body;
-
-      const now = new Date();
-      const currentConfig = await this.configProvider.getAppConfig();
-
-      const config = await prisma.$transaction(async (tx) => {
-        await tx.appConfig.update({
-          where: { id: currentConfig.id },
-          data: { validTo: now },
-        });
-
-        const dataToCreate = {
-          ...Object.fromEntries(
-            Object.entries(currentConfig).filter(
-              ([key]) => !['id', 'validFrom', 'validTo'].includes(key),
-            ),
-          ),
-          userId: req.user!.userId,
-          validFrom: now,
-          validTo: null,
-          responseModelId,
-          ttsModelId,
-          realtimeModelId,
-          realtimeTranscriptionModelId,
-          timestampedTranscriptionModelId,
-        };
-
-        return tx.appConfig.create({
-          data: dataToCreate,
-        });
-      });
-
-      await this.configProvider.refreshAppConfig();
-
-      res.status(200).json(appConfigEntityToDto(config));
-    } catch (error) {
-      console.error('Update app config error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
+    @CurrentUser() user: JWTPayload,
+  ): Promise<AppConfigDto> {
+    return this.appConfigService.updateAppConfig(body, user);
   }
 }

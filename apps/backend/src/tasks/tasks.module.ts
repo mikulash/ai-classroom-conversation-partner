@@ -6,4 +6,5 @@ import { TokenCleanupService } from './token-cleanup.service';
   imports: [ScheduleModule.forRoot()],
   providers: [TokenCleanupService],
 })
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TasksModule { }

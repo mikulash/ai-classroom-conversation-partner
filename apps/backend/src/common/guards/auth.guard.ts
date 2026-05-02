@@ -1,7 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { Request } from 'express';
-import { extractTokenFromHeader, verifyAndDecodeToken } from '../../utils/auth';
+import { extractTokenFromHeader } from '../../utils/auth';
 import { JWTPayload } from '../../utils/auth';
+import { TokenService } from '../../services/token.service';
 
 export interface AuthenticatedRequest extends Request {
   user?: JWTPayload;
@@ -9,6 +10,8 @@ export interface AuthenticatedRequest extends Request {
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  constructor(private readonly tokenService: TokenService) {}
+
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const token = extractTokenFromHeader(request.headers.authorization);
@@ -17,7 +20,12 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('No token provided');
     }
 
-    request.user = verifyAndDecodeToken(token);
+    try {
+      request.user = this.tokenService.verifyAccessToken(token);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
     return true;
   }
 }

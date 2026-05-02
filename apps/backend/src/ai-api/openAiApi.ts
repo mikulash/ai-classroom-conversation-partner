@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { API_KEY } from '@repo/shared/enums/ApiKey';
 import { OpenAiClientProvider } from '../clients/openAi';
 import { ConfigProvider } from '../utils/configProvider';
@@ -38,6 +38,8 @@ function isClientSecretEnvelope(
 
 @Injectable()
 export class OpenAiApiService {
+  private readonly logger = new Logger(OpenAiApiService.name);
+
   constructor(
     private readonly configProvider: ConfigProvider,
     private readonly openAiClientProvider: OpenAiClientProvider,
@@ -145,8 +147,8 @@ export class OpenAiApiService {
     });
     if (!sessionResp.ok) {
       const errorPayload = await sessionResp.text();
-      console.error('OpenAI session error:', errorPayload);
-      throw new Error(`Failed to create Realtime session: ${sessionResp.status}`);
+      this.logger.error(`OpenAI session error: ${errorPayload}`);
+      throw new HttpStatusError(`Failed to create Realtime session: ${sessionResp.status}`, sessionResp.status);
     }
 
     const ephemeralTokenResponse = await sessionResp.json();
@@ -166,8 +168,8 @@ export class OpenAiApiService {
 
     const sdpAnswer = await sdpResp.text();
     if (!sdpResp.ok) {
-      console.error('OpenAI SDP error:', sdpAnswer);
-      throw new Error(`Failed to get SDP answer: ${sdpResp.status}`);
+      this.logger.error(`OpenAI SDP error: ${sdpAnswer}`);
+      throw new HttpStatusError(`Failed to get SDP answer: ${sdpResp.status}`, sdpResp.status);
     }
 
     return { sdp: sdpAnswer };
@@ -233,12 +235,10 @@ export class OpenAiApiService {
         sampleRate: sampleRate,
       };
     } catch (error) {
-      console.error('Error converting text to speech using OpenAI:', error);
-
-      return {
-        buffer: new ArrayBuffer(0),
-        sampleRate: 0,
-      };
+      if (error instanceof HttpStatusError) {
+        throw error;
+      }
+      throw new HttpStatusError('Error converting text to speech using OpenAI', 502);
     }
   }
 

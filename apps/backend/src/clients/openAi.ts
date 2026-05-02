@@ -15,7 +15,6 @@ export class OpenAiClientProvider {
 
       this.openaiInstance = new OpenAI({
         apiKey,
-        dangerouslyAllowBrowser: true,
       });
     }
 

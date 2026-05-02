@@ -8,4 +8,5 @@ import { PrismaHealthIndicator } from './prisma.health';
   controllers: [HealthController],
   providers: [PrismaHealthIndicator],
 })
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class HealthModule { }

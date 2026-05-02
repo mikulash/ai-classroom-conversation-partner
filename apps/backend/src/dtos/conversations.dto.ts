@@ -1,5 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { ConversationType } from '../generated/prisma/enums';
 import { PersonalityRefDto } from './personalities.dto';
 
@@ -10,12 +21,15 @@ import { PersonalityRefDto } from './personalities.dto';
 /** Matches ConversationMessage from @repo/shared/types/conversationMessage */
 export class ConversationMessageDto {
     @ApiProperty({ description: 'Role of the message sender', enum: ['user', 'assistant'] })
+    @IsIn(['user', 'assistant'])
       role!: 'user' | 'assistant';
 
     @ApiProperty({ description: 'Message content' })
+    @IsString()
       content!: string;
 
     @ApiProperty({ description: 'Message timestamp (ISO 8601)' })
+    @IsDateString()
       timestamp!: string;
 }
 
@@ -25,15 +39,20 @@ export type LogLevel = 'log' | 'error' | 'warn';
 /** Matches ConversationLog from @repo/shared/types/conversationLog */
 export class ConversationLogDto {
     @ApiProperty({ description: 'Log timestamp (ISO 8601)' })
+    @IsDateString()
       timestamp!: string;
 
     @ApiProperty({ description: 'Log level', enum: ['log', 'error', 'warn'] })
+    @IsIn(['log', 'error', 'warn'])
       level!: LogLevel;
 
     @ApiProperty({ description: 'Log message' })
+    @IsString()
       message!: string;
 
     @ApiPropertyOptional({ description: 'Additional log data', type: 'object', additionalProperties: true, nullable: true })
+    @IsOptional()
+    @IsObject()
       data?: Record<string, unknown> | null;
 }
 
@@ -69,15 +88,19 @@ export class CreateConversationDto {
     @ApiPropertyOptional({ description: 'Conversation messages', type: [ConversationMessageDto] })
     @IsOptional()
     @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => ConversationMessageDto)
       messages?: ConversationMessageDto[];
 
     @ApiPropertyOptional({ description: 'Conversation logs', type: [ConversationLogDto] })
     @IsOptional()
     @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => ConversationLogDto)
       logs?: ConversationLogDto[];
 
     @ApiProperty({ description: 'Conversation type', enum: ConversationType, enumName: 'ConversationType' })
-    @IsString()
+    @IsEnum(ConversationType)
       conversationType!: ConversationType;
 }
 

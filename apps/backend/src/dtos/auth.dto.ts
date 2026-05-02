@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 import { ProfileDto } from './profiles.dto';
 
 export class RegisterUserDto {
@@ -7,9 +7,13 @@ export class RegisterUserDto {
   @IsEmail()
     email!: string;
 
-  @ApiProperty({ example: 'strong-password' })
+  @ApiProperty({ example: 'StrongPassword1' })
   @IsString()
   @IsNotEmpty()
+  @MinLength(8)
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, {
+    message: 'password must contain at least one letter and one number',
+  })
     password!: string;
 
   @ApiProperty({ example: 'Ada Lovelace' })
@@ -28,7 +32,7 @@ export class LoginDto {
   @IsEmail()
     email!: string;
 
-  @ApiProperty({ example: 'strong-password' })
+  @ApiProperty({ example: 'StrongPassword1' })
   @IsString()
   @IsNotEmpty()
     password!: string;
@@ -50,6 +54,10 @@ export class UpdatePasswordDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @MinLength(8)
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, {
+    message: 'newPassword must contain at least one letter and one number',
+  })
     newPassword!: string;
 }
 
@@ -68,6 +76,10 @@ export class ResetPasswordDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @MinLength(8)
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, {
+    message: 'newPassword must contain at least one letter and one number',
+  })
     newPassword!: string;
 }
 

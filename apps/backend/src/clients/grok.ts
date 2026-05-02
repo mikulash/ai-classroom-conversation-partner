@@ -16,7 +16,6 @@ export class GrokClientProvider {
       this.grokInstance = new OpenAI({
         apiKey,
         baseURL: 'https://api.x.ai/v1',
-        dangerouslyAllowBrowser: true,
       });
     }
 

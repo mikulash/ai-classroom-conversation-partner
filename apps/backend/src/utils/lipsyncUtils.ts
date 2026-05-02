@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { LanguageDto, TextToSpeechTimestampedResponseDto } from '../dtos/replies.dto';
 
 interface TimestampedTranscriptionWord {
@@ -9,6 +10,8 @@ interface TimestampedTranscriptionWord {
 interface TimestampedTranscriptionResult {
   words?: TimestampedTranscriptionWord[];
 }
+
+const logger = new Logger('LipsyncUtils');
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return Buffer.from(new Uint8Array(buffer)).toString('base64');
@@ -189,9 +192,7 @@ export async function getPreciseTimestampedSpeech(
       wdurations.push(endMs - startMs);
     });
   } else {
-    console.warn(
-      'No word-level timestamps were provided by the transcription API.',
-    );
+    logger.warn('No word-level timestamps were provided by the transcription API.');
   }
 
   return {

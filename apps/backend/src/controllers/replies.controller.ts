@@ -1,10 +1,9 @@
-import { Controller, Get, Post, Body, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import type { Request, Response } from 'express';
-import { UniversalApiService } from '../ai-api/universalApi';
 import { AuthGuard } from '../common/guards/auth.guard';
-import { getUserId } from '../utils/getUserId';
-import { API_KEY } from '@repo/shared/enums/ApiKey';
+import { RateLimitGuard } from '../common/guards/rate-limit.guard';
+import { RateLimit } from '../common/decorators/rate-limit.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import {
   GenerateReplyDto,
   TextToSpeechDto,
@@ -19,241 +18,97 @@ import {
   TranscriptionSessionCreateResponseDto,
   AiProviderStatusDto,
 } from '../dtos/replies.dto';
-import { ErrorResponseDto } from '../dtos/common.dto';
-import { HttpStatusError } from '../utils/httpStatusError';
+import { RepliesService } from '../services/replies.service';
+import type { JWTPayload } from '../utils/auth';
 
 @ApiTags('replies')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RateLimitGuard)
+@RateLimit({ limit: 120, windowMs: 60 * 1000 })
 @Controller('api/replies')
 export class RepliesController {
-  constructor(private readonly universalApi: UniversalApiService) {}
+  constructor(private readonly repliesService: RepliesService) {}
 
   @Post('text')
+  @HttpCode(200)
   @ApiBody({ type: GenerateReplyDto })
   @ApiOkResponse({ description: 'AI-generated text response', type: String })
-  async generateText(
+  generateText(
     @Body() body: GenerateReplyDto,
-    @Req() req: Request,
-    @Res() res: Response<string | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const { inputText, previousMessages, personality, conversationRole, language, scenario, userProfile } = body;
-      const userId = getUserId(req);
-
-      const response = await this.universalApi.getResponse({
-        inputText,
-        previousMessages: previousMessages,
-        personality: personality,
-        conversationRole: conversationRole,
-        language: language,
-        scenario: scenario,
-        userProfile: userProfile,
-      }, userId);
-
-      res.json(response);
-    } catch (error) {
-      console.error('Error getting response:', error);
-      res.status(500).json({ message: 'Failed to get response' });
-    }
+    @CurrentUser() user: JWTPayload,
+  ): Promise<string> {
+    return this.repliesService.generateText(body, user);
   }
 
   @Post('speech')
+  @HttpCode(200)
   @ApiBody({ type: TextToSpeechDto })
   @ApiOkResponse({ description: 'Speech audio in Base64', type: TextToSpeechResponseDto })
-  async generateSpeech(
+  generateSpeech(
     @Body() body: TextToSpeechDto,
-    @Req() req: Request,
-    @Res() res: Response<TextToSpeechResponseDto | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const { inputMessage, personality, language, responseFormat } = body;
-      const userId = getUserId(req);
-
-      const result = await this.universalApi.getSpeechAudio({
-        inputMessage,
-        personality,
-        language,
-        responseFormat: (responseFormat ?? 'pcm'),
-      }, userId);
-
-      const audioBase64 = Buffer
-        .from(new Uint8Array(result.buffer))
-        .toString('base64');
-
-      const payload: TextToSpeechResponseDto = {
-        audioBase64,
-        sampleRate: result.sampleRate,
-      };
-
-      res.json(payload);
-    } catch (error) {
-      console.error('Error getting speech:', error);
-      res.status(500).json({ message: 'Failed to get response' });
-    }
+    @CurrentUser() user: JWTPayload,
+  ): Promise<TextToSpeechResponseDto> {
+    return this.repliesService.generateSpeech(body, user);
   }
 
   @Post('speech/timestamped')
+  @HttpCode(200)
   @ApiBody({ type: TextToSpeechTimestampedDto })
   @ApiOkResponse({ description: 'Timestamped audio with Base64 encoding', type: TextToSpeechTimestampedResponseDto })
-  async generateTimestampedSpeech(
+  generateTimestampedSpeech(
     @Body() body: TextToSpeechTimestampedDto,
-    @Req() req: Request,
-    @Res() res: Response<TextToSpeechTimestampedResponseDto | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const { inputMessage, personality, language } = body;
-      const userId = getUserId(req);
-
-      const speechAudio = await this.universalApi.getTimestampedSpeechAudio({
-        inputMessage,
-        personality,
-        language,
-      }, userId);
-
-      res.json(speechAudio);
-    } catch (error) {
-      console.error('Error getting speech:', error);
-      res.status(500).json({ message: 'Failed to get response' });
-    }
+    @CurrentUser() user: JWTPayload,
+  ): Promise<TextToSpeechTimestampedResponseDto> {
+    return this.repliesService.generateTimestampedSpeech(body, user);
   }
 
   @Post('full/plain')
+  @HttpCode(200)
   @ApiBody({ type: GenerateReplyDto })
   @ApiOkResponse({ description: 'Text and TTS audio', type: FullReplyPlainResponseDto })
-  async generateFullPlain(
+  generateFullPlain(
     @Body() body: GenerateReplyDto,
-    @Req() req: Request,
-    @Res() res: Response<FullReplyPlainResponseDto | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const userId = getUserId(req);
-
-      const text = await this.universalApi.getResponse({
-        inputText: body.inputText,
-        previousMessages: body.previousMessages,
-        personality: body.personality,
-        conversationRole: body.conversationRole,
-        language: body.language,
-        scenario: body.scenario,
-        userProfile: body.userProfile,
-      }, userId);
-
-      const result = await this.universalApi.getSpeechAudio({
-        inputMessage: text,
-        personality: body.personality,
-        language: body.language,
-        responseFormat: 'pcm',
-      }, userId);
-
-      const speech: TextToSpeechResponseDto = {
-        audioBase64: Buffer.from(new Uint8Array(result.buffer)).toString('base64'),
-        sampleRate: result.sampleRate,
-      };
-
-      const payload: FullReplyPlainResponseDto = { text, speech };
-
-      res.json(payload);
-    } catch (error) {
-      console.error('Error generating full reply:', error);
-      res.status(500).json({ message: 'Failed to generate reply' });
-    }
+    @CurrentUser() user: JWTPayload,
+  ): Promise<FullReplyPlainResponseDto> {
+    return this.repliesService.generateFullPlain(body, user);
   }
 
   @Post('full/timestamped')
+  @HttpCode(200)
   @ApiBody({ type: GenerateReplyDto })
   @ApiOkResponse({ description: 'Text and timestamped speech', type: FullReplyTimestampedResponseDto })
-  async generateFullTimestamped(
+  generateFullTimestamped(
     @Body() body: GenerateReplyDto,
-    @Req() req: Request,
-    @Res() res: Response<FullReplyTimestampedResponseDto | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const userId = getUserId(req);
-
-      const text = await this.universalApi.getResponse({
-        inputText: body.inputText,
-        previousMessages: body.previousMessages,
-        personality: body.personality,
-        conversationRole: body.conversationRole,
-        language: body.language,
-        scenario: body.scenario,
-        userProfile: body.userProfile,
-      }, userId);
-
-      const result = await this.universalApi.getTimestampedSpeechAudio({
-        inputMessage: text,
-        personality: body.personality,
-        language: body.language,
-      }, userId);
-
-      const payload: FullReplyTimestampedResponseDto = { text, speech: result };
-
-      res.json(payload);
-    } catch (error) {
-      console.error('Error generating full reply:', error);
-      res.status(500).json({ message: 'Failed to generate reply' });
-    }
+    @CurrentUser() user: JWTPayload,
+  ): Promise<FullReplyTimestampedResponseDto> {
+    return this.repliesService.generateFullTimestamped(body, user);
   }
 
   @Post('speech/realtime')
+  @HttpCode(200)
   @ApiBody({ type: RealtimeVoiceDto })
   @ApiOkResponse({ description: 'WebRTC answer', type: WebRtcAnswerResponseDto })
-  async realtimeVoice(
+  realtimeVoice(
     @Body() body: RealtimeVoiceDto,
-    @Req() req: Request,
-    @Res() res: Response<WebRtcAnswerResponseDto | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const userId = getUserId(req);
-      const answer = await this.universalApi.getRealtimeVoice({
-        openaiVoiceName: body.personality.openaiVoiceName,
-        personality: body.personality,
-        conversationRole: body.conversationRole,
-        language: body.language,
-        scenario: body.scenario,
-        userProfile: body.userProfile,
-        sdpOffer: body.sdpOffer,
-      }, userId);
-      res.json(answer);
-    } catch (error) {
-      console.error('Error getting speech:', error);
-      res.status(500).json({ message: 'Failed to get response' });
-    }
+    @CurrentUser() user: JWTPayload,
+  ): Promise<WebRtcAnswerResponseDto> {
+    return this.repliesService.realtimeVoice(body, user);
   }
 
   @Post('transcription/realtime')
+  @HttpCode(200)
   @ApiBody({ type: RealtimeTranscriptionDto })
   @ApiOkResponse({ description: 'Transcription session details', type: TranscriptionSessionCreateResponseDto })
-  async realtimeTranscription(
+  realtimeTranscription(
     @Body() body: RealtimeTranscriptionDto,
-    @Req() req: Request,
-    @Res() res: Response<TranscriptionSessionCreateResponseDto | ErrorResponseDto>,
-  ): Promise<void> {
-    try {
-      const userId = getUserId(req);
-      const transcriptionSessionCreateResponse = await this.universalApi.getRealtimeTranscription({
-        inputAudioFormat: 'pcm16',
-        language: body.language,
-      }, userId);
-      res.json(transcriptionSessionCreateResponse);
-    } catch (err: unknown) {
-      console.error(err);
-      const status = err instanceof HttpStatusError ? err.status : 500;
-      const msg = status === 500 ? 'Internal server error' : 'OpenAI transcription session creation failed';
-
-      res.status(status).json({ message: msg });
-    }
+    @CurrentUser() user: JWTPayload,
+  ): Promise<TranscriptionSessionCreateResponseDto> {
+    return this.repliesService.realtimeTranscription(body, user);
   }
 
   @Get('providers')
   @ApiOkResponse({ description: 'List of providers with availability status', type: [AiProviderStatusDto] })
-  getProviders(@Res() res: Response<AiProviderStatusDto[]>): void {
-    const providers: AiProviderStatusDto[] = Object.entries(API_KEY).map(([, envKey]) => ({
-      apiKey: envKey,
-      isAvailable: Boolean(process.env[envKey]),
-    }));
-
-    res.status(200).json(providers);
+  getProviders(): AiProviderStatusDto[] {
+    return this.repliesService.getProviders();
   }
 }

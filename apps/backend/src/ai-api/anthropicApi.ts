@@ -43,8 +43,6 @@ export class AnthropicApiService {
       .map((block) => block.text)
       .join('');
 
-    console.log('claude response text', response);
-
     return response;
   }
 }

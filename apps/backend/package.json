@@ -8,6 +8,8 @@
     "start": "node dist/main.js",
     "typecheck": "pnpm exec prisma generate && tsc --noEmit",
     "lint": "pnpm exec prisma generate && eslint . --max-warnings 0",
+    "test": "pnpm exec prisma generate && node --loader ts-node/esm --experimental-specifier-resolution=node --test \"src/**/*.spec.ts\"",
+    "openapi:generate": "pnpm exec prisma generate && node --loader ts-node/esm --experimental-specifier-resolution=node src/openapi.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate-reset": "prisma migrate reset",

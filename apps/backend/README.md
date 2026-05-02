@@ -2,7 +2,19 @@
 
 ## Overview
 
-The backend package hosts the Express API that powers Figurant's conversational features. It exposes authentication and reply routes, coordinates with multiple AI providers for responses and speech synthesis, and stores config data in PostgreSQL through Prisma.
+The backend package hosts the NestJS API that powers Figurant's conversational features. It exposes authentication and reply routes, coordinates with multiple AI providers for responses and speech synthesis, and stores config data in PostgreSQL through Prisma.
+
+## Architecture
+
+The app is split into feature modules instead of wiring every controller in `AppModule`:
+
+- `CoreModule` provides validated environment access, the injectable `PrismaService`, rate limiting, and shared HTTP infrastructure.
+- `AuthModule` owns registration, email verification, login, refresh-token rotation, logout, password updates, and one-time password reset tokens.
+- `ProfilesModule`, `ConversationsModule`, `CatalogModule`, `ModelsModule`, and `AppConfigModule` keep CRUD/business logic in services and leave controllers as thin HTTP adapters.
+- `RepliesModule` calls `AiModule`, which owns AI provider clients and provider capability routing.
+- `HealthModule` is the canonical Terminus health surface at `/health`, `/health/liveness`, and `/health/readiness`.
+
+Controllers should return DTOs and throw Nest exceptions. Avoid `@Res()`, direct Prisma imports, and plain Express middleware for new backend code.
 
 ## Environment variables
 
@@ -28,6 +40,28 @@ Two environment files are available:
 | `ELEVENLABS_FALLBACK_VOICE_ID_FEMALE` | Optional     | Fallback ID when Elevenlabs selected for TTS but selected character missing custom voice id                                            |
 | `ELEVENLABS_FALLBACK_VOICE_ID_MALE`   | Optional     | Fallback ID when Elevenlabs selected for TTS but selected character missing custom voice id                                            |
 | `TOKEN_CLEANUP_SCHEDULE`              | Optional     | How often the refresh_tokens table is being cleaned up from the expired and revoked tokens. If not provider it runs every day at night |
+
+Environment values are validated during application startup. `DATABASE_URL` and `JWT_SECRET` must be present, and numeric ports must parse to valid TCP port numbers.
+
+## Local checks
+
+Run the backend checks from the repository root:
+
+```bash
+pnpm --filter figurant-backend typecheck
+pnpm --filter figurant-backend lint
+pnpm --filter figurant-backend test
+pnpm --filter figurant-backend build
+```
+
+Generate OpenAPI after route/DTO changes:
+
+```bash
+pnpm --filter figurant-backend openapi:generate
+pnpm --filter @repo/frontend-utils generate-openapi
+```
+
+The OpenAPI file is not written at application startup; generation is an explicit maintenance step.
 
 ## Deployment
 

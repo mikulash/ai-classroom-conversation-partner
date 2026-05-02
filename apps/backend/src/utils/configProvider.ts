@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { API_KEY, ApiKey } from '@repo/shared/enums/ApiKey';
-import { getUserCustomModelConfig } from './getUserCustomModelSelection';
-import { fetchAppConfig, fetchModelOptions } from './databaseService';
 import type {
+  AdminUserCustomModelSelection,
   AppConfig,
   RealtimeModel,
   RealtimeTranscriptionModel,
@@ -10,7 +9,8 @@ import type {
   TimestampedTranscriptionModel,
   TtsModel,
 } from '../generated/prisma/client';
-import { CLAUDE_API_KEY, ELEVENLABS_API_KEY, GROK_API_KEY, OPENAI_API_KEY } from '../constants/constants';
+import { PrismaService } from '../core/prisma/prisma.service';
+import { EnvConfigService } from '../core/config/env-config.service';
 
 /**
  * Fetches all secrets once and caches them for the lifetime of the process.
@@ -32,13 +32,17 @@ export class ConfigProvider {
   private appConfig?: AppConfig;
   private modelOptions?: ModelOptions;
   private loadPromise?: Promise<void>;
+  private readonly nullConfigCache = new Map<string, number>();
 
-  constructor() {
+  constructor(
+    private readonly prisma: PrismaService,
+    config: EnvConfigService,
+  ) {
     this.secrets = {
-      [API_KEY.OPENAI]: OPENAI_API_KEY,
-      [API_KEY.ELEVENLABS]: ELEVENLABS_API_KEY,
-      [API_KEY.CLAUDE]: CLAUDE_API_KEY,
-      [API_KEY.GROK]: GROK_API_KEY,
+      [API_KEY.OPENAI]: config.openAiApiKey,
+      [API_KEY.ELEVENLABS]: config.elevenLabsApiKey,
+      [API_KEY.CLAUDE]: config.claudeApiKey,
+      [API_KEY.GROK]: config.grokApiKey,
     };
   }
 
@@ -80,8 +84,8 @@ export class ConfigProvider {
         appConfig: AppConfig;
         modelOptions: ModelOptions;
     }> {
-    const appConfig = await fetchAppConfig();
-    const modelOptions = await fetchModelOptions();
+    const appConfig = await this.fetchAppConfig();
+    const modelOptions = await this.fetchModelOptions();
 
     return {
       appConfig,
@@ -95,7 +99,16 @@ export class ConfigProvider {
    */
   public async refreshAppConfig(): Promise<void> {
     await this.ensureLoaded();
-    this.appConfig = await fetchAppConfig();
+    this.appConfig = await this.fetchAppConfig();
+  }
+
+  public async refreshModelOptions(): Promise<void> {
+    await this.ensureLoaded();
+    this.modelOptions = await this.fetchModelOptions();
+  }
+
+  public clearUserCustomModelConfig(userId: string): void {
+    this.nullConfigCache.delete(userId);
   }
 
 
@@ -105,6 +118,10 @@ export class ConfigProvider {
       throw new Error(`API key "${keyName}" not found in Vault secrets.`);
     }
     return key;
+  }
+
+  public isApiKeyAvailable(keyName: ApiKey): boolean {
+    return Boolean(this.secrets[keyName]);
   }
 
   public async getSelectedModels() {
@@ -124,7 +141,7 @@ export class ConfigProvider {
       this.getSelectedModels(),
       this.getLoadedState(),
     ]);
-    const userCustomModelConfig = await getUserCustomModelConfig(userId);
+    const userCustomModelConfig = await this.getUserCustomModelConfig(userId);
 
     const responseModel = userCustomModelConfig?.responseModelId ?
       modelOptions.responseModels.find((model) => model.id === userCustomModelConfig.responseModelId) :
@@ -186,5 +203,69 @@ export class ConfigProvider {
   public async getAppConfig(): Promise<AppConfig> {
     const { appConfig } = await this.getLoadedState();
     return appConfig;
+  }
+
+  private async fetchAppConfig(asOfDate: Date = new Date()): Promise<AppConfig> {
+    const appConfig = await this.prisma.appConfig.findFirst({
+      where: {
+        validFrom: { lte: asOfDate },
+        OR: [
+          { validTo: null },
+          { validTo: { gt: asOfDate } },
+        ],
+      },
+      orderBy: { validFrom: 'desc' },
+    });
+
+    if (!appConfig) {
+      throw new Error('App Config not found');
+    }
+
+    return appConfig;
+  }
+
+  private async fetchModelOptions(): Promise<ModelOptions> {
+    const [
+      responseModels,
+      ttsModels,
+      realtimeModels,
+      timestampedTranscriptionModels,
+      realtimeTranscriptionModels,
+    ] = await Promise.all([
+      this.prisma.responseModel.findMany(),
+      this.prisma.ttsModel.findMany(),
+      this.prisma.realtimeModel.findMany(),
+      this.prisma.timestampedTranscriptionModel.findMany(),
+      this.prisma.realtimeTranscriptionModel.findMany(),
+    ]);
+
+    return {
+      responseModels,
+      ttsModels,
+      realtimeModels,
+      timestampedTranscriptionModels,
+      realtimeTranscriptionModels,
+    };
+  }
+
+  private async getUserCustomModelConfig(userId: string): Promise<AdminUserCustomModelSelection | null> {
+    const cachedExpiry = this.nullConfigCache.get(userId);
+    if (cachedExpiry && cachedExpiry > Date.now()) {
+      return null;
+    }
+    if (cachedExpiry) {
+      this.nullConfigCache.delete(userId);
+    }
+
+    const data = await this.prisma.adminUserCustomModelSelection.findUnique({
+      where: { userId },
+    });
+
+    if (!data) {
+      this.nullConfigCache.set(userId, Date.now() + 10 * 60 * 1000);
+      return null;
+    }
+
+    return data;
   }
 }

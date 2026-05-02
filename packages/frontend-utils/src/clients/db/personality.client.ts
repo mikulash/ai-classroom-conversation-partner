@@ -41,7 +41,7 @@ export const personalityClient = {
 
   update: async (id: number, personality: UpdatePersonalityDto): Promise<ApiResponse<PersonalityModel>> => {
     try {
-      const requestFn = await personalitiesApi.personalitiesControllerUpdatePersonality(String(id), personality);
+      const requestFn = await personalitiesApi.personalitiesControllerUpdatePersonality(id, personality);
       const response = await requestFn(api);
       const data = personalityDtoToModel(response.data);
       return { data };
@@ -56,7 +56,7 @@ export const personalityClient = {
 
   delete: async (id: number): Promise<ApiResponse<MessageModel>> => {
     try {
-      const requestFn = await personalitiesApi.personalitiesControllerDeletePersonality(String(id));
+      const requestFn = await personalitiesApi.personalitiesControllerDeletePersonality(id);
       const response = await requestFn(api);
       const data = messageDtoToModel(response.data);
       return { data };

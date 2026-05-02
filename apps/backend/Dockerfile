@@ -64,4 +64,4 @@ EXPOSE 4000
 WORKDIR /app/apps/backend
 
 # Run the app
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/main.js"]

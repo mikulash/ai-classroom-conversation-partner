@@ -15,7 +15,6 @@ export class ClaudeClientProvider {
 
       this.claudeInstance = new Anthropic({
         apiKey,
-        dangerouslyAllowBrowser: true,
       });
     }
 

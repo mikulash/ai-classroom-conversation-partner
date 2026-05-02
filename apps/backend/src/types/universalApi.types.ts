@@ -2,7 +2,7 @@ import { OpenAiVoiceName } from '../generated/prisma/enums';
 import { ConversationMessageDto } from '../dtos/conversations.dto';
 import { LanguageDto, ReplyPersonalityDto, ReplyProfileDto, ReplyScenarioDto } from '../dtos/replies.dto';
 
-type WithModelName<T, Extra extends object = {}> = T & { modelApiName: string } & Extra;
+type WithModelName<T, Extra extends object = Record<never, never>> = T & { modelApiName: string } & Extra;
 
 export interface GetResponseParams {
   inputText: string;
