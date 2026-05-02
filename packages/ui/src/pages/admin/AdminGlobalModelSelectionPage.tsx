@@ -129,7 +129,7 @@ export function AdminGlobalModelSelectionPage() {
 
   const handleSave = async () => {
     // Show confirmation dialog
-    const confirmed = window.confirm(
+    const confirmed = globalThis.confirm(
       t('models.confirmationWarning'),
     );
 

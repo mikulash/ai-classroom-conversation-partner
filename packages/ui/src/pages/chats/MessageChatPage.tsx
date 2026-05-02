@@ -31,11 +31,11 @@ import { PersonalityModel } from '@repo/frontend-utils/src/models';
 const MAX_CONSECUTIVE_SILENCE_PROMPTS = 2;
 
 const SpeechRecognitionClass: typeof SpeechRecognition | undefined = (() => {
-  if ('SpeechRecognition' in window) {
-    return window.SpeechRecognition;
+  if ('SpeechRecognition' in globalThis) {
+    return globalThis.SpeechRecognition;
   }
-  if ('webkitSpeechRecognition' in window) {
-    return (window as { webkitSpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition;
+  if ('webkitSpeechRecognition' in globalThis) {
+    return (globalThis as { webkitSpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition;
   }
   return undefined;
 })();

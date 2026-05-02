@@ -86,7 +86,7 @@ export function AdminPersonalitiesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm(t('personalities.confirmDelete'))) {
+    if (globalThis.confirm(t('personalities.confirmDelete'))) {
       setIsProcessing(true);
       const { error } = await personalityClient.delete(id);
 

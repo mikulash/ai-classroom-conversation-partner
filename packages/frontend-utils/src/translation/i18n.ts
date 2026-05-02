@@ -5,7 +5,7 @@ import cs from './locales/cs.json';
 import en from './locales/en.json';
 
 const storageKey = 'language';
-const savedLanguage = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+const savedLanguage = typeof globalThis !== 'undefined' ? localStorage.getItem(storageKey) : null;
 
 void i18n
   .use(initReactI18next)
@@ -21,7 +21,7 @@ void i18n
     },
   });
 
-if (typeof window !== 'undefined') {
+if (typeof globalThis !== 'undefined') {
   i18n.on('languageChanged', (lng) => {
     localStorage.setItem(storageKey, lng);
   });
