@@ -34,6 +34,7 @@ export class EnvConfigService {
   readonly jwtSecret = requireEnv('JWT_SECRET');
   readonly jwtExpiresIn = process.env.JWT_EXPIRES_IN ?? '15m';
   readonly appFrontendUrl = optionalUrl('APP_FRONTEND_URL', 'http://localhost:5173');
+  readonly avatarUploadDir = process.env.AVATAR_UPLOAD_DIR ?? '../../.data/avatar-uploads';
 
   readonly smtpHost = process.env.SMTP_HOST ?? 'smtp.example.com';
   readonly smtpPort = parsePort('SMTP_PORT', '587');

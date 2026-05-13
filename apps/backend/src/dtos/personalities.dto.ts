@@ -12,10 +12,10 @@ export class CreatePersonalityDto {
   @IsInt()
     age?: number;
 
-  @ApiPropertyOptional({ description: 'Avatar URL' })
+  @ApiPropertyOptional({ description: 'Backend-managed avatar upload URL' })
   @IsOptional()
   @IsString()
-    avatarUrl?: string;
+    uploadedAvatarUrl?: string;
 
   @ApiPropertyOptional({ description: 'Gender' })
   @IsOptional()
@@ -74,6 +74,11 @@ export class CreatePersonalityDto {
 
 export class UpdatePersonalityDto extends PartialType(CreatePersonalityDto) { }
 
+export class AvatarUploadDto {
+  @ApiProperty({ description: 'Backend-managed avatar upload URL' })
+    avatarUrl!: string;
+}
+
 export class PersonalityRefDto {
   @ApiProperty({ description: 'Personality ID' })
     id!: number;
@@ -131,5 +136,3 @@ export class PersonalityDto {
   @ApiProperty({ description: 'Whether personality is hidden' })
     isHidden!: boolean;
 }
-
-

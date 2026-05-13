@@ -25,6 +25,11 @@ export function AdminPersonalitiesPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
+  const [uploadedAvatarUrl, setUploadedAvatarUrl] = useState<string | null>(null);
+  const [uploadedAvatarFileName, setUploadedAvatarFileName] = useState<string | null>(null);
+  const [avatarUploadProgress, setAvatarUploadProgress] = useState<number>(0);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   // A clean template for new personalities
   const emptyPersonality: PersonalityCreateModel = {
@@ -82,6 +87,10 @@ export function AdminPersonalitiesPage() {
   const handleEdit = (personality: PersonalityModel) => {
     // 👇 this now fits the union
     setCurrentPersonality(personality);
+    setSelectedAvatarFile(null);
+    setUploadedAvatarUrl(null);
+    setUploadedAvatarFileName(null);
+    setAvatarUploadProgress(0);
     setIsEditDialogOpen(true);
   };
 
@@ -118,6 +127,98 @@ export function AdminPersonalitiesPage() {
     setCurrentPersonality((prev) => ({ ...prev, age } as PersonalityForm));
   };
 
+  const validateAvatarFile = (file: File): string | null => {
+    if (!file.name.toLowerCase().endsWith('.glb')) {
+      return t('personalities.avatarUploadOnlyGlb');
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      return t('personalities.avatarUploadMaxSize');
+    }
+
+    return null;
+  };
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) {
+      setSelectedAvatarFile(null);
+      return;
+    }
+
+    const validationError = validateAvatarFile(file);
+    if (validationError) {
+      toast.error(t('personalities.avatarUploadInvalid'), { description: validationError });
+      e.target.value = '';
+      setSelectedAvatarFile(null);
+      return;
+    }
+
+    setSelectedAvatarFile(file);
+    setUploadedAvatarUrl(null);
+    setUploadedAvatarFileName(null);
+    setAvatarUploadProgress(0);
+  };
+
+  const handleRemoveAvatar = async () => {
+    setSelectedAvatarFile(null);
+    setUploadedAvatarUrl(null);
+    setUploadedAvatarFileName(null);
+    setAvatarUploadProgress(0);
+
+    if (!('id' in currentPersonality)) {
+      return;
+    }
+
+    setIsProcessing(true);
+    const { data, error } = await personalityClient.removeAvatar(currentPersonality.id);
+
+    if (error) {
+      console.error(error.message);
+      toast.error(t('personalities.avatarRemoveFailed'), { description: error.message });
+    } else {
+      setCurrentPersonality(data);
+      toast.success(t('personalities.avatarRemoveSuccess'));
+      void fetchPersonalities();
+    }
+
+    setIsProcessing(false);
+  };
+
+  const handleUploadAvatar = async () => {
+    if (!selectedAvatarFile) {
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    setAvatarUploadProgress(0);
+
+    const { data, error } = await personalityClient.uploadAvatarFile(
+      selectedAvatarFile,
+      (progressEvent) => {
+        if (!progressEvent.total) {
+          return;
+        }
+
+        setAvatarUploadProgress(Math.round((progressEvent.loaded / progressEvent.total) * 100));
+      },
+    );
+
+    if (error) {
+      console.error(error.message);
+      toast.error(t('personalities.avatarUploadFailed'), { description: error.message });
+      setIsUploadingAvatar(false);
+      return;
+    }
+
+    setUploadedAvatarUrl(data.avatarUrl);
+    setUploadedAvatarFileName(selectedAvatarFile.name);
+    setAvatarUploadProgress(100);
+    setIsUploadingAvatar(false);
+    setSelectedAvatarFile(null);
+    toast.success(t('personalities.avatarUploadSuccess'));
+  };
+
   const handleEditSubmit = async () => {
     // only edit when we have an id
     if (!('id' in currentPersonality)) return;
@@ -130,7 +231,13 @@ export function AdminPersonalitiesPage() {
 
     setIsProcessing(true);
 
-    const { error } = await personalityClient.update(currentPersonality.id, {
+    if (selectedAvatarFile && !uploadedAvatarUrl) {
+      toast.error(t('personalities.avatarUploadRequired'));
+      setIsProcessing(false);
+      return;
+    }
+
+    const { data, error } = await personalityClient.update(currentPersonality.id, {
       name: currentPersonality.name,
       problemSummaryEn: currentPersonality.problemSummaryEn,
       problemSummaryCs: currentPersonality.problemSummaryCs,
@@ -138,10 +245,10 @@ export function AdminPersonalitiesPage() {
       personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
       gender: currentPersonality.gender,
       age: currentPersonality.age ?? undefined,
-      avatarUrl: currentPersonality.avatarUrl ?? undefined,
       openaiVoiceName: currentPersonality.openaiVoiceName,
       elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
       voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
+      uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
     });
 
     if (error) {
@@ -149,7 +256,11 @@ export function AdminPersonalitiesPage() {
       toast.error(t('personalities.updateFailed'), { description: error.message });
     } else {
       toast.success(t('personalities.updateSuccess'));
-      void fetchPersonalities();
+      setCurrentPersonality(data);
+      setUploadedAvatarUrl(null);
+      setUploadedAvatarFileName(null);
+      setAvatarUploadProgress(0);
+      await fetchPersonalities();
       setIsEditDialogOpen(false);
     }
     setIsProcessing(false);
@@ -166,6 +277,12 @@ export function AdminPersonalitiesPage() {
 
     setIsProcessing(true);
 
+    if (selectedAvatarFile && !uploadedAvatarUrl) {
+      toast.error(t('personalities.avatarUploadRequired'));
+      setIsProcessing(false);
+      return;
+    }
+
     const { error } = await personalityClient.insert({
       name: currentPersonality.name,
       problemSummaryEn: currentPersonality.problemSummaryEn,
@@ -174,10 +291,10 @@ export function AdminPersonalitiesPage() {
       personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
       gender: currentPersonality.gender ?? undefined,
       age: currentPersonality.age ?? undefined,
-      avatarUrl: currentPersonality.avatarUrl ?? undefined,
       openaiVoiceName: currentPersonality.openaiVoiceName,
       elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
       voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
+      uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
     });
 
     if (error) {
@@ -185,7 +302,10 @@ export function AdminPersonalitiesPage() {
       toast.error(t('personalities.createFailed'), { description: error.message });
     } else {
       toast.success(t('personalities.createSuccess'));
-      void fetchPersonalities();
+      setUploadedAvatarUrl(null);
+      setUploadedAvatarFileName(null);
+      setAvatarUploadProgress(0);
+      await fetchPersonalities();
       setIsAddDialogOpen(false);
       setCurrentPersonality(emptyPersonality);
     }
@@ -194,8 +314,27 @@ export function AdminPersonalitiesPage() {
 
   const handleAddNew = () => {
     setCurrentPersonality(emptyPersonality);
+    setSelectedAvatarFile(null);
+    setUploadedAvatarUrl(null);
+    setUploadedAvatarFileName(null);
+    setAvatarUploadProgress(0);
     setIsAddDialogOpen(true);
   };
+
+  const getAvatarFileName = (avatarUrl: string | null | undefined) => {
+    if (!avatarUrl) {
+      return null;
+    }
+
+    return avatarUrl.split('/').at(-1) ?? avatarUrl;
+  };
+
+  const currentAvatarUrl = 'avatarUrl' in currentPersonality ? currentPersonality.avatarUrl : null;
+  const currentAvatarFileName = getAvatarFileName(currentAvatarUrl);
+  const hasVisibleAvatar =
+    selectedAvatarFile !== null ||
+    uploadedAvatarUrl !== null ||
+    Boolean(currentAvatarUrl);
 
   const renderPersonalityForm = () => (
     <div className="grid gap-4">
@@ -241,15 +380,69 @@ export function AdminPersonalitiesPage() {
             onChange={handleAgeChange}
           />
         </div>
+      </div>
+
+      <div className="grid gap-3 rounded-lg border border-border p-4">
         <div className="grid gap-2">
-          <Label htmlFor="avatarUrl">{t('personalities.avatarUrl')}</Label>
+          <Label htmlFor="avatarFile">{t('personalities.avatarUpload')}</Label>
           <Input
-            id="avatarUrl"
-            name="avatarUrl"
-            value={currentPersonality.avatarUrl ?? ''}
-            onChange={handleInputChange}
+            id="avatarFile"
+            name="avatarFile"
+            type="file"
+            accept=".glb,model/gltf-binary"
+            onChange={handleAvatarFileChange}
           />
+          <p className="text-xs text-muted-foreground">
+            {selectedAvatarFile ? selectedAvatarFile.name : t('personalities.avatarUploadHint')}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void handleUploadAvatar()}
+              disabled={!selectedAvatarFile || isUploadingAvatar || isProcessing}
+            >
+              {isUploadingAvatar ? t('personalities.avatarUploading') : t('personalities.avatarUploadButton')}
+            </Button>
+            {uploadedAvatarUrl && (
+              <span className="text-sm text-muted-foreground">{t('personalities.avatarReadyToSave')}</span>
+            )}
+          </div>
+          {(isUploadingAvatar || avatarUploadProgress > 0) && (
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full bg-primary transition-all"
+                style={{ width: `${avatarUploadProgress}%` }}
+              />
+            </div>
+          )}
         </div>
+
+        {hasVisibleAvatar && (
+          <div className="flex items-center justify-between gap-3">
+            <span className="truncate text-sm text-muted-foreground">
+              {selectedAvatarFile?.name ??
+                uploadedAvatarFileName ??
+                currentAvatarFileName ??
+                t('personalities.avatarUploaded')}
+            </span>
+            {currentAvatarUrl && !uploadedAvatarUrl && !selectedAvatarFile && (
+              <span className="shrink-0 text-xs font-medium text-emerald-700">
+                {t('personalities.avatarAttached')}
+              </span>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void handleRemoveAvatar()}
+              disabled={isProcessing}
+            >
+              {t('personalities.avatarRemove')}
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-2">
@@ -365,6 +558,7 @@ export function AdminPersonalitiesPage() {
               <TableHead>{t('personalities.name')}</TableHead>
               <TableHead>{t('personalities.gender')}</TableHead>
               <TableHead>{t('personalities.age')}</TableHead>
+              <TableHead>{t('personalities.avatar')}</TableHead>
               <TableHead>{t('personalities.problemSummaryEn')}</TableHead>
               <TableHead>{t('personalities.voice')}</TableHead>
               <TableHead className="text-right">{t('common.actions')}</TableHead>
@@ -374,7 +568,7 @@ export function AdminPersonalitiesPage() {
           <TableBody>
             {personalities.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   {t('personalities.noPersonalitiesFound')}
                 </TableCell>
               </TableRow>
@@ -384,6 +578,11 @@ export function AdminPersonalitiesPage() {
                   <TableCell className="font-medium">{personality.name}</TableCell>
                   <TableCell>{personality.gender}</TableCell>
                   <TableCell>{personality.age ?? '-'}</TableCell>
+                  <TableCell>
+                    <span className={personality.avatarUrl ? 'text-emerald-700' : 'text-muted-foreground'}>
+                      {personality.avatarUrl ? t('personalities.avatarAttached') : t('personalities.avatarMissing')}
+                    </span>
+                  </TableCell>
                   <TableCell className="max-w-xs truncate">
                     {personality.problemSummaryEn}
                   </TableCell>

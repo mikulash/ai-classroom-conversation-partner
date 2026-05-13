@@ -1235,6 +1235,161 @@
         ]
       }
     },
+    "/api/personalities/{id}/avatar": {
+      "post": {
+        "operationId": "PersonalitiesController_uploadPersonalityAvatar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "avatar"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated personality avatar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonalityDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "personalities"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "PersonalitiesController_removePersonalityAvatar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Removed personality avatar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonalityDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "personalities"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/personality-avatars": {
+      "post": {
+        "operationId": "PersonalityAvatarsController_uploadAvatar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "avatar"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded avatar file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvatarUploadDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "personality-avatars"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/personality-avatars/{filename}": {
+      "get": {
+        "operationId": "PersonalityAvatarsController_getPersonalityAvatar",
+        "parameters": [
+          {
+            "name": "filename",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "personality-avatars"
+        ]
+      }
+    },
     "/api/scenarios": {
       "get": {
         "operationId": "ScenariosController_getScenarios",
@@ -2628,9 +2783,9 @@
             "type": "number",
             "description": "Age of the personality"
           },
-          "avatarUrl": {
+          "uploadedAvatarUrl": {
             "type": "string",
-            "description": "Avatar URL"
+            "description": "Backend-managed avatar upload URL"
           },
           "gender": {
             "type": "string",
@@ -2686,9 +2841,9 @@
             "type": "number",
             "description": "Age of the personality"
           },
-          "avatarUrl": {
+          "uploadedAvatarUrl": {
             "type": "string",
-            "description": "Avatar URL"
+            "description": "Backend-managed avatar upload URL"
           },
           "gender": {
             "type": "string",
@@ -2729,6 +2884,18 @@
             "description": "Whether personality is hidden"
           }
         }
+      },
+      "AvatarUploadDto": {
+        "type": "object",
+        "properties": {
+          "avatarUrl": {
+            "type": "string",
+            "description": "Backend-managed avatar upload URL"
+          }
+        },
+        "required": [
+          "avatarUrl"
+        ]
       },
       "ScenarioWithPersonalityDto": {
         "type": "object",

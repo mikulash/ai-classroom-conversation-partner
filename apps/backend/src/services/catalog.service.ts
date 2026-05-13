@@ -9,6 +9,8 @@ import {
   personalityEntityToDto,
   scenarioWithPersonalityEntityToDto,
 } from '../utils/entityToDtoMappers';
+import { AvatarStorageService } from './avatar-storage.service';
+import type { UploadedAvatarFile } from './avatar-storage.service';
 
 const scenarioPersonalityInclude = {
   personality: {
@@ -22,7 +24,10 @@ const scenarioPersonalityInclude = {
 
 @Injectable()
 export class CatalogService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly avatarStorage: AvatarStorageService,
+  ) {}
 
   async getPersonalities(): Promise<PersonalityDto[]> {
     const personalities = await this.prisma.personality.findMany({
@@ -38,38 +43,107 @@ export class CatalogService {
       throw new BadRequestException('Name is required');
     }
 
+    const { uploadedAvatarUrl, ...personalityData } = body;
+    this.avatarStorage.requireManagedAvatarUrl(uploadedAvatarUrl);
+
     const personality = await this.prisma.personality.create({
       data: {
-        name: body.name,
-        age: body.age,
-        avatarUrl: body.avatarUrl,
-        gender: body.gender,
-        sex: body.sex,
-        voiceInstructions: body.voiceInstructions,
-        elevenlabsVoiceId: body.elevenlabsVoiceId,
-        openaiVoiceName: body.openaiVoiceName,
-        problemSummaryEn: body.problemSummaryEn,
-        personalityDescriptionEn: body.personalityDescriptionEn,
-        problemSummaryCs: body.problemSummaryCs,
-        personalityDescriptionCs: body.personalityDescriptionCs,
-        isHidden: body.isHidden ?? false,
+        ...personalityData,
+        isHidden: personalityData.isHidden ?? false,
       },
     });
 
-    return personalityEntityToDto(personality);
+    if (!uploadedAvatarUrl) {
+      return personalityEntityToDto(personality);
+    }
+
+    const avatarUrl = await this.avatarStorage.attachUploadedAvatar(uploadedAvatarUrl, personality.id);
+
+    try {
+      const personalityWithAvatar = await this.prisma.personality.update({
+        where: { id: personality.id },
+        data: { avatarUrl },
+      });
+
+      return personalityEntityToDto(personalityWithAvatar);
+    } catch (error) {
+      await this.avatarStorage.removeManagedAvatar(avatarUrl);
+      throw error;
+    }
   }
 
   async updatePersonality(id: number, body: UpdatePersonalityDto): Promise<PersonalityDto> {
+    const existingPersonality = Object.hasOwn(body, 'uploadedAvatarUrl') ?
+      await this.prisma.personality.findUnique({ where: { id } }) :
+      null;
+    const { uploadedAvatarUrl, ...personalityData } = body;
+    const avatarUrl = existingPersonality ?
+      await this.avatarStorage.attachUploadedAvatar(uploadedAvatarUrl, existingPersonality.id) :
+      this.avatarStorage.requireManagedAvatarUrl(uploadedAvatarUrl);
+
+    try {
+      const personality = await this.prisma.personality.update({
+        where: { id },
+        data: {
+          ...personalityData,
+          ...(avatarUrl ? { avatarUrl } : {}),
+        },
+      });
+
+      if (existingPersonality?.avatarUrl && avatarUrl && existingPersonality.avatarUrl !== avatarUrl) {
+        await this.avatarStorage.removeManagedAvatar(existingPersonality.avatarUrl);
+      }
+
+      return personalityEntityToDto(personality);
+    } catch (error) {
+      if (avatarUrl && avatarUrl !== existingPersonality?.avatarUrl) {
+        await this.avatarStorage.removeManagedAvatar(avatarUrl);
+      }
+
+      throw error;
+    }
+  }
+
+  async uploadPersonalityAvatar(id: number, file: UploadedAvatarFile): Promise<PersonalityDto> {
+    const existingPersonality = await this.prisma.personality.findUnique({ where: { id } });
+    if (!existingPersonality) {
+      throw new NotFoundException('Personality not found');
+    }
+
+    const avatarUrl = await this.avatarStorage.saveAvatar(file, id);
+
+    try {
+      const personality = await this.prisma.personality.update({
+        where: { id },
+        data: { avatarUrl },
+      });
+
+      await this.avatarStorage.removeManagedAvatar(existingPersonality.avatarUrl);
+      return personalityEntityToDto(personality);
+    } catch (error) {
+      await this.avatarStorage.removeManagedAvatar(avatarUrl);
+      throw error;
+    }
+  }
+
+  async removePersonalityAvatar(id: number): Promise<PersonalityDto> {
+    const existingPersonality = await this.prisma.personality.findUnique({ where: { id } });
+    if (!existingPersonality) {
+      throw new NotFoundException('Personality not found');
+    }
+
     const personality = await this.prisma.personality.update({
       where: { id },
-      data: body,
+      data: { avatarUrl: null },
     });
 
+    await this.avatarStorage.removeManagedAvatar(existingPersonality.avatarUrl);
     return personalityEntityToDto(personality);
   }
 
   async deletePersonality(id: number): Promise<MessageResponseDto> {
-    await this.prisma.personality.delete({ where: { id } });
+    const personality = await this.prisma.personality.delete({ where: { id } });
+    await this.avatarStorage.removeManagedAvatar(personality.avatarUrl);
     return { message: 'Personality deleted successfully' };
   }
 

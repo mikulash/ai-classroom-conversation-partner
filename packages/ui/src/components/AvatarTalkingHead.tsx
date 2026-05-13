@@ -14,6 +14,8 @@ type TalkingHeadSpeechAudio = Omit<TextToSpeechTimestampedResponseDto, 'audio'> 
     audio: ArrayBuffer[];
 };
 
+const managedAvatarPathPrefix = '/api/personality-avatars/';
+
 export interface AvatarTalkingHeadHandle {
     speakAudio: (audio: TextToSpeechTimestampedResponseDto) => void;
 }
@@ -60,6 +62,21 @@ export const AvatarTalkingHead = forwardRef<
     return personality.sex === 'M' ? AVATAR_MODELS.MALE_TEEN : AVATAR_MODELS.FEMALE_TEEN;
   };
 
+  const resolveAvatarUrl = (avatarUrl: string): string => {
+    const completeUrl = avatarUrl.endsWith('.glb') ? avatarUrl : `${avatarUrl}.glb`;
+    if (!completeUrl.startsWith('/')) {
+      return completeUrl;
+    }
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+    return `${backendUrl.replace(/\/$/, '')}${completeUrl}`;
+  };
+
+  const getUploadedAvatarUrl = (personality: PersonalityModel): string | null => {
+    const avatarUrl = personality.avatarUrl?.trim();
+    return avatarUrl?.startsWith(managedAvatarPathPrefix) ? avatarUrl : null;
+  };
+
   const loadAvatar = async (avatarUrl: string, language: Language, isRetry = false): Promise<void> => {
     if (!headRef.current || !avatarContainerRef.current) {
       throw new Error('Avatar container or TalkingHead not initialized');
@@ -67,11 +84,9 @@ export const AvatarTalkingHead = forwardRef<
 
     const loadingPrefix = isRetry ? 'Loading default avatar' : 'Loading avatar';
 
-    const completeUrl = avatarUrl.endsWith('.glb') ? avatarUrl : `${avatarUrl}.glb`;
-
     await headRef.current.showAvatar(
       {
-        url: completeUrl,
+        url: resolveAvatarUrl(avatarUrl),
         body: props.personality.sex,
         avatarMood: 'neutral',
         lipsyncLang: language.ISO639,
@@ -110,9 +125,7 @@ export const AvatarTalkingHead = forwardRef<
           });
 
           // Determine the avatar URL to try first
-          const customAvatarUrl = personality.avatarUrl && personality.avatarUrl.trim() !== '' ?
-            personality.avatarUrl :
-            null;
+          const customAvatarUrl = getUploadedAvatarUrl(personality);
 
           const defaultAvatarUrl = getDefaultAvatarUrl(personality);
 

@@ -24,6 +24,10 @@ services:
       - postgres
     env_file:
       - apps/backend/.env.production
+    environment:
+      AVATAR_UPLOAD_DIR: /app/.data/avatar-uploads
+    volumes:
+      - ./.data/avatar-uploads:/app/.data/avatar-uploads
 
   frontend:
     build:
@@ -37,5 +41,4 @@ services:
       - "4173:4173"
     depends_on:
       - backend
-
 

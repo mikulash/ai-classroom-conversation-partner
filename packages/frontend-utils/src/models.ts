@@ -84,7 +84,7 @@ export interface PersonalityCreateModel {
     createdAt?: Date | string
     name: string
     age?: number | null
-    avatarUrl?: string | null
+    uploadedAvatarUrl?: string | null
     gender?: string
     sex?: Sex
     voiceInstructions?: string | null

@@ -32,9 +32,6 @@ const createApiClient = (): AxiosInstance => {
 
   const client = axios.create({
     baseURL,
-    headers: {
-      'Content-Type': 'application/json',
-    },
   });
 
   // Request interceptor to add auth token
