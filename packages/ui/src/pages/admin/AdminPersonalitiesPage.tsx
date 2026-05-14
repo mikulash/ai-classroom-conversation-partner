@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
@@ -8,49 +8,63 @@ import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { toast } from 'sonner';
-import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { personalityClient } from '@repo/frontend-utils/src/clients/db/personality.client';
+import { useConfirm } from '../../hooks/useConfirm';
+import {
+  useCreatePersonality,
+  useDeletePersonality,
+  usePersonalities,
+  useRemovePersonalityAvatar,
+  useUpdatePersonality,
+  useUploadPersonalityAvatar,
+} from '../../hooks/queries/usePersonalities';
 import { PersonalityCreateModel, PersonalityModel } from '@repo/frontend-utils/src/models';
 import { OpenAiVoiceName } from '@repo/frontend-utils/src/clients/generated';
 
 type PersonalityForm = PersonalityCreateModel | PersonalityModel;
 
+const EMPTY_PERSONALITY: PersonalityCreateModel = {
+  name: '',
+  problemSummaryEn: '',
+  problemSummaryCs: '',
+  personalityDescriptionEn: '',
+  personalityDescriptionCs: '',
+  gender: '',
+  openaiVoiceName: 'alloy',
+};
+
 export function AdminPersonalitiesPage() {
   const { t } = useTypedTranslation();
-  const personalities = useAppStore((state) => state.personalities);
-  const setPersonalities = useAppStore((state) => state.setPersonalities);
+  const confirm = useConfirm();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const personalitiesQuery = usePersonalities();
+  const personalities = personalitiesQuery.data ?? [];
+
+  const createPersonality = useCreatePersonality();
+  const updatePersonality = useUpdatePersonality();
+  const deletePersonality = useDeletePersonality();
+  const removeAvatar = useRemovePersonalityAvatar();
+  const uploadAvatar = useUploadPersonalityAvatar();
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
   const [uploadedAvatarUrl, setUploadedAvatarUrl] = useState<string | null>(null);
   const [uploadedAvatarFileName, setUploadedAvatarFileName] = useState<string | null>(null);
   const [avatarUploadProgress, setAvatarUploadProgress] = useState<number>(0);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-
-  // A clean template for new personalities
-  const emptyPersonality: PersonalityCreateModel = {
-    name: '',
-    problemSummaryEn: '',
-    problemSummaryCs: '',
-    personalityDescriptionEn: '',
-    personalityDescriptionCs: '',
-    gender: '',
-    openaiVoiceName: 'alloy',
-  };
 
   const [currentPersonality, setCurrentPersonality] =
-    useState<PersonalityForm>(emptyPersonality);
+    useState<PersonalityForm>(EMPTY_PERSONALITY);
 
-  useEffect(() => {
-    void fetchPersonalities();
-  }, []);
+  // A mutation is in-flight if any of the write hooks are pending.
+  const isProcessing =
+    createPersonality.isPending ||
+    updatePersonality.isPending ||
+    deletePersonality.isPending ||
+    removeAvatar.isPending;
+  const isUploadingAvatar = uploadAvatar.isPending;
 
   const validateRequiredFields = (personality: PersonalityCreateModel): string | null => {
-    // 👇 use camelCase keys, not snake_case
     const requiredFields = [
       { field: 'name', label: t('personalities.name') },
       { field: 'problemSummaryEn', label: t('personalities.problemSummaryEn') },
@@ -61,52 +75,42 @@ export function AdminPersonalitiesPage() {
 
     for (const { field, label } of requiredFields) {
       const value = personality[field];
-      if (!value || (value.trim() === '')) {
+      if (!value || value.trim() === '') {
         return `${label} is required and cannot be empty.`;
       }
     }
     return null;
   };
 
-  async function fetchPersonalities() {
-    setIsLoading(true);
-    const { data, error } = await personalityClient.all();
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('personalities.loadFailed'), {
-        description: error.message,
-      });
-    } else {
-      const sortedPersonalities = data.toSorted((a, b) => a.id - b.id);
-      setPersonalities(sortedPersonalities);
-    }
-    setIsLoading(false);
-  }
-
-  const handleEdit = (personality: PersonalityModel) => {
-    // 👇 this now fits the union
-    setCurrentPersonality(personality);
+  const resetAvatarState = () => {
     setSelectedAvatarFile(null);
     setUploadedAvatarUrl(null);
     setUploadedAvatarFileName(null);
     setAvatarUploadProgress(0);
+  };
+
+  const handleEdit = (personality: PersonalityModel) => {
+    setCurrentPersonality(personality);
+    resetAvatarState();
     setIsEditDialogOpen(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (globalThis.confirm(t('personalities.confirmDelete'))) {
-      setIsProcessing(true);
-      const { error } = await personalityClient.delete(id);
+    const ok = await confirm({
+      title: t('personalities.confirmDelete'),
+      confirmLabel: t('actions.delete', 'Delete'),
+      cancelLabel: t('actions.cancel', 'Cancel'),
+      destructive: true,
+    });
+    if (!ok) return;
 
-      if (error) {
-        console.error(error.message);
-        toast.error(t('personalities.deleteFailed'), { description: error.message });
-      } else {
-        toast.success(t('personalities.deleteSuccess'));
-        void fetchPersonalities();
-      }
-      setIsProcessing(false);
+    try {
+      await deletePersonality.mutateAsync(id);
+      toast.success(t('personalities.deleteSuccess'));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('personalities.deleteFailed'), { description: message });
     }
   };
 
@@ -114,7 +118,6 @@ export function AdminPersonalitiesPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    // 👇 all names must match camelCase in DTO
     setCurrentPersonality((prev) => ({ ...prev, [name]: value } as PersonalityForm));
   };
 
@@ -131,11 +134,9 @@ export function AdminPersonalitiesPage() {
     if (!file.name.toLowerCase().endsWith('.glb')) {
       return t('personalities.avatarUploadOnlyGlb');
     }
-
     if (file.size > 50 * 1024 * 1024) {
       return t('personalities.avatarUploadMaxSize');
     }
-
     return null;
   };
 
@@ -161,66 +162,45 @@ export function AdminPersonalitiesPage() {
   };
 
   const handleRemoveAvatar = async () => {
-    setSelectedAvatarFile(null);
-    setUploadedAvatarUrl(null);
-    setUploadedAvatarFileName(null);
-    setAvatarUploadProgress(0);
+    resetAvatarState();
+    if (!('id' in currentPersonality)) return;
 
-    if (!('id' in currentPersonality)) {
-      return;
-    }
-
-    setIsProcessing(true);
-    const { data, error } = await personalityClient.removeAvatar(currentPersonality.id);
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('personalities.avatarRemoveFailed'), { description: error.message });
-    } else {
+    try {
+      const data = await removeAvatar.mutateAsync(currentPersonality.id);
       setCurrentPersonality(data);
       toast.success(t('personalities.avatarRemoveSuccess'));
-      void fetchPersonalities();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('personalities.avatarRemoveFailed'), { description: message });
     }
-
-    setIsProcessing(false);
   };
 
   const handleUploadAvatar = async () => {
-    if (!selectedAvatarFile) {
-      return;
-    }
-
-    setIsUploadingAvatar(true);
+    if (!selectedAvatarFile) return;
     setAvatarUploadProgress(0);
 
-    const { data, error } = await personalityClient.uploadAvatarFile(
-      selectedAvatarFile,
-      (progressEvent) => {
-        if (!progressEvent.total) {
-          return;
-        }
-
-        setAvatarUploadProgress(Math.round((progressEvent.loaded / progressEvent.total) * 100));
-      },
-    );
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('personalities.avatarUploadFailed'), { description: error.message });
-      setIsUploadingAvatar(false);
-      return;
+    try {
+      const data = await uploadAvatar.mutateAsync({
+        file: selectedAvatarFile,
+        onProgress: (progressEvent) => {
+          if (!progressEvent.total) return;
+          setAvatarUploadProgress(Math.round((progressEvent.loaded / progressEvent.total) * 100));
+        },
+      });
+      setUploadedAvatarUrl(data.avatarUrl);
+      setUploadedAvatarFileName(selectedAvatarFile.name);
+      setAvatarUploadProgress(100);
+      setSelectedAvatarFile(null);
+      toast.success(t('personalities.avatarUploadSuccess'));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('personalities.avatarUploadFailed'), { description: message });
     }
-
-    setUploadedAvatarUrl(data.avatarUrl);
-    setUploadedAvatarFileName(selectedAvatarFile.name);
-    setAvatarUploadProgress(100);
-    setIsUploadingAvatar(false);
-    setSelectedAvatarFile(null);
-    toast.success(t('personalities.avatarUploadSuccess'));
   };
 
   const handleEditSubmit = async () => {
-    // only edit when we have an id
     if (!('id' in currentPersonality)) return;
 
     const validationError = validateRequiredFields(currentPersonality);
@@ -229,103 +209,84 @@ export function AdminPersonalitiesPage() {
       return;
     }
 
-    setIsProcessing(true);
-
     if (selectedAvatarFile && !uploadedAvatarUrl) {
       toast.error(t('personalities.avatarUploadRequired'));
-      setIsProcessing(false);
       return;
     }
 
-    const { data, error } = await personalityClient.update(currentPersonality.id, {
-      name: currentPersonality.name,
-      problemSummaryEn: currentPersonality.problemSummaryEn,
-      problemSummaryCs: currentPersonality.problemSummaryCs,
-      personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
-      personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
-      gender: currentPersonality.gender,
-      age: currentPersonality.age ?? undefined,
-      openaiVoiceName: currentPersonality.openaiVoiceName,
-      elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
-      voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
-      uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
-    });
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('personalities.updateFailed'), { description: error.message });
-    } else {
+    try {
+      const data = await updatePersonality.mutateAsync({
+        id: currentPersonality.id,
+        input: {
+          name: currentPersonality.name,
+          problemSummaryEn: currentPersonality.problemSummaryEn,
+          problemSummaryCs: currentPersonality.problemSummaryCs,
+          personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
+          personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
+          gender: currentPersonality.gender,
+          age: currentPersonality.age ?? undefined,
+          openaiVoiceName: currentPersonality.openaiVoiceName,
+          elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
+          voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
+          uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
+        },
+      });
       toast.success(t('personalities.updateSuccess'));
       setCurrentPersonality(data);
-      setUploadedAvatarUrl(null);
-      setUploadedAvatarFileName(null);
-      setAvatarUploadProgress(0);
-      await fetchPersonalities();
+      resetAvatarState();
       setIsEditDialogOpen(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('personalities.updateFailed'), { description: message });
     }
-    setIsProcessing(false);
   };
 
-
   const handleAddSubmit = async () => {
-    // currentPersonality here is of create shape (no id)
     const validationError = validateRequiredFields(currentPersonality as PersonalityCreateModel);
     if (validationError) {
       toast.error('Validation Error', { description: validationError });
       return;
     }
 
-    setIsProcessing(true);
-
     if (selectedAvatarFile && !uploadedAvatarUrl) {
       toast.error(t('personalities.avatarUploadRequired'));
-      setIsProcessing(false);
       return;
     }
 
-    const { error } = await personalityClient.insert({
-      name: currentPersonality.name,
-      problemSummaryEn: currentPersonality.problemSummaryEn,
-      problemSummaryCs: currentPersonality.problemSummaryCs,
-      personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
-      personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
-      gender: currentPersonality.gender ?? undefined,
-      age: currentPersonality.age ?? undefined,
-      openaiVoiceName: currentPersonality.openaiVoiceName,
-      elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
-      voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
-      uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
-    });
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('personalities.createFailed'), { description: error.message });
-    } else {
+    try {
+      await createPersonality.mutateAsync({
+        name: currentPersonality.name,
+        problemSummaryEn: currentPersonality.problemSummaryEn,
+        problemSummaryCs: currentPersonality.problemSummaryCs,
+        personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
+        personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
+        gender: currentPersonality.gender ?? undefined,
+        age: currentPersonality.age ?? undefined,
+        openaiVoiceName: currentPersonality.openaiVoiceName,
+        elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
+        voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
+        uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
+      });
       toast.success(t('personalities.createSuccess'));
-      setUploadedAvatarUrl(null);
-      setUploadedAvatarFileName(null);
-      setAvatarUploadProgress(0);
-      await fetchPersonalities();
+      resetAvatarState();
       setIsAddDialogOpen(false);
-      setCurrentPersonality(emptyPersonality);
+      setCurrentPersonality(EMPTY_PERSONALITY);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('personalities.createFailed'), { description: message });
     }
-    setIsProcessing(false);
   };
 
   const handleAddNew = () => {
-    setCurrentPersonality(emptyPersonality);
-    setSelectedAvatarFile(null);
-    setUploadedAvatarUrl(null);
-    setUploadedAvatarFileName(null);
-    setAvatarUploadProgress(0);
+    setCurrentPersonality(EMPTY_PERSONALITY);
+    resetAvatarState();
     setIsAddDialogOpen(true);
   };
 
   const getAvatarFileName = (avatarUrl: string | null | undefined) => {
-    if (!avatarUrl) {
-      return null;
-    }
-
+    if (!avatarUrl) return null;
     return avatarUrl.split('/').at(-1) ?? avatarUrl;
   };
 
@@ -499,8 +460,7 @@ export function AdminPersonalitiesPage() {
           value={currentPersonality.openaiVoiceName}
           onValueChange={(value) => {
             handleSelectChange('openaiVoiceName', value as OpenAiVoiceName);
-          }
-          }>
+          }}>
           <SelectTrigger>
             <SelectValue placeholder={t('personalities.selectVoice')} />
           </SelectTrigger>
@@ -536,10 +496,20 @@ export function AdminPersonalitiesPage() {
     </div>
   );
 
-  if (isLoading) {
+  if (personalitiesQuery.isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
         <span className="text-muted-foreground">{t('common.loading')}</span>
+      </div>
+    );
+  }
+
+  if (personalitiesQuery.isError) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <span className="text-destructive">
+          {t('personalities.loadFailed')}: {personalitiesQuery.error.message}
+        </span>
       </div>
     );
   }

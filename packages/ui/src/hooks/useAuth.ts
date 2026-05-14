@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { ProfileModel } from '@repo/frontend-utils/src/models';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -90,41 +90,46 @@ const fetchSessionFromStorage = () => {
   }
 };
 
-let hasInitializedAuth = false;
+// Track the registered listener on a global so HMR module reloads can
+// detach the previous handler before installing a new one. Without this,
+// every Vite HMR update would stack another `storage` listener.
+const STORAGE_HANDLER_KEY = '__aiConvPartnerAuthStorageHandler';
+
+interface GlobalWithAuthHandler {
+  [STORAGE_HANDLER_KEY]?: (event: StorageEvent) => void;
+}
 
 const initializeAuthSync = () => {
-  if (hasInitializedAuth) {
-    return;
+  const globalRef = globalThis as unknown as GlobalWithAuthHandler;
+
+  const prior = globalRef[STORAGE_HANDLER_KEY];
+  if (prior) {
+    globalThis.removeEventListener('storage', prior);
   }
 
-  hasInitializedAuth = true;
-  fetchSessionFromStorage();
-
   const handleStorageChange = (event: StorageEvent) => {
-    if (!shouldSyncForKey(event.key)) {
-      return;
-    }
-
+    if (!shouldSyncForKey(event.key)) return;
     fetchSessionFromStorage();
   };
 
+  globalRef[STORAGE_HANDLER_KEY] = handleStorageChange;
   globalThis.addEventListener('storage', handleStorageChange);
+
+  fetchSessionFromStorage();
 };
 
-export const useAuth = () => {
-  const {
-    session,
-    ready,
-    loading,
-    error,
-    profile,
-    setProfile,
-    clearProfile,
-  } = useAuthStore();
+// Run sync at module load — avoids tying initialization to component mount,
+// where it would re-fire under StrictMode and cause render-time churn.
+initializeAuthSync();
 
-  useEffect(() => {
-    initializeAuthSync();
-  }, []);
+export const useAuth = () => {
+  const session = useAuthStore((state) => state.session);
+  const ready = useAuthStore((state) => state.ready);
+  const loading = useAuthStore((state) => state.loading);
+  const error = useAuthStore((state) => state.error);
+  const profile = useAuthStore((state) => state.profile);
+  const setProfile = useAuthStore((state) => state.setProfile);
+  const clearProfile = useAuthStore((state) => state.clearProfile);
 
   const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
     setAuthState({ loading: true, error: null });

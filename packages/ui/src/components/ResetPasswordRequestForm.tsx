@@ -1,41 +1,55 @@
-import { Label } from '@radix-ui/react-label';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
-import React, { useState } from 'react';
 import { Button } from './ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from './ui/form';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
+const requestResetSchema = z.object({
+  email: z.string().email(),
+});
+
+type RequestResetValues = z.infer<typeof requestResetSchema>;
+
 export const ResetPasswordRequestForm: React.FC = () => {
   const { t } = useTypedTranslation();
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
+  const allowedDomains = useAppStore((state) => state.appConfig.allowedDomains);
+
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const ALLOWED_DOMAINS = useAppStore((state) => state.appConfig.allowedDomains);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  const form = useForm<RequestResetValues>({
+    resolver: zodResolver(requestResetSchema),
+    defaultValues: { email: '' },
+    mode: 'onTouched',
+  });
 
-    const { error } = await authClient.resetPasswordForEmail(email);
-
+  const onSubmit = async (values: RequestResetValues) => {
+    setSubmitError(null);
+    const { error } = await authClient.resetPasswordForEmail(values.email);
     if (error) {
-      setError(error.message);
-    } else {
-      setMessage(
-        t('resetLinkSent', 'We\'ve emailed you a reset link – check your inbox!'),
-      );
+      setSubmitError(error.message);
+      return;
     }
-
-    setLoading(false);
+    setMessage(t('resetLinkSent', 'We\'ve emailed you a reset link – check your inbox!'));
   };
+
+  const { isSubmitting } = form.formState;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
-
       <Card className="p-4 sm:p-6 w-full max-w-md">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
           {t('forgotPassword', 'Forgot your password?')}
@@ -44,29 +58,38 @@ export const ResetPasswordRequestForm: React.FC = () => {
         {message ? (
           <p className="text-center text-xs sm:text-sm text-green-600">{message}</p>
         ) : (
-          <form onSubmit={(e) => {
-            void handleSubmit(e);
-          }} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                placeholder={t('emailPlaceholder', { allowedDomains: ALLOWED_DOMAINS.join(', ') })}
-                required
+          <Form {...form}>
+            <form onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('email')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        autoComplete="email"
+                        placeholder={t('emailPlaceholder', { allowedDomains: allowedDomains.join(', ') })}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage/>
+                  </FormItem>
+                )}
               />
-            </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+              {submitError && (
+                <p role="alert" className="text-destructive text-sm">{submitError}</p>
+              )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t('loading.general') : t('sendResetLink', 'Send reset link')}
-            </Button>
-          </form>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? t('loading.general') : t('sendResetLink', 'Send reset link')}
+              </Button>
+            </form>
+          </Form>
         )}
       </Card>
     </div>

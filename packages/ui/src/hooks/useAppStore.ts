@@ -38,19 +38,19 @@ export const useAppStore = create<AppState>((set) => ({
     set({ appConfig });
   },
   setPersonalities: (personalities) => {
-    set({ personalities: personalities.sort((a, b) => a.id - b.id) });
+    set({ personalities: personalities.toSorted((a, b) => a.id - b.id) });
   },
   setScenarios: (scenarios) => {
-    set({ scenarios: scenarios.sort((a, b) => a.id - b.id) });
+    set({ scenarios: scenarios.toSorted((a, b) => a.id - b.id) });
   },
   setConversationRoles: (conversationRoles) => {
-    set({ conversationRoles: conversationRoles.sort((a, b) => a.id - b.id) });
+    set({ conversationRoles: conversationRoles.toSorted((a, b) => a.id - b.id) });
   },
   setInitialConversationOptions: (options: InitialConversationOptionsModel) => {
     set(() => ({
-      personalities: options.personalities.sort((a, b) => a.id - b.id),
-      scenarios: options.scenarios.sort((a, b) => a.id - b.id),
-      conversationRoles: options.conversationRoles.sort((a, b) => a.id - b.id),
+      personalities: options.personalities.toSorted((a, b) => a.id - b.id),
+      scenarios: options.scenarios.toSorted((a, b) => a.id - b.id),
+      conversationRoles: options.conversationRoles.toSorted((a, b) => a.id - b.id),
       appConfig: options.appConfig,
       isLoaded: true,
     }));

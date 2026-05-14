@@ -10,7 +10,7 @@ export const HomePage: React.FC = () => {
   const { session, ready } = useAuth();
   const user = session?.user;
   const isAuthenticated = !!user;
-  const { appName } = useAppStore((state) => state.appConfig);
+  const appName = useAppStore((state) => state.appConfig.appName);
 
   if (!ready) {
     return null;

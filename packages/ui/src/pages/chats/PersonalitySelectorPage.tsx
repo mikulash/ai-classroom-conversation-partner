@@ -11,7 +11,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { Button } from '../../components/ui/button';
 import { ConversationRoleSelector } from '../../components/ConversationRoleSelector';
 import { useAppStore } from '../../hooks/useAppStore';
-import { ChatPageProps } from '../../lib/types/ChatPageProps';
+import { useChatSetupStore } from '../../hooks/useChatSetupStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { LANGUAGE } from '@repo/frontend-utils/src/enums/Language';
 import {
@@ -30,12 +30,19 @@ import { ConversationRoleModel, PersonalityModel, ScenarioModel } from '@repo/fr
 
 export const PersonalitySelectorPage: React.FC = () => {
   const { t, language } = useTypedTranslation();
-  const predefinedPersonalities = useAppStore((s) => s.personalities).toSorted(
-    (a, b) => a.id - b.id,
-  );
+  const predefinedPersonalitiesRaw = useAppStore((s) => s.personalities);
   const predefinedConversationRoles = useAppStore((s) => s.conversationRoles);
   const predefinedScenarios = useAppStore((s) => s.scenarios);
-  const { appConfig } = useAppStore((s) => s);
+  const realtimeModelId = useAppStore((s) => s.appConfig.realtimeModelId);
+  const realtimeTranscriptionModelId = useAppStore((s) => s.appConfig.realtimeTranscriptionModelId);
+  const responseModelId = useAppStore((s) => s.appConfig.responseModelId);
+  const ttsModelId = useAppStore((s) => s.appConfig.ttsModelId);
+  const timestampedTranscriptionModelId = useAppStore((s) => s.appConfig.timestampedTranscriptionModelId);
+  const setChatSetup = useChatSetupStore((s) => s.setSetup);
+  const predefinedPersonalities = useMemo(
+    () => predefinedPersonalitiesRaw.toSorted((a, b) => a.id - b.id),
+    [predefinedPersonalitiesRaw],
+  );
   const navigate = useNavigate();
   const [customPersonality, setCustomPersonality] = useState<Partial<PersonalityModel>>({});
   const [selectedPersonality, setSelectedPersonality] = useState<PersonalityModel>(
@@ -45,9 +52,13 @@ export const PersonalitySelectorPage: React.FC = () => {
   const [customScenario, setCustomScenario] = useState<Partial<ScenarioModel>>({});
   const [selectedScenario, setSelectedScenario] = useState<ScenarioModel>();
   const [activeScenarioTab, setActiveScenarioTab] = useState<ScenarioTabKey>('none');
-  const isVoiceCallEnabled = appConfig.realtimeModelId !== null;
-  const isVideoCallEnabled = appConfig.realtimeTranscriptionModelId !== null && appConfig.responseModelId !== null && appConfig.ttsModelId !== null && appConfig.timestampedTranscriptionModelId !== null;
-  const isMessageChatEnabled = appConfig.responseModelId !== null;
+  const isVoiceCallEnabled = realtimeModelId !== null;
+  const isVideoCallEnabled =
+    realtimeTranscriptionModelId !== null &&
+    responseModelId !== null &&
+    ttsModelId !== null &&
+    timestampedTranscriptionModelId !== null;
+  const isMessageChatEnabled = responseModelId !== null;
 
   const scenariosForPersonality = useMemo(() =>
     predefinedScenarios.filter(
@@ -100,13 +111,13 @@ export const PersonalitySelectorPage: React.FC = () => {
     const finalUserRoleName = getUserRoleName(selectedUserRole, customUserRoleName, language);
     const finalScenario = getScenario(activeScenarioTab, selectedScenario, customScenario);
 
-    const chatPageProps: ChatPageProps = {
+    setChatSetup({
       personality: finalPersonality,
       conversationRoleName: finalUserRoleName,
       scenario: finalScenario,
-    };
+    });
 
-    void navigate('/chat' + path, { state: chatPageProps });
+    void navigate('/chat' + path);
   };
 
 

@@ -1,149 +1,58 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import { ConversationModel, ProfileModel } from '@repo/frontend-utils/src/models';
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { ConversationTranscriptDialog } from '../../components/ConversationTranscriptDialog';
 import { MyConversation } from '@repo/frontend-utils/src/myConversation';
-import { UserProfileRow } from '../../components/UserProfileRow';
-import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
-import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 import { UserRole } from '@repo/frontend-utils/src/clients/generated';
-
+import {
+  useAdminProfiles,
+  useRemoveConversationFromCache,
+  useUpdateProfileRole,
+} from '../../hooks/queries/useAdminProfiles';
+import { queryKeys } from '../../hooks/queries/queryKeys';
+import { ProfileConversationsRow } from '../../components/admin/ProfileConversationsRow';
 
 export function AdminProfilesPage() {
   const { t } = useTypedTranslation();
+  const { profile } = useAuth();
+  const queryClient = useQueryClient();
 
-  const [profiles, setProfiles] = useState<ProfileModel[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const profilesQuery = useAdminProfiles();
+  const updateRole = useUpdateProfileRole();
+  const removeConversationFromCache = useRemoveConversationFromCache();
+
   const [search, setSearch] = useState('');
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
-  const [userConversations, setUserConversations] = useState<Record<string, MyConversation[]>>({});
-  const [loadingConversations, setLoadingConversations] = useState<Set<string>>(new Set());
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
-  const { profile } = useAuth();
+  const profiles = profilesQuery.data ?? [];
 
-  useEffect(() => {
-    void fetchData();
-  }, []);
+  const filteredProfiles = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return profiles;
+    return profiles.filter((p) =>
+      p.email.toLowerCase().includes(term) ||
+      p.fullName.toLowerCase().includes(term),
+    );
+  }, [profiles, search]);
 
-  const fetchData = async () => {
-    if (!profile) return;
-    try {
-      setIsLoading(true);
-
-      // Load profile rows
-      const { data, error: profileError } = await profileClient.getAll();
-
-      if (profileError) {
-        const errorMessage = profileError instanceof Error ? profileError.message : profileError.message;
-        console.error(errorMessage);
-        toast.error(t('admin.profiles.notifications.loadFailed'), {
-          description: errorMessage,
-        });
-        return;
+  const toggleUserExpansion = (userId: string) => {
+    setExpandedUsers((prev) => {
+      const next = new Set(prev);
+      if (next.has(userId)) {
+        next.delete(userId);
+      } else {
+        next.add(userId);
       }
-
-      // Show all profiles including the current admin's profile
-      setProfiles(data);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(t('admin.profiles.notifications.loadFailed'), {
-          description: error.message,
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchUserConversations = async (userId: string) => {
-    if (userId in userConversations) {
-      // Already loaded
-      return;
-    }
-
-    try {
-      setLoadingConversations((prev) => new Set(prev).add(userId));
-
-      const { data, error } = await conversationClient.getByUserId(userId);
-
-      if (error) {
-        console.error('Error loading conversations:', error.message);
-        toast.error('Failed to load conversations', {
-          description: error.message,
-        });
-        // Set empty array to prevent retrying
-        setUserConversations((prev) => ({
-          ...prev,
-          [userId]: [],
-        }));
-        return;
-      }
-
-      const toIsoString = (value: Date | string | null | undefined): string => {
-        if (!value) return '';
-        const date = value instanceof Date ? value : new Date(value);
-        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
-      };
-
-      const conversations: MyConversation[] = data.map((conv: ConversationModel) => ({
-        id: conv.id,
-        start_time: toIsoString(conv.startTime),
-        end_time: toIsoString(conv.endTime),
-        ended_reason: conv.endedReason,
-        conversation_type: conv.conversationType,
-        messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
-        personality_id: conv.personalityId,
-        personality: conv.personality ? { name: conv.personality.name } : null,
-      }));
-
-      setUserConversations((prev) => ({
-        ...prev,
-        [userId]: conversations,
-      }));
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Error loading conversations:', error.message);
-        toast.error('Failed to load conversations', {
-          description: error.message,
-        });
-      }
-      // Set empty array to prevent retrying
-      setUserConversations((prev) => ({
-        ...prev,
-        [userId]: [],
-      }));
-    } finally {
-      setLoadingConversations((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(userId);
-        return newSet;
-      });
-    }
-  };
-
-  const toggleUserExpansion = async (userId: string) => {
-    const newExpandedUsers = new Set(expandedUsers);
-
-    if (newExpandedUsers.has(userId)) {
-      newExpandedUsers.delete(userId);
-    } else {
-      newExpandedUsers.add(userId);
-      // Fetch conversations when expanding
-      await fetchUserConversations(userId);
-    }
-
-    setExpandedUsers(newExpandedUsers);
+      return next;
+    });
   };
 
   const handleConversationClick = (conversation: MyConversation) => {
@@ -151,53 +60,49 @@ export function AdminProfilesPage() {
     setIsConversationDialogVisible(true);
   };
 
-  const filteredProfiles = useMemo(() => {
-    if (!search.trim()) return profiles;
-    if (profiles.length === 0) return [];
-    return profiles.filter((p) =>
-      p.email.toLowerCase().includes(search.toLowerCase().trim()) ||
-      p.fullName.toLowerCase().includes(search.toLowerCase().trim()),
-    );
-  }, [profiles, search]);
-
   const handleRoleChange = async (profileId: string, newRole: UserRole) => {
     try {
-      setIsProcessing(true);
-      const { error } = await profileClient.updateRole(profileId, newRole);
-
-      if (error) {
-        console.error(error.message);
-        toast.error(t('admin.profiles.notifications.updateFailed'), {
-          description: error.message,
-        });
-        return;
-      }
-
+      await updateRole.mutateAsync({ profileId, role: newRole });
       toast.success(t('admin.profiles.notifications.updateSuccess'));
-      setProfiles((prev) =>
-        prev.map((p) => (p.id === profileId ? { ...p, userRole: newRole } : p)),
-      );
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(t('admin.profiles.notifications.updateFailed'), {
-          description: error.message,
-        });
-      }
-    } finally {
-      setIsProcessing(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('admin.profiles.notifications.updateFailed'), { description: message });
     }
+  };
+
+  const handleConversationDeleted = () => {
+    if (!selectedConversation) return;
+    // Find which user's cached list this conversation belongs to and patch it.
+    for (const userId of expandedUsers) {
+      const conversations = queryClient.getQueryData<MyConversation[]>(
+        queryKeys.conversations.byUser(userId),
+      );
+      if (conversations?.some((c) => c.id === selectedConversation.id)) {
+        removeConversationFromCache(userId, selectedConversation.id);
+        break;
+      }
+    }
+    setSelectedConversation(null);
   };
 
   if (!profile) {
     return null;
   }
 
-  if (isLoading) {
+  if (profilesQuery.isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <span className="text-muted-foreground">
-          {t('loading.profiles')}
+        <span className="text-muted-foreground">{t('loading.profiles')}</span>
+      </div>
+    );
+  }
+
+  if (profilesQuery.isError) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <span className="text-destructive">
+          {t('admin.profiles.notifications.loadFailed')}: {profilesQuery.error.message}
         </span>
       </div>
     );
@@ -217,9 +122,13 @@ export function AdminProfilesPage() {
               }}
               placeholder={t('admin.profiles.searchPlaceholder')}
             />
-            <Button variant="outline" onClick={() => {
-              void fetchData();
-            }} disabled={isLoading}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                void profilesQuery.refetch();
+              }}
+              disabled={profilesQuery.isFetching}
+            >
               {t('admin.profiles.refresh')}
             </Button>
           </div>
@@ -248,17 +157,13 @@ export function AdminProfilesPage() {
                 </TableRow>
               ) : (
                 filteredProfiles.map((p) => (
-                  <UserProfileRow
+                  <ProfileConversationsRow
                     key={p.id}
                     profile={p}
                     currentUserId={profile.id}
                     isExpanded={expandedUsers.has(p.id)}
-                    isProcessing={isProcessing}
-                    conversations={userConversations[p.id] ?? []}
-                    isLoadingConversations={loadingConversations.has(p.id)}
-                    onToggleExpansion={(userId) => {
-                      void toggleUserExpansion(userId);
-                    }}
+                    isProcessing={updateRole.isPending}
+                    onToggleExpansion={toggleUserExpansion}
                     onRoleChange={(profileId, role) => {
                       void handleRoleChange(profileId, role);
                     }}
@@ -284,23 +189,8 @@ export function AdminProfilesPage() {
           endedReason: selectedConversation.ended_reason,
         } : undefined}
         conversationId={selectedConversation?.id}
-        onConversationDeleted={() => {
-          // Refresh the conversations for the current user when a conversation is deleted
-          if (selectedConversation) {
-            const userId = Object.keys(userConversations).find((key) =>
-              userConversations[key].some((conv) => conv.id === selectedConversation.id),
-            );
-            if (userId) {
-              // Remove conversation from the local state
-              setUserConversations((prev) => ({
-                ...prev,
-                [userId]: prev[userId].filter((conv) => conv.id !== selectedConversation.id),
-              }));
-            }
-          }
-          setSelectedConversation(null);
-        }}
-        isDeleteAllowed={true} // Enable delete for admin
+        onConversationDeleted={handleConversationDeleted}
+        isDeleteAllowed={true}
       />
     </>
   );

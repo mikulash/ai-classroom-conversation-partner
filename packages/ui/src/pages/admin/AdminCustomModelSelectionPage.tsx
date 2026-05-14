@@ -1,182 +1,106 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { repliesClient } from '@repo/frontend-utils/src/clients/replies.client';
 import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
-import { ModelOptionsWithAvailability, ModelSelection } from '../../lib/types/modelSelection';
+import { ModelSelection } from '../../lib/types/modelSelection';
 import { useAuth } from '../../hooks/useAuth';
 import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ModelSelectionForm, ModelSelectionSection } from '../../components/admin/ModelSelectionForm';
 import {
-  getAvailableRealtimeModels,
-  getAvailableRealtimeTranscriptionModels,
-  getAvailableResponseModels,
-  getAvailableTimestampedTranscriptionModels,
-  getAvailableTtsModels,
-} from '../../lib/filterModelsByApiKeyStatus';
-import { modelClient } from '@repo/frontend-utils/src/clients/db/model.client';
+  useCustomModelSelection,
+  useFilteredModelOptions,
+  useUpsertCustomModelSelection,
+} from '../../hooks/queries/useModels';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
   const { session, ready } = useAuth();
-
-  const [models, setModels] = useState<ModelOptionsWithAvailability>({
-    responseModels: [],
-    ttsModels: [],
-    realtimeModels: [],
-    timestampedTranscriptionModels: [],
-    realtimeTranscriptionModels: [],
-  });
-
   const appConfig = useAppStore((state) => state.appConfig);
 
-  // Use Partial<ModelSelection> since models might be undefined initially
-  const [selection, setSelection] = useState<Partial<ModelSelection>>({
-    responseModel: undefined,
-    ttsModel: undefined,
-    realtimeModel: undefined,
-    timestampedTranscriptionModel: undefined,
-    realtimeTranscriptionModel: undefined,
-  });
+  const userId = session?.user.id;
+
+  const modelOptionsQuery = useFilteredModelOptions();
+  const customSelectionQuery = useCustomModelSelection(userId);
+  const upsertCustomSelection = useUpsertCustomModelSelection(userId);
+
+  const [selection, setSelection] = useState<Partial<ModelSelection>>({});
 
   // Track which fields have explicit user overrides (vs using global defaults)
   const [userOverrides, setUserOverrides] = useState<Set<keyof ModelSelection>>(new Set());
 
-  const [loading, setLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-
-  /** Load available models + current config */
+  /**
+   * Seed selection + overrides when both model options and the user's
+   * custom selection have loaded. Re-runs whenever either side changes,
+   * so a save (which invalidates the custom-selection query) picks the
+   * fresh row up automatically.
+   */
   useEffect(() => {
-    if (!session?.user) return;
+    const models = modelOptionsQuery.data;
+    if (!models) return;
+    if (customSelectionQuery.isLoading) return;
 
-    void (async () => {
-      const [
-        { data: responseModels, error: responseError },
-        { data: ttsModels, error: ttsError },
-        { data: realtimeModels, error: realtimeError },
-        { data: timestampedTranscriptionModels, error: timestampedError },
-        { data: realtimeTranscriptionModels, error: realtimeTransError },
-        { data: userCustomSettings },
-        aiProvidersAvailability,
-      ] = await Promise.all([
-        modelClient.responseModels(),
-        modelClient.ttsModels(),
-        modelClient.realtimeModels(),
-        modelClient.timestampedTranscriptionModels(),
-        modelClient.realtimeTranscriptionModels(),
-        modelClient.customModelSelection(session.user.id),
-        repliesClient.getAiProvidersAvailability(),
-      ]);
+    const userSelection = customSelectionQuery.data;
 
-      if (responseError || ttsError || realtimeError || timestampedError || realtimeTransError) {
-        console.error(
-          responseError?.message ??
-                    ttsError?.message ??
-                    realtimeError?.message ??
-                    timestampedError?.message ??
-                    realtimeTransError?.message,
-        );
-        toast.error(t('models.loadFailed'), {
-          description:
-                        responseError?.message ??
-                        ttsError?.message ??
-                        realtimeError?.message ??
-                        timestampedError?.message ??
-                        realtimeTransError?.message,
-        });
-        setLoading(false);
-        return;
-      }
+    const overrides = new Set<keyof ModelSelection>();
+    if (userSelection?.responseModelId != null) overrides.add('responseModel');
+    if (userSelection?.ttsModelId != null) overrides.add('ttsModel');
+    if (userSelection?.realtimeModelId != null) overrides.add('realtimeModel');
+    if (userSelection?.timestampedTranscriptionModelId != null) overrides.add('timestampedTranscriptionModel');
+    if (userSelection?.realtimeTranscriptionModelId != null) overrides.add('realtimeTranscriptionModel');
+    setUserOverrides(overrides);
 
-      const userSelection = userCustomSettings ?? null;
+    const findSelectedModel = <T extends { id: number }>(
+      modelArray: T[],
+      userModelId: number | null | undefined,
+      globalModelId: number | null | undefined,
+    ): T | undefined => {
+      if (userModelId) return modelArray.find((m) => m.id === userModelId);
+      if (globalModelId) return modelArray.find((m) => m.id === globalModelId);
+      return modelArray[0];
+    };
 
-      const filteredResponseModels = getAvailableResponseModels(aiProvidersAvailability, responseModels);
-      const filteredTtsModels = getAvailableTtsModels(aiProvidersAvailability, ttsModels);
-      const filteredRealtimeModels = getAvailableRealtimeModels(aiProvidersAvailability, realtimeModels);
-      const filteredTimestampedTranscriptionModels = getAvailableTimestampedTranscriptionModels(aiProvidersAvailability, timestampedTranscriptionModels);
-      const filteredRealtimeTranscriptionModels = getAvailableRealtimeTranscriptionModels(aiProvidersAvailability, realtimeTranscriptionModels);
-
-      setModels({
-        responseModels: filteredResponseModels,
-        ttsModels: filteredTtsModels,
-        realtimeModels: filteredRealtimeModels,
-        timestampedTranscriptionModels: filteredTimestampedTranscriptionModels,
-        realtimeTranscriptionModels: filteredRealtimeTranscriptionModels,
-      });
-
-      // Track which fields have user overrides
-      const overrides = new Set<keyof ModelSelection>();
-      if (userSelection?.responseModelId != null) overrides.add('responseModel');
-      if (userSelection?.ttsModelId != null) overrides.add('ttsModel');
-      if (userSelection?.realtimeModelId != null) overrides.add('realtimeModel');
-      if (userSelection?.timestampedTranscriptionModelId != null) overrides.add('timestampedTranscriptionModel');
-      if (userSelection?.realtimeTranscriptionModelId != null) overrides.add('realtimeTranscriptionModel');
-      setUserOverrides(overrides);
-
-      // Find models based on user's custom config or global config as fallback
-      const findSelectedModel = <T extends { id: number }>(
-        modelArray: T[],
-        userModelId: number | null | undefined,
-        globalModelId: number | null | undefined,
-      ): T | undefined => {
-        if (userModelId) {
-          return modelArray.find((m) => m.id === userModelId);
-        }
-        if (globalModelId) {
-          return modelArray.find((m) => m.id === globalModelId);
-        }
-        return modelArray[0];
-      };
-
-      // Set selection using the complete model objects
-      setSelection({
-        responseModel: findSelectedModel(
-          filteredResponseModels,
-          userSelection?.responseModelId,
-          appConfig.responseModelId,
-        ),
-        ttsModel: findSelectedModel(
-          filteredTtsModels,
-          userSelection?.ttsModelId,
-          appConfig.ttsModelId,
-        ),
-        realtimeModel: findSelectedModel(
-          filteredRealtimeModels,
-          userSelection?.realtimeModelId,
-          appConfig.realtimeModelId,
-        ),
-        timestampedTranscriptionModel: findSelectedModel(
-          filteredTimestampedTranscriptionModels,
-          userSelection?.timestampedTranscriptionModelId,
-          appConfig.timestampedTranscriptionModelId,
-        ),
-        realtimeTranscriptionModel: findSelectedModel(
-          filteredRealtimeTranscriptionModels,
-          userSelection?.realtimeTranscriptionModelId,
-          appConfig.realtimeTranscriptionModelId,
-        ),
-      });
-
-      setLoading(false);
-    })();
-  }, [session?.user, t]);
+    setSelection({
+      responseModel: findSelectedModel(
+        models.responseModels,
+        userSelection?.responseModelId,
+        appConfig.responseModelId,
+      ),
+      ttsModel: findSelectedModel(
+        models.ttsModels,
+        userSelection?.ttsModelId,
+        appConfig.ttsModelId,
+      ),
+      realtimeModel: findSelectedModel(
+        models.realtimeModels,
+        userSelection?.realtimeModelId,
+        appConfig.realtimeModelId,
+      ),
+      timestampedTranscriptionModel: findSelectedModel(
+        models.timestampedTranscriptionModels,
+        userSelection?.timestampedTranscriptionModelId,
+        appConfig.timestampedTranscriptionModelId,
+      ),
+      realtimeTranscriptionModel: findSelectedModel(
+        models.realtimeTranscriptionModels,
+        userSelection?.realtimeTranscriptionModelId,
+        appConfig.realtimeTranscriptionModelId,
+      ),
+    });
+  }, [modelOptionsQuery.data, customSelectionQuery.data, customSelectionQuery.isLoading, appConfig]);
 
   const handleSave = async () => {
-    if (!session?.user) {
+    if (!userId) {
       toast.error(t('loginRequiredToSave'));
       return;
     }
 
-    setIsSaving(true);
-
-    // Build payload with only the fields that should be stored as overrides
-    // Logic: Only send fields where:
-    // 1. Selection is undefined (null) → send null to remove override
-    // 2. Selection differs from global → send ID to set/update override
-    // 3. Selection matches global AND had previous override → send ID to keep explicit override
-    // 4. Selection matches global AND no previous override → don't send (use global default)
+    // Build payload with only the fields that should be stored as overrides:
+    // 1. Selection is undefined → send null to remove override
+    // 2. Selection differs from global → send ID to set override
+    // 3. Selection matches global AND had previous override → send ID to keep override
+    // 4. Selection matches global AND no previous override → don't send
     const payload: Partial<{
       responseModelId: number | null;
       ttsModelId: number | null;
@@ -185,117 +109,83 @@ export function AdminCustomModelSelectionPage() {
       realtimeTranscriptionModelId: number | null;
     }> = {};
 
-    // Response Model
-    if (!selection.responseModel) {
-      // Cleared - remove override
-      payload.responseModelId = null;
-    } else if (selection.responseModel.id !== appConfig.responseModelId) {
-      // Differs from global - set override
-      payload.responseModelId = selection.responseModel.id;
-    } else if (userOverrides.has('responseModel')) {
-      // Matches global but had previous override - keep explicit override
-      payload.responseModelId = selection.responseModel.id;
+    const buildField = (
+      modelKey: keyof ModelSelection,
+      payloadKey: keyof typeof payload,
+      globalId: number | null | undefined,
+    ) => {
+      const selected = selection[modelKey] as { id: number } | undefined;
+      if (!selected) {
+        payload[payloadKey] = null;
+        return;
+      }
+      if (selected.id !== globalId) {
+        payload[payloadKey] = selected.id;
+        return;
+      }
+      if (userOverrides.has(modelKey)) {
+        payload[payloadKey] = selected.id;
+      }
+    };
+
+    buildField('responseModel', 'responseModelId', appConfig.responseModelId);
+    buildField('ttsModel', 'ttsModelId', appConfig.ttsModelId);
+    buildField('realtimeModel', 'realtimeModelId', appConfig.realtimeModelId);
+    buildField('timestampedTranscriptionModel', 'timestampedTranscriptionModelId', appConfig.timestampedTranscriptionModelId);
+    buildField('realtimeTranscriptionModel', 'realtimeTranscriptionModelId', appConfig.realtimeTranscriptionModelId);
+
+    try {
+      await upsertCustomSelection.mutateAsync(payload);
+      toast.success(t('settingsSaved'), {
+        description: t('customModelPreferencesSaved'),
+      });
+      // The query invalidation in the mutation hook will re-fetch and the effect
+      // above will re-seed `selection` + `userOverrides` from server truth.
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('saveFailed'), { description: message });
     }
-    // else: matches global and no previous override - don't send
-
-    // TTS Model
-    if (!selection.ttsModel) {
-      payload.ttsModelId = null;
-    } else if (selection.ttsModel.id !== appConfig.ttsModelId) {
-      payload.ttsModelId = selection.ttsModel.id;
-    } else if (userOverrides.has('ttsModel')) {
-      payload.ttsModelId = selection.ttsModel.id;
-    }
-
-    // Realtime Model
-    if (!selection.realtimeModel) {
-      payload.realtimeModelId = null;
-    } else if (selection.realtimeModel.id !== appConfig.realtimeModelId) {
-      payload.realtimeModelId = selection.realtimeModel.id;
-    } else if (userOverrides.has('realtimeModel')) {
-      payload.realtimeModelId = selection.realtimeModel.id;
-    }
-
-    // Timestamped Transcription Model
-    if (!selection.timestampedTranscriptionModel) {
-      payload.timestampedTranscriptionModelId = null;
-    } else if (selection.timestampedTranscriptionModel.id !== appConfig.timestampedTranscriptionModelId) {
-      payload.timestampedTranscriptionModelId = selection.timestampedTranscriptionModel.id;
-    } else if (userOverrides.has('timestampedTranscriptionModel')) {
-      payload.timestampedTranscriptionModelId = selection.timestampedTranscriptionModel.id;
-    }
-
-    // Realtime Transcription Model
-    if (!selection.realtimeTranscriptionModel) {
-      payload.realtimeTranscriptionModelId = null;
-    } else if (selection.realtimeTranscriptionModel.id !== appConfig.realtimeTranscriptionModelId) {
-      payload.realtimeTranscriptionModelId = selection.realtimeTranscriptionModel.id;
-    } else if (userOverrides.has('realtimeTranscriptionModel')) {
-      payload.realtimeTranscriptionModelId = selection.realtimeTranscriptionModel.id;
-    }
-
-    const { error, data } = await modelClient.upsertCustomModelSelection(session.user.id, payload);
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('saveFailed'), { description: error.message });
-      setIsSaving(false);
-      return;
-    }
-
-    toast.success(t('settingsSaved'), {
-      description: t('customModelPreferencesSaved'),
-    });
-
-    // Update userOverrides tracking based on what was saved
-    const newOverrides = new Set<keyof ModelSelection>();
-    if (data.responseModelId != null) newOverrides.add('responseModel');
-    if (data.ttsModelId != null) newOverrides.add('ttsModel');
-    if (data.realtimeModelId != null) newOverrides.add('realtimeModel');
-    if (data.timestampedTranscriptionModelId != null) newOverrides.add('timestampedTranscriptionModel');
-    if (data.realtimeTranscriptionModelId != null) newOverrides.add('realtimeTranscriptionModel');
-    setUserOverrides(newOverrides);
-
-    // Update selection with data returned from the server
-    // If a field is null (removed), fall back to global default for display
-    const updatedSelection: Partial<ModelSelection> = {};
-
-    updatedSelection.responseModel = data.responseModelId ?
-      models.responseModels.find((m) => m.id === data.responseModelId) :
-      models.responseModels.find((m) => m.id === appConfig.responseModelId);
-
-    updatedSelection.ttsModel = data.ttsModelId ?
-      models.ttsModels.find((m) => m.id === data.ttsModelId) :
-      models.ttsModels.find((m) => m.id === appConfig.ttsModelId);
-
-    updatedSelection.realtimeModel = data.realtimeModelId ?
-      models.realtimeModels.find((m) => m.id === data.realtimeModelId) :
-      models.realtimeModels.find((m) => m.id === appConfig.realtimeModelId);
-
-    updatedSelection.timestampedTranscriptionModel = data.timestampedTranscriptionModelId ?
-      models.timestampedTranscriptionModels.find((m) => m.id === data.timestampedTranscriptionModelId) :
-      models.timestampedTranscriptionModels.find((m) => m.id === appConfig.timestampedTranscriptionModelId);
-
-    updatedSelection.realtimeTranscriptionModel = data.realtimeTranscriptionModelId ?
-      models.realtimeTranscriptionModels.find((m) => m.id === data.realtimeTranscriptionModelId) :
-      models.realtimeTranscriptionModels.find((m) => m.id === appConfig.realtimeTranscriptionModelId);
-
-    setSelection(updatedSelection);
-    setIsSaving(false);
   };
 
-  if (!ready || !session) return <Loading/>;
+  if (!ready || !session) return <Loading />;
+
+  if (modelOptionsQuery.isError) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <span className="text-destructive">
+          {t('models.loadFailed')}: {modelOptionsQuery.error.message}
+        </span>
+      </div>
+    );
+  }
+
+  if (modelOptionsQuery.isLoading || customSelectionQuery.isLoading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <span className="text-muted-foreground">{t('loading.general')}</span>
+      </div>
+    );
+  }
+
+  const models = modelOptionsQuery.data;
+  if (!models) return null;
+
   const overridesDefaultLabel = t('models.overridesDefault');
   const usesGlobalDefaultLabel = t('models.usesGlobalDefault');
   const clearSectionLabel = t('models.clearCustomSelection');
   const clearAllLabel = t('models.clearAllCustomSelections');
+
   const globalOptionStatus = (modelId?: number | null) =>
     (model: { id: number }, _currentModel?: { id: number }) => {
       void _currentModel;
       return modelId != null && model.id === modelId ? t('models.currentlyUsedGlobally') : null;
     };
 
-  const globalProviderStatus = (modelId?: number | null, modelsList?: { id: number; provider: string }[]) =>
+  const globalProviderStatus = (
+    modelId?: number | null,
+    modelsList?: { id: number; provider: string }[],
+  ) =>
     (provider: string, _currentProvider?: string) => {
       void _currentProvider;
       if (modelId == null || !modelsList) return null;
@@ -345,33 +235,27 @@ export function AdminCustomModelSelectionPage() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className='flex justify-center items-center h-96'>
-        <span className='text-muted-foreground'>{t('loading.general')}</span>
-      </div>
-    );
-  }
+  const isSaving = upsertCustomSelection.isPending;
 
   return (
-    <Card className='max-w-3xl mx-auto p-6'>
-      <CardHeader className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+    <Card className="max-w-3xl mx-auto p-6">
+      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle>{t('customModelPreferences')}</CardTitle>
         <Button
-          type='button'
-          variant='outline'
-          size='sm'
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={clearAllSelections}
           disabled={!hasAnyOverride}
         >
           {clearAllLabel}
         </Button>
       </CardHeader>
-      <CardContent className='grid gap-8'>
+      <CardContent className="grid gap-8">
         <ModelSelectionForm>
           <ModelSelectionSection
             label={t('responseModel')}
-            modelKey='responseModel'
+            modelKey="responseModel"
             models={models.responseModels}
             modelSelection={selection}
             setModelSelection={setSelection}
@@ -388,7 +272,7 @@ export function AdminCustomModelSelectionPage() {
           />
           <ModelSelectionSection
             label={t('ttsModel')}
-            modelKey='ttsModel'
+            modelKey="ttsModel"
             models={models.ttsModels}
             modelSelection={selection}
             setModelSelection={setSelection}
@@ -405,7 +289,7 @@ export function AdminCustomModelSelectionPage() {
           />
           <ModelSelectionSection
             label={t('realtimeModel')}
-            modelKey='realtimeModel'
+            modelKey="realtimeModel"
             models={models.realtimeModels}
             modelSelection={selection}
             setModelSelection={setSelection}
@@ -422,7 +306,7 @@ export function AdminCustomModelSelectionPage() {
           />
           <ModelSelectionSection
             label={t('models.timestampedTranscriptionModel')}
-            modelKey='timestampedTranscriptionModel'
+            modelKey="timestampedTranscriptionModel"
             models={models.timestampedTranscriptionModels}
             modelSelection={selection}
             setModelSelection={setSelection}
@@ -439,7 +323,7 @@ export function AdminCustomModelSelectionPage() {
           />
           <ModelSelectionSection
             label={t('models.realtimeTranscriptionModel')}
-            modelKey='realtimeTranscriptionModel'
+            modelKey="realtimeTranscriptionModel"
             models={models.realtimeTranscriptionModels}
             modelSelection={selection}
             setModelSelection={setSelection}
@@ -461,7 +345,7 @@ export function AdminCustomModelSelectionPage() {
         <Button
           onClick={() => void handleSave()}
           disabled={isSaving}
-          className='flex-1'
+          className="flex-1"
         >
           {isSaving ? t('saving') : t('savePreferences')}
         </Button>

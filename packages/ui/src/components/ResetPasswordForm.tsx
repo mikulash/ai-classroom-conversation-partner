@@ -1,45 +1,71 @@
-import { Label } from '@radix-ui/react-label';
+import React, { useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Link, useSearchParams } from 'react-router';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
-import React, { useMemo, useState } from 'react';
 import { Button } from './ui/button';
-import { Link, useSearchParams } from 'react-router';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from './ui/form';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
+
+const MIN_PASSWORD_LENGTH = 8;
+
+const buildResetPasswordSchema = (messages: { passwordsDontMatch: string; passwordTooShort: string }) =>
+  z
+    .object({
+      newPassword: z.string().min(MIN_PASSWORD_LENGTH, { message: messages.passwordTooShort }),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      path: ['confirmPassword'],
+      message: messages.passwordsDontMatch,
+    });
+
+type ResetPasswordValues = z.infer<ReturnType<typeof buildResetPasswordSchema>>;
 
 export const ResetPasswordForm: React.FC = () => {
   const { t } = useTypedTranslation();
   const [searchParams] = useSearchParams();
 
-  const token = useMemo(() => searchParams.get('token') ?? '', [searchParams]);
-
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const token = searchParams.get('token') ?? '';
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setError(null);
+  const schema = useMemo(
+    () =>
+      buildResetPasswordSchema({
+        passwordsDontMatch: t('passwordsDontMatch', 'Passwords do not match'),
+        passwordTooShort: t('passwordTooShort', 'Password must be at least 8 characters'),
+      }),
+    [t],
+  );
 
-    if (newPassword !== confirmPassword) {
-      setError(t('passwordsDontMatch', 'Passwords do not match'));
+  const form = useForm<ResetPasswordValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { newPassword: '', confirmPassword: '' },
+    mode: 'onTouched',
+  });
+
+  const onSubmit = async (values: ResetPasswordValues) => {
+    setSubmitError(null);
+    const { error: resetError } = await authClient.resetPassword(token, values.newPassword);
+    if (resetError) {
+      setSubmitError(resetError.message);
       return;
     }
-
-    setIsLoading(true);
-
-    const { error: resetError } = await authClient.resetPassword(token, newPassword);
-
-    if (resetError) {
-      setError(resetError.message);
-    } else {
-      setIsSuccess(true);
-    }
-
-    setIsLoading(false);
+    setIsSuccess(true);
   };
+
+  const { isSubmitting } = form.formState;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
@@ -73,49 +99,62 @@ export const ResetPasswordForm: React.FC = () => {
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
               {t('setNewPassword', 'Choose a new password')}
             </h2>
-            <form onSubmit={(e) => {
-              void handleSubmit(e);
-            }} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">{t('newPassword', 'New password')}</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(event) => {
-                    setNewPassword(event.target.value);
-                  }}
-                  placeholder={t('passwordPlaceholder')}
-                  required
+            <Form {...form}>
+              <form onSubmit={(e) => {
+                void form.handleSubmit(onSubmit)(e);
+              }} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="newPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('newPassword', 'New password')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          autoComplete="new-password"
+                          placeholder={t('passwordPlaceholder')}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage/>
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">
-                  {t('confirmPassword', 'Confirm password')}
-                </Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(event) => {
-                    setConfirmPassword(event.target.value);
-                  }}
-                  placeholder={t('confirmPasswordPlaceholder')}
-                  required
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('confirmPassword', 'Confirm password')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          autoComplete="new-password"
+                          placeholder={t('confirmPasswordPlaceholder')}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage/>
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              {error && (
-                <div className="rounded bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {error}
-                </div>
-              )}
+                {submitError && (
+                  <div
+                    role="alert"
+                    className="rounded bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                  >
+                    {submitError}
+                  </div>
+                )}
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? t('loading.general') : t('resetPasswordCta', 'Reset password')}
-              </Button>
-            </form>
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? t('loading.general') : t('resetPasswordCta', 'Reset password')}
+                </Button>
+              </form>
+            </Form>
           </>
         )}
       </Card>

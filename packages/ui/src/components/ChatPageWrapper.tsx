@@ -1,44 +1,37 @@
 import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { ChatPageProps } from '../lib/types/ChatPageProps';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
+import { useChatSetupStore } from '../hooks/useChatSetupStore';
 
 interface ChatPageWrapperProps {
   children: (props: ChatPageProps) => React.ReactNode;
 }
 
 /**
- * Wrapper component that validates location state for chat pages.
- * Redirects to personality selector if required props are missing.
+ * Reads the chat setup (personality / role / scenario) from
+ * `useChatSetupStore` (sessionStorage-persisted) and feeds it
+ * down to the wrapped chat page. Redirects to the selector if
+ * the setup is missing.
  */
 export const ChatPageWrapper: React.FC<ChatPageWrapperProps> = ({ children }) => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTypedTranslation();
+  const setup = useChatSetupStore((state) => state.setup);
 
-  const state = location.state as ChatPageProps | undefined;
+  const isReady = setup !== null && setup.conversationRoleName.length > 0;
 
   useEffect(() => {
-    // Check if all required props are present
-    if (!state?.personality || !state.conversationRoleName) {
+    if (!isReady) {
       toast.info(t('chat.errors.missingConfiguration', {
         defaultValue: 'Please select a personality and conversation role first',
       }));
-      void navigate('/chats/personality-selector', { replace: true });
+      void navigate('/chat', { replace: true });
     }
-  }, [state, navigate, t]);
+  }, [isReady, navigate, t]);
 
-  // Don't render children until we've validated the state
-  if (!state?.personality || !state.conversationRoleName) {
-    return null;
-  }
+  if (!isReady) return null;
 
-  const chatPageProps: ChatPageProps = {
-    personality: state.personality,
-    conversationRoleName: state.conversationRoleName,
-    scenario: state.scenario ?? null,
-  };
-
-  return <>{children(chatPageProps)}</>;
+  return <>{children(setup)}</>;
 };

@@ -15,7 +15,7 @@ export function Header() {
   const { session, ready, profile, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { appName } = useAppStore((state) => state.appConfig);
+  const appName = useAppStore((state) => state.appConfig.appName);
   const isSignedIn = ready && !!session?.user;
   const navigate = useNavigate();
   const { pathname } = useLocation();

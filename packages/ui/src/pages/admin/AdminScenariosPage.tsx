@@ -1,61 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-import { useAppStore } from '../../hooks/useAppStore';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
+import { useConfirm } from '../../hooks/useConfirm';
 import { ScenarioForm } from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
-import { scenarioClient } from '@repo/frontend-utils/src/clients/db/scenario.client';
+import {
+  useCreateScenario,
+  useDeleteScenario,
+  useScenarios,
+  useUpdateScenario,
+} from '../../hooks/queries/useScenarios';
+import { usePersonalities } from '../../hooks/queries/usePersonalities';
 import { ScenarioCreateModel, ScenarioModel } from '@repo/frontend-utils/src/models';
 
 type ScenarioFormData = ScenarioModel | ScenarioCreateModel;
 
+const EMPTY_SCENARIO: ScenarioCreateModel = {
+  settingEn: '',
+  settingCs: '',
+  situationDescriptionCs: '',
+  situationDescriptionEn: '',
+  involvedPersonalityId: null,
+};
+
 export function AdminScenariosPage() {
   const { t } = useTypedTranslation();
-  const scenarios = useAppStore((state) => state.scenarios);
-  const setScenarios = useAppStore((state) => state.setScenarios);
-  const personalities = useAppStore((state) => state.personalities);
+  const confirm = useConfirm();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const scenariosQuery = useScenarios();
+  const personalitiesQuery = usePersonalities();
+  const scenarios = scenariosQuery.data ?? [];
+  const personalities = personalitiesQuery.data ?? [];
+
+  const createScenario = useCreateScenario();
+  const updateScenario = useUpdateScenario();
+  const deleteScenario = useDeleteScenario();
+
+  const isProcessing =
+    createScenario.isPending || updateScenario.isPending || deleteScenario.isPending;
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-
-  const emptyScenario: ScenarioCreateModel = {
-    settingEn: '',
-    settingCs: '',
-    situationDescriptionCs: '',
-    situationDescriptionEn: '',
-    involvedPersonalityId: null,
-  };
-
-  const [currentScenario, setCurrentScenario] = useState<ScenarioFormData>(emptyScenario);
-
-  useEffect(() => {
-    void fetchData();
-  }, []);
-
-  async function fetchData() {
-    setIsLoading(true);
-
-    const scenariosRes = await scenarioClient.all();
-
-    // Handle scenarios response
-    if (scenariosRes.error) {
-      console.error(scenariosRes.error.message);
-      toast.error(t('admin.scenarios.notifications.loadFailed'), {
-        description: scenariosRes.error.message,
-      });
-    } else {
-      const sortedScenarios = scenariosRes.data.toSorted((a, b) => a.id - b.id);
-      setScenarios(sortedScenarios);
-    }
-
-    setIsLoading(false);
-  }
-
+  const [currentScenario, setCurrentScenario] = useState<ScenarioFormData>(EMPTY_SCENARIO);
 
   const handleEdit = (scenario: ScenarioFormData) => {
     setCurrentScenario(scenario);
@@ -63,21 +52,23 @@ export function AdminScenariosPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!globalThis.confirm(t('admin.scenarios.deleteConfirm'))) return;
+    const ok = await confirm({
+      title: t('admin.scenarios.deleteConfirm'),
+      confirmLabel: t('actions.delete', 'Delete'),
+      cancelLabel: t('actions.cancel', 'Cancel'),
+      destructive: true,
+    });
+    if (!ok) return;
 
-    setIsProcessing(true);
-    const { error } = await scenarioClient.delete(id);
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('admin.scenarios.notifications.deleteFailed'), { description: error.message });
-    } else {
+    try {
+      await deleteScenario.mutateAsync(id);
       toast.success(t('admin.scenarios.notifications.deleteSuccess'));
-      void fetchData();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('admin.scenarios.notifications.deleteFailed'), { description: message });
     }
-    setIsProcessing(false);
   };
-
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -88,15 +79,21 @@ export function AdminScenariosPage() {
 
   const handleSelectChange = (field: string, value: string) => {
     const processedValue =
-      field === 'involvedPersonalityId' && value === 'none' ? null : field === 'involvedPersonalityId' ? Number(value) : value;
+      field === 'involvedPersonalityId' && value === 'none' ?
+        null :
+        field === 'involvedPersonalityId' ?
+          Number(value) :
+          value;
 
     setCurrentScenario((prev) => ({ ...prev, [field]: processedValue }));
   };
 
   const validateScenario = (scenario: ScenarioFormData): boolean => {
-    if (!scenario.settingEn || !scenario.settingCs ||
+    if (
+      !scenario.settingEn || !scenario.settingCs ||
       !scenario.situationDescriptionEn || !scenario.situationDescriptionCs ||
-      scenario.involvedPersonalityId === null) {
+      scenario.involvedPersonalityId === null
+    ) {
       toast.error(t('admin.scenarios.notifications.validationFailed'));
       return false;
     }
@@ -107,60 +104,51 @@ export function AdminScenariosPage() {
     if (!('id' in scenario) || !scenario.id) return;
     if (!validateScenario(scenario)) return;
 
-    setIsProcessing(true);
-
-    const { error } = await scenarioClient.update(
-      scenario.id,
-      {
-        settingEn: scenario.settingEn,
-        settingCs: scenario.settingCs,
-        situationDescriptionEn: scenario.situationDescriptionEn,
-        situationDescriptionCs: scenario.situationDescriptionCs,
-        involvedPersonalityId: scenario.involvedPersonalityId ?? undefined,
-      },
-    );
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('admin.scenarios.notifications.updateFailed'), { description: error.message });
-    } else {
+    try {
+      await updateScenario.mutateAsync({
+        id: scenario.id,
+        input: {
+          settingEn: scenario.settingEn,
+          settingCs: scenario.settingCs,
+          situationDescriptionEn: scenario.situationDescriptionEn,
+          situationDescriptionCs: scenario.situationDescriptionCs,
+          involvedPersonalityId: scenario.involvedPersonalityId ?? undefined,
+        },
+      });
       toast.success(t('admin.scenarios.notifications.updateSuccess'));
-      void fetchData();
       setIsEditDialogOpen(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('admin.scenarios.notifications.updateFailed'), { description: message });
     }
-    setIsProcessing(false);
   };
 
   const handleAddSubmit = async () => {
     if (!validateScenario(currentScenario)) return;
 
-    setIsProcessing(true);
-
-    const { error } = await scenarioClient.insert({
-      settingEn: currentScenario.settingEn,
-      settingCs: currentScenario.settingCs,
-      situationDescriptionEn: currentScenario.situationDescriptionEn,
-      situationDescriptionCs: currentScenario.situationDescriptionCs,
-      involvedPersonalityId: currentScenario.involvedPersonalityId ?? undefined,
-    });
-
-    if (error) {
-      console.error(error.message);
-      toast.error(t('admin.scenarios.notifications.createFailed'), { description: error.message });
-    } else {
+    try {
+      await createScenario.mutateAsync({
+        settingEn: currentScenario.settingEn,
+        settingCs: currentScenario.settingCs,
+        situationDescriptionEn: currentScenario.situationDescriptionEn,
+        situationDescriptionCs: currentScenario.situationDescriptionCs,
+        involvedPersonalityId: currentScenario.involvedPersonalityId ?? undefined,
+      });
       toast.success(t('admin.scenarios.notifications.createSuccess'));
-      void fetchData();
       setIsAddDialogOpen(false);
-      setCurrentScenario(emptyScenario);
+      setCurrentScenario(EMPTY_SCENARIO);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(message);
+      toast.error(t('admin.scenarios.notifications.createFailed'), { description: message });
     }
-    setIsProcessing(false);
   };
 
   const handleAddNew = () => {
-    setCurrentScenario(emptyScenario);
+    setCurrentScenario(EMPTY_SCENARIO);
     setIsAddDialogOpen(true);
   };
-
 
   const getPersonalityName = (id: number | null) => {
     if (!id) return t('admin.scenarios.form.none');
@@ -168,11 +156,20 @@ export function AdminScenariosPage() {
     return p ? p.name : t('admin.scenarios.form.unknown');
   };
 
-
-  if (isLoading) {
+  if (scenariosQuery.isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
         <span className="text-muted-foreground">{t('admin.scenarios.loading')}</span>
+      </div>
+    );
+  }
+
+  if (scenariosQuery.isError) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <span className="text-destructive">
+          {t('admin.scenarios.notifications.loadFailed')}: {scenariosQuery.error.message}
+        </span>
       </div>
     );
   }
