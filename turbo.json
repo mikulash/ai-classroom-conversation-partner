@@ -1,102 +1,89 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["tsconfig.json", "pnpm-workspace.yaml", ".npmrc"],
+  "globalEnv": [
+    "NODE_ENV",
+    "MODE",
+    "PORT",
+    "OPENAI_API_KEY",
+    "ELEVENLABS_API_KEY",
+    "GROK_API_KEY",
+    "CLAUDE_API_KEY",
+    "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
+    "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
+    "TAURI_DEV_HOST",
+    "VITE_BACKEND_URL",
+    "DATABASE_URL",
+    "JWT_SECRET",
+    "JWT_EXPIRES_IN",
+    "APP_FRONTEND_URL",
+    "AVATAR_UPLOAD_DIR",
+    "SMTP_HOST",
+    "SMTP_PORT",
+    "SMTP_USER",
+    "SMTP_PASS",
+    "MAIL_FROM",
+    "TOKEN_CLEANUP_SCHEDULE"
+  ],
   "tasks": {
     "prisma:generate": {
-      "cache": false
+      "inputs": ["prisma/schema.prisma"],
+      "outputs": ["src/generated/prisma/**"]
     },
     "build": {
-      "dependsOn": [
-        "^prisma:generate",
-        "^build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
-      "outputs": [
-        "dist/**"
-      ],
-      "env": [
-        "PORT",
-        "OPENAI_API_KEY",
-        "ELEVENLABS_API_KEY",
-        "GROK_API_KEY",
-        "CLAUDE_API_KEY",
-        "TAURI_DEV_HOST",
-        "VITE_BACKEND_URL",
-        "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
-        "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
-        "MODE",
-        "NODE_ENV",
-        "DATABASE_URL",
-        "JWT_SECRET",
-        "JWT_EXPIRES_IN",
-        "APP_FRONTEND_URL",
-        "AVATAR_UPLOAD_DIR",
-        "SMTP_HOST",
-        "SMTP_PORT",
-        "SMTP_USER",
-        "SMTP_PASS",
-        "MAIL_FROM",
-        "TOKEN_CLEANUP_SCHEDULE"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"]
+    },
+    "figurant-backend#build": {
+      "dependsOn": ["^build", "prisma:generate"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"]
     },
     "start": {
-      "dependsOn": [
-        "^start"
-      ],
+      "dependsOn": ["^start"],
       "persistent": true,
-      "cache": false,
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ]
+      "cache": false
     },
     "lint": {
-      "dependsOn": [
-        "build",
-        "^lint"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "figurant-backend#lint": {
+      "dependsOn": ["^build", "prisma:generate"],
+      "outputs": []
     },
     "typecheck": {
-      "dependsOn": [
-        "build",
-        "^typecheck"
-      ],
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!dist/**"],
+      "outputs": ["**/*.tsbuildinfo"]
+    },
+    "figurant-backend#typecheck": {
+      "dependsOn": ["^build", "prisma:generate"],
+      "inputs": ["$TURBO_DEFAULT$", "!dist/**"],
+      "outputs": ["**/*.tsbuildinfo"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": []
+    },
+    "figurant-backend#test": {
+      "dependsOn": ["^build", "prisma:generate"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": []
     },
     "dev": {
-      "dependsOn": ["^prisma:generate", "^dev", "^build"],
+      "dependsOn": ["^build"],
       "persistent": true,
       "cache": false,
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
-      "env": [
-        "PORT",
-        "OPENAI_API_KEY",
-        "ELEVENLABS_API_KEY",
-        "GROK_API_KEY",
-        "CLAUDE_API_KEY",
-        "TAURI_DEV_HOST",
-        "VITE_BACKEND_URL",
-        "ELEVENLABS_FALLBACK_VOICE_ID_FEMALE",
-        "ELEVENLABS_FALLBACK_VOICE_ID_MALE",
-        "MODE",
-        "NODE_ENV",
-        "DATABASE_URL",
-        "JWT_SECRET",
-        "JWT_EXPIRES_IN",
-        "APP_FRONTEND_URL",
-        "AVATAR_UPLOAD_DIR",
-        "SMTP_HOST",
-        "SMTP_PORT",
-        "SMTP_USER",
-        "SMTP_PASS",
-        "MAIL_FROM",
-        "TOKEN_CLEANUP_SCHEDULE"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
+    },
+    "figurant-backend#dev": {
+      "dependsOn": ["^build", "prisma:generate"],
+      "persistent": true,
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
     }
   }
 }
