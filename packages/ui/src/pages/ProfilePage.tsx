@@ -1,168 +1,111 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
-import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { useAuth } from '../hooks/useAuth';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../components/ui/form';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
 import { ConversationsList } from '../components/ConversationsList';
-import { toast } from 'sonner';
 import { MyConversation } from '@repo/frontend-utils/src/myConversation';
-import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
-import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
-import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
-import { UpdateProfileDto } from '@repo/frontend-utils/src/clients/generated';
-import { ConversationModel } from '@repo/frontend-utils/src/models';
+import {
+  useCurrentUserProfile,
+  useMyConversations,
+  useRemoveMyConversationFromCache,
+  useUpdateMyProfile,
+} from '../hooks/queries/useCurrentUser';
+
+const profileSchema = z.object({
+  fullName: z.string().default(''),
+  conversationRole: z.string().default(''),
+  gender: z.string().default(''),
+  bio: z.string().default(''),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
+
+const EMPTY: ProfileFormValues = { fullName: '', conversationRole: '', gender: '', bio: '' };
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
 
-  const [fullName, setFullName] = useState<string>('');
-  const [conversationRole, setConversationRole] = useState('');
-  const [gender, setGender] = useState<string>('');
-  const [bio, setBio] = useState<string>('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const profileQuery = useCurrentUserProfile();
+  const conversationsQuery = useMyConversations();
+  const updateProfile = useUpdateMyProfile();
+  const removeConversationFromCache = useRemoveMyConversationFromCache();
 
-  const [conversations, setConversations] = useState<MyConversation[]>([]);
-  const [isLoadingConversations, setIsLoadingConversations] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
+  const [showSavedFlash, setShowSavedFlash] = useState(false);
 
-  const { setProfile, profile: cachedProfile, session, ready } = useAuth();
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: EMPTY,
+  });
 
+  // Sync server truth into the form when it arrives or changes. RHF's
+  // `form.reset` is the canonical way to swap defaults without stomping
+  // a user mid-edit (it only reapplies dirty/touched flags as needed).
   useEffect(() => {
-    if (!cachedProfile) return;
-    setFullName(cachedProfile.fullName);
-    setConversationRole(cachedProfile.conversationRole);
-    setGender(cachedProfile.gender);
-    setBio(cachedProfile.bio);
-  }, [cachedProfile]);
+    if (!profileQuery.data) return;
+    form.reset({
+      fullName: profileQuery.data.fullName,
+      conversationRole: profileQuery.data.conversationRole,
+      gender: profileQuery.data.gender,
+      bio: profileQuery.data.bio,
+    });
+  }, [profileQuery.data]);
 
-  const fetchConversations = useCallback(async () => {
-    if (!session) {
-      console.error('Unable to retrieve session: not authenticated');
-      return;
-    }
+  // Auto-clear the green "saved" banner after 3s without an effect-driven
+  // timeout from inside the submit handler.
+  useEffect(() => {
+    if (!showSavedFlash) return;
+    const handle = setTimeout(() => {
+      setShowSavedFlash(false);
+    }, 3000);
+    return () => {
+      clearTimeout(handle);
+    };
+  }, [showSavedFlash]);
 
+  const onSubmit = async (values: ProfileFormValues) => {
+    if (!profileQuery.data) return;
     try {
-      setIsLoadingConversations(true);
-
-      const { data, error } = await conversationClient.getCurrentUserConversations();
-
-      if (error) {
-        console.error('Error loading conversations:', error.message);
-        toast.error('Failed to load conversations', {
-          description: error.message,
-        });
-        return;
-      }
-
-      const toIsoString = (value: Date | string | null | undefined): string => {
-        if (!value) return '';
-        const date = value instanceof Date ? value : new Date(value);
-        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
-      };
-
-      const conversationsData: MyConversation[] = data.map((conv: ConversationModel) => ({
-        id: conv.id,
-        start_time: toIsoString(conv.startTime),
-        end_time: toIsoString(conv.endTime),
-        ended_reason: conv.endedReason,
-        conversation_type: conv.conversationType,
-        messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
-        personality_id: conv.personalityId,
-        personality: conv.personality ? { name: conv.personality.name } : null,
-      }));
-
-      setConversations(conversationsData);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Error loading conversations:', error.message);
-        toast.error('Failed to load conversations', {
-          description: error.message,
-        });
-      }
-    } finally {
-      setIsLoadingConversations(false);
+      await updateProfile.mutateAsync({
+        profileId: profileQuery.data.id,
+        input: values,
+      });
+      setShowSavedFlash(true);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Error saving profile:', message);
+      toast.error(message);
     }
-  }, [session]);
+  };
 
   const handleConversationClick = (conversation: MyConversation) => {
     setSelectedConversation(conversation);
     setIsConversationDialogVisible(true);
   };
 
-
-  const handleSave = async () => {
-    if (!cachedProfile) return;
-    setIsSaving(true);
-    setIsSuccess(false);
-    try {
-      const payload: UpdateProfileDto = {
-        fullName,
-        conversationRole,
-        gender,
-        bio,
-      };
-
-      const { error: updateError, data: freshData } = await profileClient.upsert(
-        cachedProfile.id,
-        payload,
-      );
-      if (updateError) {
-        console.error('Error saving profile:', updateError);
-      } else {
-        setProfile(freshData);
-        setIsSuccess(true);
-        setTimeout(() => {
-          setIsSuccess(false);
-        }, 3000);
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Unexpected error saving profile:', error.message);
-      } else {
-        console.error('Unexpected error saving profile:', error);
-      }
-    } finally {
-      setIsSaving(false);
+  const handleConversationDeleted = () => {
+    if (selectedConversation) {
+      removeConversationFromCache(selectedConversation.id);
     }
+    setSelectedConversation(null);
   };
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!session) {
-        return;
-      }
-
-      const { data, error: profileError } = await authClient.getCurrentUser();
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError);
-        return;
-      }
-      setFullName(data.fullName);
-      setConversationRole(data.conversationRole);
-      setGender(data.gender);
-      setBio(data.bio);
-      setProfile(data);
-
-      await fetchConversations();
-    };
-
-    if (ready) {
-      fetchProfile().catch((error: unknown) => {
-        if (error instanceof Error) {
-          console.error('Error fetching profile:', error.message);
-        } else {
-          console.error('Error fetching profile:', error);
-        }
-      });
-    }
-  }, [fetchConversations, ready, session, setProfile]);
 
   return (
     <>
@@ -172,68 +115,70 @@ export function UserProfilePage() {
             <CardTitle>{t('userProfile')}</CardTitle>
           </CardHeader>
 
-          <CardContent className="space-y-6">
-            {isSuccess && (
-              <div className="p-4 mb-4 text-green-800 bg-green-100 rounded">
-                {t('profileSavedSuccess')}
-              </div>
-            )}
+          <Form {...form}>
+            <form onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}>
+              <CardContent className="space-y-6">
+                {showSavedFlash && (
+                  <div className="p-4 mb-4 text-green-800 bg-green-100 rounded" role="status">
+                    {t('profileSavedSuccess')}
+                  </div>
+                )}
 
-            <div>
-              <Label htmlFor="fullName">{t('username')}</Label>
-              <Input
-                id="fullName"
-                value={fullName}
-                onChange={(e) => {
-                  setFullName(e.target.value);
-                }}
-                placeholder={t('usernamePlaceholder')}
-                className="mt-1"
-              />
-              <p className="text-sm text-muted-foreground">
-                {t('usernameHelp')}
-              </p>
-            </div>
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('username')}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={t('usernamePlaceholder')} {...field} />
+                      </FormControl>
+                      <FormDescription>{t('usernameHelp')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div>
-              <Label htmlFor="gender">{t('gender')}</Label>
-              <Input
-                value={gender}
-                onChange={(e) => {
-                  setGender(e.target.value);
-                }}
-                placeholder={t('genderPlaceholder')}
-                className={'mt-1'}
-              />
-              <p className="text-sm text-muted-foreground">
-                {t('genderHelp')}
-              </p>
-            </div>
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('gender')}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={t('genderPlaceholder')} {...field} />
+                      </FormControl>
+                      <FormDescription>{t('genderHelp')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div>
-              <Label htmlFor="bio">{t('bio')}</Label>
-              <Textarea
-                id="bio"
-                value={bio}
-                onChange={(e) => {
-                  setBio(e.target.value);
-                }}
-                placeholder={t('bioPlaceholder')}
-                className="mt-1"
-              />
-              <p className="text-sm text-muted-foreground">
-                {t('bioHelp')}
-              </p>
-            </div>
-          </CardContent>
+                <FormField
+                  control={form.control}
+                  name="bio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('bio')}</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder={t('bioPlaceholder')} {...field} />
+                      </FormControl>
+                      <FormDescription>{t('bioHelp')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
 
-          <CardFooter className="justify-end">
-            <Button onClick={() => {
-              void handleSave();
-            }} disabled={isSaving}>
-              {isSaving ? t('saving') : t('saveChanges')}
-            </Button>
-          </CardFooter>
+              <CardFooter className="justify-end">
+                <Button type="submit" disabled={updateProfile.isPending}>
+                  {updateProfile.isPending ? t('saving') : t('saveChanges')}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
         </Card>
 
         <Card>
@@ -242,9 +187,9 @@ export function UserProfilePage() {
             <Button
               variant="outline"
               onClick={() => {
-                void fetchConversations();
+                void conversationsQuery.refetch();
               }}
-              disabled={isLoadingConversations}
+              disabled={conversationsQuery.isFetching}
             >
               {t('refresh')}
             </Button>
@@ -252,8 +197,8 @@ export function UserProfilePage() {
 
           <CardContent>
             <ConversationsList
-              conversations={conversations}
-              isLoading={isLoadingConversations}
+              conversations={conversationsQuery.data ?? []}
+              isLoading={conversationsQuery.isLoading}
               onConversationClick={handleConversationClick}
             />
           </CardContent>
@@ -273,11 +218,8 @@ export function UserProfilePage() {
           endedReason: selectedConversation.ended_reason,
         } : undefined}
         conversationId={selectedConversation?.id}
-        onConversationDeleted={() => {
-          setConversations((prev) => prev.filter((conv) => conv.id !== selectedConversation?.id));
-          setSelectedConversation(null);
-        }}
-        isDeleteAllowed={true} // Enable delete for user's own conversations
+        onConversationDeleted={handleConversationDeleted}
+        isDeleteAllowed={true}
       />
     </>
   );
