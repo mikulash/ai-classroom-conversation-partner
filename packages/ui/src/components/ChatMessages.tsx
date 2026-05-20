@@ -48,7 +48,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   };
 
   const defaultEmptyStateMessage = isConnected ?
-    t('speakToBeginConversation') :
+    t('startSpeaking') :
     t('connectToBeginConversation');
 
   const lastMessageContent =
@@ -66,7 +66,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           }`}
         >
           <div className="font-semibold mb-1">
-            {msg.role === 'user' ? t('you') : assistantName}
+            {msg.role === 'user' ? t('chat.you') : assistantName}
           </div>
           <div>{msg.content}</div>
         </div>
@@ -75,7 +75,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       {currentTranscript && currentTranscript !== lastMessageContent && (
         <div className="p-3 rounded-lg bg-blue-50 text-blue-800 ml-8 border border-blue-200">
           <div className="font-semibold mb-1">
-            {t('you')} ({t('listeningActive')})
+            {t('chat.you')} ({t('listening')})
           </div>
           <div>{currentTranscript}</div>
         </div>
@@ -84,7 +84,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       {assistantTranscript && (
         <div className="p-3 rounded-lg bg-gray-50 text-gray-800 mr-8 border border-gray-200">
           <div className="font-semibold mb-1">
-            {assistantName} ({t('listeningActive')})
+            {assistantName} ({t('listening')})
           </div>
           <div>{assistantTranscript}</div>
         </div>

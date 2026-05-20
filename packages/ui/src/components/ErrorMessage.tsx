@@ -24,7 +24,7 @@ export const ErrorMessage =
         <Card className={cn('w-full max-w-md mx-auto', className)} {...props}>
           <CardHeader>
             <CardTitle className="text-center text-destructive">
-              {title ?? t('errorTitle')}
+              {title ?? t('error')}
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center space-y-4">

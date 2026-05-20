@@ -77,7 +77,7 @@ export const EmailValidatedPage: React.FC = () => {
       title={t('emailValidatedSuccess')}
       descriptionLines={[t('emailValidatedMessage')]}
       actionTo="/chat"
-      actionLabel={t('goToPersonalitySelector')}
+      actionLabel={t('chat.goToPersonalitySelector')}
     />
   );
 };

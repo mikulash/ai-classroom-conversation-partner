@@ -50,8 +50,8 @@ export function AdminGlobalModelSelectionPage() {
   const handleSave = async () => {
     const confirmed = await confirm({
       title: t('models.confirmationWarning'),
-      confirmLabel: t('actions.save', 'Save'),
-      cancelLabel: t('actions.cancel', 'Cancel'),
+      confirmLabel: t('common.save'),
+      cancelLabel: t('common.cancel'),
     });
     if (!confirmed) return;
 

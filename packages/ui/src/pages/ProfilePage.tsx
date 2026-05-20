@@ -191,7 +191,7 @@ export function UserProfilePage() {
               }}
               disabled={conversationsQuery.isFetching}
             >
-              {t('refresh')}
+              {t('common.refresh')}
             </Button>
           </CardHeader>
 

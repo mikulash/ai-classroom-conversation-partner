@@ -210,7 +210,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
                 className="flex items-center gap-2"
               >
                 <Trash2 className="h-4 w-4"/>
-                {t('admin.conversations.delete', { defaultValue: 'Delete' })}
+                {t('common.delete')}
               </Button>
             )}
 
@@ -265,7 +265,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
             >
               {isDeleting ?
                 t('admin.conversations.deleting', { defaultValue: 'Deleting...' }) :
-                t('admin.conversations.delete', { defaultValue: 'Delete' })
+                t('common.delete')
               }
             </Button>
           </DialogFooter>

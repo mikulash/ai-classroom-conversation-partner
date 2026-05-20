@@ -235,7 +235,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       logMessage('error', 'Error generating full reply', {
         error: err instanceof Error ? err.message : String(err),
       });
-      const fallback = t('aiResponseError');
+      const fallback = t('chat.errors.aiResponseError');
       setMessages((m) => [...m, { content: fallback, role: 'assistant', timestamp: new Date() }]);
     } finally {
       setIsAiProcessing(false);
@@ -294,7 +294,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   if (userProfile === null) {
     return (
       <div className="flex justify-center items-center h-screen">
-        {t('cannotLoadUserProfile')}
+        {t('chat.profileError')}
       </div>
     );
   }

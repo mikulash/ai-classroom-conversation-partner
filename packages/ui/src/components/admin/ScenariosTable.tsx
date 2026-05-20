@@ -29,7 +29,7 @@ export const ScenariosTable: React.FC<ScenariosTableProps> = ({
           <TableHead>{t('admin.scenarios.table.setting')}</TableHead>
           <TableHead>{t('admin.scenarios.table.description')}</TableHead>
           <TableHead>{t('admin.scenarios.table.personality')}</TableHead>
-          <TableHead className="text-right">{t('admin.scenarios.table.actions')}</TableHead>
+          <TableHead className="text-right">{t('common.actions')}</TableHead>
         </TableRow>
       </TableHeader>
 
@@ -53,7 +53,7 @@ export const ScenariosTable: React.FC<ScenariosTableProps> = ({
                     <Button variant="outline" size="sm" onClick={() => {
                       onEdit(s);
                     }}>
-                      {t('admin.scenarios.edit')}
+                      {t('common.edit')}
                     </Button>
                     <Button
                       variant="destructive"
@@ -63,7 +63,7 @@ export const ScenariosTable: React.FC<ScenariosTableProps> = ({
                       }}
                       disabled={isProcessing}
                     >
-                      {t('admin.scenarios.delete')}
+                      {t('common.delete')}
                     </Button>
                   </div>
                 </TableCell>

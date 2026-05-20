@@ -31,8 +31,8 @@ export function AdminPersonalitiesPage() {
   const handleDelete = async (id: number) => {
     const ok = await confirm({
       title: t('personalities.confirmDelete'),
-      confirmLabel: t('actions.delete', 'Delete'),
-      cancelLabel: t('actions.cancel', 'Cancel'),
+      confirmLabel: t('common.delete'),
+      cancelLabel: t('common.cancel'),
       destructive: true,
     });
     if (!ok) return;
@@ -68,7 +68,7 @@ export function AdminPersonalitiesPage() {
   return (
     <Card className="max-w-6xl mx-auto p-6 mb-8">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{t('personalities.title')}</CardTitle>
+        <CardTitle>{t('personalities.personalities')}</CardTitle>
         <Button onClick={() => {
           setDialog({ open: true, personality: null });
         }}>

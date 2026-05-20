@@ -129,7 +129,7 @@ export function AdminProfilesPage() {
               }}
               disabled={profilesQuery.isFetching}
             >
-              {t('admin.profiles.refresh')}
+              {t('common.refresh')}
             </Button>
           </div>
         </CardHeader>

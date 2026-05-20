@@ -137,7 +137,7 @@ export function AdminCustomModelSelectionPage() {
 
     try {
       await upsertCustomSelection.mutateAsync(payload);
-      toast.success(t('settingsSaved'), {
+      toast.success(t('models.saveSuccess'), {
         description: t('customModelPreferencesSaved'),
       });
       // The query invalidation in the mutation hook will re-fetch and the effect
@@ -145,7 +145,7 @@ export function AdminCustomModelSelectionPage() {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(message);
-      toast.error(t('saveFailed'), { description: message });
+      toast.error(t('models.saveFailed'), { description: message });
     }
   };
 
@@ -256,8 +256,8 @@ export function AdminCustomModelSelectionPage() {
                 models={modelList}
                 modelSelection={selection}
                 setModelSelection={setSelection}
-                selectProviderLabel={t('selectProvider')}
-                selectModelLabel={t('selectModel')}
+                selectProviderLabel={t('models.selectProvider')}
+                selectModelLabel={t('models.selectModel')}
                 titleStatus={titleStatusForKey(category.key)}
                 optionStatus={globalOptionStatus(globalId)}
                 providerStatus={globalProviderStatus(globalId, modelList)}

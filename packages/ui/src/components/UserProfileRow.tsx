@@ -69,7 +69,7 @@ export const UserProfileRow: React.FC<UserProfileRowProps> = ({
           {profile.email}
           {isCurrentUser && (
             <span className="ml-2 text-xs bg-white text-black px-2 py-1 rounded border border-black">
-              {t('you')}
+              {t('chat.you')}
             </span>
           )}
         </TableCell>

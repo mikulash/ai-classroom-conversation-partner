@@ -84,7 +84,7 @@ export const EmailVerificationExpiredPage: React.FC = () => {
                 ) : null}
 
                 <Button className="w-full" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? t('loadingMessage') : t('emailVerificationExpiredPrimaryAction')}
+                  {isSubmitting ? t('loading.general') : t('emailVerificationExpiredPrimaryAction')}
                 </Button>
               </form>
 

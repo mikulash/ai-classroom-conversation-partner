@@ -37,7 +37,7 @@ export const HomePage: React.FC = () => {
               <Button
                 className="w-full py-4 sm:py-6 text-lg sm:text-xl bg-green-700 hover:bg-green-600 text-white"
                 asChild>
-                <Link to="/chat">{t('goToPersonalitySelector')}</Link>
+                <Link to="/chat">{t('chat.goToPersonalitySelector')}</Link>
               </Button>
             </div>
           ) : (
