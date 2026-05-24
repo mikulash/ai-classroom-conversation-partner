@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
@@ -30,18 +30,25 @@ export function AdminCustomModelSelectionPage() {
   // Track which fields have explicit user overrides (vs using global defaults)
   const [userOverrides, setUserOverrides] = useState<Set<keyof ModelSelection>>(new Set());
 
-  /**
-   * Seed selection + overrides when both model options and the user's
-   * custom selection have loaded. Re-runs whenever either side changes,
-   * so a save (which invalidates the custom-selection query) picks the
-   * fresh row up automatically.
-   */
-  useEffect(() => {
-    const models = modelOptionsQuery.data;
-    if (!models) return;
-    if (customSelectionQuery.isLoading) return;
+  // Seed selection + overrides when both model options and the user's custom selection
+  // have loaded. Re-seeds whenever either side changes (e.g. after a save invalidates
+  // the custom-selection query) without overwriting in-flight edits in between.
+  const models = modelOptionsQuery.data;
+  const userSelection = customSelectionQuery.data;
+  const seedReady = models && !customSelectionQuery.isLoading;
+  const [seedKey, setSeedKey] = useState<{
+    models: unknown;
+    userSelection: unknown;
+    appConfig: unknown;
+  } | null>(null);
 
-    const userSelection = customSelectionQuery.data;
+  if (
+    seedReady &&
+    (seedKey?.models !== models ||
+      seedKey.userSelection !== userSelection ||
+      seedKey.appConfig !== appConfig)
+  ) {
+    setSeedKey({ models, userSelection, appConfig });
 
     const overrides = new Set<keyof ModelSelection>();
     if (userSelection?.responseModelId != null) overrides.add('responseModel');
@@ -88,7 +95,7 @@ export function AdminCustomModelSelectionPage() {
         appConfig.realtimeTranscriptionModelId,
       ),
     });
-  }, [modelOptionsQuery.data, customSelectionQuery.data, customSelectionQuery.isLoading, appConfig]);
+  }
 
   const handleSave = async () => {
     if (!userId) {
@@ -168,7 +175,6 @@ export function AdminCustomModelSelectionPage() {
     );
   }
 
-  const models = modelOptionsQuery.data;
   if (!models) return null;
 
   const overridesDefaultLabel = t('models.overridesDefault');

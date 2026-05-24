@@ -28,7 +28,6 @@ import { useChatTimeLimitMonitor } from '../../hooks/useChatTimeLimitMonitor';
 import { useSilenceMonitor } from '../../hooks/useSilenceMonitor';
 
 const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversationRoleName, scenario }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [hasConversationStarted, setHasConversationStarted] = useState(false);
@@ -278,7 +277,6 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   // ── Lifecycle ──────────────────────────────────────────────────────
 
   useEffect(() => {
-    setIsLoading(false);
     return () => {
       connection?.close();
       if (!conversationSavedRef.current && messages.length > 0) {
@@ -295,14 +293,6 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     return (
       <div className="flex justify-center items-center h-screen">
         {t('cannotLoadUserProfile')}
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        {t('loading.general')}
       </div>
     );
   }

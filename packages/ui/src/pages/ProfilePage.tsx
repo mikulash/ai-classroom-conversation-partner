@@ -34,13 +34,16 @@ export function UserProfilePage() {
 
   const { setProfile, profile: cachedProfile, session, ready } = useAuth();
 
-  useEffect(() => {
-    if (!cachedProfile) return;
+  // Hydrate form fields when a new profile object arrives (initial load or fresh fetch),
+  // without overwriting in-flight user edits between fetches.
+  const [hydratedProfileId, setHydratedProfileId] = useState<string | null>(null);
+  if (cachedProfile && cachedProfile.id !== hydratedProfileId) {
+    setHydratedProfileId(cachedProfile.id);
     setFullName(cachedProfile.fullName);
     setConversationRole(cachedProfile.conversationRole);
     setGender(cachedProfile.gender);
     setBio(cachedProfile.bio);
-  }, [cachedProfile]);
+  }
 
   const fetchConversations = useCallback(async () => {
     if (!session) {

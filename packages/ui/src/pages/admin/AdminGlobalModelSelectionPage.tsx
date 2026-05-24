@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
@@ -22,29 +22,28 @@ export function AdminGlobalModelSelectionPage() {
 
   const [modelSelectionState, setModelSelectionState] = useState<Partial<ModelSelection>>({});
 
-  /**
-   * Seed the selection state from the loaded model options + current appConfig.
-   * Re-runs when either the options arrive or the global config changes.
-   */
-  useEffect(() => {
-    const data = modelOptionsQuery.data;
-    if (!data) return;
-
+  // Seed the selection state from the loaded model options + current appConfig.
+  // Re-seeds whenever either the options arrive or the global config changes
+  // (e.g. after save invalidates the query) without overwriting in-flight edits in between.
+  const [seedKey, setSeedKey] = useState<{ data: unknown; appConfig: unknown } | null>(null);
+  const modelOptions = modelOptionsQuery.data;
+  if (modelOptions && (seedKey?.data !== modelOptions || seedKey.appConfig !== appConfig)) {
+    setSeedKey({ data: modelOptions, appConfig });
     setModelSelectionState({
       responseModel:
-        data.responseModels.find((m) => m.id === appConfig.responseModelId) ?? data.responseModels[0],
+        modelOptions.responseModels.find((m) => m.id === appConfig.responseModelId) ?? modelOptions.responseModels[0],
       ttsModel:
-        data.ttsModels.find((m) => m.id === appConfig.ttsModelId) ?? data.ttsModels[0],
+        modelOptions.ttsModels.find((m) => m.id === appConfig.ttsModelId) ?? modelOptions.ttsModels[0],
       realtimeModel:
-        data.realtimeModels.find((m) => m.id === appConfig.realtimeModelId) ?? data.realtimeModels[0],
+        modelOptions.realtimeModels.find((m) => m.id === appConfig.realtimeModelId) ?? modelOptions.realtimeModels[0],
       timestampedTranscriptionModel:
-        data.timestampedTranscriptionModels.find((m) => m.id === appConfig.timestampedTranscriptionModelId) ??
-        data.timestampedTranscriptionModels[0],
+        modelOptions.timestampedTranscriptionModels.find((m) => m.id === appConfig.timestampedTranscriptionModelId) ??
+        modelOptions.timestampedTranscriptionModels[0],
       realtimeTranscriptionModel:
-        data.realtimeTranscriptionModels.find((m) => m.id === appConfig.realtimeTranscriptionModelId) ??
-        data.realtimeTranscriptionModels[0],
+        modelOptions.realtimeTranscriptionModels.find((m) => m.id === appConfig.realtimeTranscriptionModelId) ??
+        modelOptions.realtimeTranscriptionModels[0],
     });
-  }, [modelOptionsQuery.data, appConfig]);
+  }
 
   const handleSave = async () => {
     const confirmed = await confirm({
@@ -99,7 +98,6 @@ export function AdminGlobalModelSelectionPage() {
     );
   }
 
-  const modelOptions = modelOptionsQuery.data;
   if (!modelOptions) return null;
 
   const isSaving = updateAppConfigModels.isPending;

@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -16,11 +16,14 @@ export const EmailVerificationExpiredPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
+  // Sync email field when profile loads/changes without clobbering manual edits made after the same profile snapshot.
+  const [prevProfileEmail, setPrevProfileEmail] = useState(profile?.email);
+  if (profile?.email !== prevProfileEmail) {
+    setPrevProfileEmail(profile?.email);
     if (profile?.email) {
       setEmail(profile.email);
     }
-  }, [profile?.email]);
+  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

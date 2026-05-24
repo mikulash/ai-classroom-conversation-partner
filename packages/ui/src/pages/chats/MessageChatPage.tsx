@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { useAppStore } from '../../hooks/useAppStore';
 import { Button } from '../../components/ui/button';
 import { getLanguage } from '@repo/frontend-utils/src/enums/Language';
-import { Loading } from '../../components/Loading';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { ChatLayout } from '../../layouts/ChatLayout';
 import { useActivityTracker } from '../../hooks/useActivityTracker';
@@ -34,7 +33,6 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
   const { silenceTimeoutInSeconds, maxConversationDurationInSeconds } = appConfig;
 
   const language = getLanguage(i18n.language);
-  const [isLoading, setIsLoading] = useState(true);
   const [inputMessage, setInputMessage] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
   const isInitialMessageSentRef = useRef(false);
@@ -299,7 +297,6 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
       isInitialMessageSentRef.current = true;
       setTimeout(() => void sendInitialAIMessage(), 1000);
     }
-    setIsLoading(false);
     return () => {
       audio.stopAudio();
       sr.stopRecognition();
@@ -315,14 +312,6 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
     return (
       <div className="flex justify-center items-center h-screen">
         {t('chat.profileError')}
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loading/>
       </div>
     );
   }
