@@ -23,6 +23,11 @@ export const queryKeys = {
     all: ['profiles', 'all'] as const,
   },
   conversations: {
+    all: ['conversations'] as const,
     byUser: (userId: string) => ['conversations', 'byUser', userId] as const,
+    currentUser: ['conversations', 'currentUser'] as const,
+  },
+  currentUser: {
+    profile: ['currentUser', 'profile'] as const,
   },
 } as const;

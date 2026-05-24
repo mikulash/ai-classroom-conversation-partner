@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ import {
 } from './ui/form';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
+import { useRequestPasswordReset } from '../hooks/queries/useAuthMutations';
 
 const requestResetSchema = z.object({
   email: z.string().email(),
@@ -26,9 +26,7 @@ type RequestResetValues = z.infer<typeof requestResetSchema>;
 export const ResetPasswordRequestForm: React.FC = () => {
   const { t } = useTypedTranslation();
   const allowedDomains = useAppStore((state) => state.appConfig.allowedDomains);
-
-  const [message, setMessage] = useState<string | null>(null);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const requestReset = useRequestPasswordReset();
 
   const form = useForm<RequestResetValues>({
     resolver: zodResolver(requestResetSchema),
@@ -36,17 +34,15 @@ export const ResetPasswordRequestForm: React.FC = () => {
     mode: 'onTouched',
   });
 
-  const onSubmit = async (values: RequestResetValues) => {
-    setSubmitError(null);
-    const { error } = await authClient.resetPasswordForEmail(values.email);
-    if (error) {
-      setSubmitError(error.message);
-      return;
-    }
-    setMessage(t('resetLinkSent', 'We\'ve emailed you a reset link – check your inbox!'));
+  const onSubmit = (values: RequestResetValues) => {
+    requestReset.mutate(values.email);
   };
 
-  const { isSubmitting } = form.formState;
+  const message = requestReset.isSuccess ?
+    t('resetLinkSent', 'We\'ve emailed you a reset link – check your inbox!') :
+    null;
+  const submitError = requestReset.error?.message ?? null;
+  const isSubmitting = requestReset.isPending;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">

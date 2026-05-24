@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { useAuth } from '../hooks/useAuth';
-import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
+import { useVerifyEmail } from '../hooks/queries/useAuthMutations';
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'missingToken';
 
@@ -14,61 +14,35 @@ export const EmailValidatedPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const { applySession } = useAuth();
-  const [status, setStatus] = useState<VerificationStatus>(token ? 'loading' : 'missingToken');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const isMountedRef = useRef(true);
-  const hasVerifiedRef = useRef(false);
+  const verifyEmail = useVerifyEmail();
 
+  // Strict-Mode-safe: only fire the mutation once per mounted page.
+  const hasFiredRef = useRef(false);
   useEffect(() => {
-    isMountedRef.current = true;
+    if (!token || hasFiredRef.current) return;
+    hasFiredRef.current = true;
 
-    if (!token) {
-      setStatus('missingToken');
-      setErrorMessage(null);
-      return () => {
-        isMountedRef.current = false;
-      };
-    }
-
-    // Prevent duplicate verification attempts (React 18 Strict Mode issue)
-    if (hasVerifiedRef.current) {
-      return () => {
-        isMountedRef.current = false;
-      };
-    }
-
-    hasVerifiedRef.current = true;
-    setStatus('loading');
-    setErrorMessage(null);
-
-    void (async () => {
-      const { data, error } = await authClient.verifyEmail(token);
-
-      if (!isMountedRef.current) {
-        return;
-      }
-
-      if (error) {
-        const message = error.message;
-
-        if (message.toLowerCase().includes('expired')) {
+    verifyEmail.mutate(token, {
+      onSuccess: (data) => {
+        applySession(data.session);
+      },
+      onError: (err) => {
+        if (err.message.toLowerCase().includes('expired')) {
           void navigate('/verification-expired', { replace: true });
-          return;
         }
+      },
+    });
+  }, [applySession, navigate, token, verifyEmail]);
 
-        setStatus('error');
-        setErrorMessage(message);
-        return;
-      }
-
-      applySession(data.session);
-      setStatus('success');
-    })();
-
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, [applySession, navigate, token]);
+  const status: VerificationStatus = !token ?
+    'missingToken' :
+    verifyEmail.isPending ?
+      'loading' :
+      verifyEmail.isError ?
+        'error' :
+        verifyEmail.isSuccess ?
+          'success' :
+          'loading';
 
   let title = '';
   const descriptionLines: string[] = [];
@@ -88,7 +62,7 @@ export const EmailValidatedPage: React.FC = () => {
       break;
     case 'error':
       title = t('emailValidationFailedTitle');
-      descriptionLines.push(errorMessage ?? t('emailValidationDefaultError'));
+      descriptionLines.push(verifyEmail.error?.message ?? t('emailValidationDefaultError'));
       actionTo = '/sign-in';
       actionLabel = t('goToSignIn');
       break;
@@ -97,8 +71,6 @@ export const EmailValidatedPage: React.FC = () => {
       descriptionLines.push(t('emailValidationMissingTokenMessage'));
       actionTo = '/sign-in';
       actionLabel = t('goToSignIn');
-      break;
-    default:
       break;
   }
 
@@ -125,4 +97,3 @@ export const EmailValidatedPage: React.FC = () => {
     </div>
   );
 };
-

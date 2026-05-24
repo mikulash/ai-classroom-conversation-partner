@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
@@ -17,15 +18,14 @@ import {
 } from '../components/ui/form';
 import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
 import { ConversationTranscriptDialog } from '../components/ConversationTranscriptDialog';
 import { ConversationsList } from '../components/ConversationsList';
-import { toast } from 'sonner';
 import { MyConversation } from '@repo/frontend-utils/src/myConversation';
-import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
-import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
-import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
-import { ConversationModel } from '@repo/frontend-utils/src/models';
+import {
+  useCurrentUserConversations,
+  useCurrentUserProfile,
+  useUpdateProfile,
+} from '../hooks/queries/useCurrentUser';
 
 const profileSchema = z.object({
   fullName: z.string().trim().min(1),
@@ -45,13 +45,25 @@ const EMPTY_VALUES: ProfileValues = {
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
-  const { setProfile, profile: cachedProfile, session, ready } = useAuth();
+  const { profile: cachedProfile } = useAuth();
+
+  // Drives the auth-store profile from server truth on mount / refetch.
+  useCurrentUserProfile();
+
+  const updateProfile = useUpdateProfile();
+  const conversationsQuery = useCurrentUserConversations();
 
   const [isSuccess, setIsSuccess] = useState(false);
-  const [conversations, setConversations] = useState<MyConversation[]>([]);
-  const [isLoadingConversations, setIsLoadingConversations] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
+
+  useEffect(() => {
+    if (conversationsQuery.error) {
+      toast.error('Failed to load conversations', {
+        description: conversationsQuery.error.message,
+      });
+    }
+  }, [conversationsQuery.error]);
 
   const form = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -63,8 +75,8 @@ export function UserProfilePage() {
     } : EMPTY_VALUES,
   });
 
-  // Re-hydrate form when a new profile object arrives (initial load or fresh fetch),
-  // without overwriting in-flight user edits between fetches.
+  // Re-hydrate form when a new profile object arrives, without overwriting
+  // in-flight user edits between fetches.
   const [hydratedProfileId, setHydratedProfileId] = useState<string | null>(
     cachedProfile?.id ?? null,
   );
@@ -78,55 +90,6 @@ export function UserProfilePage() {
     });
   }
 
-  const fetchConversations = useCallback(async () => {
-    if (!session) {
-      console.error('Unable to retrieve session: not authenticated');
-      return;
-    }
-
-    try {
-      setIsLoadingConversations(true);
-
-      const { data, error } = await conversationClient.getCurrentUserConversations();
-
-      if (error) {
-        console.error('Error loading conversations:', error.message);
-        toast.error('Failed to load conversations', {
-          description: error.message,
-        });
-        return;
-      }
-
-      const toIsoString = (value: Date | string | null | undefined): string => {
-        if (!value) return '';
-        const date = value instanceof Date ? value : new Date(value);
-        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
-      };
-
-      const conversationsData: MyConversation[] = data.map((conv: ConversationModel) => ({
-        id: conv.id,
-        start_time: toIsoString(conv.startTime),
-        end_time: toIsoString(conv.endTime),
-        ended_reason: conv.endedReason,
-        conversation_type: conv.conversationType,
-        messages: Array.isArray(conv.messages) ? (conv.messages as unknown as ChatMessage[]) : [],
-        personality_id: conv.personalityId,
-        personality: conv.personality ? { name: conv.personality.name } : null,
-      }));
-
-      setConversations(conversationsData);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Error loading conversations:', error.message);
-        toast.error('Failed to load conversations', {
-          description: error.message,
-        });
-      }
-    } finally {
-      setIsLoadingConversations(false);
-    }
-  }, [session]);
-
   const handleConversationClick = (conversation: MyConversation) => {
     setSelectedConversation(conversation);
     setIsConversationDialogVisible(true);
@@ -136,54 +99,16 @@ export function UserProfilePage() {
     if (!cachedProfile) return;
     setIsSuccess(false);
     try {
-      const { error: updateError, data: freshData } = await profileClient.upsert(
-        cachedProfile.id,
-        values,
-      );
-      if (updateError) {
-        console.error('Error saving profile:', updateError);
-      } else {
-        setProfile(freshData);
-        setIsSuccess(true);
-        setTimeout(() => {
-          setIsSuccess(false);
-        }, 3000);
-      }
+      await updateProfile.mutateAsync({ profileId: cachedProfile.id, payload: values });
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 3000);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Unexpected error saving profile:', error.message);
-      } else {
-        console.error('Unexpected error saving profile:', error);
-      }
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Error saving profile:', message);
     }
   };
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!session) {
-        return;
-      }
-
-      const { data, error: profileError } = await authClient.getCurrentUser();
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError);
-        return;
-      }
-      setProfile(data);
-
-      await fetchConversations();
-    };
-
-    if (ready) {
-      fetchProfile().catch((error: unknown) => {
-        if (error instanceof Error) {
-          console.error('Error fetching profile:', error.message);
-        } else {
-          console.error('Error fetching profile:', error);
-        }
-      });
-    }
-  }, [fetchConversations, ready, session, setProfile]);
 
   const { isSubmitting } = form.formState;
 
@@ -267,9 +192,9 @@ export function UserProfilePage() {
             <Button
               variant="outline"
               onClick={() => {
-                void fetchConversations();
+                void conversationsQuery.refetch();
               }}
-              disabled={isLoadingConversations}
+              disabled={conversationsQuery.isFetching}
             >
               {t('refresh')}
             </Button>
@@ -277,8 +202,8 @@ export function UserProfilePage() {
 
           <CardContent>
             <ConversationsList
-              conversations={conversations}
-              isLoading={isLoadingConversations}
+              conversations={conversationsQuery.data ?? []}
+              isLoading={conversationsQuery.isLoading}
               onConversationClick={handleConversationClick}
             />
           </CardContent>
@@ -299,7 +224,6 @@ export function UserProfilePage() {
         } : undefined}
         conversationId={selectedConversation?.id}
         onConversationDeleted={() => {
-          setConversations((prev) => prev.filter((conv) => conv.id !== selectedConversation?.id));
           setSelectedConversation(null);
         }}
         isDeleteAllowed={true} // Enable delete for user's own conversations

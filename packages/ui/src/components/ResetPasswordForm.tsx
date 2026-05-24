@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from './ui/form';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
-import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
+import { useResetPassword } from '../hooks/queries/useAuthMutations';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -35,10 +35,9 @@ type ResetPasswordValues = z.infer<ReturnType<typeof buildResetPasswordSchema>>;
 export const ResetPasswordForm: React.FC = () => {
   const { t } = useTypedTranslation();
   const [searchParams] = useSearchParams();
+  const resetPassword = useResetPassword();
 
   const token = searchParams.get('token') ?? '';
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const schema = useMemo(
     () =>
@@ -55,17 +54,13 @@ export const ResetPasswordForm: React.FC = () => {
     mode: 'onTouched',
   });
 
-  const onSubmit = async (values: ResetPasswordValues) => {
-    setSubmitError(null);
-    const { error: resetError } = await authClient.resetPassword(token, values.newPassword);
-    if (resetError) {
-      setSubmitError(resetError.message);
-      return;
-    }
-    setIsSuccess(true);
+  const onSubmit = (values: ResetPasswordValues) => {
+    resetPassword.mutate({ token, newPassword: values.newPassword });
   };
 
-  const { isSubmitting } = form.formState;
+  const isSuccess = resetPassword.isSuccess;
+  const submitError = resetPassword.error?.message ?? null;
+  const isSubmitting = resetPassword.isPending;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">

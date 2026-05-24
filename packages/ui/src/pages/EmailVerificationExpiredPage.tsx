@@ -16,7 +16,7 @@ import {
 } from '../components/ui/form';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { useAuth } from '../hooks/useAuth';
-import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
+import { useResendVerificationEmail } from '../hooks/queries/useAuthMutations';
 
 const buildSchema = (requiredMessage: string) =>
   z.object({
@@ -28,8 +28,7 @@ type ResendValues = z.infer<ReturnType<typeof buildSchema>>;
 export const EmailVerificationExpiredPage: React.FC = () => {
   const { t } = useTypedTranslation();
   const { profile } = useAuth();
-  const [status, setStatus] = useState<'form' | 'success'>('form');
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const resendVerification = useResendVerificationEmail();
 
   const schema = useMemo(
     () => buildSchema(t('emailVerificationExpiredEmailRequired')),
@@ -51,19 +50,13 @@ export const EmailVerificationExpiredPage: React.FC = () => {
     }
   }
 
-  const onSubmit = async (values: ResendValues) => {
-    setSubmitError(null);
-    const { error: resendError } = await authClient.resendVerificationEmail({
-      email: values.email.trim(),
-    });
-    if (resendError) {
-      setSubmitError(resendError.message);
-      return;
-    }
-    setStatus('success');
+  const onSubmit = (values: ResendValues) => {
+    resendVerification.mutate(values.email.trim());
   };
 
-  const { isSubmitting } = form.formState;
+  const status: 'form' | 'success' = resendVerification.isSuccess ? 'success' : 'form';
+  const submitError = resendVerification.error?.message ?? null;
+  const isSubmitting = resendVerification.isPending;
 
   const tips = [
     t('emailVerificationCheckEmailTipSpam'),

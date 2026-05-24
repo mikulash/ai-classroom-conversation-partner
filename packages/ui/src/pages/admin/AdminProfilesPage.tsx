@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Input } from '../../components/ui/input';
@@ -12,20 +11,16 @@ import { MyConversation } from '@repo/frontend-utils/src/myConversation';
 import { UserRole } from '@repo/frontend-utils/src/clients/generated';
 import {
   useAdminProfiles,
-  useRemoveConversationFromCache,
   useUpdateProfileRole,
 } from '../../hooks/queries/useAdminProfiles';
-import { queryKeys } from '../../hooks/queries/queryKeys';
 import { ProfileConversationsRow } from '../../components/admin/ProfileConversationsRow';
 
 export function AdminProfilesPage() {
   const { t } = useTypedTranslation();
   const { profile } = useAuth();
-  const queryClient = useQueryClient();
 
   const profilesQuery = useAdminProfiles();
   const updateRole = useUpdateProfileRole();
-  const removeConversationFromCache = useRemoveConversationFromCache();
 
   const [search, setSearch] = useState('');
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
@@ -72,17 +67,6 @@ export function AdminProfilesPage() {
   };
 
   const handleConversationDeleted = () => {
-    if (!selectedConversation) return;
-    // Find which user's cached list this conversation belongs to and patch it.
-    for (const userId of expandedUsers) {
-      const conversations = queryClient.getQueryData<MyConversation[]>(
-        queryKeys.conversations.byUser(userId),
-      );
-      if (conversations?.some((c) => c.id === selectedConversation.id)) {
-        removeConversationFromCache(userId, selectedConversation.id);
-        break;
-      }
-    }
     setSelectedConversation(null);
   };
 

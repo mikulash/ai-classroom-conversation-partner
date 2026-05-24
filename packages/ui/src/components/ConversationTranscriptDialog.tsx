@@ -7,7 +7,7 @@ import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { toast } from 'sonner';
 import { Trash2 } from 'lucide-react';
 import { formatMessageTime, getLocalizedDateTimeString } from '../lib/timeFormatters';
-import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
+import { useDeleteConversation } from '../hooks/queries/useCurrentUser';
 
 interface ConversationTranscriptDialogProps {
     isOpen: boolean;
@@ -53,56 +53,28 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
   isDeleteAllowed = false,
 }) => {
   const { t, language } = useTypedTranslation();
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const deleteConversation = useDeleteConversation();
+  const isDeleting = deleteConversation.isPending;
 
-  // Handle conversation deletion
   const handleDeleteConversation = async () => {
     if (!conversationId) return;
 
     try {
-      setIsDeleting(true);
-      const { error } = await conversationClient.delete(conversationId);
-
-      if (error) {
-        console.error('Error deleting conversation:', error.message);
-        toast.error(
-          t('admin.conversations.deleteError', {
-            defaultValue: 'Failed to delete conversation',
-          }),
-          {
-            description: error.message,
-          },
-        );
-        return;
-      }
-
+      await deleteConversation.mutateAsync(conversationId);
       toast.success(t('admin.conversations.deleteSuccess', {
         defaultValue: 'Conversation deleted successfully',
       }));
-
-      // Close confirmation dialog and main dialog
       setShowDeleteConfirmation(false);
       onOpenChange(false);
-
-      // Notify parent component
-      if (onConversationDeleted) {
-        onConversationDeleted();
-      }
+      onConversationDeleted?.();
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Error deleting conversation:', error.message);
-        toast.error(
-          t('admin.conversations.deleteError', {
-            defaultValue: 'Failed to delete conversation',
-          }),
-          {
-            description: error.message,
-          },
-        );
-      }
-    } finally {
-      setIsDeleting(false);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Error deleting conversation:', message);
+      toast.error(
+        t('admin.conversations.deleteError', { defaultValue: 'Failed to delete conversation' }),
+        { description: message },
+      );
     }
   };
 
