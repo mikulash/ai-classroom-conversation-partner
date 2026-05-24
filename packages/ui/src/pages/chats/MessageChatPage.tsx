@@ -79,7 +79,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
   // ── Silence handling callbacks ─────────────────────────────────────
 
   const handleSilencePrompt = useCallback(async () => {
-    if (!personality || !userProfile || hasChatEndedRef.current) return;
+    if (!userProfile || hasChatEndedRef.current) return;
     logMessage('log', 'Sending silence prompt');
 
     setIsAiTyping(true);
@@ -116,7 +116,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
   }, [personality, userProfile, hasChatEndedRef, messages, conversationRoleName, language, scenario, logMessage, t, audio, setMessages, markActivity]);
 
   const handleSilenceLimitReached = useCallback(async () => {
-    if (!personality || !userProfile || hasChatEndedRef.current) return;
+    if (!userProfile || hasChatEndedRef.current) return;
     logMessage('log', 'Maximum consecutive silence prompts reached — ending chat');
 
     const silenceSystemPrompt = t('chat.silencePromptGoodbye');
