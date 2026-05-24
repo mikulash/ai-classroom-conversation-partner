@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Button } from '../../components/ui/button';
+import { Form } from '../../components/ui/form';
 import { toast } from 'sonner';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { useConfirm } from '../../hooks/useConfirm';
-import { ScenarioForm } from '../../components/admin/ScenarioForm';
+import {
+  EMPTY_SCENARIO_FORM_VALUES,
+  ScenarioForm,
+  ScenarioFormValues,
+  scenarioFormSchema,
+} from '../../components/admin/ScenarioForm';
 import { ScenariosTable } from '../../components/admin/ScenariosTable';
 import {
   useCreateScenario,
@@ -14,17 +22,17 @@ import {
   useUpdateScenario,
 } from '../../hooks/queries/useScenarios';
 import { usePersonalities } from '../../hooks/queries/usePersonalities';
-import { ScenarioCreateModel, ScenarioModel } from '@repo/frontend-utils/src/models';
+import { ScenarioModel } from '@repo/frontend-utils/src/models';
 
-type ScenarioFormData = ScenarioModel | ScenarioCreateModel;
-
-const EMPTY_SCENARIO: ScenarioCreateModel = {
-  settingEn: '',
-  settingCs: '',
-  situationDescriptionCs: '',
-  situationDescriptionEn: '',
-  involvedPersonalityId: null,
-};
+const scenarioToFormValues = (scenario: ScenarioModel): ScenarioFormValues => ({
+  settingEn: scenario.settingEn,
+  settingCs: scenario.settingCs,
+  situationDescriptionEn: scenario.situationDescriptionEn,
+  situationDescriptionCs: scenario.situationDescriptionCs,
+  involvedPersonalityId: scenario.involvedPersonalityId !== null ?
+    String(scenario.involvedPersonalityId) :
+    'none',
+});
 
 export function AdminScenariosPage() {
   const { t } = useTypedTranslation();
@@ -42,13 +50,30 @@ export function AdminScenariosPage() {
   const isProcessing =
     createScenario.isPending || updateScenario.isPending || deleteScenario.isPending;
 
+  const [editingScenarioId, setEditingScenarioId] = useState<number | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [currentScenario, setCurrentScenario] = useState<ScenarioFormData>(EMPTY_SCENARIO);
 
-  const handleEdit = (scenario: ScenarioFormData) => {
-    setCurrentScenario(scenario);
+  const form = useForm<ScenarioFormValues>({
+    resolver: zodResolver(scenarioFormSchema),
+    defaultValues: EMPTY_SCENARIO_FORM_VALUES,
+    mode: 'onTouched',
+  });
+
+  const onInvalid = () => {
+    toast.error(t('admin.scenarios.notifications.validationFailed'));
+  };
+
+  const handleEdit = (scenario: ScenarioModel) => {
+    setEditingScenarioId(scenario.id);
+    form.reset(scenarioToFormValues(scenario));
     setIsEditDialogOpen(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingScenarioId(null);
+    form.reset(EMPTY_SCENARIO_FORM_VALUES);
+    setIsAddDialogOpen(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -70,49 +95,17 @@ export function AdminScenariosPage() {
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setCurrentScenario((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (field: string, value: string) => {
-    const processedValue =
-      field === 'involvedPersonalityId' && value === 'none' ?
-        null :
-        field === 'involvedPersonalityId' ?
-          Number(value) :
-          value;
-
-    setCurrentScenario((prev) => ({ ...prev, [field]: processedValue }));
-  };
-
-  const validateScenario = (scenario: ScenarioFormData): boolean => {
-    if (
-      !scenario.settingEn || !scenario.settingCs ||
-      !scenario.situationDescriptionEn || !scenario.situationDescriptionCs ||
-      scenario.involvedPersonalityId === null
-    ) {
-      toast.error(t('admin.scenarios.notifications.validationFailed'));
-      return false;
-    }
-    return true;
-  };
-
-  const handleEditSubmit = async (scenario: ScenarioFormData) => {
-    if (!('id' in scenario) || !scenario.id) return;
-    if (!validateScenario(scenario)) return;
-
+  const onEditSubmit = async (values: ScenarioFormValues) => {
+    if (editingScenarioId === null) return;
     try {
       await updateScenario.mutateAsync({
-        id: scenario.id,
+        id: editingScenarioId,
         input: {
-          settingEn: scenario.settingEn,
-          settingCs: scenario.settingCs,
-          situationDescriptionEn: scenario.situationDescriptionEn,
-          situationDescriptionCs: scenario.situationDescriptionCs,
-          involvedPersonalityId: scenario.involvedPersonalityId ?? undefined,
+          settingEn: values.settingEn,
+          settingCs: values.settingCs,
+          situationDescriptionEn: values.situationDescriptionEn,
+          situationDescriptionCs: values.situationDescriptionCs,
+          involvedPersonalityId: Number(values.involvedPersonalityId),
         },
       });
       toast.success(t('admin.scenarios.notifications.updateSuccess'));
@@ -124,30 +117,23 @@ export function AdminScenariosPage() {
     }
   };
 
-  const handleAddSubmit = async () => {
-    if (!validateScenario(currentScenario)) return;
-
+  const onAddSubmit = async (values: ScenarioFormValues) => {
     try {
       await createScenario.mutateAsync({
-        settingEn: currentScenario.settingEn,
-        settingCs: currentScenario.settingCs,
-        situationDescriptionEn: currentScenario.situationDescriptionEn,
-        situationDescriptionCs: currentScenario.situationDescriptionCs,
-        involvedPersonalityId: currentScenario.involvedPersonalityId ?? undefined,
+        settingEn: values.settingEn,
+        settingCs: values.settingCs,
+        situationDescriptionEn: values.situationDescriptionEn,
+        situationDescriptionCs: values.situationDescriptionCs,
+        involvedPersonalityId: Number(values.involvedPersonalityId),
       });
       toast.success(t('admin.scenarios.notifications.createSuccess'));
       setIsAddDialogOpen(false);
-      setCurrentScenario(EMPTY_SCENARIO);
+      form.reset(EMPTY_SCENARIO_FORM_VALUES);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(message);
       toast.error(t('admin.scenarios.notifications.createFailed'), { description: message });
     }
-  };
-
-  const handleAddNew = () => {
-    setCurrentScenario(EMPTY_SCENARIO);
-    setIsAddDialogOpen(true);
   };
 
   const getPersonalityName = (id: number | null) => {
@@ -199,23 +185,22 @@ export function AdminScenariosPage() {
             <DialogTitle>{t('admin.scenarios.dialog.editTitle')}</DialogTitle>
           </DialogHeader>
 
-          <ScenarioForm
-            scenario={currentScenario}
-            personalities={personalities}
-            onInputChange={handleInputChange}
-            onSelectChange={handleSelectChange}
-          />
+          <Form {...form}>
+            <form onSubmit={(e) => {
+              void form.handleSubmit(onEditSubmit, onInvalid)(e);
+            }}>
+              <ScenarioForm personalities={personalities} />
 
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">{t('admin.scenarios.cancel')}</Button>
-            </DialogClose>
-            <Button onClick={() => {
-              void handleEditSubmit(currentScenario);
-            }} disabled={isProcessing}>
-              {isProcessing ? t('admin.scenarios.saving') : t('admin.scenarios.saveChanges')}
-            </Button>
-          </DialogFooter>
+              <DialogFooter className="mt-4">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">{t('admin.scenarios.cancel')}</Button>
+                </DialogClose>
+                <Button type="submit" disabled={isProcessing}>
+                  {isProcessing ? t('admin.scenarios.saving') : t('admin.scenarios.saveChanges')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
@@ -225,23 +210,22 @@ export function AdminScenariosPage() {
             <DialogTitle>{t('admin.scenarios.dialog.addTitle')}</DialogTitle>
           </DialogHeader>
 
-          <ScenarioForm
-            scenario={currentScenario}
-            personalities={personalities}
-            onInputChange={handleInputChange}
-            onSelectChange={handleSelectChange}
-          />
+          <Form {...form}>
+            <form onSubmit={(e) => {
+              void form.handleSubmit(onAddSubmit, onInvalid)(e);
+            }}>
+              <ScenarioForm personalities={personalities} />
 
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">{t('admin.scenarios.cancel')}</Button>
-            </DialogClose>
-            <Button onClick={() => {
-              void handleAddSubmit();
-            }} disabled={isProcessing}>
-              {isProcessing ? t('admin.scenarios.creating') : t('admin.scenarios.createScenario')}
-            </Button>
-          </DialogFooter>
+              <DialogFooter className="mt-4">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">{t('admin.scenarios.cancel')}</Button>
+                </DialogClose>
+                <Button type="submit" disabled={isProcessing}>
+                  {isProcessing ? t('admin.scenarios.creating') : t('admin.scenarios.createScenario')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </Card>

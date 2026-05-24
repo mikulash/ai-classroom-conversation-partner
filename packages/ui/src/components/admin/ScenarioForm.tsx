@@ -1,115 +1,143 @@
 import React from 'react';
+import { useFormContext } from 'react-hook-form';
+import { z } from 'zod';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
-import { Label } from '@radix-ui/react-label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../ui/form';
 import { LANGUAGE } from '@repo/frontend-utils/src/enums/Language';
-import { PersonalityModel, ScenarioCreateModel, ScenarioModel } from '@repo/frontend-utils/src/models';
+import { PersonalityModel } from '@repo/frontend-utils/src/models';
+
+export const scenarioFormSchema = z.object({
+  settingEn: z.string().trim().min(1),
+  settingCs: z.string().trim().min(1),
+  situationDescriptionEn: z.string().trim().min(1),
+  situationDescriptionCs: z.string().trim().min(1),
+  involvedPersonalityId: z
+    .string()
+    .refine((v) => v !== '' && v !== 'none', { message: 'required' }),
+});
+
+export type ScenarioFormValues = z.infer<typeof scenarioFormSchema>;
+
+export const EMPTY_SCENARIO_FORM_VALUES: ScenarioFormValues = {
+  settingEn: '',
+  settingCs: '',
+  situationDescriptionEn: '',
+  situationDescriptionCs: '',
+  involvedPersonalityId: 'none',
+};
 
 interface ScenarioFormProps {
-    scenario: ScenarioModel | ScenarioCreateModel;
-    personalities: PersonalityModel[];
-    onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    onSelectChange: (field: string, value: string) => void;
+  personalities: PersonalityModel[];
 }
 
-export const ScenarioForm: React.FC<ScenarioFormProps> = ({
-  scenario,
-  personalities,
-  onInputChange,
-  onSelectChange,
-}) => {
+export const ScenarioForm: React.FC<ScenarioFormProps> = ({ personalities }) => {
   const { t, language } = useTypedTranslation();
+  const form = useFormContext<ScenarioFormValues>();
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-2">
-        <Label htmlFor="settingEn" className="flex items-center gap-1">
-          {t('admin.scenarios.form.settingEn')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="settingEn"
-          name="settingEn"
-          value={scenario.settingEn ?? ''}
-          onChange={onInputChange}
-          rows={3}
-          required
-        />
-      </div>
+      <FormField
+        control={form.control}
+        name="settingEn"
+        render={({ field }) => (
+          <FormItem className="grid gap-2">
+            <FormLabel className="flex items-center gap-1">
+              {t('admin.scenarios.form.settingEn')} <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl>
+              <Textarea rows={3} {...field} />
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        )}
+      />
 
-      <div className="grid gap-2">
-        <Label htmlFor="settingCs" className="flex items-center gap-1">
-          {t('admin.scenarios.form.settingCs')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="settingCs"
-          name="settingCs"
-          value={scenario.settingCs ?? ''}
-          onChange={onInputChange}
-          rows={3}
-          required
-        />
-      </div>
+      <FormField
+        control={form.control}
+        name="settingCs"
+        render={({ field }) => (
+          <FormItem className="grid gap-2">
+            <FormLabel className="flex items-center gap-1">
+              {t('admin.scenarios.form.settingCs')} <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl>
+              <Textarea rows={3} {...field} />
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        )}
+      />
 
-      <div className="grid gap-2">
-        <Label htmlFor="situationDescriptionEn" className="flex items-center gap-1">
-          {t('admin.scenarios.form.descriptionEn')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="situationDescriptionEn"
-          name="situationDescriptionEn"
-          value={scenario.situationDescriptionEn ?? ''}
-          onChange={onInputChange}
-          rows={4}
-          required
-        />
-      </div>
+      <FormField
+        control={form.control}
+        name="situationDescriptionEn"
+        render={({ field }) => (
+          <FormItem className="grid gap-2">
+            <FormLabel className="flex items-center gap-1">
+              {t('admin.scenarios.form.descriptionEn')} <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl>
+              <Textarea rows={4} {...field} />
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        )}
+      />
 
-      <div className="grid gap-2">
-        <Label htmlFor="situationDescriptionCs" className="flex items-center gap-1">
-          {t('admin.scenarios.form.descriptionCs')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="situationDescriptionCs"
-          name="situationDescriptionCs"
-          value={scenario.situationDescriptionCs ?? ''}
-          onChange={onInputChange}
-          rows={4}
-          required
-        />
-      </div>
+      <FormField
+        control={form.control}
+        name="situationDescriptionCs"
+        render={({ field }) => (
+          <FormItem className="grid gap-2">
+            <FormLabel className="flex items-center gap-1">
+              {t('admin.scenarios.form.descriptionCs')} <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl>
+              <Textarea rows={4} {...field} />
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        )}
+      />
 
-      <div className="grid gap-2">
-        <Label htmlFor="involvedPersonalityId" className="flex items-center gap-1">
-          {t('admin.scenarios.form.personality')} <span className="text-red-500">*</span>
-        </Label>
-        <Select
-          value={
-            scenario.involvedPersonalityId !== null ?
-              String(scenario.involvedPersonalityId) :
-              'none'
-          }
-          onValueChange={(value) => {
-            onSelectChange('involvedPersonalityId', value);
-          }}
-          required
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={t('admin.scenarios.form.selectPersonality')}/>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">{t('admin.scenarios.form.none')}</SelectItem>
-            {personalities.map((p) => {
-              const problemSummary = language == LANGUAGE.EN ? p.problemSummaryEn : p.problemSummaryCs;
-              return (
-                <SelectItem key={p.id} value={String(p.id)}>
-                  {p.name} – {problemSummary}
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
-      </div>
+      <FormField
+        control={form.control}
+        name="involvedPersonalityId"
+        render={({ field }) => (
+          <FormItem className="grid gap-2">
+            <FormLabel className="flex items-center gap-1">
+              {t('admin.scenarios.form.personality')} <span className="text-red-500">*</span>
+            </FormLabel>
+            <Select value={field.value} onValueChange={field.onChange}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('admin.scenarios.form.selectPersonality')}/>
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="none">{t('admin.scenarios.form.none')}</SelectItem>
+                {personalities.map((p) => {
+                  const problemSummary = language == LANGUAGE.EN ? p.problemSummaryEn : p.problemSummaryCs;
+                  return (
+                    <SelectItem key={p.id} value={String(p.id)}>
+                      {p.name} – {problemSummary}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            <FormMessage/>
+          </FormItem>
+        )}
+      />
     </div>
   );
 };

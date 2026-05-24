@@ -1,9 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
-import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../components/ui/form';
 import { useAuth } from '../hooks/useAuth';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { ChatMessage } from '@repo/frontend-utils/src/chatMessage';
@@ -14,35 +25,57 @@ import { MyConversation } from '@repo/frontend-utils/src/myConversation';
 import { conversationClient } from '@repo/frontend-utils/src/clients/db/conversation.client';
 import { profileClient } from '@repo/frontend-utils/src/clients/db/profile.client';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
-import { UpdateProfileDto } from '@repo/frontend-utils/src/clients/generated';
 import { ConversationModel } from '@repo/frontend-utils/src/models';
+
+const profileSchema = z.object({
+  fullName: z.string().trim().min(1),
+  conversationRole: z.string(),
+  gender: z.string(),
+  bio: z.string(),
+});
+
+type ProfileValues = z.infer<typeof profileSchema>;
+
+const EMPTY_VALUES: ProfileValues = {
+  fullName: '',
+  conversationRole: '',
+  gender: '',
+  bio: '',
+};
 
 export function UserProfilePage() {
   const { t } = useTypedTranslation();
+  const { setProfile, profile: cachedProfile, session, ready } = useAuth();
 
-  const [fullName, setFullName] = useState<string>('');
-  const [conversationRole, setConversationRole] = useState('');
-  const [gender, setGender] = useState<string>('');
-  const [bio, setBio] = useState<string>('');
-  const [isSaving, setIsSaving] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-
   const [conversations, setConversations] = useState<MyConversation[]>([]);
   const [isLoadingConversations, setIsLoadingConversations] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<MyConversation | null>(null);
   const [isConversationDialogVisible, setIsConversationDialogVisible] = useState(false);
 
-  const { setProfile, profile: cachedProfile, session, ready } = useAuth();
+  const form = useForm<ProfileValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: cachedProfile ? {
+      fullName: cachedProfile.fullName,
+      conversationRole: cachedProfile.conversationRole,
+      gender: cachedProfile.gender,
+      bio: cachedProfile.bio,
+    } : EMPTY_VALUES,
+  });
 
-  // Hydrate form fields when a new profile object arrives (initial load or fresh fetch),
+  // Re-hydrate form when a new profile object arrives (initial load or fresh fetch),
   // without overwriting in-flight user edits between fetches.
-  const [hydratedProfileId, setHydratedProfileId] = useState<string | null>(null);
+  const [hydratedProfileId, setHydratedProfileId] = useState<string | null>(
+    cachedProfile?.id ?? null,
+  );
   if (cachedProfile && cachedProfile.id !== hydratedProfileId) {
     setHydratedProfileId(cachedProfile.id);
-    setFullName(cachedProfile.fullName);
-    setConversationRole(cachedProfile.conversationRole);
-    setGender(cachedProfile.gender);
-    setBio(cachedProfile.bio);
+    form.reset({
+      fullName: cachedProfile.fullName,
+      conversationRole: cachedProfile.conversationRole,
+      gender: cachedProfile.gender,
+      bio: cachedProfile.bio,
+    });
   }
 
   const fetchConversations = useCallback(async () => {
@@ -99,22 +132,13 @@ export function UserProfilePage() {
     setIsConversationDialogVisible(true);
   };
 
-
-  const handleSave = async () => {
+  const onSubmit = async (values: ProfileValues) => {
     if (!cachedProfile) return;
-    setIsSaving(true);
     setIsSuccess(false);
     try {
-      const payload: UpdateProfileDto = {
-        fullName,
-        conversationRole,
-        gender,
-        bio,
-      };
-
       const { error: updateError, data: freshData } = await profileClient.upsert(
         cachedProfile.id,
-        payload,
+        values,
       );
       if (updateError) {
         console.error('Error saving profile:', updateError);
@@ -131,8 +155,6 @@ export function UserProfilePage() {
       } else {
         console.error('Unexpected error saving profile:', error);
       }
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -147,10 +169,6 @@ export function UserProfilePage() {
         console.error('Error fetching user profile:', profileError);
         return;
       }
-      setFullName(data.fullName);
-      setConversationRole(data.conversationRole);
-      setGender(data.gender);
-      setBio(data.bio);
       setProfile(data);
 
       await fetchConversations();
@@ -167,6 +185,8 @@ export function UserProfilePage() {
     }
   }, [fetchConversations, ready, session, setProfile]);
 
+  const { isSubmitting } = form.formState;
+
   return (
     <>
       <div className="max-w-3xl mx-auto mt-10 space-y-6">
@@ -175,68 +195,70 @@ export function UserProfilePage() {
             <CardTitle>{t('userProfile')}</CardTitle>
           </CardHeader>
 
-          <CardContent className="space-y-6">
-            {isSuccess && (
-              <div className="p-4 mb-4 text-green-800 bg-green-100 rounded">
-                {t('profileSavedSuccess')}
-              </div>
-            )}
+          <Form {...form}>
+            <form onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}>
+              <CardContent className="space-y-6">
+                {isSuccess && (
+                  <div className="p-4 mb-4 text-green-800 bg-green-100 rounded">
+                    {t('profileSavedSuccess')}
+                  </div>
+                )}
 
-            <div>
-              <Label htmlFor="fullName">{t('username')}</Label>
-              <Input
-                id="fullName"
-                value={fullName}
-                onChange={(e) => {
-                  setFullName(e.target.value);
-                }}
-                placeholder={t('usernamePlaceholder')}
-                className="mt-1"
-              />
-              <p className="text-sm text-muted-foreground">
-                {t('usernameHelp')}
-              </p>
-            </div>
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('username')}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={t('usernamePlaceholder')} className="mt-1" {...field} />
+                      </FormControl>
+                      <FormDescription>{t('usernameHelp')}</FormDescription>
+                      <FormMessage/>
+                    </FormItem>
+                  )}
+                />
 
-            <div>
-              <Label htmlFor="gender">{t('gender')}</Label>
-              <Input
-                value={gender}
-                onChange={(e) => {
-                  setGender(e.target.value);
-                }}
-                placeholder={t('genderPlaceholder')}
-                className={'mt-1'}
-              />
-              <p className="text-sm text-muted-foreground">
-                {t('genderHelp')}
-              </p>
-            </div>
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('gender')}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={t('genderPlaceholder')} className="mt-1" {...field} />
+                      </FormControl>
+                      <FormDescription>{t('genderHelp')}</FormDescription>
+                      <FormMessage/>
+                    </FormItem>
+                  )}
+                />
 
-            <div>
-              <Label htmlFor="bio">{t('bio')}</Label>
-              <Textarea
-                id="bio"
-                value={bio}
-                onChange={(e) => {
-                  setBio(e.target.value);
-                }}
-                placeholder={t('bioPlaceholder')}
-                className="mt-1"
-              />
-              <p className="text-sm text-muted-foreground">
-                {t('bioHelp')}
-              </p>
-            </div>
-          </CardContent>
+                <FormField
+                  control={form.control}
+                  name="bio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('bio')}</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder={t('bioPlaceholder')} className="mt-1" {...field} />
+                      </FormControl>
+                      <FormDescription>{t('bioHelp')}</FormDescription>
+                      <FormMessage/>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
 
-          <CardFooter className="justify-end">
-            <Button onClick={() => {
-              void handleSave();
-            }} disabled={isSaving}>
-              {isSaving ? t('saving') : t('saveChanges')}
-            </Button>
-          </CardFooter>
+              <CardFooter className="justify-end">
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? t('saving') : t('saveChanges')}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
         </Card>
 
         <Card>

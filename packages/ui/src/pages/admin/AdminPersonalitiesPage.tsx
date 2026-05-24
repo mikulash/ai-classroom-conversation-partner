@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
@@ -7,6 +10,14 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../../components/ui/form';
 import { toast } from 'sonner';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { useConfirm } from '../../hooks/useConfirm';
@@ -18,19 +29,55 @@ import {
   useUpdatePersonality,
   useUploadPersonalityAvatar,
 } from '../../hooks/queries/usePersonalities';
-import { PersonalityCreateModel, PersonalityModel } from '@repo/frontend-utils/src/models';
+import { PersonalityModel } from '@repo/frontend-utils/src/models';
 import { OpenAiVoiceName } from '@repo/frontend-utils/src/clients/generated';
 
-type PersonalityForm = PersonalityCreateModel | PersonalityModel;
+const personalitySchema = z.object({
+  name: z.string().trim().min(1),
+  gender: z.string(),
+  age: z.string(),
+  problemSummaryEn: z.string().trim().min(1),
+  problemSummaryCs: z.string().trim().min(1),
+  personalityDescriptionEn: z.string().trim().min(1),
+  personalityDescriptionCs: z.string().trim().min(1),
+  openaiVoiceName: z.nativeEnum(OpenAiVoiceName),
+  elevenlabsVoiceId: z.string(),
+  voiceInstructions: z.string(),
+});
 
-const EMPTY_PERSONALITY: PersonalityCreateModel = {
+type PersonalityFormValues = z.infer<typeof personalitySchema>;
+
+const EMPTY_VALUES: PersonalityFormValues = {
   name: '',
+  gender: '',
+  age: '',
   problemSummaryEn: '',
   problemSummaryCs: '',
   personalityDescriptionEn: '',
   personalityDescriptionCs: '',
-  gender: '',
-  openaiVoiceName: 'alloy',
+  openaiVoiceName: OpenAiVoiceName.Alloy,
+  elevenlabsVoiceId: '',
+  voiceInstructions: '',
+};
+
+const personalityToFormValues = (p: PersonalityModel): PersonalityFormValues => ({
+  name: p.name,
+  gender: p.gender,
+  age: p.age !== null ? String(p.age) : '',
+  problemSummaryEn: p.problemSummaryEn,
+  problemSummaryCs: p.problemSummaryCs,
+  personalityDescriptionEn: p.personalityDescriptionEn,
+  personalityDescriptionCs: p.personalityDescriptionCs,
+  openaiVoiceName: p.openaiVoiceName,
+  elevenlabsVoiceId: p.elevenlabsVoiceId ?? '',
+  voiceInstructions: p.voiceInstructions ?? '',
+});
+
+const ageOrUndefined = (raw: string): number | undefined => {
+  const trimmed = raw.trim();
+  if (trimmed === '') return undefined;
+  const n = Number(trimmed);
+  return Number.isFinite(n) ? n : undefined;
 };
 
 export function AdminPersonalitiesPage() {
@@ -46,17 +93,21 @@ export function AdminPersonalitiesPage() {
   const removeAvatar = useRemovePersonalityAvatar();
   const uploadAvatar = useUploadPersonalityAvatar();
 
+  const [editingPersonalityId, setEditingPersonalityId] = useState<number | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
   const [uploadedAvatarUrl, setUploadedAvatarUrl] = useState<string | null>(null);
   const [uploadedAvatarFileName, setUploadedAvatarFileName] = useState<string | null>(null);
   const [avatarUploadProgress, setAvatarUploadProgress] = useState<number>(0);
 
-  const [currentPersonality, setCurrentPersonality] =
-    useState<PersonalityForm>(EMPTY_PERSONALITY);
+  const form = useForm<PersonalityFormValues>({
+    resolver: zodResolver(personalitySchema),
+    defaultValues: EMPTY_VALUES,
+    mode: 'onTouched',
+  });
 
-  // A mutation is in-flight if any of the write hooks are pending.
   const isProcessing =
     createPersonality.isPending ||
     updatePersonality.isPending ||
@@ -64,23 +115,10 @@ export function AdminPersonalitiesPage() {
     removeAvatar.isPending;
   const isUploadingAvatar = uploadAvatar.isPending;
 
-  const validateRequiredFields = (personality: PersonalityCreateModel): string | null => {
-    const requiredFields = [
-      { field: 'name', label: t('personalities.name') },
-      { field: 'problemSummaryEn', label: t('personalities.problemSummaryEn') },
-      { field: 'problemSummaryCs', label: t('personalities.problemSummaryCs') },
-      { field: 'personalityDescriptionEn', label: t('personalities.personalityDescriptionEn') },
-      { field: 'personalityDescriptionCs', label: t('personalities.personalityDescriptionCs') },
-    ] as const;
-
-    for (const { field, label } of requiredFields) {
-      const value = personality[field];
-      if (!value || value.trim() === '') {
-        return `${label} is required and cannot be empty.`;
-      }
-    }
-    return null;
-  };
+  const editingPersonality =
+    editingPersonalityId !== null ?
+      personalities.find((p) => p.id === editingPersonalityId) ?? null :
+      null;
 
   const resetAvatarState = () => {
     setSelectedAvatarFile(null);
@@ -90,9 +128,17 @@ export function AdminPersonalitiesPage() {
   };
 
   const handleEdit = (personality: PersonalityModel) => {
-    setCurrentPersonality(personality);
+    setEditingPersonalityId(personality.id);
+    form.reset(personalityToFormValues(personality));
     resetAvatarState();
     setIsEditDialogOpen(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingPersonalityId(null);
+    form.reset(EMPTY_VALUES);
+    resetAvatarState();
+    setIsAddDialogOpen(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -112,22 +158,6 @@ export function AdminPersonalitiesPage() {
       console.error(message);
       toast.error(t('personalities.deleteFailed'), { description: message });
     }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setCurrentPersonality((prev) => ({ ...prev, [name]: value } as PersonalityForm));
-  };
-
-  const handleSelectChange = (field: keyof PersonalityCreateModel, value: string) => {
-    setCurrentPersonality((prev) => ({ ...prev, [field]: value } as PersonalityForm));
-  };
-
-  const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const age = e.target.value === '' ? null : Number(e.target.value);
-    setCurrentPersonality((prev) => ({ ...prev, age } as PersonalityForm));
   };
 
   const validateAvatarFile = (file: File): string | null => {
@@ -163,11 +193,10 @@ export function AdminPersonalitiesPage() {
 
   const handleRemoveAvatar = async () => {
     resetAvatarState();
-    if (!('id' in currentPersonality)) return;
+    if (editingPersonalityId === null) return;
 
     try {
-      const data = await removeAvatar.mutateAsync(currentPersonality.id);
-      setCurrentPersonality(data);
+      await removeAvatar.mutateAsync(editingPersonalityId);
       toast.success(t('personalities.avatarRemoveSuccess'));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -200,39 +229,38 @@ export function AdminPersonalitiesPage() {
     }
   };
 
-  const handleEditSubmit = async () => {
-    if (!('id' in currentPersonality)) return;
+  const buildPayload = (values: PersonalityFormValues) => ({
+    name: values.name,
+    problemSummaryEn: values.problemSummaryEn,
+    problemSummaryCs: values.problemSummaryCs,
+    personalityDescriptionEn: values.personalityDescriptionEn,
+    personalityDescriptionCs: values.personalityDescriptionCs,
+    gender: values.gender,
+    age: ageOrUndefined(values.age),
+    openaiVoiceName: values.openaiVoiceName,
+    elevenlabsVoiceId: values.elevenlabsVoiceId || undefined,
+    voiceInstructions: values.voiceInstructions || undefined,
+    uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
+  });
 
-    const validationError = validateRequiredFields(currentPersonality);
-    if (validationError) {
-      toast.error('Validation Error', { description: validationError });
-      return;
-    }
-
+  const ensureAvatarUploaded = (): boolean => {
     if (selectedAvatarFile && !uploadedAvatarUrl) {
       toast.error(t('personalities.avatarUploadRequired'));
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const onEditSubmit = async (values: PersonalityFormValues) => {
+    if (editingPersonalityId === null) return;
+    if (!ensureAvatarUploaded()) return;
 
     try {
-      const data = await updatePersonality.mutateAsync({
-        id: currentPersonality.id,
-        input: {
-          name: currentPersonality.name,
-          problemSummaryEn: currentPersonality.problemSummaryEn,
-          problemSummaryCs: currentPersonality.problemSummaryCs,
-          personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
-          personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
-          gender: currentPersonality.gender,
-          age: currentPersonality.age ?? undefined,
-          openaiVoiceName: currentPersonality.openaiVoiceName,
-          elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
-          voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
-          uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
-        },
+      await updatePersonality.mutateAsync({
+        id: editingPersonalityId,
+        input: buildPayload(values),
       });
       toast.success(t('personalities.updateSuccess'));
-      setCurrentPersonality(data);
       resetAvatarState();
       setIsEditDialogOpen(false);
     } catch (error) {
@@ -242,36 +270,15 @@ export function AdminPersonalitiesPage() {
     }
   };
 
-  const handleAddSubmit = async () => {
-    const validationError = validateRequiredFields(currentPersonality as PersonalityCreateModel);
-    if (validationError) {
-      toast.error('Validation Error', { description: validationError });
-      return;
-    }
-
-    if (selectedAvatarFile && !uploadedAvatarUrl) {
-      toast.error(t('personalities.avatarUploadRequired'));
-      return;
-    }
+  const onAddSubmit = async (values: PersonalityFormValues) => {
+    if (!ensureAvatarUploaded()) return;
 
     try {
-      await createPersonality.mutateAsync({
-        name: currentPersonality.name,
-        problemSummaryEn: currentPersonality.problemSummaryEn,
-        problemSummaryCs: currentPersonality.problemSummaryCs,
-        personalityDescriptionEn: currentPersonality.personalityDescriptionEn,
-        personalityDescriptionCs: currentPersonality.personalityDescriptionCs,
-        gender: currentPersonality.gender ?? undefined,
-        age: currentPersonality.age ?? undefined,
-        openaiVoiceName: currentPersonality.openaiVoiceName,
-        elevenlabsVoiceId: currentPersonality.elevenlabsVoiceId ?? undefined,
-        voiceInstructions: currentPersonality.voiceInstructions ?? undefined,
-        uploadedAvatarUrl: uploadedAvatarUrl ?? undefined,
-      });
+      await createPersonality.mutateAsync(buildPayload(values));
       toast.success(t('personalities.createSuccess'));
       resetAvatarState();
       setIsAddDialogOpen(false);
-      setCurrentPersonality(EMPTY_PERSONALITY);
+      form.reset(EMPTY_VALUES);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(message);
@@ -279,222 +286,238 @@ export function AdminPersonalitiesPage() {
     }
   };
 
-  const handleAddNew = () => {
-    setCurrentPersonality(EMPTY_PERSONALITY);
-    resetAvatarState();
-    setIsAddDialogOpen(true);
-  };
-
-  const getAvatarFileName = (avatarUrl: string | null | undefined) => {
-    if (!avatarUrl) return null;
-    return avatarUrl.split('/').at(-1) ?? avatarUrl;
-  };
-
-  const currentAvatarUrl = 'avatarUrl' in currentPersonality ? currentPersonality.avatarUrl : null;
+  const currentAvatarUrl = editingPersonality?.avatarUrl ?? null;
+  const getAvatarFileName = (avatarUrl: string | null | undefined) =>
+    avatarUrl ? (avatarUrl.split('/').at(-1) ?? avatarUrl) : null;
   const currentAvatarFileName = getAvatarFileName(currentAvatarUrl);
   const hasVisibleAvatar =
     selectedAvatarFile !== null ||
     uploadedAvatarUrl !== null ||
     Boolean(currentAvatarUrl);
 
-  const renderPersonalityForm = () => (
-    <div className="grid gap-4">
-      {/* Required fields notice */}
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-sm text-blue-800 font-medium mb-2">{t('personalities.requiredFieldsNotice')}</p>
-        <p className="text-xs text-blue-700">
-          {t('personalities.requiredFieldsDescription')}
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="name" className="flex items-center gap-1">
-            {t('personalities.name')} <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="name"
-            name="name"
-            value={currentPersonality.name}
-            onChange={handleInputChange}
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="gender">{t('personalities.gender')}</Label>
-          <Input
-            id="gender"
-            name="gender"
-            value={currentPersonality.gender ?? ''}
-            onChange={handleInputChange}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="age">{t('personalities.age')}</Label>
-          <Input
-            id="age"
-            name="age"
-            type="number"
-            value={currentPersonality.age ?? ''}
-            onChange={handleAgeChange}
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-3 rounded-lg border border-border p-4">
-        <div className="grid gap-2">
-          <Label htmlFor="avatarFile">{t('personalities.avatarUpload')}</Label>
-          <Input
-            id="avatarFile"
-            name="avatarFile"
-            type="file"
-            accept=".glb,model/gltf-binary"
-            onChange={handleAvatarFileChange}
-          />
-          <p className="text-xs text-muted-foreground">
-            {selectedAvatarFile ? selectedAvatarFile.name : t('personalities.avatarUploadHint')}
+  const renderPersonalityFormFields = () => {
+    const { control } = form;
+    return (
+      <div className="grid gap-4">
+        {/* Required fields notice */}
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800 font-medium mb-2">{t('personalities.requiredFieldsNotice')}</p>
+          <p className="text-xs text-blue-700">
+            {t('personalities.requiredFieldsDescription')}
           </p>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => void handleUploadAvatar()}
-              disabled={!selectedAvatarFile || isUploadingAvatar || isProcessing}
-            >
-              {isUploadingAvatar ? t('personalities.avatarUploading') : t('personalities.avatarUploadButton')}
-            </Button>
-            {uploadedAvatarUrl && (
-              <span className="text-sm text-muted-foreground">{t('personalities.avatarReadyToSave')}</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel className="flex items-center gap-1">
+                  {t('personalities.name')} <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl><Input {...field} /></FormControl>
+                <FormMessage/>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel>{t('personalities.gender')}</FormLabel>
+                <FormControl><Input {...field} /></FormControl>
+                <FormMessage/>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="age"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel>{t('personalities.age')}</FormLabel>
+                <FormControl><Input type="number" {...field} /></FormControl>
+                <FormMessage/>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid gap-3 rounded-lg border border-border p-4">
+          <div className="grid gap-2">
+            <Label htmlFor="avatarFile">{t('personalities.avatarUpload')}</Label>
+            <Input
+              id="avatarFile"
+              name="avatarFile"
+              type="file"
+              accept=".glb,model/gltf-binary"
+              onChange={handleAvatarFileChange}
+            />
+            <p className="text-xs text-muted-foreground">
+              {selectedAvatarFile ? selectedAvatarFile.name : t('personalities.avatarUploadHint')}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => void handleUploadAvatar()}
+                disabled={!selectedAvatarFile || isUploadingAvatar || isProcessing}
+              >
+                {isUploadingAvatar ? t('personalities.avatarUploading') : t('personalities.avatarUploadButton')}
+              </Button>
+              {uploadedAvatarUrl && (
+                <span className="text-sm text-muted-foreground">{t('personalities.avatarReadyToSave')}</span>
+              )}
+            </div>
+            {(isUploadingAvatar || avatarUploadProgress > 0) && (
+              <div className="h-2 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${avatarUploadProgress}%` }}
+                />
+              </div>
             )}
           </div>
-          {(isUploadingAvatar || avatarUploadProgress > 0) && (
-            <div className="h-2 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${avatarUploadProgress}%` }}
-              />
+
+          {hasVisibleAvatar && (
+            <div className="flex items-center justify-between gap-3">
+              <span className="truncate text-sm text-muted-foreground">
+                {selectedAvatarFile?.name ??
+                  uploadedAvatarFileName ??
+                  currentAvatarFileName ??
+                  t('personalities.avatarUploaded')}
+              </span>
+              {currentAvatarUrl && !uploadedAvatarUrl && !selectedAvatarFile && (
+                <span className="shrink-0 text-xs font-medium text-emerald-700">
+                  {t('personalities.avatarAttached')}
+                </span>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => void handleRemoveAvatar()}
+                disabled={isProcessing}
+              >
+                {t('personalities.avatarRemove')}
+              </Button>
             </div>
           )}
         </div>
 
-        {hasVisibleAvatar && (
-          <div className="flex items-center justify-between gap-3">
-            <span className="truncate text-sm text-muted-foreground">
-              {selectedAvatarFile?.name ??
-                uploadedAvatarFileName ??
-                currentAvatarFileName ??
-                t('personalities.avatarUploaded')}
-            </span>
-            {currentAvatarUrl && !uploadedAvatarUrl && !selectedAvatarFile && (
-              <span className="shrink-0 text-xs font-medium text-emerald-700">
-                {t('personalities.avatarAttached')}
-              </span>
-            )}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => void handleRemoveAvatar()}
-              disabled={isProcessing}
-            >
-              {t('personalities.avatarRemove')}
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <div className="grid gap-2">
-        <Label htmlFor="problemSummaryEn" className="flex items-center gap-1">
-          {t('personalities.problemSummaryEn')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="problemSummaryEn"
+        <FormField
+          control={control}
           name="problemSummaryEn"
-          value={currentPersonality.problemSummaryEn ?? ''}
-          onChange={handleInputChange}
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel className="flex items-center gap-1">
+                {t('personalities.problemSummaryEn')} <span className="text-red-500">*</span>
+              </FormLabel>
+              <FormControl><Textarea {...field} /></FormControl>
+              <FormMessage/>
+            </FormItem>
+          )}
         />
-      </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="problemSummaryCs" className="flex items-center gap-1">
-          {t('personalities.problemSummaryCs')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="problemSummaryCs"
+        <FormField
+          control={control}
           name="problemSummaryCs"
-          value={currentPersonality.problemSummaryCs ?? ''}
-          onChange={handleInputChange}
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel className="flex items-center gap-1">
+                {t('personalities.problemSummaryCs')} <span className="text-red-500">*</span>
+              </FormLabel>
+              <FormControl><Textarea {...field} /></FormControl>
+              <FormMessage/>
+            </FormItem>
+          )}
         />
-      </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="personalityDescriptionEn" className="flex items-center gap-1">
-          {t('personalities.personalityDescriptionEn')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="personalityDescriptionEn"
+        <FormField
+          control={control}
           name="personalityDescriptionEn"
-          value={currentPersonality.personalityDescriptionEn ?? ''}
-          onChange={handleInputChange}
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel className="flex items-center gap-1">
+                {t('personalities.personalityDescriptionEn')} <span className="text-red-500">*</span>
+              </FormLabel>
+              <FormControl><Textarea {...field} /></FormControl>
+              <FormMessage/>
+            </FormItem>
+          )}
         />
-      </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="personalityDescriptionCs" className="flex items-center gap-1">
-          {t('personalities.personalityDescriptionCs')} <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="personalityDescriptionCs"
+        <FormField
+          control={control}
           name="personalityDescriptionCs"
-          value={currentPersonality.personalityDescriptionCs ?? ''}
-          onChange={handleInputChange}
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel className="flex items-center gap-1">
+                {t('personalities.personalityDescriptionCs')} <span className="text-red-500">*</span>
+              </FormLabel>
+              <FormControl><Textarea {...field} /></FormControl>
+              <FormMessage/>
+            </FormItem>
+          )}
         />
-      </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="openaiVoiceName">{t('personalities.openaiVoice')}</Label>
-        <Select
-          value={currentPersonality.openaiVoiceName}
-          onValueChange={(value) => {
-            handleSelectChange('openaiVoiceName', value as OpenAiVoiceName);
-          }}>
-          <SelectTrigger>
-            <SelectValue placeholder={t('personalities.selectVoice')} />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.values(OpenAiVoiceName).map((voice) => (
-              <SelectItem key={voice} value={voice}>
-                {voice}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <FormField
+          control={control}
+          name="openaiVoiceName"
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel>{t('personalities.openaiVoice')}</FormLabel>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('personalities.selectVoice')} />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {Object.values(OpenAiVoiceName).map((voice) => (
+                    <SelectItem key={voice} value={voice}>
+                      {voice}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage/>
+            </FormItem>
+          )}
+        />
 
-      <div className="grid gap-2">
-        <Label htmlFor="elevenlabsVoiceId">{t('personalities.elevenlabsVoiceId')}</Label>
-        <Input
-          id="elevenlabsVoiceId"
+        <FormField
+          control={control}
           name="elevenlabsVoiceId"
-          value={currentPersonality.elevenlabsVoiceId ?? ''}
-          onChange={handleInputChange}
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel>{t('personalities.elevenlabsVoiceId')}</FormLabel>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage/>
+            </FormItem>
+          )}
         />
-      </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="voiceInstructions">{t('personalities.voiceInstructions')}</Label>
-        <Textarea
-          id="voiceInstructions"
+        <FormField
+          control={control}
           name="voiceInstructions"
-          value={currentPersonality.voiceInstructions ?? ''}
-          onChange={handleInputChange}
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel>{t('personalities.voiceInstructions')}</FormLabel>
+              <FormControl><Textarea {...field} /></FormControl>
+              <FormMessage/>
+            </FormItem>
+          )}
         />
       </div>
-    </div>
-  );
+    );
+  };
 
   if (personalitiesQuery.isLoading) {
     return (
@@ -591,16 +614,22 @@ export function AdminPersonalitiesPage() {
             <DialogTitle>{t('personalities.editPersonality')}</DialogTitle>
           </DialogHeader>
 
-          {renderPersonalityForm()}
+          <Form {...form}>
+            <form onSubmit={(e) => {
+              void form.handleSubmit(onEditSubmit)(e);
+            }}>
+              {renderPersonalityFormFields()}
 
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">{t('common.cancel')}</Button>
-            </DialogClose>
-            <Button onClick={() => void handleEditSubmit()} disabled={isProcessing}>
-              {isProcessing ? t('common.saving') : t('common.saveChanges')}
-            </Button>
-          </DialogFooter>
+              <DialogFooter className="mt-4">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">{t('common.cancel')}</Button>
+                </DialogClose>
+                <Button type="submit" disabled={isProcessing}>
+                  {isProcessing ? t('common.saving') : t('common.saveChanges')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
@@ -610,16 +639,22 @@ export function AdminPersonalitiesPage() {
             <DialogTitle>{t('personalities.addNewPersonality')}</DialogTitle>
           </DialogHeader>
 
-          {renderPersonalityForm()}
+          <Form {...form}>
+            <form onSubmit={(e) => {
+              void form.handleSubmit(onAddSubmit)(e);
+            }}>
+              {renderPersonalityFormFields()}
 
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">{t('common.cancel')}</Button>
-            </DialogClose>
-            <Button onClick={() => void handleAddSubmit()} disabled={isProcessing}>
-              {isProcessing ? t('common.creating') : t('personalities.createPersonality')}
-            </Button>
-          </DialogFooter>
+              <DialogFooter className="mt-4">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">{t('common.cancel')}</Button>
+                </DialogClose>
+                <Button type="submit" disabled={isProcessing}>
+                  {isProcessing ? t('common.creating') : t('personalities.createPersonality')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </Card>

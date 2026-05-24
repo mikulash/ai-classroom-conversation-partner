@@ -1,52 +1,69 @@
-import React, { FormEvent, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Link } from 'react-router';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../components/ui/form';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { useAuth } from '../hooks/useAuth';
 import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 
+const buildSchema = (requiredMessage: string) =>
+  z.object({
+    email: z.string().trim().min(1, { message: requiredMessage }),
+  });
+
+type ResendValues = z.infer<ReturnType<typeof buildSchema>>;
+
 export const EmailVerificationExpiredPage: React.FC = () => {
   const { t } = useTypedTranslation();
   const { profile } = useAuth();
-  const [email, setEmail] = useState(profile?.email ?? '');
   const [status, setStatus] = useState<'form' | 'success'>('form');
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Sync email field when profile loads/changes without clobbering manual edits made after the same profile snapshot.
+  const schema = useMemo(
+    () => buildSchema(t('emailVerificationExpiredEmailRequired')),
+    [t],
+  );
+
+  const form = useForm<ResendValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: profile?.email ?? '' },
+    mode: 'onTouched',
+  });
+
+  // Sync email when a fresh profile arrives without clobbering edits made against the same snapshot.
   const [prevProfileEmail, setPrevProfileEmail] = useState(profile?.email);
   if (profile?.email !== prevProfileEmail) {
     setPrevProfileEmail(profile?.email);
     if (profile?.email) {
-      setEmail(profile.email);
+      form.reset({ email: profile.email });
     }
   }
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!email.trim()) {
-      setError(t('emailVerificationExpiredEmailRequired'));
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-
-    const { error: resendError } = await authClient.resendVerificationEmail({ email: email.trim() });
-
-    setIsSubmitting(false);
-
+  const onSubmit = async (values: ResendValues) => {
+    setSubmitError(null);
+    const { error: resendError } = await authClient.resendVerificationEmail({
+      email: values.email.trim(),
+    });
     if (resendError) {
-      setError(resendError.message);
+      setSubmitError(resendError.message);
       return;
     }
-
     setStatus('success');
   };
+
+  const { isSubmitting } = form.formState;
 
   const tips = [
     t('emailVerificationCheckEmailTipSpam'),
@@ -65,34 +82,40 @@ export const EmailVerificationExpiredPage: React.FC = () => {
                 {t('emailVerificationExpiredDescription')}
               </p>
 
-              <form className="space-y-4" onSubmit={(e) => {
-                void handleSubmit(e);
-              }}>
-                <div className="space-y-2 text-left">
-                  <Label htmlFor="email">{t('email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(event) => {
-                      setEmail(event.target.value);
-                    }}
-                    placeholder={t('emailVerificationExpiredEmailPlaceholder')}
-                    aria-invalid={error ? 'true' : 'false'}
+              <Form {...form}>
+                <form className="space-y-4" onSubmit={(e) => {
+                  void form.handleSubmit(onSubmit)(e);
+                }}>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="text-left">
+                        <FormLabel>{t('email')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            autoComplete="email"
+                            placeholder={t('emailVerificationExpiredEmailPlaceholder')}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage/>
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                {error ? (
-                  <p className="text-sm text-red-600" role="alert">
-                    {error}
-                  </p>
-                ) : null}
+                  {submitError && (
+                    <p className="text-sm text-red-600" role="alert">
+                      {submitError}
+                    </p>
+                  )}
 
-                <Button className="w-full" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? t('loadingMessage') : t('emailVerificationExpiredPrimaryAction')}
-                </Button>
-              </form>
+                  <Button className="w-full" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? t('loadingMessage') : t('emailVerificationExpiredPrimaryAction')}
+                  </Button>
+                </form>
+              </Form>
 
               <Button variant="link" asChild>
                 <Link to="/sign-in">{t('emailVerificationExpiredSecondaryAction')}</Link>
