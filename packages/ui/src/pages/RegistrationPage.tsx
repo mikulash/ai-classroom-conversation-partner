@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router';
+import { Navigate, useNavigate } from 'react-router';
 import { useAppStore } from '../hooks/useAppStore';
 import { useTypedTranslation } from '../hooks/useTypedTranslation';
 import { Button } from '../components/ui/button';
@@ -80,15 +80,8 @@ export const RegistrationPage: React.FC = () => {
     mode: 'onTouched',
   });
 
-  useEffect(() => {
-    if (ready && session) {
-      void navigate('/', { replace: true });
-    }
-  }, [ready, session, navigate]);
-
-  if (!ready || session) {
-    return null;
-  }
+  if (!ready) return null;
+  if (session) return <Navigate to="/" replace />;
 
   const onSubmit = async (values: RegistrationValues) => {
     const ok = await signUp({

@@ -14,6 +14,7 @@ export const queryKeys = {
   },
   appConfig: {
     current: ['appConfig'] as const,
+    initialOptions: ['appConfig', 'initialOptions'] as const,
   },
   models: {
     options: ['models', 'options'] as const,

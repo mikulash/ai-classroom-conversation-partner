@@ -13,6 +13,7 @@ import {
   useFilteredModelOptions,
   useUpsertCustomModelSelection,
 } from '../../hooks/queries/useModels';
+import { MODEL_CATEGORIES } from '../../lib/modelCategories';
 
 export function AdminCustomModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -193,21 +194,12 @@ export function AdminCustomModelSelectionPage() {
       return globalModel?.provider === provider ? t('models.currentlyUsedGlobally') : null;
     };
 
-  const modelKeys: (keyof ModelSelection)[] = [
-    'responseModel',
-    'ttsModel',
-    'realtimeModel',
-    'timestampedTranscriptionModel',
-    'realtimeTranscriptionModel',
-  ];
-
-  const globalModelIds: Record<keyof ModelSelection, number | null> = {
-    responseModel: appConfig.responseModelId ?? null,
-    ttsModel: appConfig.ttsModelId ?? null,
-    realtimeModel: appConfig.realtimeModelId ?? null,
-    timestampedTranscriptionModel: appConfig.timestampedTranscriptionModelId ?? null,
-    realtimeTranscriptionModel: appConfig.realtimeTranscriptionModelId ?? null,
-  };
+  // Derive `modelKeys` and `globalModelIds` from the central category list
+  // so adding/removing a model category requires no edit here.
+  const modelKeys = MODEL_CATEGORIES.map((c) => c.key);
+  const globalModelIds = Object.fromEntries(
+    MODEL_CATEGORIES.map((c) => [c.key, (appConfig[c.configIdKey] as number | null | undefined) ?? null]),
+  ) as Record<keyof ModelSelection, number | null>;
 
   const hasAnyOverride = userOverrides.size > 0;
 
@@ -253,91 +245,30 @@ export function AdminCustomModelSelectionPage() {
       </CardHeader>
       <CardContent className="grid gap-8">
         <ModelSelectionForm>
-          <ModelSelectionSection
-            label={t('responseModel')}
-            modelKey="responseModel"
-            models={models.responseModels}
-            modelSelection={selection}
-            setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
-            titleStatus={titleStatusForKey('responseModel')}
-            optionStatus={globalOptionStatus(appConfig.responseModelId)}
-            providerStatus={globalProviderStatus(appConfig.responseModelId, models.responseModels)}
-            clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => {
-              clearSelectionForKey('responseModel');
-            }}
-            hasOverride={userOverrides.has('responseModel')}
-          />
-          <ModelSelectionSection
-            label={t('ttsModel')}
-            modelKey="ttsModel"
-            models={models.ttsModels}
-            modelSelection={selection}
-            setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
-            titleStatus={titleStatusForKey('ttsModel')}
-            optionStatus={globalOptionStatus(appConfig.ttsModelId)}
-            providerStatus={globalProviderStatus(appConfig.ttsModelId, models.ttsModels)}
-            clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => {
-              clearSelectionForKey('ttsModel');
-            }}
-            hasOverride={userOverrides.has('ttsModel')}
-          />
-          <ModelSelectionSection
-            label={t('realtimeModel')}
-            modelKey="realtimeModel"
-            models={models.realtimeModels}
-            modelSelection={selection}
-            setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
-            titleStatus={titleStatusForKey('realtimeModel')}
-            optionStatus={globalOptionStatus(appConfig.realtimeModelId)}
-            providerStatus={globalProviderStatus(appConfig.realtimeModelId, models.realtimeModels)}
-            clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => {
-              clearSelectionForKey('realtimeModel');
-            }}
-            hasOverride={userOverrides.has('realtimeModel')}
-          />
-          <ModelSelectionSection
-            label={t('models.timestampedTranscriptionModel')}
-            modelKey="timestampedTranscriptionModel"
-            models={models.timestampedTranscriptionModels}
-            modelSelection={selection}
-            setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
-            titleStatus={titleStatusForKey('timestampedTranscriptionModel')}
-            optionStatus={globalOptionStatus(appConfig.timestampedTranscriptionModelId)}
-            providerStatus={globalProviderStatus(appConfig.timestampedTranscriptionModelId, models.timestampedTranscriptionModels)}
-            clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => {
-              clearSelectionForKey('timestampedTranscriptionModel');
-            }}
-            hasOverride={userOverrides.has('timestampedTranscriptionModel')}
-          />
-          <ModelSelectionSection
-            label={t('models.realtimeTranscriptionModel')}
-            modelKey="realtimeTranscriptionModel"
-            models={models.realtimeTranscriptionModels}
-            modelSelection={selection}
-            setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
-            titleStatus={titleStatusForKey('realtimeTranscriptionModel')}
-            optionStatus={globalOptionStatus(appConfig.realtimeTranscriptionModelId)}
-            providerStatus={globalProviderStatus(appConfig.realtimeTranscriptionModelId, models.realtimeTranscriptionModels)}
-            clearSelectionLabel={clearSectionLabel}
-            onClearSelection={() => {
-              clearSelectionForKey('realtimeTranscriptionModel');
-            }}
-            hasOverride={userOverrides.has('realtimeTranscriptionModel')}
-          />
+          {MODEL_CATEGORIES.map((category) => {
+            const modelList = models[category.modelsKey];
+            const globalId = appConfig[category.configIdKey] as number | null | undefined;
+            return (
+              <ModelSelectionSection
+                key={category.key}
+                label={t(category.customLabelKey)}
+                modelKey={category.key}
+                models={modelList}
+                modelSelection={selection}
+                setModelSelection={setSelection}
+                selectProviderLabel={t('selectProvider')}
+                selectModelLabel={t('selectModel')}
+                titleStatus={titleStatusForKey(category.key)}
+                optionStatus={globalOptionStatus(globalId)}
+                providerStatus={globalProviderStatus(globalId, modelList)}
+                clearSelectionLabel={clearSectionLabel}
+                onClearSelection={() => {
+                  clearSelectionForKey(category.key);
+                }}
+                hasOverride={userOverrides.has(category.key)}
+              />
+            );
+          })}
         </ModelSelectionForm>
       </CardContent>
 

@@ -11,6 +11,7 @@ import { useConfirm } from '../../hooks/useConfirm';
 import { ModelSelectionForm, ModelSelectionSection } from '../../components/admin/ModelSelectionForm';
 import { useFilteredModelOptions } from '../../hooks/queries/useModels';
 import { useUpdateAppConfigModels } from '../../hooks/queries/useAppConfig';
+import { MODEL_CATEGORIES } from '../../lib/modelCategories';
 
 export function AdminGlobalModelSelectionPage() {
   const { t } = useTypedTranslation();
@@ -111,56 +112,19 @@ export function AdminGlobalModelSelectionPage() {
       </CardHeader>
       <CardContent className="grid gap-8">
         <ModelSelectionForm>
-          <ModelSelectionSection
-            label={t('models.responseModel')}
-            modelKey="responseModel"
-            models={modelOptions.responseModels}
-            modelSelection={modelSelectionState}
-            setModelSelection={setModelSelectionState}
-            selectProviderLabel={t('models.selectProvider')}
-            selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(appConfig.responseModelId)}
-          />
-          <ModelSelectionSection
-            label={t('models.ttsModel')}
-            modelKey="ttsModel"
-            models={modelOptions.ttsModels}
-            modelSelection={modelSelectionState}
-            setModelSelection={setModelSelectionState}
-            selectProviderLabel={t('models.selectProvider')}
-            selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(appConfig.ttsModelId)}
-          />
-          <ModelSelectionSection
-            label={t('models.realtimeModel')}
-            modelKey="realtimeModel"
-            models={modelOptions.realtimeModels}
-            modelSelection={modelSelectionState}
-            setModelSelection={setModelSelectionState}
-            selectProviderLabel={t('models.selectProvider')}
-            selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(appConfig.realtimeModelId)}
-          />
-          <ModelSelectionSection
-            label={t('models.timestampedTranscriptionModel')}
-            modelKey="timestampedTranscriptionModel"
-            models={modelOptions.timestampedTranscriptionModels}
-            modelSelection={modelSelectionState}
-            setModelSelection={setModelSelectionState}
-            selectProviderLabel={t('models.selectProvider')}
-            selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(appConfig.timestampedTranscriptionModelId)}
-          />
-          <ModelSelectionSection
-            label={t('models.realtimeTranscriptionModel')}
-            modelKey="realtimeTranscriptionModel"
-            models={modelOptions.realtimeTranscriptionModels}
-            modelSelection={modelSelectionState}
-            setModelSelection={setModelSelectionState}
-            selectProviderLabel={t('models.selectProvider')}
-            selectModelLabel={t('models.selectModel')}
-            optionStatus={getOptionStatus(appConfig.realtimeTranscriptionModelId)}
-          />
+          {MODEL_CATEGORIES.map((category) => (
+            <ModelSelectionSection
+              key={category.key}
+              label={t(category.globalLabelKey)}
+              modelKey={category.key}
+              models={modelOptions[category.modelsKey]}
+              modelSelection={modelSelectionState}
+              setModelSelection={setModelSelectionState}
+              selectProviderLabel={t('models.selectProvider')}
+              selectModelLabel={t('models.selectModel')}
+              optionStatus={getOptionStatus(appConfig[category.configIdKey] as number | null | undefined)}
+            />
+          ))}
         </ModelSelectionForm>
         <Alert variant="default">
           <AlertCircle className="h-4 w-4" />

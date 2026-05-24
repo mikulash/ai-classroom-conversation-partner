@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -11,16 +11,13 @@ import { authClient } from '@repo/frontend-utils/src/clients/db/auth.client';
 export const EmailVerificationExpiredPage: React.FC = () => {
   const { t } = useTypedTranslation();
   const { profile } = useAuth();
-  const [email, setEmail] = useState(profile?.email ?? '');
+  // Seed the email once on mount. After the user starts typing we should
+  // not stomp their edits with a delayed `profile.email` arrival, so we
+  // intentionally do NOT keep this in sync with later profile updates.
+  const [email, setEmail] = useState(() => profile?.email ?? '');
   const [status, setStatus] = useState<'form' | 'success'>('form');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (profile?.email) {
-      setEmail(profile.email);
-    }
-  }, [profile?.email]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
