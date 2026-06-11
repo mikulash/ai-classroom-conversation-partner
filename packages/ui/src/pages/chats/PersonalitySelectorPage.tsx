@@ -152,61 +152,51 @@ export const PersonalitySelectorPage: React.FC = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* predefined personalities carousel */}
+          {/* predefined personalities grid */}
           <TabsContent value="predefined">
-            <div className="mb-10">
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {predefinedPersonalities.map((p) => {
-                    const {
-                      problemSummary,
-                      personalityDescription,
-                    } = universalDescriptionForPersonality(p, language);
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+              {predefinedPersonalities.map((p) => {
+                const {
+                  problemSummary,
+                  personalityDescription,
+                } = universalDescriptionForPersonality(p, language);
 
 
-                    return (
-                      <CarouselItem
-                        key={p.id}
-                        className="md:basis-1/2 lg:basis-1/2"
-                      >
-                        <Card
-                          role="button"
-                          tabIndex={0}
-                          aria-pressed={selectedPersonality.id === p.id}
-                          className={`border-2 cursor-pointer transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
-                            selectedPersonality.id === p.id ?
-                              'border-primary' :
-                              'border-border hover:border-muted-foreground'
-                          }`}
-                          onClick={() => {
-                            selectPersonality(p);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              selectPersonality(p);
-                            }
-                          }}
-                        >
-                          <CardContent className="text-center p-4">
-                            <CardTitle className="text-2xl mb-2">
-                              {p.name} ({p.age} {t('yearsOld')})
-                            </CardTitle>
-                            <div className="text-xl font-semibold mb-1">
-                              {problemSummary}
-                            </div>
-                            <div className="h-60 overflow-y-auto">
-                              {personalityDescription}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </CarouselItem>
-                    );
-                  })}
-                </CarouselContent>
-                <CarouselPrevious/>
-                <CarouselNext/>
-              </Carousel>
+                return (
+                  <Card
+                    key={p.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={selectedPersonality.id === p.id}
+                    className={`border-2 cursor-pointer transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
+                      selectedPersonality.id === p.id ?
+                        'border-primary bg-primary/5' :
+                        'border-border hover:border-muted-foreground'
+                    }`}
+                    onClick={() => {
+                      selectPersonality(p);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectPersonality(p);
+                      }
+                    }}
+                  >
+                    <CardContent className="text-center p-4">
+                      <CardTitle className="text-lg mb-1">
+                        {p.name} ({p.age} {t('yearsOld')})
+                      </CardTitle>
+                      <div className="text-sm font-semibold mb-2">
+                        {problemSummary}
+                      </div>
+                      <div className="text-sm text-muted-foreground text-left max-h-28 overflow-y-auto">
+                        {personalityDescription}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 
