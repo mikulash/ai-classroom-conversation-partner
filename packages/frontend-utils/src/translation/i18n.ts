@@ -24,7 +24,14 @@ void i18n
 if (typeof globalThis !== 'undefined') {
   i18n.on('languageChanged', (lng) => {
     localStorage.setItem(storageKey, lng);
+    // Keep the document language in sync so screen readers use the right voice.
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lng;
+    }
   });
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = i18n.language;
+  }
 }
 
 export default i18n;

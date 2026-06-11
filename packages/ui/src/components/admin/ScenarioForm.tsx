@@ -50,7 +50,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({ personalities }) => 
         render={({ field }) => (
           <FormItem className="grid gap-2">
             <FormLabel className="flex items-center gap-1">
-              {t('admin.scenarios.form.settingEn')} <span className="text-red-500">*</span>
+              {t('admin.scenarios.form.settingEn')} <span className="text-destructive" aria-hidden="true">*</span>
             </FormLabel>
             <FormControl>
               <Textarea rows={3} {...field} />
@@ -66,7 +66,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({ personalities }) => 
         render={({ field }) => (
           <FormItem className="grid gap-2">
             <FormLabel className="flex items-center gap-1">
-              {t('admin.scenarios.form.settingCs')} <span className="text-red-500">*</span>
+              {t('admin.scenarios.form.settingCs')} <span className="text-destructive" aria-hidden="true">*</span>
             </FormLabel>
             <FormControl>
               <Textarea rows={3} {...field} />
@@ -82,7 +82,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({ personalities }) => 
         render={({ field }) => (
           <FormItem className="grid gap-2">
             <FormLabel className="flex items-center gap-1">
-              {t('admin.scenarios.form.descriptionEn')} <span className="text-red-500">*</span>
+              {t('admin.scenarios.form.descriptionEn')} <span className="text-destructive" aria-hidden="true">*</span>
             </FormLabel>
             <FormControl>
               <Textarea rows={4} {...field} />
@@ -98,7 +98,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({ personalities }) => 
         render={({ field }) => (
           <FormItem className="grid gap-2">
             <FormLabel className="flex items-center gap-1">
-              {t('admin.scenarios.form.descriptionCs')} <span className="text-red-500">*</span>
+              {t('admin.scenarios.form.descriptionCs')} <span className="text-destructive" aria-hidden="true">*</span>
             </FormLabel>
             <FormControl>
               <Textarea rows={4} {...field} />
@@ -114,7 +114,7 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({ personalities }) => 
         render={({ field }) => (
           <FormItem className="grid gap-2">
             <FormLabel className="flex items-center gap-1">
-              {t('admin.scenarios.form.personality')} <span className="text-red-500">*</span>
+              {t('admin.scenarios.form.personality')} <span className="text-destructive" aria-hidden="true">*</span>
             </FormLabel>
             <Select value={field.value} onValueChange={field.onChange}>
               <FormControl>

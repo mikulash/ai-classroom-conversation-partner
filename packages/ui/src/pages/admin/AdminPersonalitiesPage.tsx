@@ -300,9 +300,9 @@ export function AdminPersonalitiesPage() {
     return (
       <div className="grid gap-4">
         {/* Required fields notice */}
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800 font-medium mb-2">{t('personalities.requiredFieldsNotice')}</p>
-          <p className="text-xs text-blue-700">
+        <div className="p-4 bg-blue-50 border border-blue-200 dark:bg-blue-950 dark:border-blue-900 rounded-lg">
+          <p className="text-sm text-blue-800 dark:text-blue-300 font-medium mb-2">{t('personalities.requiredFieldsNotice')}</p>
+          <p className="text-xs text-blue-700 dark:text-blue-400">
             {t('personalities.requiredFieldsDescription')}
           </p>
         </div>
@@ -314,7 +314,7 @@ export function AdminPersonalitiesPage() {
             render={({ field }) => (
               <FormItem className="grid gap-2">
                 <FormLabel className="flex items-center gap-1">
-                  {t('personalities.name')} <span className="text-red-500">*</span>
+                  {t('personalities.name')} <span className="text-destructive" aria-hidden="true">*</span>
                 </FormLabel>
                 <FormControl><Input {...field} /></FormControl>
                 <FormMessage/>
@@ -417,7 +417,7 @@ export function AdminPersonalitiesPage() {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel className="flex items-center gap-1">
-                {t('personalities.problemSummaryEn')} <span className="text-red-500">*</span>
+                {t('personalities.problemSummaryEn')} <span className="text-destructive" aria-hidden="true">*</span>
               </FormLabel>
               <FormControl><Textarea {...field} /></FormControl>
               <FormMessage/>
@@ -431,7 +431,7 @@ export function AdminPersonalitiesPage() {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel className="flex items-center gap-1">
-                {t('personalities.problemSummaryCs')} <span className="text-red-500">*</span>
+                {t('personalities.problemSummaryCs')} <span className="text-destructive" aria-hidden="true">*</span>
               </FormLabel>
               <FormControl><Textarea {...field} /></FormControl>
               <FormMessage/>
@@ -445,7 +445,7 @@ export function AdminPersonalitiesPage() {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel className="flex items-center gap-1">
-                {t('personalities.personalityDescriptionEn')} <span className="text-red-500">*</span>
+                {t('personalities.personalityDescriptionEn')} <span className="text-destructive" aria-hidden="true">*</span>
               </FormLabel>
               <FormControl><Textarea {...field} /></FormControl>
               <FormMessage/>
@@ -459,7 +459,7 @@ export function AdminPersonalitiesPage() {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel className="flex items-center gap-1">
-                {t('personalities.personalityDescriptionCs')} <span className="text-red-500">*</span>
+                {t('personalities.personalityDescriptionCs')} <span className="text-destructive" aria-hidden="true">*</span>
               </FormLabel>
               <FormControl><Textarea {...field} /></FormControl>
               <FormMessage/>

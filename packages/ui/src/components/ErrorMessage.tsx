@@ -21,7 +21,7 @@ export const ErrorMessage =
       const { t } = useTypedTranslation();
 
       return (
-        <Card className={cn('w-full max-w-md mx-auto', className)} {...props}>
+        <Card className={cn('w-full max-w-md mx-auto', className)} role="alert" {...props}>
           <CardHeader>
             <CardTitle className="text-center text-destructive">
               {title ?? t('errorTitle')}

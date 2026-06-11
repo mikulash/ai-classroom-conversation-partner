@@ -231,21 +231,21 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   // ── Render ─────────────────────────────────────────────────────────
 
   const connectionStatusMessage = isConnecting ?
-    'Connecting...' :
+    t('connecting') :
     isConnected ?
-      'Connected' :
-      'Disconnected';
+      t('connected') :
+      t('disconnected');
 
   const connectionStatus = (
-    <div className="mt-4 space-y-1">
+    <div className="mt-4 space-y-1" role="status" aria-live="polite">
       <p className="text-lg">
         {t('status')}:{' '}
-        <span className={`font-bold ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
+        <span className={`font-bold ${isConnected ? 'text-green-700 dark:text-green-400' : 'text-destructive'}`}>
           {connectionStatusMessage}
         </span>
       </p>
-      {isProcessingInput && <p className="text-sm text-yellow-600">{t('listening')}</p>}
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {isProcessingInput && <p className="text-sm text-amber-700 dark:text-amber-400">{t('listening')}</p>}
+      {error && <p className="text-destructive text-sm" role="alert">{error}</p>}
     </div>
   );
 
@@ -271,7 +271,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               personality={personality}
               conversationRole={conversationRoleName}
               connectionStatus={connectionStatus}
-              className="border-2 border-gray-400 rounded-lg p-4 sm:p-6"
+              className="border-2 rounded-lg p-4 sm:p-6"
             />
           </div>
 
@@ -286,7 +286,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
           assistantName={personality.name}
           chatStyle="voice"
           isConnected={isConnected}
-          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border-2 border-gray-400 rounded-lg mb-6 sm:mb-8"
+          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border-2 rounded-lg mb-6 sm:mb-8"
         />
 
         <div className="flex justify-center gap-4">
@@ -296,7 +296,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
                 void initializeWebRTC(personality);
               }}
               disabled={isConnecting}
-              className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
+              className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
             >
               <span className="mr-2">
                 {isConnecting ? t('connecting') : t('connectCall')}
@@ -309,12 +309,12 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               disabled={isSavingConversation}
             >
               <span className="mr-2">{t('endCall')}</span>
-              <MdCallEnd className="inline-block align-middle"/>
+              <MdCallEnd className="inline-block align-middle" aria-hidden="true"/>
             </Button>
           )}
         </div>
 
-        <div className="mt-2 text-xs sm:text-sm text-center text-gray-500">
+        <div className="mt-2 text-xs sm:text-sm text-center text-muted-foreground">
           {t('chat.speechRecognitionNote')}
         </div>
       </div>

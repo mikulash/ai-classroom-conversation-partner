@@ -120,26 +120,26 @@ export const getVoiceChatStatusLabel = ({
   t,
 }: StatusLabelParams) => {
   if (!hasConversationStarted) {
-    return [t('readyToStart'), 'text-gray-600'] as [string, string];
+    return [t('readyToStart'), 'text-muted-foreground'] as [string, string];
   }
 
   if (error) {
-    return [t('voiceDetectionErrorStatus'), 'text-red-600'] as [string, string];
+    return [t('voiceDetectionErrorStatus'), 'text-destructive'] as [string, string];
   }
 
   if (isConnecting || !connection) {
-    return [t('voiceDetectionInitializingStatus'), 'text-blue-600'] as [string, string];
+    return [t('voiceDetectionInitializingStatus'), 'text-blue-700 dark:text-blue-400'] as [string, string];
   }
 
   if (isTranscribing) {
-    return [t('listeningToYou'), 'text-green-600'] as [string, string];
+    return [t('listeningToYou'), 'text-green-700 dark:text-green-400'] as [string, string];
   }
 
   if (isAiProcessing) {
-    return [t('aiProcessing'), 'text-purple-600'] as [string, string];
+    return [t('aiProcessing'), 'text-purple-700 dark:text-purple-400'] as [string, string];
   }
 
-  return [t('readyWaitingForSpeech'), 'text-blue-600'] as [string, string];
+  return [t('readyWaitingForSpeech'), 'text-blue-700 dark:text-blue-400'] as [string, string];
 };
 
 interface UiStatusMessageParams {

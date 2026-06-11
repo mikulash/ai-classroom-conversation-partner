@@ -45,14 +45,14 @@ export const ResetPasswordRequestForm: React.FC = () => {
   const isSubmitting = requestReset.isPending;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
+    <div className="min-h-screen flex items-center justify-center py-8 px-4 sm:py-12 sm:px-6">
       <Card className="p-4 sm:p-6 w-full max-w-md">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
           {t('forgotPassword', 'Forgot your password?')}
         </h2>
 
         {message ? (
-          <p className="text-center text-xs sm:text-sm text-green-600">{message}</p>
+          <p className="text-center text-xs sm:text-sm text-green-700 dark:text-green-400" role="status">{message}</p>
         ) : (
           <Form {...form}>
             <form onSubmit={(e) => {

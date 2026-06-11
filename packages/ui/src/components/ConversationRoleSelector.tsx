@@ -52,7 +52,7 @@ export const ConversationRoleSelector: React.FC<ConversationRoleSelectorProps> =
           <Button
             key={conversationRole.id}
             variant={isSelected ? 'default' : 'outline'}
-            className={isSelected ? 'bg-gray-800 text-white hover:bg-gray-700' : 'border-gray-500 hover:bg-gray-700'}
+            aria-pressed={isSelected}
             onClick={() => {
               selectUserRole(conversationRole);
             }}
@@ -67,8 +67,9 @@ export const ConversationRoleSelector: React.FC<ConversationRoleSelectorProps> =
           id="custom-user-role"
           value={customRoleName}
           onChange={handleCustomUserRoleChange}
-          className={`bg-transparent border-2 ${customRoleName ? 'border-black' : 'border-gray-400'}`}
+          className={`border-2 ${customRoleName ? 'border-primary' : ''}`}
           placeholder={t('enterCustomRolePlaceholder')}
+          aria-label={t('enterCustomRolePlaceholder')}
         />
       </div>
     </div>

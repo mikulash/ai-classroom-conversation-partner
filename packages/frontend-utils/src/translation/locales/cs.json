@@ -129,7 +129,11 @@
     "startRecording": "Klikněte pro nahrávání",
     "stopRecording": "Ukončit nahrávání",
     "timeLimit": "Časový limit vypršel",
-    "you": "Vy"
+    "you": "Vy",
+    "sendMessage": "Odeslat zprávu",
+    "isTyping": "{{name}} píše…",
+    "playMessageAudio": "Přehrát zvuk zprávy",
+    "stopMessageAudio": "Zastavit přehrávání"
   },
   "clickStartConversation": "Klikněte na 'Zahájit konverzaci' pro začátek",
   "clickStartConversationFullMessage": "Klikněte na 'Zahájit konverzaci' pro zahájení video hovoru.",
@@ -419,5 +423,21 @@
   "welcomeTo": "Vítejte v {{appName}}",
   "yearsOld": "let",
   "you": "Vy",
-  "yourRole": "Vaše role"
+  "yourRole": "Vaše role",
+  "connected": "Připojeno",
+  "disconnected": "Odpojeno",
+  "nav": {
+    "closeMenu": "Zavřít nabídku",
+    "menu": "Nabídka",
+    "openMenu": "Otevřít nabídku",
+    "profile": "Můj profil",
+    "selectLanguage": "Vybrat jazyk",
+    "skipToContent": "Přeskočit na hlavní obsah"
+  },
+  "theme": {
+    "dark": "Tmavý",
+    "light": "Světlý",
+    "system": "Podle systému",
+    "toggle": "Motiv: {{current}}. Přepnout na: {{next}}"
+  }
 }

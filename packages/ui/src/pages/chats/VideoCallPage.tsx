@@ -326,13 +326,13 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   });
 
   const connectionStatus = (
-    <div className="mt-4">
+    <div className="mt-4" role="status" aria-live="polite">
       <p className="text-lg">
         {t('status')}{' '}
         <span className={`font-bold ${statusStyle}`}>{statusText}</span>
       </p>
       {error && (
-        <p className="text-red-600 mt-2">
+        <p className="text-destructive mt-2" role="alert">
           {error}
         </p>
       )}
@@ -359,7 +359,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
         <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">{t('videoCall')}</h1>
 
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="flex-1 border-2 border-gray-400 rounded-lg p-4 relative"
+          <div className="flex-1 border-2 rounded-lg p-4 relative"
             style={{ maxHeight: '550px' }}>
             <AvatarTalkingHead ref={avatarRef} language={language} personality={personality}/>
           </div>
@@ -368,7 +368,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
             personality={personality}
             conversationRole={conversationRoleName}
             connectionStatus={connectionStatus}
-            className="flex-1 border-2 border-gray-400 rounded-lg p-4 sm:p-6"
+            className="flex-1 border-2 rounded-lg p-4 sm:p-6"
           />
         </div>
 
@@ -380,7 +380,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
           isProcessing={isAiProcessing}
           assistantName={personality.name}
           chatStyle="voice"
-          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border-2 border-gray-400 rounded-lg mb-6 sm:mb-8"
+          className="h-48 sm:h-64 overflow-y-auto p-3 sm:p-4 border-2 rounded-lg mb-6 sm:mb-8"
           emptyStateMessage={emptyStateMessage}
           isConnected={isTranscribing}
         />
@@ -391,11 +391,11 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               onClick={() => {
                 void startConversation();
               }}
-              className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
+              className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
               disabled={isAiProcessing}
             >
               <span className="mr-2">{t('startConversation')}</span>
-              <FaPlay className="inline-block align-middle"/>
+              <FaPlay className="inline-block align-middle" aria-hidden="true"/>
             </Button>
           ) : (
             <Button
@@ -404,12 +404,12 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               disabled={isSavingConversation}
             >
               <span className="mr-2">{t('endCall')}</span>
-              <MdCallEnd className="inline-block align-middle"/>
+              <MdCallEnd className="inline-block align-middle" aria-hidden="true"/>
             </Button>
           )}
         </div>
 
-        <div className="mt-2 text-xs sm:text-sm text-center text-gray-500">
+        <div className="mt-2 text-xs sm:text-sm text-center text-muted-foreground">
           <div className="mt-1">{t('chat.speechRecognitionNote')}</div>
           <div className="mt-1">{uiStatusMessage}</div>
         </div>

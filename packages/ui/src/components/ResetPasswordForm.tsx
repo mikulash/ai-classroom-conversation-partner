@@ -63,7 +63,7 @@ export const ResetPasswordForm: React.FC = () => {
   const isSubmitting = resetPassword.isPending;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
+    <div className="min-h-screen flex items-center justify-center py-8 px-4 sm:py-12 sm:px-6">
       <Card className="p-4 sm:p-6 w-full max-w-md">
         {!token ? (
           <>
