@@ -1,6 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["tsconfig.json", "pnpm-workspace.yaml", ".npmrc"],
+  "globalDependencies": [
+    "tsconfig.json",
+    "pnpm-workspace.yaml",
+    ".npmrc",
+    "apps/backend/openapi.json"
+  ],
   "globalEnv": [
     "NODE_ENV",
     "MODE",
@@ -30,6 +35,10 @@
       "inputs": ["prisma/schema.prisma"],
       "outputs": ["src/generated/prisma/**"]
     },
+    "@repo/frontend-utils#generate-openapi": {
+      "inputs": ["openapitools.json"],
+      "outputs": ["src/clients/generated/**"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
@@ -37,6 +46,11 @@
     },
     "figurant-backend#build": {
       "dependsOn": ["^build", "prisma:generate"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"]
+    },
+    "@repo/frontend-utils#build": {
+      "dependsOn": ["^build", "generate-openapi"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**"]
     },
@@ -53,6 +67,10 @@
       "dependsOn": ["^build", "prisma:generate"],
       "outputs": []
     },
+    "@repo/frontend-utils#lint": {
+      "dependsOn": ["^build", "generate-openapi"],
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!dist/**"],
@@ -60,6 +78,11 @@
     },
     "figurant-backend#typecheck": {
       "dependsOn": ["^build", "prisma:generate"],
+      "inputs": ["$TURBO_DEFAULT$", "!dist/**"],
+      "outputs": ["**/*.tsbuildinfo"]
+    },
+    "@repo/frontend-utils#typecheck": {
+      "dependsOn": ["^build", "generate-openapi"],
       "inputs": ["$TURBO_DEFAULT$", "!dist/**"],
       "outputs": ["**/*.tsbuildinfo"]
     },
