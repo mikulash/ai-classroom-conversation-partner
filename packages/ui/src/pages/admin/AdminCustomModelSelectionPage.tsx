@@ -223,7 +223,7 @@ export function AdminCustomModelSelectionPage() {
     const globalId = globalModelIds[modelKey];
     const isOverriding = selectedId != null && selectedId !== globalId;
     const statusLabel = isOverriding ? overridesDefaultLabel : usesGlobalDefaultLabel;
-    const statusColor = isOverriding ? 'text-yellow-600' : 'text-blue-600';
+    const statusColor = isOverriding ? 'text-amber-700 dark:text-amber-400' : 'text-blue-700 dark:text-blue-400';
 
     return <span className={`text-xs font-medium ${statusColor}`}>{statusLabel}</span>;
   };

@@ -48,13 +48,14 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
   const getConversationTypeStyles = (type: string) => {
     switch (type) {
       case 'VoiceOnly':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300';
       case 'Video':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300';
       case 'TextOnly':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300';
       default:
-        return 'bg-blue-100 text-blue-800'; // Default for TextWithAudio or any other types
+        // Default for TextWithAudio or any other types
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300';
     }
   };
 
@@ -65,9 +66,10 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
         {t('conversations', { defaultValue: 'Conversations' })} ({conversations.length})
       </h4>
       {conversations.map((conversation) => (
-        <div
+        <button
           key={conversation.id}
-          className="bg-background p-3 rounded border cursor-pointer hover:bg-muted/50 transition-colors"
+          type="button"
+          className="block w-full text-left bg-background p-3 rounded border cursor-pointer hover:bg-muted/50 transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
           onClick={() => {
             onConversationClick(conversation);
           }}
@@ -91,7 +93,7 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </button>
       ))}
     </div>
   );

@@ -72,13 +72,13 @@ export const SignInPage: React.FC = () => {
   const { isSubmitting } = form.formState;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:py-12 sm:px-6">
+    <div className="min-h-screen flex items-center justify-center py-8 px-4 sm:py-12 sm:px-6">
       <div className="w-full max-w-md space-y-6 sm:space-y-8">
         <header className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">
             {t('welcomeTo', { appName })}
           </h1>
-          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">
             {t('signInToAccount')}
           </p>
         </header>
@@ -148,7 +148,7 @@ export const SignInPage: React.FC = () => {
                 onClick={() => {
                   void navigate('/register');
                 }}
-                className="text-blue-500 hover:underline"
+                className="text-blue-700 dark:text-blue-400 hover:underline"
               >
                 {t('register')}
               </button>
@@ -158,7 +158,7 @@ export const SignInPage: React.FC = () => {
               onClick={() => {
                 void navigate('/forgot-password');
               }}
-              className="text-xs sm:text-sm text-blue-500 hover:underline"
+              className="text-xs sm:text-sm text-blue-700 dark:text-blue-400 hover:underline"
             >
               {t('forgotPassword', 'Forgot password?')}
             </button>

@@ -128,7 +128,11 @@
     "startRecording": "Click to record",
     "stopRecording": "Stop recording",
     "timeLimit": "Chat ended after reaching the 5-minute time limit.",
-    "you": "You"
+    "you": "You",
+    "sendMessage": "Send message",
+    "isTyping": "{{name}} is typing…",
+    "playMessageAudio": "Play message audio",
+    "stopMessageAudio": "Stop audio playback"
   },
   "clickStartConversation": "Click 'Start Conversation' to begin",
   "clickStartConversationFullMessage": "Click 'Start Conversation' to begin the video call.",
@@ -418,5 +422,21 @@
   "welcomeTo": "Welcome to {{appName}}",
   "yearsOld": "years old",
   "you": "You",
-  "yourRole": "Your role"
+  "yourRole": "Your role",
+  "connected": "Connected",
+  "disconnected": "Disconnected",
+  "nav": {
+    "closeMenu": "Close menu",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "profile": "My profile",
+    "selectLanguage": "Select language",
+    "skipToContent": "Skip to main content"
+  },
+  "theme": {
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "toggle": "Theme: {{current}}. Switch to: {{next}}"
+  }
 }

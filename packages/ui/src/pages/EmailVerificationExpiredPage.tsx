@@ -65,13 +65,13 @@ export const EmailVerificationExpiredPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md space-y-8 text-center">
         <Card className="p-6 w-full max-w-md space-y-4 text-center">
           {status === 'form' ? (
             <>
               <h2 className="text-2xl font-bold">{t('emailVerificationExpiredTitle')}</h2>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-muted-foreground">
                 {t('emailVerificationExpiredDescription')}
               </p>
 
@@ -99,7 +99,7 @@ export const EmailVerificationExpiredPage: React.FC = () => {
                   />
 
                   {submitError && (
-                    <p className="text-sm text-red-600" role="alert">
+                    <p className="text-sm text-destructive" role="alert">
                       {submitError}
                     </p>
                   )}
@@ -117,11 +117,11 @@ export const EmailVerificationExpiredPage: React.FC = () => {
           ) : (
             <>
               <h2 className="text-2xl font-bold">{t('emailVerificationCheckEmailTitle')}</h2>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-muted-foreground">
                 {t('emailVerificationCheckEmailMessage')}
               </p>
 
-              <ul className="space-y-2 text-left text-sm text-gray-700">
+              <ul className="space-y-2 text-left text-sm text-muted-foreground">
                 {tips.map((tip) => (
                   <li key={tip}>{tip}</li>
                 ))}

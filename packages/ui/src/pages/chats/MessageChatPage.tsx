@@ -334,12 +334,12 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
 
       <div className="w-full max-w-4xl mx-auto border-2 rounded-lg p-4 sm:p-8 flex flex-col flex-grow">
         <div className="border-b-2 pb-4 mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <h1 className="text-3xl font-bold">
+          <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
+            <h1 className="text-xl sm:text-3xl font-bold">
               {t('chat.chatWith', { name: personality.name })}
             </h1>
             <div className="flex items-center gap-2">
-              <Label htmlFor="audio-toggle" className="text-sm text-gray-600">
+              <Label htmlFor="audio-toggle" className="text-sm text-muted-foreground">
                 {audio.isAudioEnabled ? t('chat.audioOn') : t('chat.audioOff')}
               </Label>
               <Switch
@@ -353,7 +353,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
           <PersonalityInfo
             personality={personality}
             conversationRole={conversationRoleName}
-            className="border-2 border-gray-400 rounded-lg p-6 mb-8"
+            className="border-2 rounded-lg p-6 mb-8"
           />
           <ScenarioInfo scenario={scenario}/>
         </div>
@@ -379,27 +379,29 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
             }}
             onKeyDown={handleKeyPress}
             placeholder={t('chat.inputPlaceholder')}
-            className="flex-grow mr-2"
+            aria-label={t('chat.inputPlaceholder')}
+            className="flex-grow mr-2 min-h-11"
             disabled={isAiTyping || sr.isRecording || audio.pendingAiMessage !== null}
           />
 
           <Button
             onClick={toggleRecording}
-            className={`mr-2 p-2 rounded-full ${
+            className={`mr-2 p-2 min-h-11 rounded-full ${
               sr.isRecording ?
                 'bg-red-600 hover:bg-red-700' :
-                'bg-purple-600 hover:bg-purple-700'
+                'bg-purple-700 hover:bg-purple-800'
             } text-white`}
+            aria-pressed={sr.isRecording}
             disabled={!sr.srSupported || isAiTyping || audio.pendingAiMessage !== null}
           >
             {sr.isRecording ? (
               <>
-                <FaStop size={20}/>
+                <FaStop size={20} aria-hidden="true"/>
                 <span className="ml-1 text-xs">{t('chat.stopRecording')}</span>
               </>
             ) : (
               <>
-                <FaMicrophone size={20}/>
+                <FaMicrophone size={20} aria-hidden="true"/>
                 <span className="ml-1 text-xs">{t('chat.startRecording')}</span>
               </>
             )}
@@ -409,7 +411,9 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
             onClick={() => {
               void sendMessage();
             }}
-            className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full"
+            className="bg-blue-700 hover:bg-blue-800 p-2 min-h-11 min-w-11 text-white rounded-full"
+            aria-label={t('chat.sendMessage')}
+            title={t('chat.sendMessage')}
             disabled={
               inputMessage.trim() === '' ||
                             isAiTyping ||
@@ -417,7 +421,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
                             audio.pendingAiMessage !== null
             }
           >
-            <IoMdSend size={20}/>
+            <IoMdSend size={20} aria-hidden="true"/>
           </Button>
         </div>
 
@@ -428,12 +432,12 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
             disabled={isSavingConversation}
           >
             <span className="mr-2">{t('chat.endChat')}</span>
-            <MdCallEnd className="inline-block align-middle"/>
+            <MdCallEnd className="inline-block align-middle" aria-hidden="true"/>
           </Button>
         </div>
 
         {audio.isAudioEnabled && (
-          <div className="mt-2 text-xs text-center text-gray-500">
+          <div className="mt-2 text-xs text-center text-muted-foreground">
             {t('chat.aiVoiceNote')}
           </div>
         )}

@@ -75,13 +75,13 @@ export const EmailValidatedPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md space-y-8 text-center">
         <Card className="p-6 w-full max-w-md space-y-4 text-center">
           <h2 className="text-2xl font-bold">{title}</h2>
           <div className="space-y-2">
             {descriptionLines.map((line, index) => (
-              <p key={index} className="text-sm text-gray-700">
+              <p key={index} className="text-sm text-muted-foreground">
                 {line}
               </p>
             ))}

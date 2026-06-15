@@ -152,52 +152,51 @@ export const PersonalitySelectorPage: React.FC = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* predefined personalities carousel */}
+          {/* predefined personalities grid */}
           <TabsContent value="predefined">
-            <div className="mb-10">
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {predefinedPersonalities.map((p) => {
-                    const {
-                      problemSummary,
-                      personalityDescription,
-                    } = universalDescriptionForPersonality(p, language);
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+              {predefinedPersonalities.map((p) => {
+                const {
+                  problemSummary,
+                  personalityDescription,
+                } = universalDescriptionForPersonality(p, language);
 
 
-                    return (
-                      <CarouselItem
-                        key={p.id}
-                        className="md:basis-1/2 lg:basis-1/2"
-                      >
-                        <Card
-                          className={`border-2 cursor-pointer transition-colors ${
-                            selectedPersonality.id === p.id ?
-                              'border-black' :
-                              'border-gray-300 hover:border-gray-600'
-                          }`}
-                          onClick={() => {
-                            selectPersonality(p);
-                          }}
-                        >
-                          <CardContent className="text-center p-4">
-                            <CardTitle className="text-2xl mb-2">
-                              {p.name} ({p.age} {t('yearsOld')})
-                            </CardTitle>
-                            <div className="text-xl font-semibold mb-1">
-                              {problemSummary}
-                            </div>
-                            <div className="h-60 overflow-y-auto">
-                              {personalityDescription}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </CarouselItem>
-                    );
-                  })}
-                </CarouselContent>
-                <CarouselPrevious/>
-                <CarouselNext/>
-              </Carousel>
+                return (
+                  <Card
+                    key={p.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={selectedPersonality.id === p.id}
+                    className={`border-2 cursor-pointer transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
+                      selectedPersonality.id === p.id ?
+                        'border-primary bg-primary/5' :
+                        'border-border hover:border-muted-foreground'
+                    }`}
+                    onClick={() => {
+                      selectPersonality(p);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectPersonality(p);
+                      }
+                    }}
+                  >
+                    <CardContent className="text-center p-4">
+                      <CardTitle className="text-lg mb-1">
+                        {p.name} ({p.age} {t('yearsOld')})
+                      </CardTitle>
+                      <div className="text-sm font-semibold mb-2">
+                        {problemSummary}
+                      </div>
+                      <div className="text-sm text-muted-foreground text-left max-h-28 overflow-y-auto">
+                        {personalityDescription}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 
@@ -235,18 +234,18 @@ export const PersonalitySelectorPage: React.FC = () => {
                       });
                     }
                     }
-                    className="bg-transparent border-2 border-gray-400"
                     placeholder={t('personalityForm.placeholder.age')}
                   />
                 </div>
 
                 <div className="flex-1">
-                  <label className="block mb-2">
+                  <span id="custom-gender-label" className="block mb-2">
                     {t('personalityForm.gender')}
-                  </label>
-                  <div className="flex gap-2">
+                  </span>
+                  <div className="flex gap-2" role="group" aria-labelledby="custom-gender-label">
                     <Button
                       variant={customPersonality.gender === 'M' ? 'default' : 'outline'}
+                      aria-pressed={customPersonality.gender === 'M'}
                       onClick={() => {
                         setCustomPersonality({
                           ...customPersonality,
@@ -260,6 +259,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                     </Button>
                     <Button
                       variant={customPersonality.gender === 'F' ? 'default' : 'outline'}
+                      aria-pressed={customPersonality.gender === 'F'}
                       onClick={() => {
                         setCustomPersonality({
                           ...customPersonality,
@@ -291,7 +291,6 @@ export const PersonalitySelectorPage: React.FC = () => {
                   }
                   }
                   placeholder={t('personalityForm.placeholder.problem')}
-                  className="bg-transparent border-2 border-gray-400"
                 />
               </div>
 
@@ -311,7 +310,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                   }
                   }
                   placeholder={t('personalityForm.placeholder.description')}
-                  className="bg-transparent border-2 border-gray-400 h-40"
+                  className="h-40"
                 />
               </div>
             </div>
@@ -334,7 +333,7 @@ export const PersonalitySelectorPage: React.FC = () => {
           {/* predefined scenario carousel */}
           <TabsContent value="predefined">
             {scenariosForPersonality.length === 0 ? (
-              <p className="text-gray-400 mb-10">{t('scenarios.noneForPersonality')}</p>
+              <p className="text-muted-foreground mb-10">{t('scenarios.noneForPersonality')}</p>
             ) : (
               <Carousel className="w-full mb-10">
                 <CarouselContent>
@@ -346,13 +345,22 @@ export const PersonalitySelectorPage: React.FC = () => {
                     return (
                       <CarouselItem key={s.id} className="md:basis-1/2 lg:basis-1/2">
                         <Card
-                          className={`border-2 cursor-pointer transition-colors ${
+                          role="button"
+                          tabIndex={0}
+                          aria-pressed={selectedScenario?.id === s.id}
+                          className={`border-2 cursor-pointer transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
                             selectedScenario?.id === s.id ?
-                              'border-black' :
-                              'border-gray-300 hover:border-gray-600'
+                              'border-primary' :
+                              'border-border hover:border-muted-foreground'
                           }`}
                           onClick={() => {
                             setSelectedScenario(s);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedScenario(s);
+                            }
                           }}
                         >
                           <CardContent className="p-4">
@@ -389,7 +397,6 @@ export const PersonalitySelectorPage: React.FC = () => {
                     });
                   }
                   }
-                  className="bg-transparent border-2 border-gray-400"
                   placeholder={t('scenarioForm.placeholder.setting')}
                 />
               </div>
@@ -408,7 +415,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                     });
                   }
                   }
-                  className="bg-transparent border-2 border-gray-400 h-40"
+                  className="h-40"
                   placeholder={t('scenarioForm.placeholder.description')}
                 />
               </div>
@@ -417,7 +424,7 @@ export const PersonalitySelectorPage: React.FC = () => {
 
           {/* no scenario chosen */}
           <TabsContent value="none">
-            <div className="mb-10 text-gray-500 italic">{t('scenarios.noneDescription')}</div>
+            <div className="mb-10 text-muted-foreground italic">{t('scenarios.noneDescription')}</div>
           </TabsContent>
         </Tabs>
 
@@ -436,7 +443,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                 storeAndNavigate('/voice-call');
               }}
               disabled={isStartButtonDisabled()}
-              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
+              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
             >
               <span className="mr-2">{t('actions.startVoiceCall')}</span>
               <MdOutlinePhoneInTalk className="inline-block align-middle"/>
@@ -449,7 +456,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                 storeAndNavigate('/video-call');
               }}
               disabled={isStartButtonDisabled()}
-              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
+              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
             >
               <span className="mr-2">{t('actions.startVideoCall')}</span>
               <FaVideo/>
@@ -461,7 +468,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                 storeAndNavigate('/message-chat');
               }}
               disabled={isStartButtonDisabled()}
-              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-600 text-white rounded-md flex items-center"
+              className="px-8 py-6 text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
             >
               <span className="mr-2">{t('actions.startMessageChat')}</span>
               <IoMdSend size={20}/>

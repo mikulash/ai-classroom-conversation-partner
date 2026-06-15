@@ -126,7 +126,7 @@ export function UserProfilePage() {
             }}>
               <CardContent className="space-y-6">
                 {isSuccess && (
-                  <div className="p-4 mb-4 text-green-800 bg-green-100 rounded">
+                  <div className="p-4 mb-4 text-green-800 bg-green-100 dark:text-green-300 dark:bg-green-950 rounded" role="status">
                     {t('profileSavedSuccess')}
                   </div>
                 )}
