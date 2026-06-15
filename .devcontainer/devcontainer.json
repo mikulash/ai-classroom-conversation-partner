@@ -1,0 +1,27 @@
+{
+  "name": "WebStorm / Node Environment",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma"
+      ]
+    }
+  },
+  "forwardPorts": [4000, 5173],
+  "portsAttributes": {
+    "4000": { "label": "backend (NestJS)" },
+    "5173": { "label": "web (Vite dev)" }
+  },
+  "postCreateCommand": "corepack enable && corepack prepare pnpm@10.22.0 --activate && pnpm install && pnpm --filter figurant-backend prisma:generate"
+}
