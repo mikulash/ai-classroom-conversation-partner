@@ -234,7 +234,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       logMessage('error', 'Error generating full reply', {
         error: err instanceof Error ? err.message : String(err),
       });
-      const fallback = t('aiResponseError');
+      const fallback = t('chat.errors.aiResponseError');
       setMessages((m) => [...m, { content: fallback, role: 'assistant', timestamp: new Date() }]);
     } finally {
       setIsAiProcessing(false);
@@ -292,7 +292,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   if (userProfile === null) {
     return (
       <div className="flex justify-center items-center h-screen">
-        {t('cannotLoadUserProfile')}
+        {t('profile.cannotLoad')}
       </div>
     );
   }
@@ -328,7 +328,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   const connectionStatus = (
     <div className="mt-4" role="status" aria-live="polite">
       <p className="text-lg">
-        {t('status')}{' '}
+        {t('common.status')}{' '}
         <span className={`font-bold ${statusStyle}`}>{statusText}</span>
       </p>
       {error && (
@@ -356,7 +356,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
     >
 
       <div className="w-full max-w-4xl mx-auto border-2 rounded-lg p-4 sm:p-8">
-        <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">{t('videoCall')}</h1>
+        <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">{t('call.videoCall')}</h1>
 
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="flex-1 border-2 rounded-lg p-4 relative"
@@ -394,7 +394,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
               disabled={isAiProcessing}
             >
-              <span className="mr-2">{t('startConversation')}</span>
+              <span className="mr-2">{t('call.startConversation')}</span>
               <FaPlay className="inline-block align-middle" aria-hidden="true"/>
             </Button>
           ) : (
@@ -403,7 +403,7 @@ const VideoCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-red-600 hover:bg-red-700 text-white rounded-md flex items-center"
               disabled={isSavingConversation}
             >
-              <span className="mr-2">{t('endCall')}</span>
+              <span className="mr-2">{t('call.endCall')}</span>
               <MdCallEnd className="inline-block align-middle" aria-hidden="true"/>
             </Button>
           )}

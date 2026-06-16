@@ -86,18 +86,18 @@ export const getVoiceChatEmptyStateMessage = ({
   t,
 }: EmptyStateMessageParams) => {
   if (!hasConversationStarted) {
-    return t('clickStartConversation');
+    return t('call.clickStartConversation');
   }
 
   if (error) {
-    return t('voiceDetectionError');
+    return t('call.voiceDetection.error');
   }
 
   if (isConnecting || !connection) {
-    return t('voiceDetectionInitializingMessage');
+    return t('call.voiceDetection.initializingMessage');
   }
 
-  return t('startSpeaking');
+  return t('call.startSpeaking');
 };
 
 interface StatusLabelParams {
@@ -120,26 +120,26 @@ export const getVoiceChatStatusLabel = ({
   t,
 }: StatusLabelParams) => {
   if (!hasConversationStarted) {
-    return [t('readyToStart'), 'text-muted-foreground'] as [string, string];
+    return [t('call.readyToStart'), 'text-muted-foreground'] as [string, string];
   }
 
   if (error) {
-    return [t('voiceDetectionErrorStatus'), 'text-destructive'] as [string, string];
+    return [t('call.voiceDetection.errorStatus'), 'text-destructive'] as [string, string];
   }
 
   if (isConnecting || !connection) {
-    return [t('voiceDetectionInitializingStatus'), 'text-blue-700 dark:text-blue-400'] as [string, string];
+    return [t('call.voiceDetection.initializingStatus'), 'text-blue-700 dark:text-blue-400'] as [string, string];
   }
 
   if (isTranscribing) {
-    return [t('listeningToYou'), 'text-green-700 dark:text-green-400'] as [string, string];
+    return [t('call.listeningToYou'), 'text-green-700 dark:text-green-400'] as [string, string];
   }
 
   if (isAiProcessing) {
-    return [t('aiProcessing'), 'text-purple-700 dark:text-purple-400'] as [string, string];
+    return [t('common.aiProcessing'), 'text-purple-700 dark:text-purple-400'] as [string, string];
   }
 
-  return [t('readyWaitingForSpeech'), 'text-blue-700 dark:text-blue-400'] as [string, string];
+  return [t('call.readyWaitingForSpeech'), 'text-blue-700 dark:text-blue-400'] as [string, string];
 };
 
 interface UiStatusMessageParams {
@@ -158,16 +158,16 @@ export const getVoiceChatUiStatusMessage = ({
   t,
 }: UiStatusMessageParams) => {
   if (!hasConversationStarted) {
-    return t('clickStartConversationFullMessage');
+    return t('call.clickStartConversationFullMessage');
   }
 
   if (error) {
-    return t('voiceDetectionFailedMessage');
+    return t('call.voiceDetection.failedMessage');
   }
 
   if (isConnecting || !connection) {
-    return t('voiceDetectionInitializingMessage');
+    return t('call.voiceDetection.initializingMessage');
   }
 
-  return t('voiceDetectionActiveMessage');
+  return t('call.voiceDetection.activeMessage');
 };

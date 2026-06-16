@@ -24,16 +24,16 @@ export const ErrorMessage =
         <Card className={cn('w-full max-w-md mx-auto', className)} role="alert" {...props}>
           <CardHeader>
             <CardTitle className="text-center text-destructive">
-              {title ?? t('errorTitle')}
+              {title ?? t('common.error')}
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center space-y-4">
             <CardDescription className="text-center">
-              {message ?? t('errorMessage')}
+              {message ?? t('common.errorMessage')}
             </CardDescription>
             {onRetry && (
               <Button variant="outline" onClick={onRetry}>
-                {t('retry')}
+                {t('common.retry')}
               </Button>
             )}
           </CardContent>

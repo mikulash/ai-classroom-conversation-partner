@@ -117,7 +117,7 @@ export function UserProfilePage() {
       <div className="max-w-3xl mx-auto mt-10 space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>{t('userProfile')}</CardTitle>
+            <CardTitle>{t('profile.title')}</CardTitle>
           </CardHeader>
 
           <Form {...form}>
@@ -127,7 +127,7 @@ export function UserProfilePage() {
               <CardContent className="space-y-6">
                 {isSuccess && (
                   <div className="p-4 mb-4 text-green-800 bg-green-100 dark:text-green-300 dark:bg-green-950 rounded" role="status">
-                    {t('profileSavedSuccess')}
+                    {t('profile.savedSuccess')}
                   </div>
                 )}
 
@@ -136,11 +136,11 @@ export function UserProfilePage() {
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('username')}</FormLabel>
+                      <FormLabel>{t('profile.username')}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t('usernamePlaceholder')} className="mt-1" {...field} />
+                        <Input placeholder={t('profile.usernamePlaceholder')} className="mt-1" {...field} />
                       </FormControl>
-                      <FormDescription>{t('usernameHelp')}</FormDescription>
+                      <FormDescription>{t('profile.usernameHelp')}</FormDescription>
                       <FormMessage/>
                     </FormItem>
                   )}
@@ -151,11 +151,11 @@ export function UserProfilePage() {
                   name="gender"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('gender')}</FormLabel>
+                      <FormLabel>{t('profile.gender')}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t('genderPlaceholder')} className="mt-1" {...field} />
+                        <Input placeholder={t('profile.genderPlaceholder')} className="mt-1" {...field} />
                       </FormControl>
-                      <FormDescription>{t('genderHelp')}</FormDescription>
+                      <FormDescription>{t('profile.genderHelp')}</FormDescription>
                       <FormMessage/>
                     </FormItem>
                   )}
@@ -166,11 +166,11 @@ export function UserProfilePage() {
                   name="bio"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('bio')}</FormLabel>
+                      <FormLabel>{t('profile.bio')}</FormLabel>
                       <FormControl>
-                        <Textarea placeholder={t('bioPlaceholder')} className="mt-1" {...field} />
+                        <Textarea placeholder={t('profile.bioPlaceholder')} className="mt-1" {...field} />
                       </FormControl>
-                      <FormDescription>{t('bioHelp')}</FormDescription>
+                      <FormDescription>{t('profile.bioHelp')}</FormDescription>
                       <FormMessage/>
                     </FormItem>
                   )}
@@ -179,7 +179,7 @@ export function UserProfilePage() {
 
               <CardFooter className="justify-end">
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? t('saving') : t('saveChanges')}
+                  {isSubmitting ? t('common.saving') : t('common.saveChanges')}
                 </Button>
               </CardFooter>
             </form>
@@ -196,7 +196,7 @@ export function UserProfilePage() {
               }}
               disabled={conversationsQuery.isFetching}
             >
-              {t('refresh')}
+              {t('common.refresh')}
             </Button>
           </CardHeader>
 

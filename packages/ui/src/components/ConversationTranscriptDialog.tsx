@@ -110,7 +110,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
             <div className="text-sm text-muted-foreground space-y-1">
               <div>{t('admin.conversations.type', { defaultValue: 'Type' })}: {conversationMetadata.conversationType}</div>
               <div>{t('admin.conversations.started', { defaultValue: 'Started' })}: {getLocalizedDateTimeString(conversationMetadata.startTime)}</div>
-              <div>{t('admin.conversations.ended', { defaultValue: 'Ended' })}: {getLocalizedDateTimeString(conversationMetadata.endTime)} ({conversationMetadata.endedReason})</div>
+              <div>{t('common.ended', { defaultValue: 'Ended' })}: {getLocalizedDateTimeString(conversationMetadata.endTime)} ({conversationMetadata.endedReason})</div>
               <div>{t('admin.conversations.messages', { defaultValue: 'Messages' })}: {messages.length}</div>
             </div>
           )}
@@ -144,7 +144,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
               <div key={index} className={`mb-4 ${msg.role === 'assistant' ? 'pr-4' : 'pl-4'}`}>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-semibold">
-                    {msg.role === 'assistant' ? personalityName : t('chat.you', { defaultValue: 'User' })}
+                    {msg.role === 'assistant' ? personalityName : t('common.you', { defaultValue: 'User' })}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {msg.timestamp && formatMessageTime(language, msg.timestamp)}
@@ -178,7 +178,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
                 className="flex items-center gap-2"
               >
                 <Trash2 className="h-4 w-4"/>
-                {t('admin.conversations.delete', { defaultValue: 'Delete' })}
+                {t('common.delete', { defaultValue: 'Delete' })}
               </Button>
             )}
 
@@ -188,7 +188,7 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
                   onClick={onGoToPersonalitySelector}
                   disabled={isSavingConversation || isDeleting}
                 >
-                  {t('chat.goToPersonalitySelector', { defaultValue: 'Go to Personality Selector' })}
+                  {t('common.goToPersonalitySelector', { defaultValue: 'Go to Personality Selector' })}
                 </Button>
               ) : (
                 <Button onClick={handleClose} disabled={isDeleting}>
@@ -232,8 +232,8 @@ export const ConversationTranscriptDialog: React.FC<ConversationTranscriptDialog
               disabled={isDeleting}
             >
               {isDeleting ?
-                t('admin.conversations.deleting', { defaultValue: 'Deleting...' }) :
-                t('admin.conversations.delete', { defaultValue: 'Delete' })
+                t('common.deleting', { defaultValue: 'Deleting...' }) :
+                t('common.delete', { defaultValue: 'Delete' })
               }
             </Button>
           </DialogFooter>

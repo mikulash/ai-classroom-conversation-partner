@@ -44,7 +44,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
       <Dialog open={isBrowserDialogVisible} onOpenChange={setIsBrowserDialogVisible}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('speechRecognitionError')}</DialogTitle>
+            <DialogTitle>{t('call.speechRecognitionError')}</DialogTitle>
           </DialogHeader>
           <p>{t('chat.errors.browserNotSupported')}</p>
         </DialogContent>

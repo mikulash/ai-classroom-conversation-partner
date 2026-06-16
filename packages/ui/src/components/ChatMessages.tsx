@@ -48,8 +48,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   };
 
   const defaultEmptyStateMessage = isConnected ?
-    t('speakToBeginConversation') :
-    t('connectToBeginConversation');
+    t('call.speakToBeginConversation') :
+    t('call.connectToBeginConversation');
 
   const lastMessageContent =
         messages.length > 0 ? messages[messages.length - 1].content : '';
@@ -66,7 +66,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           }`}
         >
           <div className="font-semibold mb-1">
-            {msg.role === 'user' ? t('you') : assistantName}
+            {msg.role === 'user' ? t('common.you') : assistantName}
           </div>
           <div>{msg.content}</div>
         </div>
@@ -75,7 +75,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       {currentTranscript && currentTranscript !== lastMessageContent && (
         <div className="p-3 rounded-lg bg-primary/5 text-foreground ml-8 border border-primary/20">
           <div className="font-semibold mb-1">
-            {t('you')} ({t('listeningActive')})
+            {t('common.you')} ({t('call.listening')})
           </div>
           <div>{currentTranscript}</div>
         </div>
@@ -84,7 +84,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       {assistantTranscript && (
         <div className="p-3 rounded-lg bg-muted/50 text-foreground mr-8 border">
           <div className="font-semibold mb-1">
-            {assistantName} ({t('listeningActive')})
+            {assistantName} ({t('call.listening')})
           </div>
           <div>{assistantTranscript}</div>
         </div>
@@ -92,7 +92,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
       {isProcessing && !currentTranscript && !assistantTranscript && (
         <div className="bg-muted text-foreground p-3 rounded-lg mr-8">
-          <div className="font-semibold mb-1">{t('aiProcessing')}</div>
+          <div className="font-semibold mb-1">{t('common.aiProcessing')}</div>
           <div className="flex space-x-2" aria-hidden="true">
             <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
             <div

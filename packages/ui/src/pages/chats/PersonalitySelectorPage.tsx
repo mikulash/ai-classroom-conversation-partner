@@ -139,8 +139,8 @@ export const PersonalitySelectorPage: React.FC = () => {
   return (
     <div className="min-h-screen p-6 flex flex-col items-center">
       <div className="w-full max-w-4xl mx-auto border-2 rounded-lg p-8">
-        <h1 className="text-3xl font-bold mb-6">{t('hello')}</h1>
-        <h2 className="text-2xl mb-8">{t('selectAvatarPersonality')}</h2>
+        <h1 className="text-3xl font-bold mb-6">{t('home.hello')}</h1>
+        <h2 className="text-2xl mb-8">{t('conversation.selectAvatarPersonality')}</h2>
 
         <Tabs defaultValue="predefined" onValueChange={switchPersonalityTab}>
           <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
@@ -185,7 +185,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                   >
                     <CardContent className="text-center p-4">
                       <CardTitle className="text-lg mb-1">
-                        {p.name} ({p.age} {t('yearsOld')})
+                        {p.name} ({p.age} {t('common.yearsOld')})
                       </CardTitle>
                       <div className="text-sm font-semibold mb-2">
                         {problemSummary}
@@ -205,7 +205,7 @@ export const PersonalitySelectorPage: React.FC = () => {
             <div className="flex flex-col gap-4 mb-10">
               <div>
                 <label htmlFor="custom-personality-name" className="block mb-2">
-                  {t('personalityForm.name')}
+                  {t('personalities.form.name')}
                 </label>
                 <Input
                   id="custom-personality-name"
@@ -214,14 +214,14 @@ export const PersonalitySelectorPage: React.FC = () => {
                     setCustomPersonality({ ...customPersonality, name: e.target.value });
                   }
                   }
-                  placeholder={t('personalityForm.placeholder.name')}
+                  placeholder={t('personalities.form.placeholder.name')}
                 />
               </div>
 
               <div className="flex gap-4">
                 <div className="flex-1">
                   <label htmlFor="custom-age" className="block mb-2">
-                    {t('personalityForm.age')}
+                    {t('personalities.form.age')}
                   </label>
                   <Input
                     id="custom-age"
@@ -234,13 +234,13 @@ export const PersonalitySelectorPage: React.FC = () => {
                       });
                     }
                     }
-                    placeholder={t('personalityForm.placeholder.age')}
+                    placeholder={t('personalities.form.placeholder.age')}
                   />
                 </div>
 
                 <div className="flex-1">
                   <span id="custom-gender-label" className="block mb-2">
-                    {t('personalityForm.gender')}
+                    {t('personalities.form.gender')}
                   </span>
                   <div className="flex gap-2" role="group" aria-labelledby="custom-gender-label">
                     <Button
@@ -255,7 +255,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                       }
                       }
                     >
-                      {t('personalityForm.genderMale')}
+                      {t('personalities.form.genderMale')}
                     </Button>
                     <Button
                       variant={customPersonality.gender === 'F' ? 'default' : 'outline'}
@@ -269,7 +269,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                       }
                       }
                     >
-                      {t('personalityForm.genderFemale')}
+                      {t('personalities.form.genderFemale')}
                     </Button>
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export const PersonalitySelectorPage: React.FC = () => {
 
               <div>
                 <label htmlFor="custom-problem" className="block mb-2">
-                  {t('personalityForm.problemDescription')}
+                  {t('personalities.form.problemDescription')}
                 </label>
                 <Input
                   id="custom-problem"
@@ -290,13 +290,13 @@ export const PersonalitySelectorPage: React.FC = () => {
                     });
                   }
                   }
-                  placeholder={t('personalityForm.placeholder.problem')}
+                  placeholder={t('personalities.form.placeholder.problem')}
                 />
               </div>
 
               <div>
                 <label htmlFor="custom-description" className="block mb-2">
-                  {t('personalityForm.fullDescription')}
+                  {t('personalities.form.fullDescription')}
                 </label>
                 <Textarea
                   id="custom-description"
@@ -309,7 +309,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                     });
                   }
                   }
-                  placeholder={t('personalityForm.placeholder.description')}
+                  placeholder={t('personalities.form.placeholder.description')}
                   className="h-40"
                 />
               </div>
@@ -317,7 +317,7 @@ export const PersonalitySelectorPage: React.FC = () => {
           </TabsContent>
         </Tabs>
 
-        <h2 className="text-2xl mb-8">{t('selectScenario')}</h2>
+        <h2 className="text-2xl mb-8">{t('conversation.selectScenario')}</h2>
 
         <Tabs value={activeScenarioTab} onValueChange={(v) => {
           setActiveScenarioTab(v as ScenarioTabKey);
@@ -384,7 +384,7 @@ export const PersonalitySelectorPage: React.FC = () => {
             <div className="flex flex-col gap-4 mb-10">
               <div>
                 <label htmlFor="custom-scenario-setting" className="block mb-2">
-                  {t('scenarioForm.setting')}
+                  {t('scenarios.form.setting')}
                 </label>
                 <Input
                   id="custom-scenario-setting"
@@ -397,12 +397,12 @@ export const PersonalitySelectorPage: React.FC = () => {
                     });
                   }
                   }
-                  placeholder={t('scenarioForm.placeholder.setting')}
+                  placeholder={t('scenarios.form.placeholder.setting')}
                 />
               </div>
               <div>
                 <label htmlFor="custom-scenario-description" className="block mb-2">
-                  {t('scenarioForm.description')}
+                  {t('scenarios.form.description')}
                 </label>
                 <Textarea
                   id="custom-scenario-description"
@@ -416,7 +416,7 @@ export const PersonalitySelectorPage: React.FC = () => {
                   }
                   }
                   className="h-40"
-                  placeholder={t('scenarioForm.placeholder.description')}
+                  placeholder={t('scenarios.form.placeholder.description')}
                 />
               </div>
             </div>
@@ -428,14 +428,14 @@ export const PersonalitySelectorPage: React.FC = () => {
           </TabsContent>
         </Tabs>
 
-        <h2 className="text-2xl mt-10">{t('roleHeading')}</h2>
+        <h2 className="text-2xl mt-10">{t('conversation.roleHeading')}</h2>
         <ConversationRoleSelector
           predefinedRoles={predefinedConversationRoles}
           value={selectedUserRole ? (language === LANGUAGE.EN ? selectedUserRole.nameEn : selectedUserRole.nameCs) : customUserRoleName}
           onChange={handleRoleChange}
         />
 
-        <h2 className="text-2xl mb-4 mt-12">{t('conversationHeading')}</h2>
+        <h2 className="text-2xl mb-4 mt-12">{t('conversation.heading')}</h2>
         <div className="flex gap-4 flex-wrap">
           {
             isVoiceCallEnabled && (<Button
@@ -445,7 +445,7 @@ export const PersonalitySelectorPage: React.FC = () => {
               disabled={isStartButtonDisabled()}
               className="px-8 py-6 text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
             >
-              <span className="mr-2">{t('actions.startVoiceCall')}</span>
+              <span className="mr-2">{t('chat.actions.startVoiceCall')}</span>
               <MdOutlinePhoneInTalk className="inline-block align-middle"/>
             </Button>
             )
@@ -458,7 +458,7 @@ export const PersonalitySelectorPage: React.FC = () => {
               disabled={isStartButtonDisabled()}
               className="px-8 py-6 text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
             >
-              <span className="mr-2">{t('actions.startVideoCall')}</span>
+              <span className="mr-2">{t('chat.actions.startVideoCall')}</span>
               <FaVideo/>
             </Button>)
           }
@@ -470,7 +470,7 @@ export const PersonalitySelectorPage: React.FC = () => {
               disabled={isStartButtonDisabled()}
               className="px-8 py-6 text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
             >
-              <span className="mr-2">{t('actions.startMessageChat')}</span>
+              <span className="mr-2">{t('chat.actions.startMessageChat')}</span>
               <IoMdSend size={20}/>
             </Button>
           }

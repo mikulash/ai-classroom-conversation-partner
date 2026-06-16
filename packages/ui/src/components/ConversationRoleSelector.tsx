@@ -68,8 +68,8 @@ export const ConversationRoleSelector: React.FC<ConversationRoleSelectorProps> =
           value={customRoleName}
           onChange={handleCustomUserRoleChange}
           className={`border-2 ${customRoleName ? 'border-primary' : ''}`}
-          placeholder={t('enterCustomRolePlaceholder')}
-          aria-label={t('enterCustomRolePlaceholder')}
+          placeholder={t('conversation.enterCustomRolePlaceholder')}
+          aria-label={t('conversation.enterCustomRolePlaceholder')}
         />
       </div>
     </div>

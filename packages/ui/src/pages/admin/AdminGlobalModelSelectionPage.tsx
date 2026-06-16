@@ -48,8 +48,8 @@ export function AdminGlobalModelSelectionPage() {
   const handleSave = async () => {
     const confirmed = await confirm({
       title: t('models.confirmationWarning'),
-      confirmLabel: t('actions.save', 'Save'),
-      cancelLabel: t('actions.cancel', 'Cancel'),
+      confirmLabel: t('common.save', 'Save'),
+      cancelLabel: t('common.cancel', 'Cancel'),
     });
     if (!confirmed) return;
 
@@ -61,13 +61,13 @@ export function AdminGlobalModelSelectionPage() {
         timestampedTranscriptionModelId: modelSelectionState.timestampedTranscriptionModel?.id,
         realtimeTranscriptionModelId: modelSelectionState.realtimeTranscriptionModel?.id,
       });
-      toast.success(t('models.saveSuccess'), {
+      toast.success(t('common.settingsSaved'), {
         description: t('models.saveSuccessDescription'),
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(message);
-      toast.error(t('models.saveFailed'), { description: message });
+      toast.error(t('common.saveFailed'), { description: message });
     }
   };
 
@@ -83,7 +83,7 @@ export function AdminGlobalModelSelectionPage() {
   if (modelOptionsQuery.isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <span className="text-muted-foreground">{t('common.loading')}</span>
+        <span className="text-muted-foreground">{t('common.loading.general')}</span>
       </div>
     );
   }

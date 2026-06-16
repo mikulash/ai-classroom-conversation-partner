@@ -99,7 +99,7 @@ export function AdminCustomModelSelectionPage() {
 
   const handleSave = async () => {
     if (!userId) {
-      toast.error(t('loginRequiredToSave'));
+      toast.error(t('models.loginRequiredToSave'));
       return;
     }
 
@@ -143,15 +143,15 @@ export function AdminCustomModelSelectionPage() {
 
     try {
       await upsertCustomSelection.mutateAsync(payload);
-      toast.success(t('settingsSaved'), {
-        description: t('customModelPreferencesSaved'),
+      toast.success(t('common.settingsSaved'), {
+        description: t('models.customPreferencesSaved'),
       });
       // The query invalidation in the mutation hook will re-fetch and the effect
       // above will re-seed `selection` + `userOverrides` from server truth.
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(message);
-      toast.error(t('saveFailed'), { description: message });
+      toast.error(t('common.saveFailed'), { description: message });
     }
   };
 
@@ -170,7 +170,7 @@ export function AdminCustomModelSelectionPage() {
   if (modelOptionsQuery.isLoading || customSelectionQuery.isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <span className="text-muted-foreground">{t('loading.general')}</span>
+        <span className="text-muted-foreground">{t('common.loading.general')}</span>
       </div>
     );
   }
@@ -246,7 +246,7 @@ export function AdminCustomModelSelectionPage() {
   return (
     <Card className="max-w-3xl mx-auto p-6">
       <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <CardTitle>{t('customModelPreferences')}</CardTitle>
+        <CardTitle>{t('models.customPreferences')}</CardTitle>
         <Button
           type="button"
           variant="outline"
@@ -260,13 +260,13 @@ export function AdminCustomModelSelectionPage() {
       <CardContent className="grid gap-8">
         <ModelSelectionForm>
           <ModelSelectionSection
-            label={t('responseModel')}
+            label={t('models.responseModel')}
             modelKey="responseModel"
             models={models.responseModels}
             modelSelection={selection}
             setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
             titleStatus={titleStatusForKey('responseModel')}
             optionStatus={globalOptionStatus(appConfig.responseModelId)}
             providerStatus={globalProviderStatus(appConfig.responseModelId, models.responseModels)}
@@ -277,13 +277,13 @@ export function AdminCustomModelSelectionPage() {
             hasOverride={userOverrides.has('responseModel')}
           />
           <ModelSelectionSection
-            label={t('ttsModel')}
+            label={t('models.ttsModel')}
             modelKey="ttsModel"
             models={models.ttsModels}
             modelSelection={selection}
             setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
             titleStatus={titleStatusForKey('ttsModel')}
             optionStatus={globalOptionStatus(appConfig.ttsModelId)}
             providerStatus={globalProviderStatus(appConfig.ttsModelId, models.ttsModels)}
@@ -294,13 +294,13 @@ export function AdminCustomModelSelectionPage() {
             hasOverride={userOverrides.has('ttsModel')}
           />
           <ModelSelectionSection
-            label={t('realtimeModel')}
+            label={t('models.realtimeModel')}
             modelKey="realtimeModel"
             models={models.realtimeModels}
             modelSelection={selection}
             setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
             titleStatus={titleStatusForKey('realtimeModel')}
             optionStatus={globalOptionStatus(appConfig.realtimeModelId)}
             providerStatus={globalProviderStatus(appConfig.realtimeModelId, models.realtimeModels)}
@@ -316,8 +316,8 @@ export function AdminCustomModelSelectionPage() {
             models={models.timestampedTranscriptionModels}
             modelSelection={selection}
             setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
             titleStatus={titleStatusForKey('timestampedTranscriptionModel')}
             optionStatus={globalOptionStatus(appConfig.timestampedTranscriptionModelId)}
             providerStatus={globalProviderStatus(appConfig.timestampedTranscriptionModelId, models.timestampedTranscriptionModels)}
@@ -333,8 +333,8 @@ export function AdminCustomModelSelectionPage() {
             models={models.realtimeTranscriptionModels}
             modelSelection={selection}
             setModelSelection={setSelection}
-            selectProviderLabel={t('selectProvider')}
-            selectModelLabel={t('selectModel')}
+            selectProviderLabel={t('models.selectProvider')}
+            selectModelLabel={t('models.selectModel')}
             titleStatus={titleStatusForKey('realtimeTranscriptionModel')}
             optionStatus={globalOptionStatus(appConfig.realtimeTranscriptionModelId)}
             providerStatus={globalProviderStatus(appConfig.realtimeTranscriptionModelId, models.realtimeTranscriptionModels)}
@@ -353,7 +353,7 @@ export function AdminCustomModelSelectionPage() {
           disabled={isSaving}
           className="flex-1"
         >
-          {isSaving ? t('saving') : t('savePreferences')}
+          {isSaving ? t('common.saving') : t('common.savePreferences')}
         </Button>
       </CardFooter>
     </Card>

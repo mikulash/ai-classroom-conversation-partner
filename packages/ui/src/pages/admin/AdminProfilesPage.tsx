@@ -77,7 +77,7 @@ export function AdminProfilesPage() {
   if (profilesQuery.isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <span className="text-muted-foreground">{t('loading.profiles')}</span>
+        <span className="text-muted-foreground">{t('common.loading.profiles')}</span>
       </div>
     );
   }
@@ -113,7 +113,7 @@ export function AdminProfilesPage() {
               }}
               disabled={profilesQuery.isFetching}
             >
-              {t('admin.profiles.refresh')}
+              {t('common.refresh')}
             </Button>
           </div>
         </CardHeader>

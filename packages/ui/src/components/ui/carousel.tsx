@@ -194,7 +194,7 @@ function CarouselPrevious({
       {...props}
     >
       <ArrowLeft/>
-      <span className="sr-only">{t('previousSlide')}</span>
+      <span className="sr-only">{t('common.previousSlide')}</span>
     </Button>
   );
 }
@@ -225,7 +225,7 @@ function CarouselNext({
       {...props}
     >
       <ArrowRight/>
-      <span className="sr-only">{t('nextSlide')}</span>
+      <span className="sr-only">{t('common.nextSlide')}</span>
     </Button>
   );
 }

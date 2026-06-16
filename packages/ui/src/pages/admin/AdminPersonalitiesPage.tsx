@@ -144,8 +144,8 @@ export function AdminPersonalitiesPage() {
   const handleDelete = async (id: number) => {
     const ok = await confirm({
       title: t('personalities.confirmDelete'),
-      confirmLabel: t('actions.delete', 'Delete'),
-      cancelLabel: t('actions.cancel', 'Cancel'),
+      confirmLabel: t('common.delete', 'Delete'),
+      cancelLabel: t('common.cancel', 'Cancel'),
       destructive: true,
     });
     if (!ok) return;
@@ -522,7 +522,7 @@ export function AdminPersonalitiesPage() {
   if (personalitiesQuery.isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <span className="text-muted-foreground">{t('common.loading')}</span>
+        <span className="text-muted-foreground">{t('common.loading.general')}</span>
       </div>
     );
   }

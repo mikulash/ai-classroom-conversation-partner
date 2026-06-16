@@ -42,8 +42,8 @@ export const ResetPasswordForm: React.FC = () => {
   const schema = useMemo(
     () =>
       buildResetPasswordSchema({
-        passwordsDontMatch: t('passwordsDontMatch', 'Passwords do not match'),
-        passwordTooShort: t('passwordTooShort', 'Password must be at least 8 characters'),
+        passwordsDontMatch: t('auth.password.mismatch', 'Passwords do not match'),
+        passwordTooShort: t('auth.password.tooShort', 'Password must be at least 8 characters'),
       }),
     [t],
   );
@@ -68,31 +68,31 @@ export const ResetPasswordForm: React.FC = () => {
         {!token ? (
           <>
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
-              {t('resetPasswordInvalidLink', 'This reset link is invalid or has expired.')}
+              {t('auth.password.resetInvalidLink', 'This reset link is invalid or has expired.')}
             </h2>
             <p className="text-sm text-center text-muted-foreground mb-6">
-              {t('resetPasswordNeedLink', 'Need a new link?')}
+              {t('auth.password.resetNeedLink', 'Need a new link?')}
             </p>
             <Button asChild className="w-full">
-              <Link to="/forgot-password">{t('requestResetLink', 'Request a new reset link')}</Link>
+              <Link to="/forgot-password">{t('auth.password.requestResetLink', 'Request a new reset link')}</Link>
             </Button>
           </>
         ) : isSuccess ? (
           <>
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
-              {t('passwordResetSuccess', 'Password reset!')}
+              {t('auth.password.resetSuccess', 'Password reset!')}
             </h2>
             <p className="text-sm text-center text-muted-foreground mb-6">
-              {t('passwordResetSuccessDescription', 'You can now sign in with your new password.')}
+              {t('auth.password.resetSuccessDescription', 'You can now sign in with your new password.')}
             </p>
             <Button asChild className="w-full">
-              <Link to="/sign-in">{t('goToSignIn', 'Go to sign in')}</Link>
+              <Link to="/sign-in">{t('common.goToSignIn', 'Go to sign in')}</Link>
             </Button>
           </>
         ) : (
           <>
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
-              {t('setNewPassword', 'Choose a new password')}
+              {t('auth.password.setNew', 'Choose a new password')}
             </h2>
             <Form {...form}>
               <form onSubmit={(e) => {
@@ -103,12 +103,12 @@ export const ResetPasswordForm: React.FC = () => {
                   name="newPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('newPassword', 'New password')}</FormLabel>
+                      <FormLabel>{t('auth.password.new', 'New password')}</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
                           autoComplete="new-password"
-                          placeholder={t('passwordPlaceholder')}
+                          placeholder={t('auth.password.placeholder')}
                           {...field}
                         />
                       </FormControl>
@@ -122,12 +122,12 @@ export const ResetPasswordForm: React.FC = () => {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('confirmPassword', 'Confirm password')}</FormLabel>
+                      <FormLabel>{t('auth.password.confirm', 'Confirm password')}</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
                           autoComplete="new-password"
-                          placeholder={t('confirmPasswordPlaceholder')}
+                          placeholder={t('auth.password.confirmPlaceholder')}
                           {...field}
                         />
                       </FormControl>
@@ -146,7 +146,7 @@ export const ResetPasswordForm: React.FC = () => {
                 )}
 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? t('loading.general') : t('resetPasswordCta', 'Reset password')}
+                  {isSubmitting ? t('common.loading.general') : t('auth.password.resetCta', 'Reset password')}
                 </Button>
               </form>
             </Form>

@@ -53,7 +53,7 @@ export const ScenariosTable: React.FC<ScenariosTableProps> = ({
                     <Button variant="outline" size="sm" onClick={() => {
                       onEdit(s);
                     }}>
-                      {t('admin.scenarios.edit')}
+                      {t('common.edit')}
                     </Button>
                     <Button
                       variant="destructive"
@@ -63,7 +63,7 @@ export const ScenariosTable: React.FC<ScenariosTableProps> = ({
                       }}
                       disabled={isProcessing}
                     >
-                      {t('admin.scenarios.delete')}
+                      {t('common.delete')}
                     </Button>
                   </div>
                 </TableCell>

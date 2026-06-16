@@ -152,7 +152,7 @@ const LanguageSelector: React.FC<{
       <SelectTrigger
         className={`${compact ? 'w-24' : 'w-full'} ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
         disabled={disabled}
-        title={disabled ? t('languageChangeDisabledInChat') : undefined}
+        title={disabled ? t('nav.languageChangeDisabledInChat') : undefined}
         aria-disabled={disabled}
         aria-label={t('nav.selectLanguage')}
       >
@@ -161,7 +161,7 @@ const LanguageSelector: React.FC<{
       <SelectContent>
         {availableLangs.map((lang) => (
           <SelectItem key={lang.ISO639} value={lang.ISO639} disabled={disabled}>
-            {lang.NATIVE_NAME} {lang.ISO639 === 'sk' ? t('slovakLanguageNote') : ''}
+            {lang.NATIVE_NAME} {lang.ISO639 === 'sk' ? t('nav.slovakLanguageNote') : ''}
           </SelectItem>
         ))}
       </SelectContent>
@@ -178,12 +178,12 @@ const AuthButtons: React.FC<{
     <>
       <Button asChild className={fullWidth ? 'w-full' : undefined} onClick={onAnyClick}>
         <Link to="/register" >
-          {t('register')}
+          {t('auth.register')}
         </Link>
       </Button>
       <Button variant="outline" asChild className={fullWidth ? 'w-full' : undefined} onClick={onAnyClick}>
         <Link to="/sign-in" >
-          {t('signIn')}
+          {t('auth.signIn')}
         </Link>
       </Button>
     </>
@@ -197,7 +197,7 @@ const AdminSectionButton: React.FC<{
   const { t } = useTypedTranslation();
   return (
     <Button variant="secondary" asChild className={fullWidth ? 'w-full' : undefined} onClick={onClick}>
-      <Link to="/admin">{t('adminSection')}</Link>
+      <Link to="/admin">{t('admin.section')}</Link>
     </Button>
   );
 };
@@ -228,7 +228,7 @@ const SignOutBtn: React.FC<{
   const { t } = useTypedTranslation();
   return (
     <Button variant="destructive" className={fullWidth ? 'w-full' : undefined} onClick={onSignOut}>
-      {t('signOut')}
+      {t('auth.signOut')}
     </Button>
   );
 };

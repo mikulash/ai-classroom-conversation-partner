@@ -31,7 +31,7 @@ export const EmailVerificationExpiredPage: React.FC = () => {
   const resendVerification = useResendVerificationEmail();
 
   const schema = useMemo(
-    () => buildSchema(t('emailVerificationExpiredEmailRequired')),
+    () => buildSchema(t('auth.emailVerification.expiredEmailRequired')),
     [t],
   );
 
@@ -59,9 +59,9 @@ export const EmailVerificationExpiredPage: React.FC = () => {
   const isSubmitting = resendVerification.isPending;
 
   const tips = [
-    t('emailVerificationCheckEmailTipSpam'),
-    t('emailVerificationCheckEmailTipWait'),
-    t('emailVerificationCheckEmailTipCorrect'),
+    t('auth.emailVerification.checkEmailTipSpam'),
+    t('auth.emailVerification.checkEmailTipWait'),
+    t('auth.emailVerification.checkEmailTipCorrect'),
   ];
 
   return (
@@ -70,9 +70,9 @@ export const EmailVerificationExpiredPage: React.FC = () => {
         <Card className="p-6 w-full max-w-md space-y-4 text-center">
           {status === 'form' ? (
             <>
-              <h2 className="text-2xl font-bold">{t('emailVerificationExpiredTitle')}</h2>
+              <h2 className="text-2xl font-bold">{t('auth.emailVerification.expiredTitle')}</h2>
               <p className="text-sm text-muted-foreground">
-                {t('emailVerificationExpiredDescription')}
+                {t('auth.emailVerification.expiredDescription')}
               </p>
 
               <Form {...form}>
@@ -84,12 +84,12 @@ export const EmailVerificationExpiredPage: React.FC = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="text-left">
-                        <FormLabel>{t('email')}</FormLabel>
+                        <FormLabel>{t('auth.email')}</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
                             autoComplete="email"
-                            placeholder={t('emailVerificationExpiredEmailPlaceholder')}
+                            placeholder={t('auth.emailVerification.expiredEmailPlaceholder')}
                             {...field}
                           />
                         </FormControl>
@@ -105,20 +105,20 @@ export const EmailVerificationExpiredPage: React.FC = () => {
                   )}
 
                   <Button className="w-full" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? t('loadingMessage') : t('emailVerificationExpiredPrimaryAction')}
+                    {isSubmitting ? t('common.loading.general') : t('auth.emailVerification.expiredPrimaryAction')}
                   </Button>
                 </form>
               </Form>
 
               <Button variant="link" asChild>
-                <Link to="/sign-in">{t('emailVerificationExpiredSecondaryAction')}</Link>
+                <Link to="/sign-in">{t('auth.emailVerification.expiredSecondaryAction')}</Link>
               </Button>
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-bold">{t('emailVerificationCheckEmailTitle')}</h2>
+              <h2 className="text-2xl font-bold">{t('auth.emailVerification.checkEmailTitle')}</h2>
               <p className="text-sm text-muted-foreground">
-                {t('emailVerificationCheckEmailMessage')}
+                {t('auth.emailVerification.checkEmailMessage')}
               </p>
 
               <ul className="space-y-2 text-left text-sm text-muted-foreground">
@@ -128,7 +128,7 @@ export const EmailVerificationExpiredPage: React.FC = () => {
               </ul>
 
               <Button asChild className="w-full">
-                <Link to="/sign-in">{t('emailVerificationExpiredSecondaryAction')}</Link>
+                <Link to="/sign-in">{t('auth.emailVerification.expiredSecondaryAction')}</Link>
               </Button>
             </>
           )}

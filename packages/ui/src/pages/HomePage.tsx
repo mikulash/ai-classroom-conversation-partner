@@ -21,10 +21,10 @@ export const HomePage: React.FC = () => {
       <div className="w-full max-w-md space-y-6 sm:space-y-8 text-center">
         <header>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">
-            {t('welcomeTo', { appName: appName })}
+            {t('home.welcomeTo', { appName: appName })}
           </h1>
           <p className="mt-2 sm:mt-4 text-lg sm:text-xl text-muted-foreground">
-            {t('aiConversationPartner')}
+            {t('home.tagline')}
           </p>
         </header>
 
@@ -32,18 +32,18 @@ export const HomePage: React.FC = () => {
           {isAuthenticated ? (
             <div className="space-y-4">
               <p className="text-lg text-muted-foreground">
-                {t('helloSignedIn', { name: user.fullName.trim() || user.email })}
+                {t('home.helloSignedIn', { name: user.fullName.trim() || user.email })}
               </p>
               <Button
                 className="w-full py-4 sm:py-6 text-lg sm:text-xl bg-green-700 hover:bg-green-800 text-white"
                 asChild>
-                <Link to="/chat">{t('goToPersonalitySelector')}</Link>
+                <Link to="/chat">{t('common.goToPersonalitySelector')}</Link>
               </Button>
             </div>
           ) : (
             <div className="space-y-4">
               <p className="text-lg text-muted-foreground">
-                {t('pleaseSignInMessage', { appName: appName })}
+                {t('home.pleaseSignInMessage', { appName: appName })}
               </p>
               <div className="flex flex-col space-y-4">
                 <Button
@@ -51,12 +51,12 @@ export const HomePage: React.FC = () => {
                   asChild
                 >
                   <Link to="/sign-in">
-                    {t('signIn')}
+                    {t('auth.signIn')}
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full py-4 sm:py-6 text-lg sm:text-xl" asChild>
                   <Link to="/register">
-                    {t('register')}
+                    {t('auth.register')}
                   </Link>
                 </Button>
               </div>

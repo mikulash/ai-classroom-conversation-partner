@@ -57,11 +57,11 @@ export function AdminNavigation() {
         <TabsList className={`grid w-full ${isProfileOwner(profile) ? 'grid-cols-5' : 'grid-cols-3'}`}>
           <TabsTrigger value="personalities">{t('personalities.personalities')}</TabsTrigger>
           <TabsTrigger value="scenarios">{t('scenarios.scenarios')}</TabsTrigger>
-          <TabsTrigger value="custom_models">{t('customModels')}</TabsTrigger>
+          <TabsTrigger value="custom_models">{t('models.customSelection')}</TabsTrigger>
           {
             isProfileOwner(profile) && (
               <>
-                <TabsTrigger value="global_models">{t('globallyUsedModels')}</TabsTrigger>
+                <TabsTrigger value="global_models">{t('models.globallyUsed')}</TabsTrigger>
                 <TabsTrigger value="user_profiles">{t('admin.userProfiles')}</TabsTrigger>
               </>
             )

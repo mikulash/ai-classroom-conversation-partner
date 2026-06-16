@@ -231,20 +231,20 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
   // ── Render ─────────────────────────────────────────────────────────
 
   const connectionStatusMessage = isConnecting ?
-    t('connecting') :
+    t('call.connecting') :
     isConnected ?
-      t('connected') :
-      t('disconnected');
+      t('common.connected') :
+      t('common.disconnected');
 
   const connectionStatus = (
     <div className="mt-4 space-y-1" role="status" aria-live="polite">
       <p className="text-lg">
-        {t('status')}:{' '}
+        {t('common.status')}:{' '}
         <span className={`font-bold ${isConnected ? 'text-green-700 dark:text-green-400' : 'text-destructive'}`}>
           {connectionStatusMessage}
         </span>
       </p>
-      {isProcessingInput && <p className="text-sm text-amber-700 dark:text-amber-400">{t('listening')}</p>}
+      {isProcessingInput && <p className="text-sm text-amber-700 dark:text-amber-400">{t('call.listening')}</p>}
       {error && <p className="text-destructive text-sm" role="alert">{error}</p>}
     </div>
   );
@@ -263,7 +263,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
       mode="chat"
     >
       <div className="w-full max-w-4xl mx-auto border-2 rounded-lg p-4 sm:p-8">
-        <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">{t('voiceCall')}</h1>
+        <h1 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">{t('call.voiceCall')}</h1>
 
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="flex-1">
@@ -299,7 +299,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-green-700 hover:bg-green-800 text-white rounded-md flex items-center"
             >
               <span className="mr-2">
-                {isConnecting ? t('connecting') : t('connectCall')}
+                {isConnecting ? t('call.connecting') : t('call.connectCall')}
               </span>
             </Button>
           ) : (
@@ -308,7 +308,7 @@ const VoiceCallPageContent: React.FC<ChatPageProps> = ({ personality, conversati
               className="px-4 sm:px-8 py-3 sm:py-6 text-sm sm:text-xl bg-red-600 hover:bg-red-700 text-white rounded-md flex items-center"
               disabled={isSavingConversation}
             >
-              <span className="mr-2">{t('endCall')}</span>
+              <span className="mr-2">{t('call.endCall')}</span>
               <MdCallEnd className="inline-block align-middle" aria-hidden="true"/>
             </Button>
           )}

@@ -10,7 +10,7 @@ export const ProtectedRoute: React.FC = () => {
   const { t } = useTypedTranslation();
 
   if (!ready) {
-    return <Loading message={t('loading.checkingAuth')}/>;
+    return <Loading message={t('common.loading.checkingAuth')}/>;
   }
 
   if (!session?.user) {

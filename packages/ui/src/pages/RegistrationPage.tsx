@@ -61,9 +61,9 @@ export const RegistrationPage: React.FC = () => {
   const schema = useMemo(
     () =>
       buildRegistrationSchema(allowedDomains, {
-        invalidDomain: t('invalidEmailFormat', { allowedDomains: allowedDomains.join(', ') }),
-        passwordsDontMatch: t('passwordsDontMatch', 'Passwords don\'t match'),
-        passwordTooShort: t('passwordTooShort', 'Password must be at least 8 characters'),
+        invalidDomain: t('auth.invalidEmailFormat', { allowedDomains: allowedDomains.join(', ') }),
+        passwordsDontMatch: t('auth.password.mismatch', 'Passwords don\'t match'),
+        passwordTooShort: t('auth.password.tooShort', 'Password must be at least 8 characters'),
       }),
     [allowedDomains, t],
   );
@@ -105,12 +105,12 @@ export const RegistrationPage: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center py-8 px-4 sm:py-12 sm:px-6">
         <div className="w-full max-w-md">
           <Card className="p-4 sm:p-6 w-full space-y-3 sm:space-y-4 text-center">
-            <h2 className="text-xl sm:text-2xl font-bold">{t('thanksForRegistering')} 🎉</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground">{t('confirmationEmailSent')}</p>
+            <h2 className="text-xl sm:text-2xl font-bold">{t('auth.thanksForRegistering')} 🎉</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">{t('auth.confirmationEmailSent')}</p>
             <Button type="button" onClick={() => {
               void navigate('/sign-in');
             }} className="w-full">
-              {t('goToSignIn')}
+              {t('common.goToSignIn')}
             </Button>
           </Card>
         </div>
@@ -125,15 +125,15 @@ export const RegistrationPage: React.FC = () => {
       <div className="w-full max-w-md space-y-6 sm:space-y-8">
         <header className="text-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">
-            {t('welcomeTo', { appName })}
+            {t('home.welcomeTo', { appName })}
           </h1>
           <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">
-            {t('createNewAccount')}
+            {t('auth.createNewAccount')}
           </p>
         </header>
 
         <Card className="p-4 sm:p-6 w-full">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">{t('register')}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">{t('auth.register')}</h2>
 
           <Form {...form}>
             <form onSubmit={(e) => {
@@ -144,12 +144,12 @@ export const RegistrationPage: React.FC = () => {
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('fullName')}</FormLabel>
+                    <FormLabel>{t('profile.fullName')}</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
                         autoComplete="name"
-                        placeholder={t('fullNamePlaceholder')}
+                        placeholder={t('profile.fullNamePlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -163,12 +163,12 @@ export const RegistrationPage: React.FC = () => {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('gender')}</FormLabel>
+                    <FormLabel>{t('profile.gender')}</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
                         autoComplete="sex"
-                        placeholder={t('genderPlaceholder')}
+                        placeholder={t('profile.genderPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -182,12 +182,12 @@ export const RegistrationPage: React.FC = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('email')}</FormLabel>
+                    <FormLabel>{t('auth.email')}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         autoComplete="email"
-                        placeholder={t('emailPlaceholder', { allowedDomains: allowedDomains.join(', ') })}
+                        placeholder={t('auth.emailPlaceholder', { allowedDomains: allowedDomains.join(', ') })}
                         {...field}
                       />
                     </FormControl>
@@ -201,12 +201,12 @@ export const RegistrationPage: React.FC = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('password')}</FormLabel>
+                    <FormLabel>{t('auth.password.label')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         autoComplete="new-password"
-                        placeholder={t('passwordPlaceholder')}
+                        placeholder={t('auth.password.placeholder')}
                         {...field}
                       />
                     </FormControl>
@@ -220,12 +220,12 @@ export const RegistrationPage: React.FC = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('confirmPassword', 'Confirm Password')}</FormLabel>
+                    <FormLabel>{t('auth.password.confirm', 'Confirm Password')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         autoComplete="new-password"
-                        placeholder={t('confirmPasswordPlaceholder')}
+                        placeholder={t('auth.password.confirmPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -236,19 +236,19 @@ export const RegistrationPage: React.FC = () => {
 
               {error && (
                 <p className="text-destructive text-sm" role="alert">
-                  {t('errorSigningUp')}: {error}
+                  {t('auth.errorSigningUp')}: {error}
                 </p>
               )}
 
               <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? t('loading.general') : t('register')}
+                {isSubmitting ? t('common.loading.general') : t('auth.register')}
               </Button>
             </form>
           </Form>
 
           <div className="mt-4 text-center">
             <p className="text-sm">
-              {t('alreadyHaveAccount')}{' '}
+              {t('auth.alreadyHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => {
@@ -256,7 +256,7 @@ export const RegistrationPage: React.FC = () => {
                 }}
                 className="text-blue-700 dark:text-blue-400 hover:underline"
               >
-                {t('signIn')}
+                {t('auth.signIn')}
               </button>
             </p>
           </div>

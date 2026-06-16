@@ -79,8 +79,8 @@ export function AdminScenariosPage() {
   const handleDelete = async (id: number) => {
     const ok = await confirm({
       title: t('admin.scenarios.deleteConfirm'),
-      confirmLabel: t('actions.delete', 'Delete'),
-      cancelLabel: t('actions.cancel', 'Cancel'),
+      confirmLabel: t('common.delete', 'Delete'),
+      cancelLabel: t('common.cancel', 'Cancel'),
       destructive: true,
     });
     if (!ok) return;
@@ -145,7 +145,7 @@ export function AdminScenariosPage() {
   if (scenariosQuery.isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-muted-foreground">{t('admin.scenarios.loading')}</span>
+        <span className="text-muted-foreground">{t('common.loading.general')}</span>
       </div>
     );
   }
@@ -193,10 +193,10 @@ export function AdminScenariosPage() {
 
               <DialogFooter className="mt-4">
                 <DialogClose asChild>
-                  <Button type="button" variant="outline">{t('admin.scenarios.cancel')}</Button>
+                  <Button type="button" variant="outline">{t('common.cancel')}</Button>
                 </DialogClose>
                 <Button type="submit" disabled={isProcessing}>
-                  {isProcessing ? t('admin.scenarios.saving') : t('admin.scenarios.saveChanges')}
+                  {isProcessing ? t('common.saving') : t('common.saveChanges')}
                 </Button>
               </DialogFooter>
             </form>
@@ -218,10 +218,10 @@ export function AdminScenariosPage() {
 
               <DialogFooter className="mt-4">
                 <DialogClose asChild>
-                  <Button type="button" variant="outline">{t('admin.scenarios.cancel')}</Button>
+                  <Button type="button" variant="outline">{t('common.cancel')}</Button>
                 </DialogClose>
                 <Button type="submit" disabled={isProcessing}>
-                  {isProcessing ? t('admin.scenarios.creating') : t('admin.scenarios.createScenario')}
+                  {isProcessing ? t('common.creating') : t('admin.scenarios.createScenario')}
                 </Button>
               </DialogFooter>
             </form>

@@ -51,26 +51,26 @@ export const EmailValidatedPage: React.FC = () => {
 
   switch (status) {
     case 'loading':
-      title = t('emailValidationInProgressTitle');
-      descriptionLines.push(t('emailValidationInProgressMessage'));
+      title = t('auth.emailVerification.inProgressTitle');
+      descriptionLines.push(t('auth.emailVerification.inProgressMessage'));
       break;
     case 'success':
-      title = t('emailValidatedSuccess');
-      descriptionLines.push(t('emailValidatedMessage'));
+      title = t('auth.emailVerification.validatedSuccess');
+      descriptionLines.push(t('auth.emailVerification.validatedMessage'));
       actionTo = '/chat';
-      actionLabel = t('goToPersonalitySelector');
+      actionLabel = t('common.goToPersonalitySelector');
       break;
     case 'error':
-      title = t('emailValidationFailedTitle');
-      descriptionLines.push(verifyEmail.error?.message ?? t('emailValidationDefaultError'));
+      title = t('auth.emailVerification.failedTitle');
+      descriptionLines.push(verifyEmail.error?.message ?? t('auth.emailVerification.defaultError'));
       actionTo = '/sign-in';
-      actionLabel = t('goToSignIn');
+      actionLabel = t('common.goToSignIn');
       break;
     case 'missingToken':
-      title = t('emailValidationMissingTokenTitle');
-      descriptionLines.push(t('emailValidationMissingTokenMessage'));
+      title = t('auth.emailVerification.missingTokenTitle');
+      descriptionLines.push(t('auth.emailVerification.missingTokenMessage'));
       actionTo = '/sign-in';
-      actionLabel = t('goToSignIn');
+      actionLabel = t('common.goToSignIn');
       break;
   }
 

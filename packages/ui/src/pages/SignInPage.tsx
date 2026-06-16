@@ -39,7 +39,7 @@ export const SignInPage: React.FC = () => {
   const allowedDomains = useAppStore((state) => state.appConfig.allowedDomains);
   const navigate = useNavigate();
 
-  const invalidDomainMessage = t('invalidEmailDomains', {
+  const invalidDomainMessage = t('auth.invalidEmailDomains', {
     domains: allowedDomains.join(' or '),
   });
 
@@ -76,15 +76,15 @@ export const SignInPage: React.FC = () => {
       <div className="w-full max-w-md space-y-6 sm:space-y-8">
         <header className="text-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">
-            {t('welcomeTo', { appName })}
+            {t('home.welcomeTo', { appName })}
           </h1>
           <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">
-            {t('signInToAccount')}
+            {t('auth.signInToAccount')}
           </p>
         </header>
 
         <Card className="p-4 sm:p-6 w-full">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">{t('signIn')}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">{t('auth.signIn')}</h2>
 
           <Form {...form}>
             <form onSubmit={(e) => {
@@ -95,12 +95,12 @@ export const SignInPage: React.FC = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('email')}</FormLabel>
+                    <FormLabel>{t('auth.email')}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         autoComplete="email"
-                        placeholder={t('emailPlaceholder', { allowedDomains: allowedDomains.join(', ') })}
+                        placeholder={t('auth.emailPlaceholder', { allowedDomains: allowedDomains.join(', ') })}
                         {...field}
                       />
                     </FormControl>
@@ -114,12 +114,12 @@ export const SignInPage: React.FC = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('password')}</FormLabel>
+                    <FormLabel>{t('auth.password.label')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         autoComplete="current-password"
-                        placeholder={t('passwordPlaceholder')}
+                        placeholder={t('auth.password.placeholder')}
                         {...field}
                       />
                     </FormControl>
@@ -130,19 +130,19 @@ export const SignInPage: React.FC = () => {
 
               {error && (
                 <p className="text-destructive text-sm" role="alert">
-                  {t('error')}: {error}
+                  {t('common.error')}: {error}
                 </p>
               )}
 
               <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? t('loading.general') : t('signIn')}
+                {isSubmitting ? t('common.loading.general') : t('auth.signIn')}
               </Button>
             </form>
           </Form>
 
           <div className="mt-4 text-center">
             <p className="text-xs sm:text-sm">
-              {t('dontHaveAccount')}{' '}
+              {t('auth.dontHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={() => {
@@ -150,7 +150,7 @@ export const SignInPage: React.FC = () => {
                 }}
                 className="text-blue-700 dark:text-blue-400 hover:underline"
               >
-                {t('register')}
+                {t('auth.register')}
               </button>
             </p>
             <button
@@ -160,7 +160,7 @@ export const SignInPage: React.FC = () => {
               }}
               className="text-xs sm:text-sm text-blue-700 dark:text-blue-400 hover:underline"
             >
-              {t('forgotPassword', 'Forgot password?')}
+              {t('auth.forgotPassword', 'Forgot password?')}
             </button>
           </div>
         </Card>

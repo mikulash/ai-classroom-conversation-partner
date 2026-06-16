@@ -7,13 +7,13 @@ module.exports = {
     '!**/node_modules/**',
   ],
   // <─ write files right where the existing ones are
-  output: './packages/ui/src/lib/locales/',
+  output: './packages/frontend-utils/src/translation/locales/',
   options: {
     debug: true,
 
     func: {
       list: ['t', 'i18next.t', 'i18n.t'],
-      extensions: ['.jsx', '.tsx'],
+      extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
 
     lngs: ['en', 'cs'],
@@ -24,7 +24,7 @@ module.exports = {
     /** * IMPORTANT CHANGES ***/
     // 1. Tell the scanner where to read the current JSONs
     resource: {
-      loadPath: 'packages/ui/src/lib/locales/{{lng}}.json',
+      loadPath: 'packages/frontend-utils/src/translation/locales/{{lng}}.json',
       // 2. Keep the existing save path (relative to `output`)
       savePath: '{{lng}}.json',
       jsonIndent: 2,

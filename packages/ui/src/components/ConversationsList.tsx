@@ -32,7 +32,7 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
   if (isLoading) {
     return (
       <div className="text-center py-4 text-muted-foreground">
-        {t('loadingConversations', { defaultValue: 'Loading conversations...' })}
+        {t('common.loading.conversations', { defaultValue: 'Loading conversations...' })}
       </div>
     );
   }
@@ -40,7 +40,7 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
   if (conversations.length === 0) {
     return (
       <div className="text-center py-4 text-muted-foreground">
-        {t('noConversationsFound', { defaultValue: 'No conversations found' })}
+        {t('common.noConversationsFound', { defaultValue: 'No conversations found' })}
       </div>
     );
   }
@@ -63,7 +63,7 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
     <div className="space-y-2">
       <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
         <MessageSquare className="h-4 w-4"/>
-        {t('conversations', { defaultValue: 'Conversations' })} ({conversations.length})
+        {t('common.conversations', { defaultValue: 'Conversations' })} ({conversations.length})
       </h4>
       {conversations.map((conversation) => (
         <button
@@ -89,7 +89,7 @@ export const ConversationsList: React.FC<ConversationsListProps> = ({
                 {formatIsoStringToLocaleString(conversation.start_time)} - {formatIsoStringToLocaleString(conversation.end_time)}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
-                {conversation.messages.length} {t('messages', { defaultValue: 'messages' })} • {t('ended', { defaultValue: 'Ended' })}: {conversation.ended_reason}
+                {conversation.messages.length} {t('common.messages', { defaultValue: 'messages' })} • {t('common.ended', { defaultValue: 'Ended' })}: {conversation.ended_reason}
               </div>
             </div>
           </div>

@@ -23,14 +23,14 @@ export const PersonalityInfo: React.FC<PersonalityInfoProps> = ({
   return (
     <div className={className}>
       <h2 className="text-2xl mb-4">
-        {personality.name} ({personality.age} {t('yearsOld')})
+        {personality.name} ({personality.age} {t('common.yearsOld')})
       </h2>
       <p className="text-xl font-semibold mb-2">
-        {t('problem')}: {problemSummary}
+        {t('common.problem')}: {problemSummary}
       </p>
       <p className="mb-4">{personalityDescription}</p>
       <p className="text-lg font-medium">
-        {t('yourRole')}: <span className="font-bold">{conversationRole}</span>
+        {t('conversation.yourRole')}: <span className="font-bold">{conversationRole}</span>
       </p>
 
       {connectionStatus}

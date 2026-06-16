@@ -311,7 +311,7 @@ const MessageChatPageContent: React.FC<ChatPageProps> = ({ personality, conversa
   if (userProfile === null) {
     return (
       <div className="flex justify-center items-center h-screen">
-        {t('chat.profileError')}
+        {t('profile.cannotLoad')}
       </div>
     );
   }
